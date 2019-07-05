@@ -1,10 +1,10 @@
 {% include 'emails.header-text' %}
-You or somebody with access to your Firefly III account has changed your email address. If you did not expect this to happen,
+You or somebody with access to your {{ config('app.name') }} account has changed your email address. If you did not expect this to happen,
 you must follow the "undo"-link below to protect your account!
 
 If you initiated this change, you may safely ignore this message.
 
-The old email addres was: {{ oldEmail }}
+The old email address was: {{ oldEmail }}
 
 The new email address is: {{ newEmail }}
 

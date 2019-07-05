@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Selamat datang di halaman indeks Firefly III. Mohon luangkan waktu untuk menelusuri pengantar ini melihat bagaimana Firefly III bekerja.',
+    'index_intro'                           => 'Selamat datang di halaman indeks '.config('app.name').'. Mohon luangkan waktu untuk menelusuri pengantar ini melihat bagaimana '.config('app.name').' bekerja.',
     'index_accounts-chart'                  => 'Bagan ini menunjukkan saldo akun aset anda saat ini, Anda dapat memilih akun yang terlihat di sini dalam preferensi anda.',
     'index_box_out_holder'                  => 'Kotak kecil dan kotak di samping kotak ini akan memberi anda gambaran singkat tentang situasi keuangan anda.',
     'index_help'                            => 'Jika anda memerlukan bantuan dengan halaman atau formulir, tekan tombol ini.',
-    'index_outro'                           => 'Sebagian besar halaman Firefly III akan dimulai dengan petunjuk kecil seperti ini. Silahkan hubungi saya bila ada pertanyaan atau komentar. Selamat mencoba!',
+    'index_outro'                           => 'Sebagian besar halaman '.config('app.name').' akan dimulai dengan petunjuk kecil seperti ini. Silahkan hubungi saya bila ada pertanyaan atau komentar. Selamat mencoba!',
     'index_sidebar-toggle'                  => 'Untuk membuat transakisi baru, akun atau hal lainnya, gunakan menu di bawah gambar ini.',
 
     // create account:
     'accounts_create_iban'                  => 'Berikan akun anda IBAN yang benar. Hal ini bisa membuat data impor sangat mudah di masa yang akan datang.',
-    'accounts_create_asset_opening_balance' => 'Rekening aset boleh memiliki "saldo awal", yang menandakan dimulainya riwayat rekening ini di Firefly III.',
+    'accounts_create_asset_opening_balance' => 'Rekening aset boleh memiliki "saldo awal", yang menandakan dimulainya riwayat rekening ini di '.config('app.name').'.',
     'accounts_create_asset_currency'        => 'Firelfly III mendukung berbagai mata uang. Akun aset memiliki satu mata uang utama, yang yang harus anda tetapkan.',
     'accounts_create_asset_virtual'         => 'Kadang-kadang itu dapat membantu memberi akun anda saldo virtual: jumlah tambahan yang selalu ditambahkan atau dihapus dari saldo sebenarnya.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Anggaran yang digunakan untuk mengelola keuangan anda dan membentuk salah satu fungsi inti dari Firefly III.',
-    'budgets_index_set_budget'              => 'Tetapkan total anggaran Anda untuk setiap periode sehingga Firefly III dapat menginformasikan apakah semua uang Anda sudah dianggarkan atau belum.',
+    'budgets_index_intro'                   => 'Anggaran yang digunakan untuk mengelola keuangan anda dan membentuk salah satu fungsi inti dari '.config('app.name').'.',
+    'budgets_index_set_budget'              => 'Tetapkan total anggaran Anda untuk setiap periode sehingga '.config('app.name').' dapat menginformasikan apakah semua uang Anda sudah dianggarkan atau belum.',
     'budgets_index_see_expenses_bar'        => 'Menghabiskan uang secara perlahan dengan mengisi di bar ini.',
     'budgets_index_navigate_periods'        => 'Menavigasi melalui periode dengan mudah menetapkan anggaraan sebelumnya.',
     'budgets_index_new_budget'              => 'Buat anggaran baru sesuai keinginan anda.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'Jika tagihan berulang setiap 2 minggu, bagian "lewati" harus diatur ke "1" untuk melewati setiap minggu lainnya.',
 
     // rules index
-    'rules_index_intro'                                       => 'Firefly III memungkinkan anda mengatur peraturan-peraturan, yang otomatis akan diterapkan pada transaksi yang anda buat atau edit.',
+    'rules_index_intro'                                       => config('app.name').' memungkinkan anda mengatur peraturan-peraturan, yang otomatis akan diterapkan pada transaksi yang anda buat atau edit.',
     'rules_index_new_rule_group'                              => 'Anda dapat menggabungkan aturan dalam kelompok untuk memudahkan pengelolaan.',
     'rules_index_new_rule'                                    => 'Buat aturan sebanyak yang anda suka.',
     'rules_index_prio_buttons'                                => 'Memesannya sesuai keinginan anda.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Pilihan lainnya tersedia dibalik tab ini.',
 
     // currencies
-    'currencies_index_intro'                                  => 'Firefly III mendukung banyak mata uang, yang dapat anda ubah di halaman ini.',
-    'currencies_index_default'                                => 'Firefly III memiliki satu mata uang default.',
+    'currencies_index_intro'                                  => config('app.name').' mendukung banyak mata uang, yang dapat anda ubah di halaman ini.',
+    'currencies_index_default'                                => config('app.name').' memiliki satu mata uang default.',
     'currencies_index_buttons'                                => 'Gunakan tombol ini untuk mengubah mata uang default atau mengaktifkan mata uang lainnya.',
 
     // create currency

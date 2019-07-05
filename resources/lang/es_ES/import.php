@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 return [
     // ALL breadcrumbs and subtitles:
-    'index_breadcrumb'                    => 'Importar datos a Firefly III',
+    'index_breadcrumb'                    => 'Importar datos a '.config('app.name'),
     'prerequisites_breadcrumb_fake'       => 'Requisitos para el proveedor de importación falso',
     'prerequisites_breadcrumb_spectre'    => 'Requisitos para bunq',
     'prerequisites_breadcrumb_bunq'       => 'Requisitos para bunq',
@@ -34,7 +34,7 @@ return [
     'disabled_for_demo_user'              => 'deshabilitado en demo',
 
     // index page:
-    'general_index_intro'                 => 'Bienvenido a la rutina de importación de Firefly III. Hay algunas formas de importar datos a Firefly III, que se muestran aquí como botones.',
+    'general_index_intro'                 => 'Bienvenido a la rutina de importación de '.config('app.name').'. Hay algunas formas de importar datos a '.config('app.name').', que se muestran aquí como botones.',
 
     // import provider strings (index):
     'button_fake'                         => 'Simular una importación',
@@ -64,15 +64,15 @@ return [
     'prereq_fake_title'                   => 'Pre requisitos para una importación desde el proveedor de importación falso',
     'prereq_fake_text'                    => 'Este proveedor falso requiere una clave de API falsa. Debe ser 32 caracteres de largo. Puede utilizar este: 123456789012345678901234567890AA',
     'prereq_spectre_title'                => 'Pre requisitos para una importación usando la API de Spectre',
-    'prereq_spectre_text'                 => 'Para importar datos usando la API de Spectre (v4), usted debe proveer a FIrefly III dos valores secretos. Se pueden encontrar en <a href="https://www.saltedge.com/clients/profile/secrets">pagina de secretos</a>.',
+    'prereq_spectre_text'                 => 'Para importar datos usando la API de Spectre (v4), usted debe proveer a '.config('app.name').' dos valores secretos. Se pueden encontrar en <a href="https://www.saltedge.com/clients/profile/secrets">pagina de secretos</a>.',
     'prereq_spectre_pub'                  => 'Del mismo modo, la API de Spectre necesita saber la clave pública que ve debajo. Sin ella, no lo reconocerá. Por favor, ingrese esta clave pública en su <a href="https://www.saltedge.com/clients/profile/secrets">pagina de secretos</a>.',
     'prereq_bunq_title'                   => 'Pre requisitos para una importación de bunq',
     'prereq_bunq_text'                    => 'Para importar desde bunq, usted necesita obtener una clave API. Puede hacerlo a través de la app. Por favor, tenga en cuenta que la función de importación desde bunq, es una BETA. Sólo ha sido probada con una API de sandbox.',
-    'prereq_bunq_ip'                      => 'bunq requiere su dirección IP externa. Firefly III ha intentado completarla usando <a href="https://www.ipify.org/">el servicio de ipify</a>. Asegúrese de que esta dirección IP sea correcta, o la importación fallará.',
+    'prereq_bunq_ip'                      => 'bunq requiere su dirección IP externa. '.config('app.name').' ha intentado completarla usando <a href="https://www.ipify.org/">el servicio de ipify</a>. Asegúrese de que esta dirección IP sea correcta, o la importación fallará.',
     'prereq_ynab_title'                   => 'Pre requisitos para importar desde YNAB',
     'prereq_ynab_text'                    => 'A fin de poder bajar transacciones desde YNAB, por favor cree una nueva aplicación en su <a href="https://app.youneedabudget.com/settings/developer">Pagina de configuraciones de Desarrolladores</a> e ingrese el ID de cliente y el secreto en esta página.',
     'prereq_ynab_redirect'                => 'Para completar la configuración, introduzca la siguiente URL en <a href="https://app.youneedabudget.com/settings/developer">Pagina de configuraciones de Desarrolladores</a> bajo el ítem "Redirect URI(s)".',
-    'callback_not_tls'                    => 'Firefly III ha detectado la siguiente URI de devolución de llamada. Parece que su servidor no está configurado para aceptar conecciones TLS (https). YNAB no aceptará esta URI. Usted puede continuar con la importación ( ya que Firefly III puede equivocarse) pero por favor, téngalo en mente.',
+    'callback_not_tls'                    => config('app.name').' ha detectado la siguiente URI de devolución de llamada. Parece que su servidor no está configurado para aceptar conecciones TLS (https). YNAB no aceptará esta URI. Usted puede continuar con la importación ( ya que '.config('app.name').' puede equivocarse) pero por favor, téngalo en mente.',
     // prerequisites success messages:
     'prerequisites_saved_for_fake'        => 'Clave API falsa guardada con éxito!',
     'prerequisites_saved_for_spectre'     => '¡App ID y secreto guardados!',
@@ -92,14 +92,14 @@ return [
     'job_config_fake_album_text'          => 'Algunas rutinas de importación requieren datos adicionales a medio camino a través de la importación. En el caso del proveedor de importación falso, debe responder algunas preguntas extrañas. Entra en "Estación a estación" para continuar.',
     // job configuration form the file provider
     'job_config_file_upload_title'        => 'Configuración de importación (1/4) - Subir archivo',
-    'job_config_file_upload_text'         => 'Esta rutina le ayudará a importar archivos de su banco en Firefly III. ',
+    'job_config_file_upload_text'         => 'Esta rutina le ayudará a importar archivos de su banco en '.config('app.name').'. ',
     'job_config_file_upload_help'         => 'Seleccione su archivo. Por favor, asegúrese de que el archivo está codificado en UTF-8.',
-    'job_config_file_upload_config_help'  => 'Si previamente ha importado datos en Firefly III, puede tener un archivo de configuración, el cual preestablecerá valores de configuración por usted. Para algunos bancos, otros usuarios han proporcionado amablemente sus <a href="https://github.com/firefly-iii/import-configurations/wiki">archivo de configuración</a>',
+    'job_config_file_upload_config_help'  => 'Si previamente ha importado datos en '.config('app.name').', puede tener un archivo de configuración, el cual preestablecerá valores de configuración por usted. Para algunos bancos, otros usuarios han proporcionado amablemente sus <a href="https://github.com/firefly-iii/import-configurations/wiki">archivo de configuración</a>',
     'job_config_file_upload_type_help'    => 'Seleccione el tipo de archivo que subirá',
     'job_config_file_upload_submit'       => 'Subir archivos',
     'import_file_type_csv'                => 'CSV (valores separados por comas)',
     'import_file_type_ofx'                => 'OFX',
-    'file_not_utf8'                       => 'El archivo que ha subido no es codificado como UTF-8 o ASCII. Firefly III no puede manejar este tipo de archivos. Utilice Notepad++ ó Sublime para convertir el archivo a UTF-8.',
+    'file_not_utf8'                       => 'El archivo que ha subido no es codificado como UTF-8 o ASCII. '.config('app.name').' no puede manejar este tipo de archivos. Utilice Notepad++ ó Sublime para convertir el archivo a UTF-8.',
     'job_config_uc_title'                 => 'Configuración de importación (2/4) - Configuración básica de archivo',
     'job_config_uc_text'                  => 'Para poder importar correctamente el archivo, por favor valide las opciones a continuación.',
     'job_config_uc_header_help'           => 'Marque esta casilla si la primera fila del archivo CSV son los títulos de columna.',
@@ -109,19 +109,19 @@ return [
     'job_config_uc_apply_rules_title'     => 'Aplicar reglas',
     'job_config_uc_apply_rules_text'      => 'Aplica las reglas a cada transacción importada. Tenga en cuenta que esto reduce significativamente la velocidad de importación.',
     'job_config_uc_specifics_title'       => 'Opciones específicas del Banco',
-    'job_config_uc_specifics_txt'         => 'Algunos bancos ofrecen archivos mal formateados. Firefly III los puede corregir automáticamente. Si su banco ofrece este tipo de archivos pero no aparece aquí, por favor abre un tema en GitHub.',
+    'job_config_uc_specifics_txt'         => 'Algunos bancos ofrecen archivos mal formateados. '.config('app.name').' los puede corregir automáticamente. Si su banco ofrece este tipo de archivos pero no aparece aquí, por favor abre un tema en GitHub.',
     'job_config_uc_submit'                => 'Continuar',
     'invalid_import_account'              => 'Ha seleccionado una cuenta inválida a la cuál importar.',
     'import_liability_select'             => 'Pasivo',
     // job configuration for Spectre:
     'job_config_spectre_login_title'      => 'Escoja su login',
-    'job_config_spectre_login_text'       => 'Firefly III ha encontrado :count login(s) existente(s) en su cuenta de Spectre. ¿Cual desea utilizar para importar?',
+    'job_config_spectre_login_text'       => config('app.name').' ha encontrado :count login(s) existente(s) en su cuenta de Spectre. ¿Cual desea utilizar para importar?',
     'spectre_login_status_active'         => 'Activo',
     'spectre_login_status_inactive'       => 'Inactivo',
     'spectre_login_status_disabled'       => 'Deshabilitado',
     'spectre_login_new_login'             => 'Iniciar sesión con otro banco, o uno de estos bancos con credenciales diferentes.',
     'job_config_spectre_accounts_title'   => 'Seleccione las cuentas desde las cuáles importar',
-    'job_config_spectre_accounts_text'    => 'Usted ha seleccionado ":name" (:country). Tienes :count cuenta(s) de este proveedor. Por favor, seleccione las cuentas de activo de Firefly III donde las transacciones provenientes de estas cuentas deben ser guardadas. Recuerde que, para poder importar datos, la cuenta de Firefly III y el ":name"-cuenta deben tener la misma moneda.',
+    'job_config_spectre_accounts_text'    => 'Usted ha seleccionado ":name" (:country). Tienes :count cuenta(s) de este proveedor. Por favor, seleccione las cuentas de activo de '.config('app.name').' donde las transacciones provenientes de estas cuentas deben ser guardadas. Recuerde que, para poder importar datos, la cuenta de '.config('app.name').' y el ":name"-cuenta deben tener la misma moneda.',
     'spectre_do_not_import'               => '(no importar)',
     'spectre_no_mapping'                  => 'Parece que no ha seleccionado ninguna cuenta desde la cual importar.',
     'imported_from_account'               => 'Importado de ":account"',
@@ -159,7 +159,7 @@ return [
 
     // job configuration for YNAB:
     'job_config_ynab_select_budgets'       => 'Seleccione su presupuesto',
-    'job_config_ynab_select_budgets_text'  => 'Usted tiene :count presupuestos almacenados en YNAB. Por favor seleccione uno del cual Firefly III importará las transacciones.',
+    'job_config_ynab_select_budgets_text'  => 'Usted tiene :count presupuestos almacenados en YNAB. Por favor seleccione uno del cual '.config('app.name').' importará las transacciones.',
     'job_config_ynab_no_budgets'           => 'No hay presupuestos disponibles para importar.',
     'ynab_no_mapping'                      => 'Parece que no ha seleccionado ninguna cuenta desde la cual importar.',
     'job_config_ynab_bad_currency'         => 'No se pueden importar de los presupuestos siguientes, porque no tiene cuentas con la misma moneda que estos presupuestos.',
@@ -195,7 +195,7 @@ return [
     'job_config_fints_username_help'  => 'Para muchos bancos este es su número de cuenta.',
     'job_config_fints_port_help'      => 'El puerto predeterminado es 443.',
     'job_config_fints_account_help'   => 'Elegir la cuenta de banco para el que desea importar las transacciones.',
-    'job_config_local_account_help'   => 'Elegir la cuenta de Firefly III correspondiente a su cuenta bancaria elegida encima.',
+    'job_config_local_account_help'   => 'Elegir la cuenta de '.config('app.name').' correspondiente a su cuenta bancaria elegida encima.',
     // specifics:
     'specific_ing_name'               => 'ING NL',
     'specific_ing_descr'              => 'Crear descripciones mejores en las exportaciones ING',
@@ -220,8 +220,8 @@ return [
     'job_config_roles_rwarning'       => 'Por lo menos, marque una columna como la columna de importe. También es aconsejable seleccionar una columna para la descripción. la fecha y la cuenta contraria.',
     'job_config_roles_colum_count'    => 'Columna',
     // job config for the file provider (stage: mapping):
-    'job_config_map_title'            => 'Configuración de importación (4/4) - Conectar datos importados a datos de Firefly III',
-    'job_config_map_text'             => 'En las siguientes tablas, el valor de la izquierda muestra información encontrada en el archivo cargado. Es su tarea mapear este valor, si es posible, a un valor ya presente en su base de datos. Firefly Iii respetará este mapeo. Si no hay un valor hacia el cual mapear o no se desea mapear un valor especifico, no seleccione ninguno.',
+    'job_config_map_title'            => 'Configuración de importación (4/4) - Conectar datos importados a datos de '.config('app.name'),
+    'job_config_map_text'             => 'En las siguientes tablas, el valor de la izquierda muestra información encontrada en el archivo cargado. Es su tarea mapear este valor, si es posible, a un valor ya presente en su base de datos. '.config('app.name').' respetará este mapeo. Si no hay un valor hacia el cual mapear o no se desea mapear un valor especifico, no seleccione ninguno.',
     'job_config_map_nothing'          => 'No hay datos presentes en su archivo que pueda asignar a los valores existentes. Por favor presione "comenzar la importación" para continuar.',
     'job_config_field_value'          => 'Valor del campo',
     'job_config_field_mapped'         => 'Mapeado a',
@@ -239,14 +239,14 @@ return [
     'status_job_rules'                => 'Por favor espere, ejecutando reglas...',
     'status_fatal_title'              => 'Error fatal',
     'status_fatal_text'               => 'La importación ha sufrido un error del cual no pudo recuperarse, Disculpas!',
-    'status_fatal_more'               => 'Este (posiblemente muy críptico) mensaje de error, se complementa con archivos de log, que puedes encontrar en tu HDD o en tu contenedor de Docker en el cual corres Firefly III.',
+    'status_fatal_more'               => 'Este (posiblemente muy críptico) mensaje de error, se complementa con archivos de log, que puedes encontrar en tu HDD o en tu contenedor de Docker en el cual corres '.config('app.name').'.',
     'status_finished_title'           => 'Importación finalizada',
     'status_finished_text'            => 'La importación ha terminado.',
     'finished_with_errors'            => 'Han habido algunos errores durante la importación. Por favor, revíselos cuidadosamente.',
     'unknown_import_result'           => 'Resultado de importación desconocido',
     'result_no_transactions'          => 'No se han importado transacciones. Quizás habían sólo duplicados y por eso no hubo transacciones que importar. Quizás los archivos log puedan decirle que sucedió. Si importa data regularmente, esto es normal.',
     'result_one_transaction'          => 'Exactamente una transacción fue importada. Se encuentra guardada bajo el tag <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> donde puedes inspeccionarla mas a fondo.',
-    'result_many_transactions'        => 'Firefly III ha importado :count transacciones. Se encuentran guardadas bajo el tag <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> donde puedes inspeccionarlas mas a fondo.',
+    'result_many_transactions'        => config('app.name').' ha importado :count transacciones. Se encuentran guardadas bajo el tag <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> donde puedes inspeccionarlas mas a fondo.',
 
 
     // general errors and warnings:
