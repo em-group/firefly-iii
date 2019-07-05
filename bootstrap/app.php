@@ -86,31 +86,6 @@ $app->singleton(
 
 /*
 |--------------------------------------------------------------------------
-| Overload environment, for the current domain
-|--------------------------------------------------------------------------
-|
-| We do this so we can use a single codebase, for multiple VHosts.
-| Each VHost can then overwrite all, or none, of the master environment
-| settings, to specify anything from a custom app name, to using a
-| different database.
-|
-*/
-if (!empty($_SERVER['HTTP_HOST'])) {
-    // Get the hostname, without TLD
-    $host = parse_url($_SERVER['HTTP_HOST'])['host'];
-    $host = explode('.', $host);
-    array_pop($host);
-    $domainNoTLD = implode('.', $host);
-    // We expect to find a environment file, named in the format of .env.sub.%hostname%
-    // within the application root
-    $envFile = realpath(__DIR__ . '/../.env.sub.' . $domainNoTLD);
-    if (false !== $envFile && file_exists($envFile)) {
-        \Dotenv\Dotenv::create('/../', $envFile)->overload();
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
 | Return The Application
 |--------------------------------------------------------------------------
 |
