@@ -99,6 +99,7 @@ return [
         FireflyIII\Providers\AdminServiceProvider::class,
         FireflyIII\Providers\RecurringServiceProvider::class,
         ImportServiceProvider::class,
+        FireflyIII\Providers\WhitelabelServiceProvider::class,
 
 
     ],
@@ -146,6 +147,7 @@ return [
         'Steam'         => \FireflyIII\Support\Facades\Steam::class,
         'ExpandedForm'  => \FireflyIII\Support\Facades\ExpandedForm::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
+        'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class
 
     ],
 

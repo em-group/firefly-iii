@@ -99,6 +99,9 @@
   "suggest": {
   },
   "autoload": {
+    "files": [
+      "app/Helpers/WhitelabelHelper.php"
+    ],
     "classmap": [
       "database/seeds",
       "database/factories"
