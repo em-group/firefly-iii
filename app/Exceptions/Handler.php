@@ -95,6 +95,11 @@ class Handler extends ExceptionHandler
         if ($exception instanceof FireflyException || $exception instanceof ErrorException || $exception instanceof OAuthServerException) {
             $isDebug = config('app.debug');
 
+            if ($isDebug) {
+                // Show a proper exception view ...
+                return parent::render($request, $exception);
+            }
+
             return response()->view('errors.FireflyException', ['exception' => $exception, 'debug' => $isDebug], 500);
         }
 
