@@ -1,0 +1,41 @@
+{% extends "./layout/default" %}
+
+{% block breadcrumbs %}
+    {{ Breadcrumbs.render(Route.getCurrentRoute.getName) }}
+{% endblock %}
+
+{% block content %}
+
+    <form method="POST" action="{{ route('admin.whitelabels.store') }}" accept-charset="UTF-8" class="form-horizontal">
+        <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="box box-primary">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ 'mandatoryFields'|_ }}</h3>
+                    </div>
+                    <div class="box-body">
+                        {{ ExpandedForm.text('name', null, {helpText: trans('whitelabels.help_name')}) }}
+                        {{ ExpandedForm.text('domain', null, {helpText: trans('whitelabels.help_domain')}) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ 'options'|_ }}</h3>
+                    </div>
+                    <div class="box-body">
+                        {{ ExpandedForm.checkbox('active', '1', true, {helpText: trans('whitelabels.help_active')}) }}
+                    </div>
+                    <div class="box-footer">
+                        <button type="submit" class="btn pull-right btn-success">
+                            {{ trans('whitelabels.create_whitelabel') }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

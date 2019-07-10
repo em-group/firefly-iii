@@ -132,4 +132,6 @@ return [
     'interest'                => 'Interest',
     'interest_period'         => 'interest period',
     'liability_type'          => 'Type of liability',
+    'whitelabel'              => 'Whitelabel',
+    'domain'                  => 'Domain',
 ];

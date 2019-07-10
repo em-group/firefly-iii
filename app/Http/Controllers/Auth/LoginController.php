@@ -179,4 +179,9 @@ class LoginController extends Controller
 
         return view('auth.login', compact('allowRegistration', 'email', 'remember', 'allowReset', 'pageTitle'));
     }
+
+    protected function credentials(Request $request)
+    {
+        return array_merge($request->only($this->username(), 'password'), ['whitelabel_id' => config('whitelabel.id')]);
+    }
 }

@@ -5,6 +5,7 @@ namespace FireflyIII\Models;
 use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @mixin Eloquent
@@ -24,8 +25,23 @@ class Whitelabel extends Model
         'active' => 'boolean'
     ];
 
+    protected $fillable = [
+        'name', 'domain', 'active'
+    ];
+
     public function config(): HasMany
     {
         return $this->hasMany(WhitelabelConfig::class, 'whitelabel_id', 'id');
+    }
+
+    public static function routeBinder(string $value): Whitelabel
+    {
+        $id = (int)$value;
+        $whitelabel = self::find($id);
+        if ($whitelabel !== null) {
+            return $whitelabel;
+        }
+
+        throw new NotFoundHttpException;
     }
 }

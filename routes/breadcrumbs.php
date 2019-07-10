@@ -275,6 +275,62 @@ try {
         }
     );
 
+    Breadcrumbs::register(
+        'admin.whitelabels',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('admin.index');
+            $breadcrumbs->push(trans('whitelabels.list_all_whitelabels'), route('admin.whitelabels'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.edit',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.edit_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.edit', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.create',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.create_whitelabel'), route('admin.whitelabels.create'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.activate',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.activate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.activate', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.deactivate',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.deactivate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.deactivate', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.update',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.update_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.store',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.store_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
+        }
+    );
+
     // ATTACHMENTS
     Breadcrumbs::register(
         'attachments.index',

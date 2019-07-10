@@ -33,6 +33,7 @@ use Hash;
 use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 use Illuminate\Routing\Route;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use InvalidArgumentException;
 use Log;
 use Route as RouteFacade;
@@ -297,7 +298,10 @@ trait RequestInformation
         return Validator::make(
             $data,
             [
-                'email'    => 'required|string|email|max:255|unique:users',
+                'email'    => [
+                    'required','string','email','max:255',
+                    Rule::unique('users')->where('whitelabel_id', config('whitelabel.id'))
+                ],
                 'password' => 'required|string|min:6|secure_password|confirmed',
             ]
         );

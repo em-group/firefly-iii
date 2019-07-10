@@ -16,9 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 */
 class WhitelabelConfig extends Model
 {
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime'
+    public $timestamps = false;
+
+    protected $fillable = [
+        'whitelabel_id', 'name'
     ];
 
     public function whitelabel(): BelongsTo

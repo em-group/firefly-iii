@@ -2,7 +2,8 @@
 
 namespace FireflyIII\Providers;
 
-use FireflyIII\Support\WhitelabelConfiguration;
+use FireflyIII\Repositories\Whitelabel\WhitelabelRepository;
+use FireflyIII\Repositories\Whitelabel\WhitelabelRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
 
 class WhitelabelServiceProvider extends ServiceProvider
@@ -16,7 +17,9 @@ class WhitelabelServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             'whitelabelconfig',
-            WhitelabelConfiguration::class
+            'FireflyIII\Support\WhitelabelConfiguration'
         );
+
+        $this->app->bind(WhitelabelRepositoryInterface::class, WhitelabelRepository::class);
     }
 }

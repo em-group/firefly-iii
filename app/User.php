@@ -43,6 +43,8 @@ use FireflyIII\Models\Tag;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Models\Whitelabel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
@@ -69,6 +71,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $remember_token
  * @property string|null $reset
+ * @property int|null $whitelabel_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Account[] $accounts
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[] $attachments
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\AvailableBudget[] $availableBudgets
@@ -123,7 +126,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['email', 'password', 'blocked', 'blocked_code'];
+    protected $fillable = ['email', 'password', 'blocked', 'blocked_code', 'whitelabel_id'];
     /**
      * The attributes excluded from the model's JSON form.
      *
@@ -230,6 +233,11 @@ class User extends Authenticatable
     public function currencyExchangeRates(): HasMany
     {
         return $this->hasMany(CurrencyExchangeRate::class);
+    }
+
+    public function whitelabel(): BelongsTo
+    {
+        return $this->belongsTo(Whitelabel::class);
     }
 
     /**

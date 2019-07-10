@@ -1031,6 +1031,14 @@ Route::group(
     Route::get('configuration', ['uses' => 'ConfigurationController@index', 'as' => 'configuration.index']);
     Route::post('configuration', ['uses' => 'ConfigurationController@postIndex', 'as' => 'configuration.index.post']);
 
+    // Whitelabel extension
+    Route::get('whitelabels', ['uses' => 'WhitelabelController@index', 'as' => 'whitelabels']);
+    Route::get('whitelabels/create', ['uses' => 'WhitelabelController@create', 'as' => 'whitelabels.create']);
+    Route::get('whitelabels/edit/{whitelabel}', ['uses' => 'WhitelabelController@edit', 'as' => 'whitelabels.edit']);
+    Route::get('whitelabels/activate/{whitelabel}', ['uses' => 'WhitelabelController@activate', 'as' => 'whitelabels.activate']);
+    Route::get('whitelabels/deactivate/{whitelabel}', ['uses' => 'WhitelabelController@deactivate', 'as' => 'whitelabels.deactivate']);
+    Route::post('whitelabels/update/{whitelabel}', ['uses' => 'WhitelabelController@update', 'as' => 'whitelabels.update']);
+    Route::post('whitelabels/store', ['uses' => 'WhitelabelController@store', 'as' => 'whitelabels.store']);
 }
 );
 

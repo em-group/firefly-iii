@@ -386,6 +386,7 @@ return [
         'transaction'       => Transaction::class,
         'transactionGroup'  => TransactionGroup::class,
         'user'              => User::class,
+        'whitelabel'        => \FireflyIII\Models\Whitelabel::class,
 
         // strings
         'import_provider'   => ImportProvider::class,
