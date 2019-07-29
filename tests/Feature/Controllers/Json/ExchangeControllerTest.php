@@ -24,7 +24,6 @@ namespace Tests\Feature\Controllers\Json;
 
 use Carbon\Carbon;
 use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
-use FireflyIII\Models\CurrencyExchangeRate;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Services\Currency\ExchangeRateInterface;
 use Log;
@@ -58,10 +57,10 @@ class ExchangeControllerTest extends TestCase
 
         $this->mockDefaultSession();
 
-        $date         = new Carbon;
+        $date = new Carbon;
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $rate = factory(CurrencyExchangeRate::class)->make();
+        $rate = $this->getRandomCer();
         $repository->shouldReceive('getExchangeRate')->andReturn($rate);
 
         $this->be($this->user());
@@ -74,8 +73,10 @@ class ExchangeControllerTest extends TestCase
      */
     public function testGetRateAmount(): void
     {
+        $this->mockDefaultSession();
+
         $repository   = $this->mock(CurrencyRepositoryInterface::class);
-        $rate         = factory(CurrencyExchangeRate::class)->make();
+        $rate         = $this->getRandomCer();
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
         $date         = new Carbon;
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
@@ -92,12 +93,14 @@ class ExchangeControllerTest extends TestCase
      */
     public function testGetRateNull(): void
     {
+        $this->mockDefaultSession();
+
         $repository   = $this->mock(CurrencyRepositoryInterface::class);
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
         $date         = new Carbon;
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $rate = factory(CurrencyExchangeRate::class)->make();
+        $rate = $this->getRandomCer();
         $repository->shouldReceive('getExchangeRate')->andReturnNull();
         $interface = $this->mock(ExchangeRateInterface::class);
         $interface->shouldReceive('setUser')->once();

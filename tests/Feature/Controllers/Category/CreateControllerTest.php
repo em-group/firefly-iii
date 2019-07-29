@@ -23,10 +23,7 @@ namespace Tests\Feature\Controllers\Category;
 
 
 use FireflyIII\Models\Category;
-use FireflyIII\Models\TransactionJournal;
-use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Log;
 use Mockery;
@@ -55,7 +52,7 @@ class CreateControllerTest extends TestCase
         Log::debug('TestCreate()');
         // mock stuff
         $this->mock(CategoryRepositoryInterface::class);
-        $userRepos    = $this->mock(UserRepositoryInterface::class);
+        $userRepos = $this->mock(UserRepositoryInterface::class);
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
 
         $this->mockDefaultSession();
@@ -74,8 +71,8 @@ class CreateControllerTest extends TestCase
     public function testStore(): void
     {
         Log::debug('Test store()');
-        $repository   = $this->mock(CategoryRepositoryInterface::class);
-        $userRepos    = $this->mock(UserRepositoryInterface::class);
+        $repository = $this->mock(CategoryRepositoryInterface::class);
+        $this->mock(UserRepositoryInterface::class);
         $this->mockDefaultSession();
         $repository->shouldReceive('findNull')->andReturn(new Category);
         $repository->shouldReceive('store')->andReturn(new Category);

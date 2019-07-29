@@ -41,7 +41,7 @@ class ShowController extends Controller
     private $repository;
 
     /**
-     * ConvertController constructor.
+     * ShowController constructor.
      */
     public function __construct()
     {
@@ -73,7 +73,7 @@ class ShowController extends Controller
         $type     = (string)trans(sprintf('firefly.%s', strtolower($first->transactionType->type)));
         $title    = 1 === $splits ? $first->description : $transactionGroup->title;
         $subTitle = sprintf('%s: "%s"', $type, $title);
-        $message = $request->get('message');
+        $message  = $request->get('message');
 
         /** @var TransactionGroupTransformer $transformer */
         $transformer = app(TransactionGroupTransformer::class);
@@ -81,8 +81,29 @@ class ShowController extends Controller
         $groupArray = $transformer->transformObject($transactionGroup);
 
         // do some amount calculations:
+        $amounts = $this->getAmounts($groupArray);
+
+
+        $events      = $this->repository->getPiggyEvents($transactionGroup);
+        $attachments = $this->repository->getAttachments($transactionGroup);
+        $links       = $this->repository->getLinks($transactionGroup);
+
+        return view(
+            'transactions.show', compact(
+                                   'transactionGroup', 'amounts', 'first', 'type', 'subTitle', 'splits', 'groupArray',
+                                   'events', 'attachments', 'links', 'message'
+                               )
+        );
+    }
+
+    /**
+     * @param array $group
+     * @return array
+     */
+    private function getAmounts(array $group): array
+    {
         $amounts = [];
-        foreach ($groupArray['transactions'] as $transaction) {
+        foreach ($group['transactions'] as $transaction) {
             $symbol = $transaction['currency_symbol'];
             if (!isset($amounts[$symbol])) {
                 $amounts[$symbol] = [
@@ -106,15 +127,6 @@ class ShowController extends Controller
             }
         }
 
-        $events      = $this->repository->getPiggyEvents($transactionGroup);
-        $attachments = $this->repository->getAttachments($transactionGroup);
-        $links       = $this->repository->getLinks($transactionGroup);
-
-        return view(
-            'transactions.show', compact(
-            'transactionGroup', 'amounts', 'first', 'type', 'subTitle', 'splits', 'groupArray',
-            'events', 'attachments', 'links','message'
-        )
-        );
+        return $amounts;
     }
 }

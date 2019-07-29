@@ -23,7 +23,6 @@ namespace Tests\Feature\Controllers\Category;
 
 
 use Carbon\Carbon;
-use FireflyIII\Models\Category;
 use FireflyIII\Models\Preference;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
@@ -56,7 +55,7 @@ class IndexControllerTest extends TestCase
     {
         Log::debug('Test index()');
         // mock stuff
-        $category      = factory(Category::class)->make();
+        $category      = $this->getRandomCategory();
         $categoryRepos = $this->mock(CategoryRepositoryInterface::class);
         $userRepos     = $this->mock(UserRepositoryInterface::class);
 

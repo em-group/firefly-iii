@@ -1,7 +1,7 @@
 <?php
 /**
- * JsonControllerTest.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * RuleControllerTest.php
+ * Copyright (c) 2019 thegrumpydictator@gmail.com
  *
  * This file is part of Firefly III.
  *
@@ -22,19 +22,17 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controllers;
 
-use FireflyIII\Models\TransactionJournal;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use Log;
 use Tests\TestCase;
 
 /**
- * Class JsonControllerTest
+ * Class RuleControllerTest
  *
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class JsonControllerTest extends TestCase
+class RuleControllerTest extends TestCase
 {
     /**
      *
@@ -46,13 +44,12 @@ class JsonControllerTest extends TestCase
     }
 
     /**
-     * @covers \FireflyIII\Http\Controllers\JsonController
+     * @covers \FireflyIII\Http\Controllers\Json\RuleController
      */
     public function testAction(): void
     {
+        $this->mockDefaultSession();
         // mock stuff
-        $journalRepos = $this->mock(JournalRepositoryInterface::class);
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
 
         $this->be($this->user());
         $response = $this->get(route('json.action'));
@@ -60,13 +57,12 @@ class JsonControllerTest extends TestCase
     }
 
     /**
-     * @covers \FireflyIII\Http\Controllers\JsonController
+     * @covers \FireflyIII\Http\Controllers\Json\RuleController
      */
     public function testTrigger(): void
     {
+        $this->mockDefaultSession();
         // mock stuff
-        $journalRepos = $this->mock(JournalRepositoryInterface::class);
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
 
         $this->be($this->user());
         $response = $this->get(route('json.trigger'));

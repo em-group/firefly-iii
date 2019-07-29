@@ -51,9 +51,9 @@ class DeleteControllerTest extends TestCase
     {
         Log::debug('Test Delete()');
         // mock stuff
-        $categoryRepos = $this->mock(CategoryRepositoryInterface::class);
-        $accountRepos  = $this->mock(AccountRepositoryInterface::class);
-        $userRepos     = $this->mock(UserRepositoryInterface::class);
+        $this->mock(CategoryRepositoryInterface::class);
+        $this->mock(AccountRepositoryInterface::class);
+        $userRepos = $this->mock(UserRepositoryInterface::class);
         $this->mockDefaultSession();
 
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
@@ -74,7 +74,7 @@ class DeleteControllerTest extends TestCase
         Log::debug('Test destroy()');
         // mock stuff
         $categoryRepos = $this->mock(CategoryRepositoryInterface::class);
-        $accountRepos  = $this->mock(AccountRepositoryInterface::class);
+        $this->mock(AccountRepositoryInterface::class);
         $this->mockDefaultSession();
         Preferences::shouldReceive('mark')->atLeast()->once()->withNoArgs();
         $categoryRepos->shouldReceive('destroy')->andReturn(true);

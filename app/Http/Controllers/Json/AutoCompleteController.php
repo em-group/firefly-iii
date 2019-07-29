@@ -125,6 +125,37 @@ class AutoCompleteController extends Controller
     }
 
     /**
+     * An auto-complete specifically for expense accounts, used when mass updating mostly.
+     * @param Request $request
+     *
+     * @return JsonResponse
+     */
+    public function expenseAccounts(Request $request): JsonResponse
+    {
+        $search = $request->get('search');
+        /** @var AccountRepositoryInterface $repository */
+        $repository = app(AccountRepositoryInterface::class);
+
+        // filter the account types:
+        $allowedAccountTypes = [AccountType::EXPENSE];
+        Log::debug('Now in accounts(). Filtering results.', $allowedAccountTypes);
+
+        $return = [];
+        $result = $repository->searchAccount((string)$search, $allowedAccountTypes);
+
+        /** @var Account $account */
+        foreach ($result as $account) {
+            $return[] = [
+                'id'   => $account->id,
+                'name' => $account->name,
+                'type' => $account->accountType->type,
+            ];
+        }
+
+        return response()->json($return);
+    }
+
+    /**
      * Searches in the titles of all transaction journals.
      * The result is limited to the top 15 unique results.
      *
@@ -149,12 +180,48 @@ class AutoCompleteController extends Controller
 
 
         return response()->json($array);
+    }
 
+    /**
+     * Searches in the titles of all transaction journals.
+     * The result is limited to the top 15 unique results.
+     *
+     * If the query is numeric, it will append the journal with that particular ID.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function allJournalsWithID(Request $request): JsonResponse
+    {
+        $search = (string)$request->get('search');
+        /** @var JournalRepositoryInterface $repository */
+        $repository = app(JournalRepositoryInterface::class);
+        $result     = $repository->searchJournalDescriptions($search);
+        $array      = [];
+        if (is_numeric($search)) {
+            $firstResult = $repository->findNull((int)$search);
+            if (null !== $firstResult) {
+                $array[] = $firstResult->toArray();
+            }
+        }
+        // if not numeric, search ahead!
+
+        // limit and unique
+        $limited  = $result->slice(0, 15);
+        $array    = array_merge($array, $limited->toArray());
+        foreach ($array as $index => $item) {
+            // give another key for consistency
+            $array[$index]['name'] = sprintf('#%d: %s', $item['id'], $item['description']);
+        }
+
+
+        return response()->json($array);
     }
 
     /**
      * @param Request $request
      * @return JsonResponse
+     * @codeCoverageIgnore
      */
     public function budgets(Request $request): JsonResponse
     {
@@ -185,6 +252,7 @@ class AutoCompleteController extends Controller
     /**
      * @param Request $request
      * @return JsonResponse
+     * @codeCoverageIgnore
      */
     public function currencyNames(Request $request): JsonResponse
     {

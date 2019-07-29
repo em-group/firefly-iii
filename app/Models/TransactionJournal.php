@@ -142,6 +142,7 @@ class TransactionJournal extends Model
 
     /**
      * Checks if tables are joined.
+     * @codeCoverageIgnore
      *
      * @param Builder $query
      * @param string  $table
@@ -174,14 +175,12 @@ class TransactionJournal extends Model
      */
     public static function routeBinder(string $value): TransactionJournal
     {
-        throw new FireflyException('Journal binder is permanently out of order.');
         if (auth()->check()) {
             $journalId = (int)$value;
             /** @var User $user */
             $user = auth()->user();
             /** @var TransactionJournal $journal */
-            $journal = $user->transactionJournals()->where('transaction_journals.id', $journalId)
-                            ->first(['transaction_journals.*']);
+            $journal = $user->transactionJournals()->where('transaction_journals.id', $journalId)->first(['transaction_journals.*']);
             if (null !== $journal) {
                 return $journal;
             }
@@ -227,6 +226,7 @@ class TransactionJournal extends Model
     }
 
     /**
+     * @codeCoverageIgnore
      * @return bool
      */
     public function isDeposit(): bool

@@ -32,14 +32,22 @@ use FireflyConfig;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
+use FireflyIII\Models\Attachment;
+use FireflyIII\Models\Bill;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\Category;
 use FireflyIII\Models\Configuration;
+use FireflyIII\Models\CurrencyExchangeRate;
+use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\Preference;
+use FireflyIII\Models\Recurrence;
+use FireflyIII\Models\Rule;
+use FireflyIII\Models\Tag;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Transformers\TransactionTransformer;
@@ -59,11 +67,83 @@ abstract class TestCase extends BaseTestCase
 {
 
     /**
+     * @return Recurrence
+     */
+    public function getRandomRecurrence(): Recurrence
+    {
+        return $this->user()->recurrences()->inRandomOrder()->first();
+    }
+
+    /**
+     * @return CurrencyExchangeRate
+     */
+    public function getRandomCer(): CurrencyExchangeRate
+    {
+        return $this->user()->currencyExchangeRates()->inRandomOrder()->first();
+    }
+
+    /**
+     * @return PiggyBank
+     */
+    public function getRandomPiggyBank(): PiggyBank
+    {
+        return $this->user()->piggyBanks()->inRandomOrder()->first(['piggy_banks.*']);
+    }
+
+    /**
+     * @return PiggyBank
+     */
+    public function getRandomTag(): Tag
+    {
+        return $this->user()->tags()->inRandomOrder()->first(['tags.*']);
+    }
+
+    /**
+     * @return Rule
+     */
+    public function getRandomRule(): Rule
+    {
+        return $this->user()->rules()->inRandomOrder()->first();
+    }
+
+    /**
+     * @return Bill
+     */
+    public function getRandomBill(): Bill
+    {
+        return $this->user()->bills()->where('active', 1)->inRandomOrder()->first();
+    }
+
+    /**
+     * @return Bill
+     */
+    public function getRandomInactiveBill(): Bill
+    {
+        return $this->user()->bills()->where('active', 0)->inRandomOrder()->first();
+    }
+
+    /**
+     * @return Attachment
+     */
+    public function getRandomAttachment(): Attachment
+    {
+        return $this->user()->attachments()->inRandomOrder()->first();
+    }
+
+    /**
+     * @return TransactionJournalLink
+     */
+    public function getRandomLink(): TransactionJournalLink
+    {
+        return TransactionJournalLink::inRandomOrder()->first();
+    }
+
+    /**
      * @return Budget
      */
     public function getRandomBudget(): Budget
     {
-        return $this->user()->budgets()->inRandomOrder()->first();
+        return $this->user()->budgets()->where('active', 1)->inRandomOrder()->first();
     }
 
     /**
@@ -93,7 +173,7 @@ abstract class TestCase extends BaseTestCase
         $this->mockDefaultConfiguration();
         $this->mockDefaultPreferences();
         $euro = $this->getEuro();
-        Amount::shouldReceive('getDefaultCurrency')->atLeast()->once()->andReturn($euro);
+        Amount::shouldReceive('getDefaultCurrency')->andReturn($euro);
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
 
         $journal       = new TransactionJournal;
@@ -150,13 +230,16 @@ abstract class TestCase extends BaseTestCase
         }
 
         return [
+            'transaction_group_id'     => $withdrawal->transaction_group_id,
             'transaction_journal_id'   => $withdrawal->id,
+            'id'                       => $withdrawal->id,
             'transaction_type_type'    => 'Withdrawal',
             'currency_id'              => $euro->id,
             'foreign_currency_id'      => null,
             'date'                     => $date,
             'description'              => sprintf('I am descr #%d', $this->randomInt()),
             'source_account_id'        => 1,
+            'foreign_amount'           => null,
             'destination_account_id'   => $expense->id,
             'destination_account_name' => $expense->name,
             'currency_name'            => $euro->name,
@@ -167,6 +250,88 @@ abstract class TestCase extends BaseTestCase
             'amount'                  => '-30',
             'budget_id'               => $budget->id,
             'budget_name'             => $budget->name,
+            'category_id'             => $category->id,
+            'category_name'           => $category->name,
+            'tags'                    => ['a', 'b', 'c'],
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getRandomDepositAsArray(): array
+    {
+        $deposit  = $this->getRandomDeposit();
+        $euro     = $this->getEuro();
+        $category = $this->getRandomCategory();
+        $revenue  = $this->getRandomRevenue();
+        $asset    = $this->getRandomAsset();
+        try {
+            $date = new Carbon;
+        } catch (Exception $e) {
+            $e->getMessage();
+        }
+
+        return [
+            'transaction_group_id'     => $deposit->transaction_group_id,
+            'transaction_journal_id'   => $deposit->id,
+            'transaction_type_type'    => 'Deposit',
+            'currency_id'              => $euro->id,
+            'foreign_currency_id'      => null,
+            'date'                     => $date,
+            'description'              => sprintf('I am descr #%d', $this->randomInt()),
+            'source_account_id'        => $revenue->id,
+            'source_account_name'      => $revenue->name,
+            'foreign_amount'           => null,
+            'destination_account_id'   => $asset->id,
+            'destination_account_name' => $asset->name,
+            'currency_name'            => $euro->name,
+            'currency_code'            => $euro->code,
+            'currency_symbol'          => $euro->symbol,
+
+            'currency_decimal_places' => $euro->decimal_places,
+            'amount'                  => '-30',
+            'category_id'             => $category->id,
+            'category_name'           => $category->name,
+        ];
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getRandomTransferAsArray(): array
+    {
+        $transfer = $this->getRandomTransfer();
+        $euro     = $this->getEuro();
+        $category = $this->getRandomCategory();
+        $source   = $this->getRandomAsset();
+        $dest     = $this->getRandomAsset($source->id);
+        try {
+            $date = new Carbon;
+        } catch (Exception $e) {
+            $e->getMessage();
+        }
+
+        return [
+            'transaction_group_id'     => $transfer->transaction_group_id,
+            'transaction_journal_id'   => $transfer->id,
+            'transaction_type_type'    => 'Transfer',
+            'currency_id'              => $euro->id,
+            'foreign_currency_id'      => null,
+            'date'                     => $date,
+            'description'              => sprintf('I am descr #%d', $this->randomInt()),
+            'source_account_id'        => $source->id,
+            'source_account_name'      => $source->name,
+            'foreign_amount'           => null,
+            'destination_account_id'   => $dest->id,
+            'destination_account_name' => $dest->name,
+            'currency_name'            => $euro->name,
+            'currency_code'            => $euro->code,
+            'currency_symbol'          => $euro->symbol,
+
+            'currency_decimal_places' => $euro->decimal_places,
+            'amount'                  => '-30',
             'category_id'             => $category->id,
             'category_name'           => $category->name,
         ];
@@ -196,13 +361,14 @@ abstract class TestCase extends BaseTestCase
                         'currency_id'             => $euro->id,
                         'foreign_currency_id'     => null,
                         'date'                    => $date,
-                        'source_account_id'       => 1,
-                        'destination_account_id'  => 4,
+                        'source_id'               => 1,
+                        'destination_id'          => 4,
                         'currency_name'           => $euro->name,
                         'currency_code'           => $euro->code,
                         'currency_symbol'         => $euro->symbol,
                         'currency_decimal_places' => $euro->decimal_places,
                         'amount'                  => '-30',
+                        'foreign_amount'          => null,
                         'budget_id'               => $budget->id,
                     ],
                 ],
@@ -224,11 +390,11 @@ abstract class TestCase extends BaseTestCase
         $list        = new Preference;
         $list->data  = 50;
 
-        Preferences::shouldReceive('get')->atLeast()->once()->withArgs(['twoFactorAuthEnabled', false])->andReturn($false);
-        Preferences::shouldReceive('get')->atLeast()->once()->withArgs(['twoFactorAuthSecret'])->andReturnNull();
+        Preferences::shouldReceive('get')->withArgs(['twoFactorAuthEnabled', false])->andReturn($false);
+        Preferences::shouldReceive('get')->withArgs(['twoFactorAuthSecret'])->andReturnNull();
         Preferences::shouldReceive('get')->withArgs(['viewRange', Mockery::any()])->andReturn($view);
-        Preferences::shouldReceive('get')->atLeast()->once()->withArgs(['language', 'en_US'])->andReturn($lang);
-        Preferences::shouldReceive('get')->atLeast()->once()->withArgs(['list-length', 10])->andReturn($list);
+        Preferences::shouldReceive('get')->withArgs(['language', 'en_US'])->andReturn($lang);
+        Preferences::shouldReceive('get')->withArgs(['list-length', 10])->andReturn($list);
     }
 
     /**
@@ -301,9 +467,7 @@ abstract class TestCase extends BaseTestCase
      */
     public function demoUser(): User
     {
-        throw new FireflyException('demoUser()-method is obsolete.');
-
-        return User::find(4);
+        return User::where('email', 'demo@firefly')->first();
     }
 
     /**
@@ -444,6 +608,22 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * @return TransactionGroup
+     */
+    protected function getRandomTransferGroup(): TransactionGroup
+    {
+        return $this->getRandomGroup(TransactionType::TRANSFER);
+    }
+
+    /**
+     * @return TransactionGroup
+     */
+    protected function getRandomDepositGroup(): TransactionGroup
+    {
+        return $this->getRandomGroup(TransactionType::DEPOSIT);
+    }
+
+    /**
      * @param string $class
      *
      * @param Closure|null $closure
@@ -519,7 +699,6 @@ abstract class TestCase extends BaseTestCase
             if (null !== $group) {
                 $count = $group->transactionJournals()->count();
             }
-            Log::debug(sprintf('Count is %d', $count));
         } while (1 !== $count);
 
         return $journal->transactionGroup;

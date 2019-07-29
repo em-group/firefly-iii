@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
 use FireflyIII\Repositories\Account\AccountTaskerInterface;
 use Log;
+use Preferences;
 use Tests\TestCase;
 
 /**
@@ -52,6 +53,7 @@ class OperationsControllerTest extends TestCase
      */
     public function testExpenses(): void
     {
+        $this->mockDefaultSession();
         $return       = [
             1 => [
                 'id'      => 1,
@@ -64,6 +66,8 @@ class OperationsControllerTest extends TestCase
         $tasker       = $this->mock(AccountTaskerInterface::class);
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
         $date         = new Carbon;
+
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
         $tasker->shouldReceive('getExpenseReport')->andReturn($return);
@@ -78,9 +82,12 @@ class OperationsControllerTest extends TestCase
      */
     public function testIncome(): void
     {
+        $this->mockDefaultSession();
         $tasker       = $this->mock(AccountTaskerInterface::class);
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
         $date         = new Carbon;
+
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
         $tasker->shouldReceive('getIncomeReport')->andReturn([]);
@@ -95,6 +102,7 @@ class OperationsControllerTest extends TestCase
      */
     public function testOperations(): void
     {
+        $this->mockDefaultSession();
         $return = [
             1 => [
                 'id'      => 1,
@@ -108,6 +116,8 @@ class OperationsControllerTest extends TestCase
         $tasker       = $this->mock(AccountTaskerInterface::class);
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
         $date         = new Carbon;
+
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
         $tasker->shouldReceive('getExpenseReport')->andReturn($return);

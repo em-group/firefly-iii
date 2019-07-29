@@ -41,6 +41,7 @@ class AttachmentController extends Controller
 
     /**
      * AttachmentController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -78,7 +79,7 @@ class AttachmentController extends Controller
     /**
      * Destroy attachment.
      *
-     * @param Request    $request
+     * @param Request $request
      * @param Attachment $attachment
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
@@ -131,7 +132,7 @@ class AttachmentController extends Controller
     /**
      * Edit an attachment.
      *
-     * @param Request    $request
+     * @param Request $request
      * @param Attachment $attachment
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
@@ -178,7 +179,7 @@ class AttachmentController extends Controller
      * Update attachment.
      *
      * @param AttachmentFormRequest $request
-     * @param Attachment            $attachment
+     * @param Attachment $attachment
      *
      * @return RedirectResponse
      */
@@ -211,13 +212,27 @@ class AttachmentController extends Controller
      * @return LaravelResponse
      * @throws FireflyException
      */
-    public function view(Attachment $attachment): LaravelResponse
+    public function view(Request $request, Attachment $attachment): LaravelResponse
     {
         if ($this->repository->exists($attachment)) {
             $content = $this->repository->getContent($attachment);
 
+            // prevent XSS by adding a new secure header.
+            $csp = [
+                "default-src 'none'",
+                "object-src 'none'",
+                "script-src 'none'",
+                "style-src 'none'",
+                "base-uri 'none'",
+                "font-src 'none'",
+                "connect-src 'none'",
+                "img-src 'none'",
+                "manifest-src 'none'",
+            ];
+
             return response()->make(
                 $content, 200, [
+                            'Content-Security-Policy' => implode('; ', $csp),
                             'Content-Type'        => $attachment->mime,
                             'Content-Disposition' => 'inline; filename="' . $attachment->filename . '"',
                         ]

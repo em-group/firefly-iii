@@ -28,13 +28,13 @@ use FireflyIII\Helpers\Chart\MetaPieChartInterface;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
 use FireflyIII\Models\Preference;
+use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Tag\TagRepositoryInterface;
 use Illuminate\Support\Collection;
 use Log;
 use Preferences;
 use Tests\TestCase;
-use FireflyIII\Models\TransactionType;
 
 /**
  * Class TagReportControllerTest
@@ -187,18 +187,20 @@ class TagReportControllerTest extends TestCase
     }
 
     /**
+     * TODO something in this test sometimes gives a 404 but not sure yet what it is.
+     *
      * @covers \FireflyIII\Http\Controllers\Chart\TagReportController
      */
     public function testMainChart(): void
     {
         $this->mock(AccountRepositoryInterface::class);
-        $generator   = $this->mock(GeneratorInterface::class);
-        $collector   = $this->mock(GroupCollectorInterface::class);
-        $tagRepos    = $this->mock(TagRepositoryInterface::class);
+        $generator    = $this->mock(GeneratorInterface::class);
+        $collector    = $this->mock(GroupCollectorInterface::class);
+        $tagRepos     = $this->mock(TagRepositoryInterface::class);
         $fiscalHelper = $this->mock(FiscalHelperInterface::class);
 
         $withdrawal  = $this->getRandomWithdrawalAsArray();
-        $tag         = $this->user()->tags()->inRandomOrder()->first();
+        $tag         = $this->user()->tags()->where('tag', 'Expensive')->first();
         $date        = new Carbon;
         $false       = new Preference;
         $false->data = false;
@@ -231,11 +233,12 @@ class TagReportControllerTest extends TestCase
      */
     public function testTagExpense(): void
     {
-        $generator    = $this->mock(GeneratorInterface::class);
-        $pieChart     = $this->mock(MetaPieChartInterface::class);
-        $tagRepos     = $this->mock(TagRepositoryInterface::class);
-        $accountRepos = $this->mock(AccountRepositoryInterface::class);
-        $tag          = $this->user()->tags()->first();
+        $this->mockDefaultSession();
+        $generator = $this->mock(GeneratorInterface::class);
+        $pieChart  = $this->mock(MetaPieChartInterface::class);
+        $tagRepos  = $this->mock(TagRepositoryInterface::class);
+        $this->mock(AccountRepositoryInterface::class);
+        $tag = $this->user()->tags()->first();
         $tagRepos->shouldReceive('setUser');
         $tagRepos->shouldReceive('get')->andReturn(new Collection([$tag]));
 
@@ -263,6 +266,7 @@ class TagReportControllerTest extends TestCase
      */
     public function testTagIncome(): void
     {
+        $this->mockDefaultSession();
         $generator    = $this->mock(GeneratorInterface::class);
         $pieChart     = $this->mock(MetaPieChartInterface::class);
         $tagRepos     = $this->mock(TagRepositoryInterface::class);

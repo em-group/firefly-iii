@@ -26,10 +26,7 @@ namespace tests\Feature\Controllers\Rule;
 use Carbon\Carbon;
 use FireflyIII\Jobs\ExecuteRuleOnExistingTransactions;
 use FireflyIII\Jobs\Job;
-use FireflyIII\Models\Transaction;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\TransactionRules\TransactionMatcher;
@@ -82,7 +79,7 @@ class SelectControllerTest extends TestCase
 
         Queue::assertPushed(
             ExecuteRuleOnExistingTransactions::class, function (Job $job) {
-            return 1=== $job->getRule()->id;
+            return 1 === $job->getRule()->id;
         }
         );
     }
@@ -186,22 +183,19 @@ class SelectControllerTest extends TestCase
                 'stop_processing' => 1,
             ],
         ];
-        $set  = factory(Transaction::class, 10)->make();
 
         // mock stuff
         $matcher      = $this->mock(TransactionMatcher::class);
-        $journalRepos = $this->mock(JournalRepositoryInterface::class);
         $userRepos    = $this->mock(UserRepositoryInterface::class);
         $accountRepos = $this->mock(AccountRepositoryInterface::class);
 
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
 
         $matcher->shouldReceive('setStrict')->once()->withArgs([false]);
 
         $matcher->shouldReceive('setTriggeredLimit')->withArgs([10])->andReturnSelf()->once();
         $matcher->shouldReceive('setSearchLimit')->withArgs([200])->andReturnSelf()->once();
         $matcher->shouldReceive('setTriggers')->andReturnSelf()->once();
-        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn($set);
+        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn(new Collection);
 
         $this->be($this->user());
         $uri      = route('rules.test-triggers') . '?' . http_build_query($data);

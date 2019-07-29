@@ -23,10 +23,8 @@ namespace Tests\Feature\Controllers\Category;
 
 
 use FireflyIII\Models\Category;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Log;
 use Mockery;
@@ -69,7 +67,6 @@ class EditControllerTest extends TestCase
     }
 
 
-
     /**
      * @covers \FireflyIII\Http\Controllers\Category\EditController
      * @covers \FireflyIII\Http\Requests\CategoryFormRequest
@@ -77,10 +74,10 @@ class EditControllerTest extends TestCase
     public function testUpdate(): void
     {
         Log::debug('Test update()');
-        $category     = Category::first();
-        $repository   = $this->mock(CategoryRepositoryInterface::class);
-        $accountRepos = $this->mock(AccountRepositoryInterface::class);
-        $userRepos    = $this->mock(UserRepositoryInterface::class);
+        $category   = Category::first();
+        $repository = $this->mock(CategoryRepositoryInterface::class);
+        $this->mock(AccountRepositoryInterface::class);
+        $this->mock(UserRepositoryInterface::class);
         $this->mockDefaultSession();
         Preferences::shouldReceive('mark')->atLeast()->once()->withNoArgs();
 

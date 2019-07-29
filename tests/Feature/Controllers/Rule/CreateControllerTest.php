@@ -25,9 +25,7 @@ namespace tests\Feature\Controllers\Rule;
 
 
 use FireflyIII\Models\Rule;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
@@ -141,8 +139,8 @@ class CreateControllerTest extends TestCase
     {
         // mock stuff
         $repository     = $this->mock(RuleRepositoryInterface::class);
-        $ruleGroupRepos = $this->mock(RuleGroupRepositoryInterface::class);
-        $userRepos      = $this->mock(UserRepositoryInterface::class);
+        $this->mock(RuleGroupRepositoryInterface::class);
+        $this->mock(UserRepositoryInterface::class);
 
         $this->mockDefaultSession();
         Preferences::shouldReceive('mark')->atLeast()->once();
@@ -157,7 +155,7 @@ class CreateControllerTest extends TestCase
             'title'         => 'A',
             'trigger'       => 'store-journal',
             'description'   => 'D',
-            'rule_triggers' => [
+            'triggers' => [
                 [
                     'type'            => 'description_is',
                     'value'           => 'A',
@@ -165,7 +163,7 @@ class CreateControllerTest extends TestCase
 
                 ],
             ],
-            'rule_actions'  => [
+            'actions'  => [
                 [
                     'type'            => 'set_category',
                     'value'           => 'C',

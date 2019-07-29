@@ -36,7 +36,7 @@ class SecureHeaders
      * Handle an incoming request. May not be a limited user (ie. Sandstorm env. or demo user).
      *
      * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
+     * @param \Closure $next
      *
      * @return mixed
      */
@@ -44,9 +44,11 @@ class SecureHeaders
     {
         $response    = $next($request);
         $google      = '';
+        $googleImg   = '';
         $analyticsId = config('firefly.analytics_id');
         if ('' !== $analyticsId) {
-            $google = 'www.googletagmanager.com/gtag/js'; // @codeCoverageIgnore
+            $google    = 'www.googletagmanager.com/gtag/js https://www.google-analytics.com/analytics.js'; // @codeCoverageIgnore
+            $googleImg = 'https://www.google-analytics.com/';
         }
         $csp = [
             "default-src 'none'",
@@ -56,7 +58,7 @@ class SecureHeaders
             "base-uri 'self'",
             "font-src 'self' data:",
             "connect-src 'self'",
-            "img-src 'self' data: https://api.tiles.mapbox.com",
+            sprintf("img-src 'self' data: https://api.tiles.mapbox.com %s", $googleImg),
             "manifest-src 'self'",
         ];
 
@@ -85,7 +87,11 @@ class SecureHeaders
         if (false === $disableFrameHeader || null === $disableFrameHeader) {
             $response->header('X-Frame-Options', 'deny');
         }
-        $response->header('Content-Security-Policy', implode('; ', $csp));
+
+        // content security policy may be set elsewhere.
+        if (!$response->headers->has('Content-Security-Policy')) {
+            $response->header('Content-Security-Policy', implode('; ', $csp));
+        }
         $response->header('X-XSS-Protection', '1; mode=block');
         $response->header('X-Content-Type-Options', 'nosniff');
         $response->header('Referrer-Policy', 'no-referrer');

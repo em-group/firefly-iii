@@ -23,7 +23,6 @@ declare(strict_types=1);
 use Carbon\Carbon;
 use DaveJamesMiller\Breadcrumbs\BreadcrumbsGenerator;
 use DaveJamesMiller\Breadcrumbs\Exceptions\DuplicateBreadcrumbException;
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Bill;
@@ -41,10 +40,8 @@ use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionJournalLink;
-use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 
 if (!function_exists('limitStringLength')) {
     /**
@@ -345,7 +342,10 @@ try {
         function (BreadcrumbsGenerator $breadcrumbs, Attachment $attachment) {
             $object = $attachment->attachable;
             if ($object instanceof TransactionJournal) {
-                $breadcrumbs->parent('transactions.show', $object);
+                $group = $object->transactionGroup;
+                if (null !== $group && $group instanceof TransactionGroup) {
+                    $breadcrumbs->parent('transactions.show', $object->transactionGroup);
+                }
                 $breadcrumbs->push(limitStringLength($attachment->filename), route('attachments.edit', [$attachment]));
             }
         }
@@ -355,13 +355,10 @@ try {
         function (BreadcrumbsGenerator $breadcrumbs, Attachment $attachment) {
             $object = $attachment->attachable;
             if ($object instanceof TransactionJournal) {
-                $breadcrumbs->parent('transactions.show', $object);
+                $breadcrumbs->parent('transactions.show', $object->transactionGroup);
                 $breadcrumbs->push(
                     trans('firefly.delete_attachment', ['name' => limitStringLength($attachment->filename)]), route('attachments.edit', [$attachment])
                 );
-            }
-            else {
-                throw new FireflyException('Cannot make breadcrumb for attachment connected to object of type ' . get_class($object));
             }
         }
     );
@@ -1152,12 +1149,11 @@ try {
     // MASS TRANSACTION EDIT / DELETE
     Breadcrumbs::register(
         'transactions.mass.edit',
-        function (BreadcrumbsGenerator $breadcrumbs, Collection $journals): void {
-            if (\count($journals) > 0) {
-                $journalIds = $journals->pluck('id')->toArray();
-                $what       = strtolower($journals->first()['type']);
-                $breadcrumbs->parent('transactions.index', $what);
-                $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.edit', $journalIds));
+        static function (BreadcrumbsGenerator $breadcrumbs, array $journals): void {
+            if (count($journals) > 0) {
+                $objectType = strtolower(reset($journals)['transaction_type_type']);
+                $breadcrumbs->parent('transactions.index', $objectType);
+                $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.edit', ['']));
 
                 return;
             }
@@ -1167,11 +1163,10 @@ try {
 
     Breadcrumbs::register(
         'transactions.mass.delete',
-        function (BreadcrumbsGenerator $breadcrumbs, Collection $journals) {
-            $journalIds = $journals->pluck('id')->toArray();
-            $what       = strtolower($journals->first()->transactionType->type);
-            $breadcrumbs->parent('transactions.index', $what);
-            $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.delete', $journalIds));
+        static function (BreadcrumbsGenerator $breadcrumbs, array $journals) {
+            $objectType= strtolower(reset($journals)['transaction_type_type']);
+            $breadcrumbs->parent('transactions.index', $objectType);
+            $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.delete', ['']));
         }
     );
 

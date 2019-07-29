@@ -31,6 +31,7 @@ use FireflyIII\Events\RequestedReportOnJournals;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\ImportJob;
+use FireflyIII\Models\Preference;
 use FireflyIII\Models\Rule;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionType;
@@ -68,6 +69,9 @@ class ImportArrayStorage
     /** @var TransactionGroupRepositoryInterface */
     private $groupRepos;
 
+    /** @var string */
+    private $language = 'en_US';
+
     /**
      * Set job, count transfers in the array and create the repository.
      *
@@ -87,6 +91,11 @@ class ImportArrayStorage
         $this->groupRepos = app(TransactionGroupRepositoryInterface::class);
         $this->groupRepos->setUser($importJob->user);
 
+        // get language of user.
+        /** @var Preference $pref */
+        $pref           = app('preferences')->get('language', config('firefly.default_language', 'en_US'));
+        $this->language = $pref->data;
+
         Log::debug('Constructed ImportArrayStorage()');
     }
 
@@ -102,6 +111,7 @@ class ImportArrayStorage
 
         $count = 0;
         foreach ($array as $index => $group) {
+
             foreach ($group['transactions'] as $transaction) {
                 if (strtolower(TransactionType::TRANSFER) === strtolower($transaction['type'])) {
                     $count++;
@@ -204,7 +214,7 @@ class ImportArrayStorage
 
         $collection = new Collection;
         foreach ($array as $index => $group) {
-            Log::debug(sprintf('Now store #%d', ($index + 1)));
+            Log::debug(sprintf('Now store #%d', $index + 1));
             $result = $this->storeGroup($index, $group);
             if (null !== $result) {
                 $collection->push($result);
@@ -241,6 +251,7 @@ class ImportArrayStorage
         // store the group
         try {
             $newGroup = $this->groupRepos->store($group);
+            // @codeCoverageIgnoreStart
         } catch (FireflyException $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
@@ -248,6 +259,7 @@ class ImportArrayStorage
 
             return null;
         }
+        // @codeCoverageIgnoreEnd
         Log::debug(sprintf('Stored as group #%d', $newGroup->id));
 
         // add to collection of transfers, if necessary:
@@ -271,12 +283,13 @@ class ImportArrayStorage
      */
     private function duplicateDetected(int $index, array $group): bool
     {
+        Log::debug(sprintf('Now in duplicateDetected(%d)', $index));
         $transactions = $group['transactions'] ?? [];
         foreach ($transactions as $transaction) {
             $hash       = $this->getHash($transaction);
             $existingId = $this->hashExists($hash);
             if (null !== $existingId) {
-                $message = sprintf('Row #%d ("%s") could not be imported. It already exists.', $index, $transaction['description']);
+                $message = (string)trans('import.duplicate_row', ['row' => $index, 'description' => $transaction['description']]);
                 $this->logDuplicateObject($transaction, $existingId);
                 $this->repository->addErrorMessage($this->importJob, $message);
 
@@ -285,7 +298,7 @@ class ImportArrayStorage
 
             // do transfer detection:
             if ($this->checkForTransfers && $this->transferExists($transaction)) {
-                $message = sprintf('Row #%d ("%s") could not be imported. Such a transfer already exists.', $index, $transaction['description']);
+                $message = (string)trans('import.duplicate_row', ['row' => $index, 'description' => $transaction['description']]);
                 $this->logDuplicateTransfer($transaction);
                 $this->repository->addErrorMessage($this->importJob, $message);
 
@@ -378,7 +391,7 @@ class ImportArrayStorage
      */
     private function transferExists(array $transaction): bool
     {
-        Log::debug('Check if transaction is a double transfer.');
+        Log::debug('transferExists() Check if transaction is a double transfer.');
 
         // how many hits do we need?
         Log::debug(sprintf('System has %d existing transfers', count($this->transfers)));
@@ -386,9 +399,11 @@ class ImportArrayStorage
 
         // check if is a transfer
         if (strtolower(TransactionType::TRANSFER) !== strtolower($transaction['type'])) {
+            // @codeCoverageIgnoreStart
             Log::debug(sprintf('Is a %s, not a transfer so no.', $transaction['type']));
 
             return false;
+            // @codeCoverageIgnoreEnd
         }
 
 
@@ -402,7 +417,8 @@ class ImportArrayStorage
         }
 
         // get the description:
-        $description = '' === (string)$transaction['description'] ? $transaction['description'] : $transaction['description'];
+        //$description = '' === (string)$transaction['description'] ? $transaction['description'] : $transaction['description'];
+        $description = (string)$transaction['description'];
 
         // get the source and destination ID's:
         $transactionSourceIDs = [(int)$transaction['source_id'], (int)$transaction['destination_id']];
@@ -458,7 +474,7 @@ class ImportArrayStorage
                 ++$hits;
                 Log::debug(sprintf('Source IDs are the same! (%d)', $hits));
             }
-            if ($transactionSourceIDs !== $transactionSourceIDs) {
+            if ($transactionSourceIDs !== $transferSourceIDs) {
                 Log::debug('Source IDs are not the same.');
             }
             unset($transferSourceIDs);
@@ -557,12 +573,14 @@ class ImportArrayStorage
         $tagId      = $tag->id;
         foreach ($journalIds as $journalId) {
             Log::debug(sprintf('Linking journal #%d to tag #%d...', $journalId, $tagId));
+            // @codeCoverageIgnoreStart
             try {
                 DB::table('tag_transaction_journal')->insert(['transaction_journal_id' => $journalId, 'tag_id' => $tagId]);
             } catch (QueryException $e) {
                 Log::error(sprintf('Could not link journal #%d to tag #%d because: %s', $journalId, $tagId, $e->getMessage()));
                 Log::error($e->getTraceAsString());
             }
+            // @codeCoverageIgnoreEnd
         }
         Log::info(sprintf('Linked %d journals to tag #%d ("%s")', $collection->count(), $tag->id, $tag->tag));
 
@@ -573,6 +591,8 @@ class ImportArrayStorage
     /**
      * Applies the users rules to the created journals.
      *
+     * TODO this piece of code must be replaced with the rule engine for consistent processing.
+     * TODO double for-each is terrible.
      * @param Collection $collection
      *
      */
@@ -580,19 +600,21 @@ class ImportArrayStorage
     {
         $rules = $this->getRules();
         if ($rules->count() > 0) {
-            foreach ($collection as $journal) {
+            /** @var TransactionGroup $group */
+            foreach ($collection as $group) {
                 $rules->each(
-                    function (Rule $rule) use ($journal) {
-                        Log::debug(sprintf('Going to apply rule #%d to journal %d.', $rule->id, $journal->id));
-                        /** @var Processor $processor */
-                        $processor = app(Processor::class);
-                        $processor->make($rule);
-                        $processor->handleTransactionJournal($journal);
-                        $journal->refresh();
-                        if ($rule->stop_processing) {
-                            return false;
+                    static function (Rule $rule) use ($group) {
+                        Log::debug(sprintf('Going to apply rule #%d to group %d.', $rule->id, $group->id));
+                        foreach ($group->transactionJournals as $journal) {
+                            /** @var Processor $processor */
+                            $processor = app(Processor::class);
+                            $processor->make($rule);
+                            $processor->handleTransactionJournal($journal);
+                            $journal->refresh();
+                            if ($rule->stop_processing) {
+                                return false; // @codeCoverageIgnore
+                            }
                         }
-
                         return true;
                     }
                 );

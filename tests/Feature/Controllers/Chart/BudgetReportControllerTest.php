@@ -26,10 +26,6 @@ use Carbon\Carbon;
 use FireflyIII\Generator\Chart\Basic\GeneratorInterface;
 use FireflyIII\Helpers\Chart\MetaPieChartInterface;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
-
-
-
-
 use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
 use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\TransactionType;
@@ -38,6 +34,7 @@ use Illuminate\Support\Collection;
 use Log;
 use Preferences;
 use Tests\TestCase;
+
 
 /**
  * Class BudgetReportControllerTest
@@ -113,6 +110,7 @@ class BudgetReportControllerTest extends TestCase
     }
 
     /**
+     * TODO something in this method makes it return a 404.
      * @covers       \FireflyIII\Http\Controllers\Chart\BudgetReportController
      */
     public function testMainChart(): void
@@ -133,7 +131,7 @@ class BudgetReportControllerTest extends TestCase
         $limit3->budget_id  = $budget->id;
         $limit3->start_date = new Carbon('2012-01-01');
         $limit3->end_date   = new Carbon('2012-01-31');
-        $limit3->amount = '100';
+        $limit3->amount     = '100';
         $limit3->save();
 
 

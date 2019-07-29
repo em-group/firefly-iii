@@ -87,7 +87,6 @@ trait JournalServiceTrait
      * @param string|null $accountName
      *
      * @return Account
-     * @throws FireflyException
      */
     protected function getAccount(string $transactionType, string $direction, ?int $accountId, ?string $accountName): Account
     {
@@ -265,6 +264,7 @@ trait JournalServiceTrait
             return;
         }
         foreach ($tags as $string) {
+            $string = (string)$string;
             if ('' !== $string) {
                 $tag = $this->tagFactory->findOrCreate($string);
                 if (null !== $tag) {
