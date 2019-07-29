@@ -117,6 +117,10 @@ class LoginController extends Controller
         // user surpasses their maximum number of attempts they will get locked out.
         $this->incrementLoginAttempts($request);
         Log::channel('audit')->info(sprintf('Login attempt for user "%s" failed.', $request->get('email')));
+
+        // Make sure we properly go directly back to the login page, to properly display errors
+        session()->setPreviousUrl('/login');
+
         /** @noinspection PhpInconsistentReturnPointsInspection */
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         return $this->sendFailedLoginResponse($request);
