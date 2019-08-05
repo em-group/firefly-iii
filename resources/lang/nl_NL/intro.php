@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Welkom op de homepage van Firefly III. Neem even de tijd voor deze introductie zodat je Firefly III leert kennen.',
+    'index_intro'                           => 'Welkom op de homepage van '.config('app.name').'. Neem even de tijd voor deze introductie zodat je '.config('app.name').' leert kennen.',
     'index_accounts-chart'                  => 'Deze grafiek toont het saldo van je betaalrekening(en). Welke rekeningen zichtbaar zijn kan je aangeven bij de instellingen.',
     'index_box_out_holder'                  => 'Dit vakje en de vakjes er naast geven een snel overzicht van je financiële situatie.',
     'index_help'                            => 'Als je ooit hulp nodig hebt, klik dan hier.',
-    'index_outro'                           => 'De meeste pagina\'s in Firefly III beginnen met een kleine rondleiding zoals deze. Zoek me op als je vragen of commentaar hebt. Veel plezier!',
+    'index_outro'                           => 'De meeste pagina\'s in '.config('app.name').' beginnen met een kleine rondleiding zoals deze. Zoek me op als je vragen of commentaar hebt. Veel plezier!',
     'index_sidebar-toggle'                  => 'Nieuwe transacties, rekeningen en andere dingen maak je met het menu onder deze knop.',
 
     // create account:
     'accounts_create_iban'                  => 'Geef je rekeningen een geldige IBAN. Dat scheelt met importeren van data.',
-    'accounts_create_asset_opening_balance' => 'Betaalrekeningen kunnen een startsaldo hebben, waarmee het begin van deze rekening in Firefly III wordt aangegeven.',
-    'accounts_create_asset_currency'        => 'Firefly III ondersteunt meerdere valuta. Hier stel je de valuta in van je betaalrekening.',
+    'accounts_create_asset_opening_balance' => 'Betaalrekeningen kunnen een startsaldo hebben, waarmee het begin van deze rekening in '.config('app.name').' wordt aangegeven.',
+    'accounts_create_asset_currency'        => config('app.name').' ondersteunt meerdere valuta. Hier stel je de valuta in van je betaalrekening.',
     'accounts_create_asset_virtual'         => 'Soms is het handig om je betaalrekening een virtueel saldo te geven: een extra bedrag dat altijd bij het daadwerkelijke saldo wordt opgeteld.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Budgetten worden gebruikt om je financiën te beheren en vormen een van de kernfuncties van Firefly III.',
-    'budgets_index_set_budget'              => 'Stel je totale budget voor elke periode in, zodat Firefly III je kan vertellen of je alle beschikbare geld hebt gebudgetteerd.',
+    'budgets_index_intro'                   => 'Budgetten worden gebruikt om je financiën te beheren en vormen een van de kernfuncties van '.config('app.name').'.',
+    'budgets_index_set_budget'              => 'Stel je totale budget voor elke periode in, zodat '.config('app.name').' je kan vertellen of je alle beschikbare geld hebt gebudgetteerd.',
     'budgets_index_see_expenses_bar'        => 'Het besteden van geld zal deze balk langzaam vullen.',
     'budgets_index_navigate_periods'        => 'Navigeer door periodes heen om je budget vooraf te bepalen.',
     'budgets_index_new_budget'              => 'Maak nieuwe budgetten naar wens.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'Als een contract elke twee weken herhaalt, zet je het "skip"-veld op 1 om elke andere week over te slaan.',
 
     // rules index
-    'rules_index_intro'                                       => 'In Firefly III kan je regels maken die automagisch op transacties worden toegepast.',
+    'rules_index_intro'                                       => 'In '.config('app.name').' kan je regels maken die automagisch op transacties worden toegepast.',
     'rules_index_new_rule_group'                              => 'Je kan regels combineren in groepen voor makkelijker beheer.',
     'rules_index_new_rule'                                    => 'Maak zoveel regels als je wilt.',
     'rules_index_prio_buttons'                                => 'Zet ze in elke willekeurige volgorde.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Meer opties zijn beschikbaar achter deze tabbladen.',
 
     // currencies
-    'currencies_index_intro'                                  => 'Firefly III ondersteunt meerdere valuta, die je op deze pagina kunt wijzigen.',
-    'currencies_index_default'                                => 'Firefly III heeft één standaardvaluta.',
+    'currencies_index_intro'                                  => config('app.name').' ondersteunt meerdere valuta, die je op deze pagina kunt wijzigen.',
+    'currencies_index_default'                                => config('app.name').' heeft één standaardvaluta.',
     'currencies_index_buttons'                                => 'Gebruik deze knoppen om de standaardvaluta te wijzigen of om andere valuta in te schakelen.',
 
     // create currency

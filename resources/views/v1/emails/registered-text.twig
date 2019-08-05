@@ -1,5 +1,5 @@
 {% include 'emails.header-text' %}
-Welkome to Firefly III. Your registration has made it, and this email is here to confirm it. Yay!
+Welcome to {{ config('app.name') }}. Your registration has made it, and this email is here to confirm it. Yay!
 
 * If you have forgotten your password already, please reset it using the password reset tool.
 * There is a help-icon in the top right corner of each page. If you need help, click it!
@@ -7,14 +7,14 @@ Welkome to Firefly III. Your registration has made it, and this email is here to
 
 Enjoy!
 
-Firefly III:
+{{ config('app.name') }}:
 {{ address }}
 
 Password reset:
 {{ address }}/password/reset
 
 Documentation:
-https://github.com/firefly-iii/firefly-iii
+https://github.com/em-group/firefly-iii
 https://firefly-iii.org/
 
 {% include 'emails.footer-text' %}

@@ -1,11 +1,11 @@
 {% include 'emails.header-text' %}
-Firefly III v{{ version }} ran into an error: {{ errorMessage }}.
+{{ config('app.name') }} v{{ version }} ran into an error: {{ errorMessage }}.
 
 The error was of type "{{ class }}".
 
-The error occured on/at: {{ time }}.
+The error occurred on/at: {{ time }}.
 
-This error occured in file "{{ file }}" on line {{ line }} with code {{ code }}.
+This error occurred in file "{{ file }}" on line {{ line }} with code {{ code }}.
 
 {% if loggedIn %}
     The error was encountered by user #{{ user.id }}, {{ user.email }}.
@@ -17,13 +17,13 @@ The IP address related to this error is: {{ ip }}
 URL is: {{ url }}
 User agent: {{ userAgent }}
 
-The full stacktrace is below. If you think this is a bug in Firefly III, you
+The full stacktrace is below. If you think this is a bug in {{ config('app.name') }}, you
 can forward this message to thegrumpydictator@gmail.com. This can help fix
 the bug you just encountered.
 
 If you prefer, you can also open a new issue here:
 
-https://github.com/firefly-iii/firefly-iii/issues
+https://github.com/em-group/firefly-iii/issues
 
 The full stacktrace is below:
 

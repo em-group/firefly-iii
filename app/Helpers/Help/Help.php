@@ -35,7 +35,7 @@ use Route;
 class Help implements HelpInterface
 {
     /** @var string The cache key */
-    public const CACHEKEY = 'help_%s_%s';
+    public const CACHEKEY = 'help_%s_%s_%s';
     /** @var string The user agent. */
     protected $userAgent = 'Firefly III v%s';
 
@@ -62,7 +62,7 @@ class Help implements HelpInterface
      */
     public function getFromCache(string $route, string $language): string
     {
-        $line = sprintf(self::CACHEKEY, $route, $language);
+        $line = sprintf(self::CACHEKEY, config('app.name'), $route, $language);
 
         return Cache::get($line);
     }
@@ -95,6 +95,7 @@ class Help implements HelpInterface
         Log::debug(sprintf('Status code is %d', $statusCode));
 
         if ('' !== $content) {
+            $content = $this->changeAppName($content);
             Log::debug('Content is longer than zero. Expect something.');
             $converter = new CommonMarkConverter();
             $content   = $converter->convertToHtml($content);
@@ -129,7 +130,7 @@ class Help implements HelpInterface
      */
     public function inCache(string $route, string $language): bool
     {
-        $line   = sprintf(self::CACHEKEY, $route, $language);
+        $line   = sprintf(self::CACHEKEY, config('app.name'), $route, $language);
         $result = Cache::has($line);
         if ($result) {
             Log::debug(sprintf('Cache has this entry: %s', 'help.' . $route . '.' . $language));
@@ -152,13 +153,22 @@ class Help implements HelpInterface
      */
     public function putInCache(string $route, string $language, string $content): void
     {
-        $key = sprintf(self::CACHEKEY, $route, $language);
+        $key = sprintf(self::CACHEKEY, config('app.name'), $route, $language);
         if ('' !== $content) {
             Log::debug(sprintf('Will store entry in cache: %s', $key));
-            Cache::put($key, $content, 10080); // a week.
+            Cache::put($key, $content, now()->addWeek()); // a week.
 
             return;
         }
         Log::info(sprintf('Will not cache %s because content is empty.', $key));
+    }
+
+    public function changeAppName(string $content): string
+    {
+        $default_app_name = [
+            'Firefly III',
+            'FireflyIII',
+        ];
+        return str_replace($default_app_name, config('app.name'), $content);
     }
 }

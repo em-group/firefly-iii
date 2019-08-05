@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Welcome to the index page of Firefly III. Please take the time to walk through this intro to get a feeling of how Firefly III works.',
+    'index_intro'                           => 'Welcome to the index page of '.config('app.name').'. Please take the time to walk through this intro to get a feeling of how '.config('app.name').' works.',
     'index_accounts-chart'                  => 'This chart shows the current balance of your asset accounts. You can select the accounts visible here in your preferences.',
     'index_box_out_holder'                  => 'This little box and the boxes next to this one will give you a quick overview of your financial situation.',
     'index_help'                            => 'If you ever need help with a page or a form, press this button.',
-    'index_outro'                           => 'Most pages of Firefly III will start with a little tour like this one. Please contact me when you have questions or comments. Enjoy!',
+    'index_outro'                           => 'Most pages of '.config('app.name').' will start with a little tour like this one. Please contact me when you have questions or comments. Enjoy!',
     'index_sidebar-toggle'                  => 'To create new transactions, accounts or other things, use the menu under this icon.',
 
     // create account:
     'accounts_create_iban'                  => 'Give your accounts a valid IBAN. This could make a data import very easy in the future.',
-    'accounts_create_asset_opening_balance' => 'Assets accounts may have an "opening balance", indicating the start of this account\'s history in Firefly III.',
-    'accounts_create_asset_currency'        => 'Firefly III supports multiple currencies. Asset accounts have one main currency, which you must set here.',
+    'accounts_create_asset_opening_balance' => 'Assets accounts may have an "opening balance", indicating the start of this account\'s history in '.config('app.name').'.',
+    'accounts_create_asset_currency'        => config('app.name').' supports multiple currencies. Asset accounts have one main currency, which you must set here.',
     'accounts_create_asset_virtual'         => 'It can sometimes help to give your account a virtual balance: an extra amount always added to or removed from the actual balance.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Budgets are used to manage your finances and form one of the core functions of Firefly III.',
-    'budgets_index_set_budget'              => 'Set your total budget for every period so Firefly III can tell you if you have budgeted all available money.',
+    'budgets_index_intro'                   => 'Budgets are used to manage your finances and form one of the core functions of '.config('app.name').'.',
+    'budgets_index_set_budget'              => 'Set your total budget for every period so '.config('app.name').' can tell you if you have budgeted all available money.',
     'budgets_index_see_expenses_bar'        => 'Spending money will slowly fill this bar.',
     'budgets_index_navigate_periods'        => 'Navigate through periods to easily set budgets ahead of time.',
     'budgets_index_new_budget'              => 'Create new budgets as you see fit.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'If a bill repeats every 2 weeks, the "skip"-field should be set to "1" to skip every other week.',
 
     // rules index
-    'rules_index_intro'                                       => 'Firefly III allows you to manage rules, that will automagically be applied to any transaction you create or edit.',
+    'rules_index_intro'                                       => config('app.name').' allows you to manage rules, that will automagically be applied to any transaction you create or edit.',
     'rules_index_new_rule_group'                              => 'You can combine rules in groups for easier management.',
     'rules_index_new_rule'                                    => 'Create as many rules as you like.',
     'rules_index_prio_buttons'                                => 'Order them any way you see fit.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'More options are available behind these tabs.',
 
     // currencies
-    'currencies_index_intro'                                  => 'Firefly III supports multiple currencies, which you can change on this page.',
-    'currencies_index_default'                                => 'Firefly III has one default currency.',
+    'currencies_index_intro'                                  => config('app.name').' supports multiple currencies, which you can change on this page.',
+    'currencies_index_default'                                => config('app.name').' has one default currency.',
     'currencies_index_buttons'                                => 'Use these buttons to change the default currency or enable other currencies.',
 
     // create currency
