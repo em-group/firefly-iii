@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use FireflyIII\Helpers\FeatureAccess\UserLevel;
+use FireflyIII\Http\Requests\Request;
 use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
@@ -378,5 +380,14 @@ class UserRepository implements UserRepositoryInterface
     {
         $user->mfa_secret = $code;
         $user->save();
+    }
+
+    /**
+     * @inheritdoc
+    */
+    public function hasFeature(User $user, UserLevel $level): bool
+    {
+        // todo A user membership implementation will probably contain the level of the user, that we can compare against.
+        return true;
     }
 }

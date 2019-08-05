@@ -54,6 +54,10 @@ class IndexController extends Controller
                 return $next($request);
             }
         );
+
+        // todo This is just a placeholder, for now (although it's likely this feature will, in fact,
+        //  be part of the basic package)
+        $this->middleware('feature:basic');
     }
 
 

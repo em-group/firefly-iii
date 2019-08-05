@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use FireflyIII\Helpers\FeatureAccess\UserLevel;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
@@ -196,4 +197,14 @@ interface UserRepositoryInterface
      * @return bool
      */
     public function updateEmail(User $user, string $newEmail): bool;
+
+    /**
+     * Checks if a the user has at least the specified level of access.
+     *
+     * @param User $user
+     * @param UserLevel $level
+     *
+     * @return bool
+    */
+    public function hasFeature(User $user, UserLevel $level): bool;
 }
