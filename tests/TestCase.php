@@ -39,7 +39,9 @@ use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\Category;
 use FireflyIII\Models\Configuration;
 use FireflyIII\Models\CurrencyExchangeRate;
+use FireflyIII\Models\ImportJob;
 use FireflyIII\Models\PiggyBank;
+use FireflyIII\Models\PiggyBankEvent;
 use FireflyIII\Models\Preference;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\Rule;
@@ -66,6 +68,21 @@ use RuntimeException;
 abstract class TestCase extends BaseTestCase
 {
 
+    /**
+     * @return ImportJob
+     */
+    public function getRandomPiggyBankEvent(): PiggyBankEvent
+    {
+        return PiggyBankEvent::inRandomOrder()->first();
+    }
+
+    /**
+     * @return ImportJob
+     */
+    public function getRandomImportJob(): ImportJob
+    {
+        return $this->user()->importJobs()->inRandomOrder()->first();
+    }
     /**
      * @return Recurrence
      */
@@ -226,7 +243,8 @@ abstract class TestCase extends BaseTestCase
         try {
             $date = new Carbon;
         } catch (Exception $e) {
-            $e->getMessage();
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         return [
@@ -269,7 +287,8 @@ abstract class TestCase extends BaseTestCase
         try {
             $date = new Carbon;
         } catch (Exception $e) {
-            $e->getMessage();
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         return [
@@ -310,7 +329,8 @@ abstract class TestCase extends BaseTestCase
         try {
             $date = new Carbon;
         } catch (Exception $e) {
-            $e->getMessage();
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         return [
@@ -339,7 +359,6 @@ abstract class TestCase extends BaseTestCase
 
     /**
      * @return array
-     * @throws Exception
      */
     public function getRandomWithdrawalGroupAsArray(): array
     {
@@ -352,12 +371,15 @@ abstract class TestCase extends BaseTestCase
             $e->getMessage();
         }
 
-        return [
+        return
             [
                 'group_title'  => null,
                 'transactions' => [
                     [
+                        'updated_at'              => new Carbon,
+                        'created_at'              => new Carbon,
                         'transaction_journal_id'  => $withdrawal->id,
+                        'transaction_type_type'   => 'Withdrawal',
                         'currency_id'             => $euro->id,
                         'foreign_currency_id'     => null,
                         'date'                    => $date,
@@ -372,8 +394,47 @@ abstract class TestCase extends BaseTestCase
                         'budget_id'               => $budget->id,
                     ],
                 ],
-            ],
-        ];
+            ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getRandomDepositGroupAsArray(): array
+    {
+        $deposit = $this->getRandomDeposit();
+        $euro    = $this->getEuro();
+        $budget  = $this->getRandomBudget();
+        try {
+            $date = new Carbon;
+        } catch (Exception $e) {
+            $e->getMessage();
+        }
+
+        return
+            [
+                'group_title'  => null,
+                'transactions' => [
+                    [
+                        'updated_at'              => new Carbon,
+                        'created_at'              => new Carbon,
+                        'transaction_journal_id'  => $deposit->id,
+                        'transaction_type_type'   => 'Deposit',
+                        'currency_id'             => $euro->id,
+                        'foreign_currency_id'     => null,
+                        'date'                    => $date,
+                        'source_id'               => 1,
+                        'destination_id'          => 4,
+                        'currency_name'           => $euro->name,
+                        'currency_code'           => $euro->code,
+                        'currency_symbol'         => $euro->symbol,
+                        'currency_decimal_places' => $euro->decimal_places,
+                        'amount'                  => '-30',
+                        'foreign_amount'          => null,
+                        'budget_id'               => $budget->id,
+                    ],
+                ],
+            ];
     }
 
     /**
@@ -390,8 +451,6 @@ abstract class TestCase extends BaseTestCase
         $list        = new Preference;
         $list->data  = 50;
 
-        Preferences::shouldReceive('get')->withArgs(['twoFactorAuthEnabled', false])->andReturn($false);
-        Preferences::shouldReceive('get')->withArgs(['twoFactorAuthSecret'])->andReturnNull();
         Preferences::shouldReceive('get')->withArgs(['viewRange', Mockery::any()])->andReturn($view);
         Preferences::shouldReceive('get')->withArgs(['language', 'en_US'])->andReturn($lang);
         Preferences::shouldReceive('get')->withArgs(['list-length', 10])->andReturn($list);
@@ -588,7 +647,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function getEuro(): TransactionCurrency
     {
-        return TransactionCurrency::find(1);
+        return TransactionCurrency::where('code', 'EUR')->first();
     }
 
     /**

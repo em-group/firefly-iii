@@ -199,6 +199,9 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     public function findByName(string $name): ?PiggyBank
     {
         $set = $this->user->piggyBanks()->get(['piggy_banks.*']);
+
+        // TODO no longer need to loop like this
+
         /** @var PiggyBank $piggy */
         foreach ($set as $piggy) {
             if ($piggy->name === $name) {
@@ -429,31 +432,6 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
         }
 
         return $savePerMonth;
-    }
-
-    /**
-     * @param PiggyBankEvent $event
-     *
-     * @return int|null
-     */
-    public function getTransactionWithEvent(PiggyBankEvent $event): ?int
-    {
-        $journal = $event->transactionJournal;
-        if (null === $journal) {
-            return null;
-        }
-        if ((float)$event->amount < 0) {
-            $transaction = $journal->transactions()->where('amount', '<', 0)->first();
-
-            return $transaction->id ?? null;
-        }
-        if ((float)$event->amount > 0) {
-            $transaction = $journal->transactions()->where('amount', '>', 0)->first();
-
-            return $transaction->id ?? null;
-        }
-
-        return null;
     }
 
     /**

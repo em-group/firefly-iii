@@ -346,8 +346,12 @@ try {
                 if (null !== $group && $group instanceof TransactionGroup) {
                     $breadcrumbs->parent('transactions.show', $object->transactionGroup);
                 }
-                $breadcrumbs->push(limitStringLength($attachment->filename), route('attachments.edit', [$attachment]));
             }
+
+            if ($object instanceof Bill) {
+                $breadcrumbs->parent('bills.show', $object);
+            }
+            $breadcrumbs->push(limitStringLength($attachment->filename), route('attachments.edit', [$attachment]));
         }
     );
     Breadcrumbs::register(
@@ -356,10 +360,13 @@ try {
             $object = $attachment->attachable;
             if ($object instanceof TransactionJournal) {
                 $breadcrumbs->parent('transactions.show', $object->transactionGroup);
-                $breadcrumbs->push(
-                    trans('firefly.delete_attachment', ['name' => limitStringLength($attachment->filename)]), route('attachments.edit', [$attachment])
-                );
             }
+            if ($object instanceof Bill) {
+                $breadcrumbs->parent('bills.show', $object);
+            }
+            $breadcrumbs->push(
+                trans('firefly.delete_attachment', ['name' => limitStringLength($attachment->filename)]), route('attachments.edit', [$attachment])
+            );
         }
     );
 
@@ -712,6 +719,14 @@ try {
 
     Breadcrumbs::register(
         'profile.code',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('home');
+            $breadcrumbs->push(trans('breadcrumbs.profile'), route('profile.index'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'profile.new-backup-codes',
         function (BreadcrumbsGenerator $breadcrumbs) {
             $breadcrumbs->parent('home');
             $breadcrumbs->push(trans('breadcrumbs.profile'), route('profile.index'));
@@ -1111,10 +1126,13 @@ try {
 
     Breadcrumbs::register(
         'transactions.delete',
-        function (BreadcrumbsGenerator $breadcrumbs, TransactionJournal $journal) {
-            $breadcrumbs->parent('transactions.show', $journal);
+        static function (BreadcrumbsGenerator $breadcrumbs, TransactionGroup $group) {
+            $breadcrumbs->parent('transactions.show', $group);
+
+            $journal  = $group->transactionJournals->first();
             $breadcrumbs->push(
-                trans('breadcrumbs.delete_journal', ['description' => limitStringLength($journal->description)]), route('transactions.delete', [$journal->id])
+                trans('breadcrumbs.delete_group', ['description' => limitStringLength($group->title ?? $journal->description)]),
+                route('transactions.delete', [$group->id])
             );
         }
     );

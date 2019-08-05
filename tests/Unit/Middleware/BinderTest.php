@@ -116,7 +116,7 @@ class BinderTest extends TestCase
     public function testAccountListEmpty(): void
     {
         Route::middleware(Binder::class)->any(
-            '/_test/binder/{accountList}', function (Collection $accounts) {
+            '/_test/binder/{accountList}', static function (Collection $accounts) {
             return 'count: ' . $accounts->count();
         }
         );
@@ -1537,6 +1537,8 @@ class BinderTest extends TestCase
     }
 
     /**
+     * TODO there is a random element in this test that breaks the middleware.
+     *
      * @covers \FireflyIII\Http\Middleware\Binder
      * @covers \FireflyIII\Support\Binder\TagOrId
      */

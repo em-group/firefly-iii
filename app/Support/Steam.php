@@ -33,6 +33,7 @@ use stdClass;
 
 /**
  * Class Steam.
+ * @codeCoverageIgnore
  */
 class Steam
 {
@@ -54,7 +55,7 @@ class Steam
         $cache->addProperty('balance');
         $cache->addProperty($date);
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            //return $cache->get(); // @codeCoverageIgnore
         }
         //
         /** @var AccountRepositoryInterface $repository */
