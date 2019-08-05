@@ -33,13 +33,13 @@ return [
 
     // create account:
     'accounts_create_iban'                  => 'Hesaplarınıza geçerli IBAN girin. Bu, ileride veri aktarma işlemini kolaylaştırabilir.',
-    'accounts_create_asset_opening_balance' => 'Aktif hesapların, Firefly\'da bu hesap geçmişinin başlangıcını gösteren bir "açılış bakiyesi" olabilir.',
+    'accounts_create_asset_opening_balance' => 'Aktif hesapların, '.config('app.name').'\'da bu hesap geçmişinin başlangıcını gösteren bir "açılış bakiyesi" olabilir.',
     'accounts_create_asset_currency'        => config('app.name').', birden fazla para birimini destekliyor. Varlık hesaplarının bir ana para birimi var, burada ayarlamanız gerekir.',
     'accounts_create_asset_virtual'         => 'Bazen hesabınıza sanal bir bakiye sağlamanıza yardımcı olabilir: ek bir miktar her zaman gerçek bakiyeye eklenir veya gerçek bakiyeden çıkarılır.',
 
     // budgets index
     'budgets_index_intro'                   => 'Bütçeler, finansmanınızı yönetmek ve '.config('app.name').'\'nin temel işlevlerinden birini oluşturmak için kullanılır.',
-    'budgets_index_set_budget'              => 'Toplam bütçenizi her dönem için belirleyin, böylelikle Firefly size mevcut tüm parayı bütçelendirdiğinizde söyleyebilir.',
+    'budgets_index_set_budget'              => 'Toplam bütçenizi her dönem için belirleyin, böylelikle '.config('app.name').' size mevcut tüm parayı bütçelendirdiğinizde söyleyebilir.',
     'budgets_index_see_expenses_bar'        => 'Para harcamak yavaşça bu çubuğu dolduracaktır.',
     'budgets_index_navigate_periods'        => 'Bütçeleri önceden kolayca ayarlamak için dönemleri gezinin.',
     'budgets_index_new_budget'              => 'Uygun gördüğünüz yeni bütçeler oluşturun.',

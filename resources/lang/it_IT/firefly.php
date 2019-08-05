@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => 'regola inattiva',
 
     // accounts:
-    'account_missing_transaction'             => 'Non è possibile visualizzare il conto #:id (":name") direttamente, a Firefly mancano le informazioni per il reindirizzamento.',
+    'account_missing_transaction'             => 'Non è possibile visualizzare il conto #:id (":name") direttamente, a '.config('app.name').' mancano le informazioni per il reindirizzamento.',
     'details_for_asset'                       => 'Dettagli per conto attività ":name"',
     'details_for_expense'                     => 'Dettagli per conto uscite ":name"',
     'details_for_revenue'                     => 'Dettagli per conto entrate ":name"',

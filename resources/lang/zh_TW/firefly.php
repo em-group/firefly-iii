@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => '未啟用的規則',
 
     // accounts:
-    'account_missing_transaction'             => '帳戶 #:id (":name") 無法直接檢視，惟 Firefly 找不到重新導向資訊。',
+    'account_missing_transaction'             => '帳戶 #:id (":name") 無法直接檢視，惟 '.config('app.name').' 找不到重新導向資訊。',
     'details_for_asset'                       => '資產帳戶 ":name" 的詳細資訊',
     'details_for_expense'                     => '支出帳戶 ":name" 的詳細資訊',
     'details_for_revenue'                     => '收入帳戶 ":name" 的詳細資訊',

@@ -223,7 +223,7 @@ return [
     'job_config_roles_colum_count'    => 'Kolonne',
     // job config for the file provider (stage: mapping):
     'job_config_map_title'            => 'Importoppsett (4/4) - Koble importdata til '.config('app.name').'-data',
-    'job_config_map_text'             => 'I følgende tabeller viser verdien til venstre informasjonen funnet i den opplastede filen. Det er din oppgave å knytte denne verdien, hvis mulig, til en eksisterende verdi i databasen. Firefly vil holde seg til denne tilordningen. Hvis det er ingen verdi å knytte til, eller du ikke ønsker å knytte den, velg ingenting.',
+    'job_config_map_text'             => 'I følgende tabeller viser verdien til venstre informasjonen funnet i den opplastede filen. Det er din oppgave å knytte denne verdien, hvis mulig, til en eksisterende verdi i databasen. '.config('app.name').' vil holde seg til denne tilordningen. Hvis det er ingen verdi å knytte til, eller du ikke ønsker å knytte den, velg ingenting.',
     'job_config_map_nothing'          => 'Det finnes ingen data i filen som du kan koble til eksisterende verdier. Vennligst trykk "Start import" for å fortsette.',
     'job_config_field_value'          => 'Feltverdi',
     'job_config_field_mapped'         => 'Koblet til',

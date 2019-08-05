@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => 'regla inactiva',
 
     // accounts:
-    'account_missing_transaction'             => 'Cuenta #:id (":name") no puede ser vista directamente, Firefly perdió información de redirección.',
+    'account_missing_transaction'             => 'Cuenta #:id (":name") no puede ser vista directamente, '.config('app.name').' perdió información de redirección.',
     'details_for_asset'                       => 'Detalles para la cuenta de activos ":name"',
     'details_for_expense'                     => 'Detalles para la cuenta de gastos ":name"',
     'details_for_revenue'                     => 'Detalles para la cuenta de ingresos ":name"',
@@ -899,10 +899,10 @@ return [
     'submit_yes_really'                       => 'Enviar (Se lo que estoy haciendo)',
     'getting_started'                         => 'Comenzando',
     'to_get_started'                          => 'Es bueno ver que usted ha instalado con éxito '.config('app.name').'. Para comenzar con esta regla, por favor ingrese el nombre de su banco y el saldo de su cuenta de cheques principal. No se preocupe todavía si tiene varias cuentas. usted puede agregarlas luego. Es solo que '.config('app.name').' necesita algo para empezar.',
-    'savings_balance_text'                    => 'Firefly II creará automáticamente una cuenta de ahorros. Por defecto, no habrá dinero en su cuenta de ahorros, pero si le dice a '.config('app.name').' el saldo se almacenará como tal.',
+    'savings_balance_text'                    => config('app.name').' creará automáticamente una cuenta de ahorros. Por defecto, no habrá dinero en su cuenta de ahorros, pero si le dice a '.config('app.name').' el saldo se almacenará como tal.',
     'finish_up_new_user'                      => '¡Eso es! Puedes continuar presionando <strong>Enviar</strong>. Será llevado al inicio de '.config('app.name').'.',
     'stored_new_accounts_new_user'            => 'Hurra! Sus nuevas cuentas han sido almacenadas.',
-    'set_preferred_language'                  => 'Si prefiere usar Firefly II en otro lenguaje, por favor indíquelo aquí.',
+    'set_preferred_language'                  => 'Si prefiere usar '.config('app.name').' en otro lenguaje, por favor indíquelo aquí.',
     'language'                                => 'Idioma',
     'new_savings_account'                     => ':bank_name Cuenta de ahorros',
     'cash_wallet'                             => 'Billetera de efectivo',

@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => '未启用的规则',
 
     // accounts:
-    'account_missing_transaction'             => '帐户 #:id (":name") 无法直接被检视，但 Firefly 找不到重新转向资讯。',
+    'account_missing_transaction'             => '帐户 #:id (":name") 无法直接被检视，但 '.config('app.name').' 找不到重新转向资讯。',
     'details_for_asset'                       => '资产帐户 ":name" 的详细资讯',
     'details_for_expense'                     => '支出帐户 ":name" 的详细资讯',
     'details_for_revenue'                     => '收入帐户 ":name" 的详细资讯',

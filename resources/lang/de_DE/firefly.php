@@ -552,7 +552,7 @@ return [
     'new_password'                            => 'Neues Passwort',
     'new_password_again'                      => 'Neues Passwort (wiederholen)',
     'delete_your_account'                     => 'Ihren Account löschen',
-    'delete_your_account_help'                => 'Das Löschen ihres Benutzerkontos wird ebenfalls alle Konten, Buchungen, etc., also <em>alles</em> was Sie in Firefly gespeichert haben, löschen. Alles geht verloren und kann nicht wiederhergestellt werden.',
+    'delete_your_account_help'                => 'Das Löschen ihres Benutzerkontos wird ebenfalls alle Konten, Buchungen, etc., also <em>alles</em> was Sie in '.config('app.name').' gespeichert haben, löschen. Alles geht verloren und kann nicht wiederhergestellt werden.',
     'delete_your_account_password'            => 'Geben Sie Ihr Kennwort ein um fortzufahren.',
     'password'                                => 'Passwort',
     'are_you_sure'                            => 'Sind Sie sich sicher? Sie können diesen Schritt nicht rückgängig machen.',
@@ -580,7 +580,7 @@ return [
     'login_with_new_email'                    => 'Sie können sich jetzt mit Ihrer neuen E-Mail-Adresse anmelden.',
     'login_with_old_email'                    => 'Sie können sich jetzt wieder mit Ihrer alten E-Mail-Adresse anmelden.',
     'login_provider_local_only'               => 'Diese Aktion ist bei der Authentifizierung durch ":login_provider" nicht verfügbar.',
-    'delete_local_info_only'                  => 'Dies wird nur lokale Firefly-III-Informationen löschen, da Sie durch ":login_provider" authentifiziert sind.',
+    'delete_local_info_only'                  => 'Dies wird nur lokale '.config('app.name').'-Informationen löschen, da Sie durch ":login_provider" authentifiziert sind.',
 
     // attachments
     'nr_of_attachments'                       => 'Ein Anhang |:count Anhänge',

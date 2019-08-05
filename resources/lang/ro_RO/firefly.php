@@ -4,20 +4,20 @@
  * firefly.php
  * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
- * This file is part of Firefly III.
+ * This file is part of '.config('app.name').'.
  *
- * Firefly III is free software: you can redistribute it and/or modify
+ * '.config('app.name').' is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * '.config('app.name').' is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * along with '.config('app.name').'. If not, see <http://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -203,15 +203,15 @@ return [
     // check for updates:
     'update_check_title'                         => 'Verifică actualizări',
     'admin_update_check_title'                   => 'Verificați automat actualizarea',
-    'admin_update_check_explain'                 => 'Firefly III poate verifica automat actualizările. Când activați această setare, va contacta Github pentru a vedea dacă este disponibilă o nouă versiune de Firefly III. Când este, veți primi o notificare. Puteți testa această notificare utilizând butonul din dreapta. Indicați mai jos dacă doriți ca Firefly III să verifice actualizările.',
-    'check_for_updates_permission'               => 'Firefly III poate verifica actualizările, dar are nevoie de permisiunea dvs. pentru a face acest lucru. Accesați <a href=":link"> link-ul </a> pentru a indica dacă doriți ca această funcție să fie activată.',
+    'admin_update_check_explain'                 => config('app.name').' poate verifica automat actualizările. Când activați această setare, va contacta Github pentru a vedea dacă este disponibilă o nouă versiune de '.config('app.name').'. Când este, veți primi o notificare. Puteți testa această notificare utilizând butonul din dreapta. Indicați mai jos dacă doriți ca '.config('app.name').' să verifice actualizările.',
+    'check_for_updates_permission'               => config('app.name').' poate verifica actualizările, dar are nevoie de permisiunea dvs. pentru a face acest lucru. Accesați <a href=":link"> link-ul </a> pentru a indica dacă doriți ca această funcție să fie activată.',
     'updates_ask_me_later'                       => 'Intreabă-mă mai târziu',
     'updates_do_not_check'                       => 'Nu verificați actualizările',
     'updates_enable_check'                       => 'Activați verificarea pentru actualizări',
     'admin_update_check_now_title'               => 'Verificați actualizările acum',
-    'admin_update_check_now_explain'             => 'Dacă apăsați butonul, Firefly III va vedea dacă versiunea curentă este cea mai recentă.',
+    'admin_update_check_now_explain'             => 'Dacă apăsați butonul, '.config('app.name').' va vedea dacă versiunea curentă este cea mai recentă.',
     'check_for_updates_button'                   => 'Verifică acum!',
-    'update_new_version_alert'                   => 'O nouă versiune de Firefly III este disponibilă. Dvs. aveți v:your_version, ultima versiune este v:new_version lansată în data de :date.',
+    'update_new_version_alert'                   => 'O nouă versiune de '.config('app.name').' este disponibilă. Dvs. aveți v:your_version, ultima versiune este v:new_version lansată în data de :date.',
     'update_current_version_alert'               => 'Aveți versiunea v:version, care este ultima disponibilă.',
     'update_newer_version_alert'                 => 'Aveți versiunea v:your_version, care este mai nouă decât cea mai recentă versiune, v:new_version.',
     'update_check_error'                         => 'A apărut o eroare la verificarea actualizărilor. Consultați log-urile.',
@@ -220,7 +220,7 @@ return [
     'search'                                     => 'Caută',
     'search_query'                               => 'Interogare',
     'search_found_transactions'                  => 'Numărul de tranzacții găsite:',
-    'search_for_query'                           => 'Firefly III este în căutarea pentru tranzacţii cu toate aceste cuvinte în ele: <span class="text-info">:query</span>',
+    'search_for_query'                           => config('app.name').' este în căutarea pentru tranzacţii cu toate aceste cuvinte în ele: <span class="text-info">:query</span>',
     'search_modifier_amount_is'                  => 'Suma este exact :value',
     'search_modifier_amount'                     => 'Suma este exact :value',
     'search_modifier_amount_max'                 => 'Suma este la cele mai multe :value',
@@ -281,7 +281,7 @@ return [
     'save_rules_by_moving'                       => 'Salvați aceste reguli prin mutarea lor într-un alt grup de reguli',
     'make_new_rule'                              => 'Creați o nouă regulă în grupul de reguli ":title"',
     'make_new_rule_no_group'                     => 'Creați o nouă regulă',
-    'instructions_rule_from_bill'                => 'Pentru a potrivi tranzacția cu noua factură ":name", Firefly III poate crea o regulă care va fi verificată automat împotriva tranzacțiilor pe care le stocați. Verificați detaliile de mai jos și păstrați regula pentru ca Firefly III să potrivească automat tranzacțiile cu factura nouă.',
+    'instructions_rule_from_bill'                => 'Pentru a potrivi tranzacția cu noua factură ":name", '.config('app.name').' poate crea o regulă care va fi verificată automat împotriva tranzacțiilor pe care le stocați. Verificați detaliile de mai jos și păstrați regula pentru ca '.config('app.name').' să potrivească automat tranzacțiile cu factura nouă.',
     'rule_is_strict'                             => 'regulă strictă',
     'rule_is_not_strict'                         => 'regulă nestrictă',
     'rule_help_stop_processing'                  => 'Când bifați această casetă, regulile ulterioare din acest grup nu vor fi executate.',
@@ -441,7 +441,7 @@ return [
     'rule_for_bill_title'                     => 'Regulă generată automat pentru factura ":name"',
     'rule_for_bill_description'               => 'Această regulă este generată automat pentru a încerca să se potrivească cu factura ":name".',
     'create_rule_for_bill'                    => 'Creați o nouă regulă pentru factura ":name"',
-    'create_rule_for_bill_txt'                => 'Felicitări, tocmai ați creat o nouă factură numită ":name"! Firefly III poate să potrivească automat noi retrageri la acestă factură. De exemplu, ori de câte ori plătiți chiria, factura "chiria" va fi legată de cheltuială. În acest fel, Firefly III vă poate arăta cu exactitate care facturi sunt datorate și care nu sunt. Pentru a face acest lucru, trebuie creată o nouă regulă. Firefly III a completat câteva valori implicite pentru dvs. Asigurați-vă că acestea sunt corecte. Dacă aceste valori sunt corecte, Firefly III va conecta automat retragerea corectă la factura corectă. Verificați declanșatoarele pentru a vedea dacă acestea sunt corecte și adăugați altele dacă sunt greșite.',
+    'create_rule_for_bill_txt'                => 'Felicitări, tocmai ați creat o nouă factură numită ":name"! '.config('app.name').' poate să potrivească automat noi retrageri la acestă factură. De exemplu, ori de câte ori plătiți chiria, factura "chiria" va fi legată de cheltuială. În acest fel, '.config('app.name').' vă poate arăta cu exactitate care facturi sunt datorate și care nu sunt. Pentru a face acest lucru, trebuie creată o nouă regulă. '.config('app.name').' a completat câteva valori implicite pentru dvs. Asigurați-vă că acestea sunt corecte. Dacă aceste valori sunt corecte, '.config('app.name').' va conecta automat retragerea corectă la factura corectă. Verificați declanșatoarele pentru a vedea dacă acestea sunt corecte și adăugați altele dacă sunt greșite.',
     'new_rule_for_bill_title'                 => 'Regula privind factura ":name"',
     'new_rule_for_bill_description'           => 'Această regulă marchează tranzacțiile pentru factura ":name".',
 
@@ -470,7 +470,7 @@ return [
     'pref_6M'                                 => 'Șase luni',
     'pref_1Y'                                 => 'Un an',
     'pref_languages'                          => 'Limbi',
-    'pref_languages_help'                     => 'Firefly III acceptă mai multe limbi. Pe care o preferați?',
+    'pref_languages_help'                     => config('app.name').' acceptă mai multe limbi. Pe care o preferați?',
     'pref_custom_fiscal_year'                 => 'Setări an fiscal',
     'pref_custom_fiscal_year_label'           => 'Activat',
     'pref_custom_fiscal_year_help'            => 'În țările care utilizează un exercițiu financiar, altul decât 1 ianuarie până la 31 decembrie, puteți să le activați și să specificați zilele de începere / sfârșit ale anului fiscal',
@@ -537,10 +537,10 @@ return [
     'what_is_pw_security'                     => 'Ce este "verificarea securității parolei"?',
     'secure_pw_title'                         => 'Cum alegeți o parolă sigură',
     'secure_pw_history'                       => 'Nu trece nici săptămână și citiți în știri despre un site care pierde parolele utilizatorilor săi. Hackerii și hoții utilizează aceste parole pentru a încerca să vă fure informațiile private. Aceste informații sunt valoroase.',
-    'secure_pw_ff'                            => 'Utilizați aceeași parolă pe tot internetul? Dacă un site pierde parola, hackerii au acces la toate datele. Firefly III se bazează pe dvs. pentru a alege o parolă puternică și unică pentru a vă proteja înregistrările financiare.',
-    'secure_pw_check_box'                     => 'Pentru a vă ajuta să faceți acest lucru Firefly III poate verifica dacă parola pe care doriți să o utilizați a fost furată în trecut. Dacă este cazul, Firefly III vă sfătuiește NU să utilizați parola respectivă.',
+    'secure_pw_ff'                            => 'Utilizați aceeași parolă pe tot internetul? Dacă un site pierde parola, hackerii au acces la toate datele. '.config('app.name').' se bazează pe dvs. pentru a alege o parolă puternică și unică pentru a vă proteja înregistrările financiare.',
+    'secure_pw_check_box'                     => 'Pentru a vă ajuta să faceți acest lucru '.config('app.name').' poate verifica dacă parola pe care doriți să o utilizați a fost furată în trecut. Dacă este cazul, '.config('app.name').' vă sfătuiește NU să utilizați parola respectivă.',
     'secure_pw_working_title'                 => 'Cum funcționează?',
-    'secure_pw_working'                       => 'Dacă bifați caseta, Firefly III va trimite primele cinci caractere ale hash-ului SHA1 al parolei dvs. la <a href = "https://www.troyhunt.com/introducing-306-million-freely-downloadable-pwned-passwords/ "> site-ul Troy Hunt </a> pentru a vedea dacă este în listă. Acest lucru vă va împiedica să utilizați parole nesigure, așa cum se recomandă în cele mai recente<a href="https://pages.nist.gov/800-63-3/sp800-63b.html"> articole de specialitate pe NIST </a> pe acest subiect.',
+    'secure_pw_working'                       => 'Dacă bifați caseta, '.config('app.name').' va trimite primele cinci caractere ale hash-ului SHA1 al parolei dvs. la <a href = "https://www.troyhunt.com/introducing-306-million-freely-downloadable-pwned-passwords/ "> site-ul Troy Hunt </a> pentru a vedea dacă este în listă. Acest lucru vă va împiedica să utilizați parole nesigure, așa cum se recomandă în cele mai recente<a href="https://pages.nist.gov/800-63-3/sp800-63b.html"> articole de specialitate pe NIST </a> pe acest subiect.',
     'secure_pw_should'                        => 'Ar trebui să bifez caseta??',
     'secure_pw_long_password'                 => 'Da. Verificați întotdeauna că parola este sigură.',
     'command_line_token'                      => 'Token-ul liniei de comandă',
@@ -548,12 +548,12 @@ return [
     'regenerate_command_line_token'           => 'Regenerați token-ul liniei de comandă',
     'token_regenerated'                       => 'A fost generat un nou token de linie de comandă',
     'change_your_email'                       => 'Schimbați adresa dvs. de e-mail',
-    'email_verification'                      => 'Va fi trimis un email pe vechea si noua adresă de e-mail. Din motive de securitate, nu veți putea să vă conectați până când nu vă confirmați noua adresă de e-mail. Dacă nu sunteți sigur că instalarea dvs. Firefly III este capabilă să trimită e-mailuri, vă rugăm să nu utilizați această caracteristică. Dacă sunteți administrator, puteți testa acest lucru în <a href="/admin"> Admin </a>.',
+    'email_verification'                      => 'Va fi trimis un email pe vechea si noua adresă de e-mail. Din motive de securitate, nu veți putea să vă conectați până când nu vă confirmați noua adresă de e-mail. Dacă nu sunteți sigur că instalarea dvs. '.config('app.name').' este capabilă să trimită e-mailuri, vă rugăm să nu utilizați această caracteristică. Dacă sunteți administrator, puteți testa acest lucru în <a href="/admin"> Admin </a>.',
     'email_changed_logout'                    => 'Până când nu vă confirmați adresa de e-mail, nu vă puteți conecta.',
     'login_with_new_email'                    => 'Acum vă puteți conecta cu noua dvs. adresă de e-mail.',
     'login_with_old_email'                    => 'Acum puteți să vă conectați din nou cu vechea adresă de e-mail.',
     'login_provider_local_only'               => 'Această acțiune nu este disponibilă când vă autentificați prin ":login_provider".',
-    'delete_local_info_only'                  => 'Pentru că vă autentificați prin ":login_provider", acest lucru va șterge numai informațiile locale despre Firefly III.',
+    'delete_local_info_only'                  => 'Pentru că vă autentificați prin ":login_provider", acest lucru va șterge numai informațiile locale despre '.config('app.name').'.',
 
     // attachments
     'nr_of_attachments'                       => 'Un atașament|:count atașamente',
@@ -634,7 +634,7 @@ return [
     'could_not_store_currency'                => 'Nu am putut stoca o nouă monedă.',
     'updated_currency'                        => 'Moneda :name actualizată',
     'ask_site_owner'                          => 'Vă rugăm să întrebați :owner să adăuge, elimine sau editeze valute.',
-    'currencies_intro'                        => 'Firefly III acceptă diferite valute pe care le puteți seta și activa aici.',
+    'currencies_intro'                        => config('app.name').' acceptă diferite valute pe care le puteți seta și activa aici.',
     'make_default_currency'                   => 'Faceți implicit',
     'default_currency'                        => 'implicit',
     'currency_is_disabled'                    => 'Dezactivat',
@@ -681,8 +681,8 @@ return [
     'bill_related_rules'                      => 'Reguli legate de această factură',
     'repeats'                                 => 'Repetă',
     'connected_journals'                      => 'Tranzacții conectate',
-    'auto_match_on'                           => 'Potrivire automată făcută de Firefly III',
-    'auto_match_off'                          => 'Potrivirea nu este făcută automat de Firefly III',
+    'auto_match_on'                           => 'Potrivire automată făcută de '.config('app.name'),
+    'auto_match_off'                          => 'Potrivirea nu este făcută automat de '.config('app.name'),
     'next_expected_match'                     => 'Următoarea potrivire asteptată',
     'delete_bill'                             => 'Șterge factura ":name"',
     'deleted_bill'                            => 'Factura ":name" stearsă',
@@ -871,11 +871,11 @@ return [
     'submit'                                  => 'Trimite',
     'submit_yes_really'                       => 'Trimite (Știu ce fac)',
     'getting_started'                         => 'Introducere',
-    'to_get_started'                          => 'Este bine să vedeți că ați instalat cu succes Firefly III. Pentru a începe cu acest instrument, introduceți numele băncii dvs. și soldul contului de control principal. Nu vă faceți griji încă dacă aveți mai multe conturi. Puteți să le adăugați mai târziu. Firefly III are nevoie de ceva de început.',
-    'savings_balance_text'                    => 'Firefly III va crea automat un cont de economii pentru dvs. În mod implicit, în contul dvs. de economii nu vor mai fi bani, dar dacă scrii balanța, acesta va fi salvat.',
-    'finish_up_new_user'                      => 'Asta e! Puteți continua apăsând pe <strong> Trimiteți </ strong>. Veți fi duși la indexul Firefly III.',
+    'to_get_started'                          => 'Este bine să vedeți că ați instalat cu succes '.config('app.name').'. Pentru a începe cu acest instrument, introduceți numele băncii dvs. și soldul contului de control principal. Nu vă faceți griji încă dacă aveți mai multe conturi. Puteți să le adăugați mai târziu. '.config('app.name').' are nevoie de ceva de început.',
+    'savings_balance_text'                    => config('app.name').' va crea automat un cont de economii pentru dvs. În mod implicit, în contul dvs. de economii nu vor mai fi bani, dar dacă scrii balanța, acesta va fi salvat.',
+    'finish_up_new_user'                      => 'Asta e! Puteți continua apăsând pe <strong> Trimiteți </ strong>. Veți fi duși la indexul '.config('app.name').'.',
     'stored_new_accounts_new_user'            => 'Ura! Conturile dvs. noi au fost salvate.',
-    'set_preferred_language'                  => 'Dacă preferați să utilizați Firefly III într-o altă limbă, vă rugăm să indicați aici.',
+    'set_preferred_language'                  => 'Dacă preferați să utilizați '.config('app.name').' într-o altă limbă, vă rugăm să indicați aici.',
     'language'                                => 'Limbă',
     'new_savings_account'                     => ':bank_name cont de economii',
     'cash_wallet'                             => 'Portofel în numerar',
@@ -1153,7 +1153,7 @@ return [
     'instance_configuration'           => 'Configurare',
     'firefly_instance_configuration'   => 'Opțiuni configurare',
     'setting_single_user_mode'         => 'Mod de utilizator unic',
-    'setting_single_user_mode_explain' => 'În mod implicit, Firefly III acceptă numai o înregistrare: dvs. Aceasta este o măsură de securitate, împiedicând pe alții să vă folosească instanța dacă nu le permiteți. Inregistrările viitoare sunt blocate. Când debifați această casetă, alții vă pot folosi și instanța, presupunând că pot ajunge la ea (când este conectată la internet).',
+    'setting_single_user_mode_explain' => 'În mod implicit, '.config('app.name').' acceptă numai o înregistrare: dvs. Aceasta este o măsură de securitate, împiedicând pe alții să vă folosească instanța dacă nu le permiteți. Inregistrările viitoare sunt blocate. Când debifați această casetă, alții vă pot folosi și instanța, presupunând că pot ajunge la ea (când este conectată la internet).',
     'store_configuration'              => 'Salvați configurarea',
     'single_user_administration'       => 'Administrare utilizator pentru :email',
     'edit_user'                        => 'Editați user :email',
@@ -1260,17 +1260,17 @@ return [
     'cannot_convert_split_journal'          => 'Nu se poate converti o tranzacție divizată',
 
     // Import page (general strings only)
-    'import_index_title'                    => 'Importă tranzacții în Firefly III',
+    'import_index_title'                    => 'Importă tranzacții în '.config('app.name'),
     'import_data'                           => 'Importă date',
     'import_transactions'                   => 'Importă tranzacții',
 
     // sandstorm.io errors and messages:
-    'sandstorm_not_available'               => 'Această funcție nu este disponibilă când utilizați Firefly III într-un mediu Sandstorm.io.',
+    'sandstorm_not_available'               => 'Această funcție nu este disponibilă când utilizați '.config('app.name').' într-un mediu Sandstorm.io.',
 
     // empty lists? no objects? instructions:
     'no_accounts_title_asset'               => 'Să cream un cont de active!',
     'no_accounts_intro_asset'               => 'Nu ai încă nici un cont de active. Contul de active sunt conturile principale: contul dvs. de verificare, contul de economii, contul partajat sau chiar cardul dvs. de credit.',
-    'no_accounts_imperative_asset'          => 'Pentru a începe să utilizați Firefly III, trebuie să creați cel puțin un cont de active. Să o facem acum:',
+    'no_accounts_imperative_asset'          => 'Pentru a începe să utilizați '.config('app.name').', trebuie să creați cel puțin un cont de active. Să o facem acum:',
     'no_accounts_create_asset'              => 'Creați un cont de active',
     'no_accounts_title_expense'             => 'Să cream un cont de cheltuieli!',
     'no_accounts_intro_expense'             => 'Nu ai încă nici un cont de cheltuieli. Cont de cheltuieli sunt locurile unde cheltuiți bani, cum ar fi magazinele și supermarketurile.',
@@ -1321,7 +1321,7 @@ return [
     'recurrences'                           => 'Tranzacții recurente',
     'recurring_calendar_view'               => 'Calendar',
     'no_recurring_title_default'            => 'Să cream o tranzacție recurentă!',
-    'no_recurring_intro_default'            => 'Nu ai încă nici o tranzacție recurentă. Puteți utiliza aceste pentru a face Firefly III să creeze automat tranzacții pentru dvs..',
+    'no_recurring_intro_default'            => 'Nu ai încă nici o tranzacție recurentă. Puteți utiliza aceste pentru a face '.config('app.name').' să creeze automat tranzacții pentru dvs..',
     'no_recurring_imperative_default'       => 'Aceasta este o caracteristică destul de avansată, dar poate fi extrem de utilă. Asigurați-vă că ați citit documentația (?) - pictograma din colțul din dreapta sus) înainte de a continua.',
     'no_recurring_create_default'           => 'Creați o tranzacție recurentă',
     'make_new_recurring'                    => 'Creați o tranzacție recurentă',
@@ -1331,7 +1331,7 @@ return [
     'recurring_ndom'                        => 'În fiecare lună pe :dayOfMonth(st/nd/rd/th) :weekday',
     'recurring_yearly'                      => 'În fiecare an :date',
     'overview_for_recurrence'               => 'Prezentare generală a tranzacției recurente ":title"',
-    'warning_duplicates_repetitions'        => 'În cazuri rare, datele apar de două ori în această listă. Acest lucru se poate întâmpla când mai multe repetări se ciocnesc. Firefly III va genera întotdeauna o tranzacție pe zi.',
+    'warning_duplicates_repetitions'        => 'În cazuri rare, datele apar de două ori în această listă. Acest lucru se poate întâmpla când mai multe repetări se ciocnesc. '.config('app.name').' va genera întotdeauna o tranzacție pe zi.',
     'created_transactions'                  => 'Operațiuni înrudite',
     'expected_withdrawals'                  => 'Retragerile preconizate',
     'expected_deposits'                     => 'Depozitele preconizate',
@@ -1340,7 +1340,7 @@ return [
     'created_deposits'                      => 'Depozitele create',
     'created_transfers'                     => 'Transferurile create',
     'created_from_recurrence'               => 'Creat din tranzacții recurente ":title" (#:id)',
-    'recurring_never_cron'                  => 'Se pare că cron-job-ul necesar pentru a susține tranzacțiile recurente nu a avut loc niciodată. Acest lucru este, desigur, normal când ați instalat Firefly III, dar acest lucru ar trebui să fie ceva de instalat cât mai curând posibil. Consultați paginile de ajutor utilizând pictograma (?) - în colțul din dreapta sus al paginii.',
+    'recurring_never_cron'                  => 'Se pare că cron-job-ul necesar pentru a susține tranzacțiile recurente nu a avut loc niciodată. Acest lucru este, desigur, normal când ați instalat '.config('app.name').', dar acest lucru ar trebui să fie ceva de instalat cât mai curând posibil. Consultați paginile de ajutor utilizând pictograma (?) - în colțul din dreapta sus al paginii.',
     'recurring_cron_long_ago'               => 'Se pare că au trecut mai mult de 36 de ore de când cron-job-ul pentru susținerea tranzacțiilor recurente a fost utilizat. Sunteți sigur că a fost configurat corect? Consultați paginile de ajutor utilizând pictograma (?) - în colțul din dreapta sus al paginii.',
 
     'recurring_meta_field_tags'          => 'Etichete',
@@ -1349,7 +1349,7 @@ return [
     'recurring_meta_field_piggy_bank_id' => 'Pușculiță',
     'create_new_recurrence'              => 'Creați o nouă tranzacție recurentă',
     'help_first_date'                    => 'Indicați prima recurență așteptată. Aceasta trebuie să fie în viitor.',
-    'help_first_date_no_past'            => 'Indicați prima recurență așteptată. Firefly III nu va crea tranzacții în trecut.',
+    'help_first_date_no_past'            => 'Indicați prima recurență așteptată. '.config('app.name').' nu va crea tranzacții în trecut.',
     'no_currency'                        => '(nici o monedă)',
     'mandatory_for_recurring'            => 'Informații obligatorii despre recurență',
     'mandatory_for_transaction'          => 'Informații obligatorii despre tranzacții',
@@ -1374,7 +1374,7 @@ return [
     'recurrence_is_inactive'             => 'Această tranzacție recurentă nu este activă și nu va genera noi tranzacții.',
     'delete_recurring'                   => 'Șterge tranzacția recurentă ":title"',
     'new_recurring_transaction'          => 'Tranzacție recurentă nouă',
-    'help_weekend'                       => 'Ce ar trebui să facă Firefly III atunci când tranzacția recurentă cade într-o sâmbătă sau duminică?',
+    'help_weekend'                       => 'Ce ar trebui să facă '.config('app.name').' atunci când tranzacția recurentă cade într-o sâmbătă sau duminică?',
     'do_nothing'                         => 'Doar creați tranzacția',
     'skip_transaction'                   => 'Treceți peste apariție',
     'jump_to_friday'                     => 'Creați tranzacția din vineri precedentă',

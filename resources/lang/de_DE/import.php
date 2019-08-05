@@ -195,7 +195,7 @@ return [
     'job_config_fints_username_help'  => 'Bei vielen Banken ist dies Ihre Kontonummer.',
     'job_config_fints_port_help'      => 'Der Standard-Port ist 443.',
     'job_config_fints_account_help'   => 'Bankkonto wählen, von dem Sie Buchungen importieren möchten.',
-    'job_config_local_account_help'   => 'Firefly-III-Konto wählen, das Ihrem oben gewählten Bankkonto entspricht.',
+    'job_config_local_account_help'   => config('app.name').'-Konto wählen, das Ihrem oben gewählten Bankkonto entspricht.',
     // specifics:
     'specific_ing_name'               => 'ING NL',
     'specific_ing_descr'              => 'Bessere Beschreibungen im ING-Export erstellen',
@@ -223,7 +223,7 @@ return [
     'job_config_roles_colum_count'    => 'Spalte',
     // job config for the file provider (stage: mapping):
     'job_config_map_title'            => 'Import einrichten (4/4) - Importdaten mit '.config('app.name').'-Daten verknüpfen',
-    'job_config_map_text'             => 'In den folgenden Tabellen zeigt der linke Wert Informationen, die sich in Ihrer hochgeladenen Datei befinden. Es ist Ihre Aufgabe, diesen Wert, wenn möglich, einem bereits in der Datenbank vorhandenen zuzuordnen. Firefly wird sich an diese Zuordnung halten. Wenn kein Wert für die Zuordnung vorhanden ist oder Sie den bestimmten Wert nicht abbilden möchten, wählen Sie nichts aus.',
+    'job_config_map_text'             => 'In den folgenden Tabellen zeigt der linke Wert Informationen, die sich in Ihrer hochgeladenen Datei befinden. Es ist Ihre Aufgabe, diesen Wert, wenn möglich, einem bereits in der Datenbank vorhandenen zuzuordnen. '.config('app.name').' wird sich an diese Zuordnung halten. Wenn kein Wert für die Zuordnung vorhanden ist oder Sie den bestimmten Wert nicht abbilden möchten, wählen Sie nichts aus.',
     'job_config_map_nothing'          => 'Ihre Datei enthält keine Daten, die bestehenden Werten zugeordnet werden können. Klicken Sie „Import starten” um fortzufahren.',
     'job_config_field_value'          => 'Feldwert',
     'job_config_field_mapped'         => 'Zugeordnet zu',

@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Benutzername',
     'fints_password'        => 'PIN/Passwort',
     'fints_account'         => 'FinTS-Konto',
-    'local_account'         => 'Firefly-III-Konto',
+    'local_account'         => config('app.name').'-Konto',
     'from_date'             => 'Datum ab',
     'to_date'               => 'Datum bis',
 

@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => 'regra inativa',
 
     // accounts:
-    'account_missing_transaction'             => 'Conta #:id (":name") não pode ser visualizada diretamente, mas o Firefly está sem informação de redirecionamento.',
+    'account_missing_transaction'             => 'Conta #:id (":name") não pode ser visualizada diretamente, mas o '.config('app.name').' está sem informação de redirecionamento.',
     'details_for_asset'                       => 'Detalhes para a conta de ativo ":name"',
     'details_for_expense'                     => 'Detalhes para a conta de despesas ":name"',
     'details_for_revenue'                     => 'Detalhes para a conta de receitas ":name"',

@@ -223,7 +223,7 @@ return [
     'job_config_roles_colum_count'    => 'Kolom',
     // job config for the file provider (stage: mapping):
     'job_config_map_title'            => 'Importinstellingen (4/4) - Link importgegevens aan '.config('app.name').'-gegevens',
-    'job_config_map_text'             => 'In deze tabellen is de linkerwaarde een waarde uit je CSV bestand. Jij moet de link leggen, als mogelijk, met een waarde uit jouw database. Firefly houdt zich hier aan. Als er geen waarde is, selecteer dan ook niets.',
+    'job_config_map_text'             => 'In deze tabellen is de linkerwaarde een waarde uit je CSV bestand. Jij moet de link leggen, als mogelijk, met een waarde uit jouw database. '.config('app.name').' houdt zich hier aan. Als er geen waarde is, selecteer dan ook niets.',
     'job_config_map_nothing'          => 'Je gaat geen gegevens importeren die te mappen zijn. Klik op "Start import" om verder te gaan.',
     'job_config_field_value'          => 'Veldwaarde',
     'job_config_field_mapped'         => 'Gelinkt aan',

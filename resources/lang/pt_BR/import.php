@@ -223,7 +223,7 @@ return [
     'job_config_roles_colum_count'    => 'Coluna',
     // job config for the file provider (stage: mapping):
     'job_config_map_title'            => 'Import setup (4/4) - Connect import data to '.config('app.name').' data',
-    'job_config_map_text'             => 'In the following tables, the left value shows you information found in your uploaded file. It is your task to map this value, if possible, to a value already present in your database. Firefly will stick to this mapping. If there is no value to map to, or you do not wish to map the specific value, select nothing.',
+    'job_config_map_text'             => 'In the following tables, the left value shows you information found in your uploaded file. It is your task to map this value, if possible, to a value already present in your database. '.config('app.name').' will stick to this mapping. If there is no value to map to, or you do not wish to map the specific value, select nothing.',
     'job_config_map_nothing'          => 'There is no data present in your file that you can map to existing values. Please press "Start the import" to continue.',
     'job_config_field_value'          => 'Valor do campo',
     'job_config_field_mapped'         => 'Mapped to',

@@ -735,7 +735,7 @@ işlemlerin kontrol edildiğini lütfen unutmayın.',
     'list_inactive_rule'                      => 'Etkin Olmayan Kurallar',
 
     // accounts:
-    'account_missing_transaction'             => 'Account #:id (":name") cannot be viewed directly, but Firefly is missing redirect information.',
+    'account_missing_transaction'             => 'Account #:id (":name") cannot be viewed directly, but '.config('app.name').' is missing redirect information.',
     'details_for_asset'                       => '":name" Varlık hesabı ayrıntıları',
     'details_for_expense'                     => '":name" Harcama hesabı ayrıntıları',
     'details_for_revenue'                     => '":name" Gelir hesabı ayrıntıları',

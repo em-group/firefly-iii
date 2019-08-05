@@ -99,7 +99,7 @@ return [
     'job_config_file_upload_submit'       => 'Envoyer des fichiers',
     'import_file_type_csv'                => 'CSV (valeurs séparées par des virgules)',
     'import_file_type_ofx'                => 'OFX',
-    'file_not_utf8'                       => 'Le fichier téléchargé n\'est pas encodé en UTF-8 ou en ASCII. Firefly ne peut pas gérer un tel fichier. Veuillez utiliser Notepad++ ou Sublime Text pour convertir votre fichier en UTF-8.',
+    'file_not_utf8'                       => 'Le fichier téléchargé n\'est pas encodé en UTF-8 ou en ASCII. '.config('app.name').' ne peut pas gérer un tel fichier. Veuillez utiliser Notepad++ ou Sublime Text pour convertir votre fichier en UTF-8.',
     'job_config_uc_title'                 => 'Configuration de l\'importation (2/4) - Configuration du fichier importé',
     'job_config_uc_text'                  => 'Pour pouvoir importer votre fichier correctement, veuillez valider les options ci-dessous.',
     'job_config_uc_header_help'           => 'Cochez cette case si la première ligne de votre fichier CSV contient les entêtes des colonnes.',

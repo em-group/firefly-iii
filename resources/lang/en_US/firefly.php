@@ -94,7 +94,7 @@ return [
     'two_factor_lost_intro'                      => 'If you lost your backup codes as well, you have bad luck. This is not something you can fix from the web interface. You have two choices.',
     'two_factor_lost_fix_self'                   => 'If you run your own instance of '.config('app.name').', check the logs in <code>storage/logs</code> for instructions, or run <code>docker logs &lt;container_id&gt;</code> to see the instructions (refresh this page).',
     'two_factor_lost_fix_owner'                  => 'Otherwise, email the site owner, <a href="mailto::site_owner">:site_owner</a> and ask them to reset your two factor authentication.',
-    'mfa_backup_code'                            => 'You have used a backup code to login to Firefly III. It can\'t be used again, so cross it from your list.',
+    'mfa_backup_code'                            => 'You have used a backup code to login to '.config('app.name').'. It can\'t be used again, so cross it from your list.',
     'pref_two_factor_new_backup_codes'           => 'Get new backup codes',
     'pref_two_factor_backup_code_count'          => 'You have :count valid backup code(s).',
     '2fa_i_have_them'                            => 'I stored them!',
@@ -742,7 +742,7 @@ return [
     'list_inactive_rule'                      => 'inactive rule',
 
     // accounts:
-    'account_missing_transaction'             => 'Account #:id (":name") cannot be viewed directly, but Firefly is missing redirect information.',
+    'account_missing_transaction'             => 'Account #:id (":name") cannot be viewed directly, but '.config('app.name').' is missing redirect information.',
     'details_for_asset'                       => 'Details for asset account ":name"',
     'details_for_expense'                     => 'Details for expense account ":name"',
     'details_for_revenue'                     => 'Details for revenue account ":name"',
@@ -1253,7 +1253,7 @@ return [
     'do_not_save_connection'                => '(do not save connection)',
     'link_transaction'                      => 'Link transaction',
     'link_to_other_transaction'             => 'Link this transaction to another transaction',
-    'select_transaction_to_link'            => 'Select a transaction to link this transaction to. The links are currently unused in Firefly III (apart from being shown), but I plan to change this in the future. Use the search box to select a transaction either by title or by ID. If you want to add custom link types, check out the administration section.',
+    'select_transaction_to_link'            => 'Select a transaction to link this transaction to. The links are currently unused in '.config('app.name').' (apart from being shown), but I plan to change this in the future. Use the search box to select a transaction either by title or by ID. If you want to add custom link types, check out the administration section.',
     'this_transaction'                      => 'This transaction',
     'transaction'                           => 'Transaction',
     'comments'                              => 'Comments',

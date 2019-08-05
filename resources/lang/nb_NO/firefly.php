@@ -732,7 +732,7 @@ return [
     'list_inactive_rule'                      => 'inaktiv regel',
 
     // accounts:
-    'account_missing_transaction'             => 'Konto #:id (":name") kan ikke bli vist direkte, Firefly mangler omdirigerings informasjon.',
+    'account_missing_transaction'             => 'Konto #:id (":name") kan ikke bli vist direkte, '.config('app.name').' mangler omdirigerings informasjon.',
     'details_for_asset'                       => 'Detaljer for brukskonto ":name"',
     'details_for_expense'                     => 'Detaljer for utgiftskonto ":name"',
     'details_for_revenue'                     => 'Detaljer for inntektskonto ":name"',
