@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => '欢迎来到 Firefly III 的首页。请花时间参观一下这个介绍，瞭解 Firefly III 是如何运作的。',
+    'index_intro'                           => '欢迎来到 '.config('app.name').' 的首页。请花时间参观一下这个介绍，瞭解 '.config('app.name').' 是如何运作的。',
     'index_accounts-chart'                  => '此图表显示您的资产帐户的目前馀额，您可以在偏好设定中选择此处可见的帐户。',
     'index_box_out_holder'                  => '这个小盒子和这个旁边的盒子会提供您财务状况的快速概览。',
     'index_help'                            => '如果您需要有关页面或表单的说明，请按此按钮。',
-    'index_outro'                           => 'Firefly III 的大多数页面将从像这样的小介绍开始，如果您有任何问题或意见，请与我联繫。请享受！',
+    'index_outro'                           => config('app.name').' 的大多数页面将从像这样的小介绍开始，如果您有任何问题或意见，请与我联繫。请享受！',
     'index_sidebar-toggle'                  => '若要建立新的交易记录、帐户或其他内容，请使用此图示下的选单。',
 
     // create account:
     'accounts_create_iban'                  => '给您的帐户一个有效的 IBAN，可使未来资料导入变得更容易。',
-    'accounts_create_asset_opening_balance' => '资产帐户可能有一个 "初始馀额"，表示此帐户在 Firefly III 中的纪录开始。',
+    'accounts_create_asset_opening_balance' => '资产帐户可能有一个 "初始馀额"，表示此帐户在 '.config('app.name').' 中的纪录开始。',
     'accounts_create_asset_currency'        => 'Fireflly III 支持多种货币。资产帐户有一种主要货币，您必须在此处设定。',
     'accounts_create_asset_virtual'         => '有时，它可以协助赋予你的帐户一个虚拟额度：一个总是增加至实际馀额中，或自其中删减的固定金额。',
 
     // budgets index
-    'budgets_index_intro'                   => '预算是用来管理你的财务，也是 Firefly III 的核心功能之一。',
-    'budgets_index_set_budget'              => '设定每个期间的总预算，这样 Firefly III 就可以告诉你，是否已经将所有可用的钱设定预算。',
+    'budgets_index_intro'                   => '预算是用来管理你的财务，也是 '.config('app.name').' 的核心功能之一。',
+    'budgets_index_set_budget'              => '设定每个期间的总预算，这样 '.config('app.name').' 就可以告诉你，是否已经将所有可用的钱设定预算。',
     'budgets_index_see_expenses_bar'        => '消费金额会慢慢地填满这个横条。',
     'budgets_index_navigate_periods'        => '前往区间，以便提前轻鬆设定预算。',
     'budgets_index_new_budget'              => '根据需要建立新预算。',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => '如果帐单每2週重複一次，则应将 "略过" 栏位设定为 "1"，以便每隔一週跳一次。',
 
     // rules index
-    'rules_index_intro'                                       => 'Firefly III 允许您管理规则，这些规则将魔幻自动地应用于您建立或编辑的任何交易。',
+    'rules_index_intro'                                       => config('app.name').' 允许您管理规则，这些规则将魔幻自动地应用于您建立或编辑的任何交易。',
     'rules_index_new_rule_group'                              => '您可以将规则整合为群组，以便于管理。',
     'rules_index_new_rule'                                    => '建立任意数量的规则。',
     'rules_index_prio_buttons'                                => '以你认为合适的任何方式排序它们。',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => '这些标签页后尚有更多选项可用。',
 
     // currencies
-    'currencies_index_intro'                                  => 'Firefly III 支持多种货币，您可以在此页面上更改。',
-    'currencies_index_default'                                => 'Firefly III 有一种预设货币。',
+    'currencies_index_intro'                                  => config('app.name').' 支持多种货币，您可以在此页面上更改。',
+    'currencies_index_default'                                => config('app.name').' 有一种预设货币。',
     'currencies_index_buttons'                                => '使用这些按钮可以更改预设货币或启用其他货币。',
 
     // create currency

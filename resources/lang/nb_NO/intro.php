@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Velkommen til forsiden til Firefly III. Ta deg tid til å gå gjennom denne introen for å få en følelse av hvordan Firefly III fungerer.',
+    'index_intro'                           => 'Velkommen til forsiden til '.config('app.name').'. Ta deg tid til å gå gjennom denne introen for å få en følelse av hvordan '.config('app.name').' fungerer.',
     'index_accounts-chart'                  => 'Dette diagrammet viser gjeldende saldo på aktivakontoene dine. Du kan velge kontoene som er synlige her under innstillinger.',
     'index_box_out_holder'                  => 'Denne lille boksen og boksene ved siden av gir deg rask oversikt over din økonomiske situasjon.',
     'index_help'                            => 'Hvis du trenger hjelp til en side eller et skjema, trykker du på denne knappen.',
-    'index_outro'                           => 'De fleste sidene av Firefly III vil starte med en liten gjennomgang slik som denne. Ta kontakt med meg hvis du har spørsmål eller kommentarer. Sett igang!',
+    'index_outro'                           => 'De fleste sidene av '.config('app.name').' vil starte med en liten gjennomgang slik som denne. Ta kontakt med meg hvis du har spørsmål eller kommentarer. Sett igang!',
     'index_sidebar-toggle'                  => 'For å opprette nye transaksjoner, kontoer eller andre ting, bruk menyen under dette ikonet.',
 
     // create account:
     'accounts_create_iban'                  => 'Gi kontoene dine en gyldig IBAN. Dette gjør dataimport lettere i fremtiden.',
-    'accounts_create_asset_opening_balance' => 'Aktivakontoer kan ha en "åpningssaldo" som indikerer starten på denne kontoens historie i Firefly III.',
-    'accounts_create_asset_currency'        => 'Firefly III støtter flere valutaer. Aktivakontoer har en hovedvaluta, som du må sette her.',
+    'accounts_create_asset_opening_balance' => 'Aktivakontoer kan ha en "åpningssaldo" som indikerer starten på denne kontoens historie i '.config('app.name').'.',
+    'accounts_create_asset_currency'        => config('app.name').' støtter flere valutaer. Aktivakontoer har en hovedvaluta, som du må sette her.',
     'accounts_create_asset_virtual'         => 'Det kan noen ganger hjelpe å gi kontoen din en virtuell saldo: et ekstra beløp blir alltid lagt til eller fjernet fra den faktiske saldoen.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Budsjetter brukes til å styre din økonomi og er en av kjernefunksjonene i Firefly III.',
-    'budgets_index_set_budget'              => 'Sett ditt totale budsjett for hver periode, så Firefly III kan fortelle deg om du har budsjettert med alle tilgjengelige penger.',
+    'budgets_index_intro'                   => 'Budsjetter brukes til å styre din økonomi og er en av kjernefunksjonene i '.config('app.name').'.',
+    'budgets_index_set_budget'              => 'Sett ditt totale budsjett for hver periode, så '.config('app.name').' kan fortelle deg om du har budsjettert med alle tilgjengelige penger.',
     'budgets_index_see_expenses_bar'        => 'Når du bruker penger vil denne linjen fylles opp.',
     'budgets_index_navigate_periods'        => 'Naviger gjennom perioder for å enkelt sette budsjetter på forhånd.',
     'budgets_index_new_budget'              => 'Opprett nye budsjetter etter behov.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'Hvis en regning gjentas hver andre uke, skal "hopp over" -feltet settes til "1" for å hoppe over annenhver uke.',
 
     // rules index
-    'rules_index_intro'                                       => 'Firefly III lar deg administrere regler som automatisk vil bli brukt på alle transaksjoner du oppretter eller redigerer.',
+    'rules_index_intro'                                       => config('app.name').' lar deg administrere regler som automatisk vil bli brukt på alle transaksjoner du oppretter eller redigerer.',
     'rules_index_new_rule_group'                              => 'Du kan kombinere regler i grupper for enklere håndtering.',
     'rules_index_new_rule'                                    => 'Lag så mange regler som du vil.',
     'rules_index_prio_buttons'                                => 'Legg dem i den rekkefølgen du synes passer best.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Flere alternativer er tilgjengelig bak disse fanene.',
 
     // currencies
-    'currencies_index_intro'                                  => 'Firefly III støtter flere valutaer, som du kan endre på denne siden.',
-    'currencies_index_default'                                => 'Firefly III har en standard valuta.',
+    'currencies_index_intro'                                  => config('app.name').' støtter flere valutaer, som du kan endre på denne siden.',
+    'currencies_index_default'                                => config('app.name').' har en standard valuta.',
     'currencies_index_buttons'                                => 'Bruk disse knappene for å endre standard valuta eller aktivere andre valutaer.',
 
     // create currency
