@@ -388,6 +388,6 @@ class UserRepository implements UserRepositoryInterface
     public function hasFeature(User $user, UserLevel $level): bool
     {
         // todo A user membership implementation will probably contain the level of the user, that we can compare against.
-        return true;
+        return $user->featureLevel >= $level->level;
     }
 }

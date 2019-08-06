@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-Route::group(['middleware' => \FireflyIII\Http\Middleware\Whitelabel::class], function() {
+Route::group(['middleware' => [\FireflyIII\Http\Middleware\Whitelabel::class, 'feature']], function() {
 
 Route::group(
     ['namespace' => 'FireflyIII\Http\Controllers\System',

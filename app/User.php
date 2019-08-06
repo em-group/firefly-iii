@@ -73,6 +73,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string|null $remember_token
  * @property string|null $reset
  * @property int|null $whitelabel_id
+ *
+ * @property-read int $featureLevel
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Account[] $accounts
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[] $attachments
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\AvailableBudget[] $availableBudgets
@@ -387,5 +389,10 @@ class User extends Authenticatable
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, TransactionJournal::class);
+    }
+
+    public function getFeatureLevelAttribute(): int
+    {
+        return 0;
     }
 }
