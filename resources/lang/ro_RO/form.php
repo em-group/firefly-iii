@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Nume de utilizator',
     'fints_password'        => 'PIN / parola',
     'fints_account'         => 'Cont FinTS',
-    'local_account'         => 'Cont '.config('app.name'),
+    'local_account'         => 'Cont Firefly III',
     'from_date'             => 'Data din',
     'to_date'               => 'Data până la',
 

@@ -35,7 +35,7 @@ declare(strict_types=1);
 return [
 
     // tour!
-    'main-content-title'     => 'Witaj w '.config('app.name'),
+    'main-content-title'     => 'Witaj w Firefly III',
     'main-content-text'      => 'Zrób sobie przysługę i kontynuuj ten krótki samouczek aby mieć pewność że wiesz jak się poruszać w aplikacji.',
     'sidebar-toggle-title'   => 'Boczny panel do tworzenia rzeczy',
     'sidebar-toggle-text'    => 'Za ikoną plusa znajdują się ukryte przyciski do tworzenia nowych rzeczy. Kont, transakcji, wszystkiego!',
