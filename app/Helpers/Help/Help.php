@@ -24,6 +24,7 @@ namespace FireflyIII\Helpers\Help;
 
 use Cache;
 use Exception;
+use FireflyIII\Support\WhitelabelTranslator;
 use GuzzleHttp\Client;
 use League\CommonMark\CommonMarkConverter;
 use Log;
@@ -165,10 +166,6 @@ class Help implements HelpInterface
 
     public static function changeAppName(string $content): string
     {
-        $default_app_name = [
-            'Firefly III',
-            'FireflyIII',
-        ];
-        return str_replace($default_app_name, config('app.name'), $content);
+        return WhitelabelTranslator::replaceFirefly($content);
     }
 }

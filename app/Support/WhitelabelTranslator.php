@@ -2,7 +2,6 @@
 
 namespace FireflyIII\Support;
 
-use FireflyIII\Helpers\Help\Help;
 use Illuminate\Contracts\Translation\Loader;
 use Illuminate\Translation\Translator as LaravelTranslator;
 
@@ -16,20 +15,24 @@ class WhitelabelTranslator extends LaravelTranslator
 
     public function trans($key, array $replace = [], $locale = null)
     {
-        return $this->replaceFirefly(
+        return static::replaceFirefly(
             parent::trans($key, $replace, $locale)
         );
     }
 
     public function makeReplacements($line, array $replace)
     {
-        return $this->replaceFirefly(
+        return static::replaceFirefly(
             parent::makeReplacements($line, $replace)
         );
     }
 
-    protected function replaceFirefly($content)
+    public static function replaceFirefly($content)
     {
-        return Help::changeAppName($content);
+        $default_app_name = [
+            'Firefly III',
+            'FireflyIII',
+        ];
+        return str_replace($default_app_name, config('app.name'), $content);
     }
 }
