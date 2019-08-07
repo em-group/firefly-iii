@@ -95,7 +95,7 @@ class Help implements HelpInterface
         Log::debug(sprintf('Status code is %d', $statusCode));
 
         if ('' !== $content) {
-            $content = $this->changeAppName($content);
+            $content = static::changeAppName($content);
             Log::debug('Content is longer than zero. Expect something.');
             $converter = new CommonMarkConverter();
             $content   = $converter->convertToHtml($content);
@@ -163,7 +163,7 @@ class Help implements HelpInterface
         Log::info(sprintf('Will not cache %s because content is empty.', $key));
     }
 
-    public function changeAppName(string $content): string
+    public static function changeAppName(string $content): string
     {
         $default_app_name = [
             'Firefly III',

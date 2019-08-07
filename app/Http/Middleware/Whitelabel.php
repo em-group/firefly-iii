@@ -3,8 +3,8 @@
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
-use FireflyIII\Models\WhitelabelConfig;
 use FireflyIII\Support\WhitelabelConfiguration;
+use Illuminate\Http\Request;
 
 class Whitelabel
 {
@@ -17,6 +17,21 @@ class Whitelabel
      */
     public function handle($request, Closure $next)
     {
+        static::getWhitelabel($request);
+
+        return $next($request);
+    }
+
+    public static function handleStatic(): void
+    {
+        static::getWhitelabel(request());
+    }
+
+    /**
+     * @param Request $request
+     */
+    protected static function getWhitelabel($request): void
+    {
         $domain = $request->getHost();
 
         /** @var \FireflyIII\Models\Whitelabel $whitelabel */
@@ -24,21 +39,16 @@ class Whitelabel
             ->where('active', true)
             ->first();
         if ($whitelabel !== null) {
-//            app()->singleton(\FireflyIII\Models\Whitelabel::class, $whitelabel);
             app()->singleton(WhitelabelConfiguration::class, function () use ($whitelabel) {
                 return new WhitelabelConfiguration($whitelabel);
             });
 
-            // todo Not sure if we should specify it like this?
             config(['whitelabel.id' => $whitelabel->id]);
 
             // Overwrite existing config
             foreach ($whitelabel->config as $config) {
-                /** @var WhitelabelConfig $config */
                 config([$config->name => $config->value]);
             }
         }
-
-        return $next($request);
     }
 }

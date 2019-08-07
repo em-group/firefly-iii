@@ -37,6 +37,7 @@ use FireflyIII\Http\Middleware\StartFireflySession;
 use FireflyIII\Http\Middleware\TrimStrings;
 use FireflyIII\Http\Middleware\TrustProxies;
 use FireflyIII\Http\Middleware\VerifyCsrfToken;
+use FireflyIII\Http\Middleware\Whitelabel;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -195,6 +196,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewarePriority
         = [
+            Whitelabel::class,
             StartFireflySession::class,
             ShareErrorsFromSession::class,
             Authenticate::class,
@@ -216,5 +218,6 @@ class Kernel extends HttpKernel
             'can'        => Authorize::class,
             'guest'      => RedirectIfAuthenticated::class,
             'throttle'   => ThrottleRequests::class,
+            'whitelabel' => Whitelabel::class,
         ];
 }

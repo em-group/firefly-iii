@@ -15,6 +15,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string $name
  * @property string $domain
  * @property boolean $active
+ *
+ * @property WhitelabelConfig[] $config
 */
 class Whitelabel extends Model
 {
