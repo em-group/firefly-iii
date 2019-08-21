@@ -58,7 +58,7 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         FireflyIII\Providers\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
+        FireflyIII\Providers\WhitelabelTranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 

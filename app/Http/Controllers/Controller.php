@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use FireflyIII\Http\Middleware\Whitelabel;
 use FireflyIII\Support\Http\Controllers\RequestInformation;
 use FireflyIII\Support\Http\Controllers\UserNavigation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -88,6 +89,10 @@ class Controller extends BaseController
                 return $next($request);
             }
         );
+
+        // This is created as a middleware, but implemented sequentially, as certain controllers will use
+        // configs within the constructor, which is run before the middleware.
+        Whitelabel::handleStatic();
     }
 
 }

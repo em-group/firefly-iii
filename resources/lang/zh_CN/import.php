@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 return [
     // ALL breadcrumbs and subtitles:
-    'index_breadcrumb'                    => '导入资料到 '.config('app.name'),
+    'index_breadcrumb'                    => '导入资料到 Firefly III',
     'prerequisites_breadcrumb_fake'       => '假导入供应商的先决条件',
     'prerequisites_breadcrumb_spectre'    => 'Spectre 的先决条件',
     'prerequisites_breadcrumb_bunq'       => 'bunq 的先决条件',
@@ -34,7 +34,7 @@ return [
     'disabled_for_demo_user'              => '在展示中不启用',
 
     // index page:
-    'general_index_intro'                 => '欢迎来到 '.config('app.name').' 的导入例行。有几种方法可以将资料导入 '.config('app.name').' 中，在此以按钮表示。',
+    'general_index_intro'                 => '欢迎来到 Firefly III 的导入例行。有几种方法可以将资料导入 Firefly III 中，在此以按钮表示。',
 
     // import provider strings (index):
     'button_fake'                         => '假造导入',
@@ -64,15 +64,15 @@ return [
     'prereq_fake_title'                   => '自假的导入供应商导入的先决条件',
     'prereq_fake_text'                    => '这个假的供应商需要一个假的 API 金钥，必须是32个字元长。您可以使用此：12446809901236890123690124444466990aa',
     'prereq_spectre_title'                => '使用 Spectre API 导入的先决条件',
-    'prereq_spectre_text'                 => '为使用 Spectre API (v4) 导入资料，您必须提供 '.config('app.name').' 两个秘密数值，可于 <a href="https://www.saltedge.com/clients/profile/secrets">密钥页面</a> 找到。',
+    'prereq_spectre_text'                 => '为使用 Spectre API (v4) 导入资料，您必须提供 Firefly III 两个秘密数值，可于 <a href="https://www.saltedge.com/clients/profile/secrets">密钥页面</a> 找到。',
     'prereq_spectre_pub'                  => '同理，Spectre API 也会需要您下方看见的公钥。若无此公钥，服务供应商无法辨认您，请于您的 <a href="https://www.saltedge.com/clients/profile/secrets">密钥页面</a> 键入您的公钥。',
     'prereq_bunq_title'                   => '从 bunq 导入的先决条件',
     'prereq_bunq_text'                    => '为自 bunq 导入，您需要获得一组 API 金钥，您可以从应用程式著手。请注意自 bunq 导入的功能仍是测试版本，仅在沙盒 API 内完成测试而已。',
-    'prereq_bunq_ip'                      => 'bunq 需要您的对外 IP 位址。'.config('app.name').' 已尝试使用 <a href="https://www.ipify.org/">ipify 服务</a> 自动填入，请确认此 IP 系正确的，否则导入将失败。',
+    'prereq_bunq_ip'                      => 'bunq 需要您的对外 IP 位址。Firefly III 已尝试使用 <a href="https://www.ipify.org/">ipify 服务</a> 自动填入，请确认此 IP 系正确的，否则导入将失败。',
     'prereq_ynab_title'                   => '从 YNAB 导入的先决条件',
     'prereq_ynab_text'                    => '为了能够从 YNAB 下载交易，请在您的 <a href="https://app.youneedabudget.com/settings/developer"> 开发人员设置页 </a> 上建立一个新的应用程式，并在此页面上输入客户端 ID 和密码。',
     'prereq_ynab_redirect'                => '若要完成设定，前往以下位于 <a href="https://app.youneedabudget.com/settings/developer">开发者设定页面</a> 中 "Redirect URI(s)" 的网址。',
-    'callback_not_tls'                    => config('app.name').' 侦测到以下回呼 URI。您的伺服器似乎没有设定成 TLS-连接 (HTTP)。YNAB 不会接受此 URI，你可以继续导入 (因为 '.config('app.name').' 可能是错的)，但请记住这一点。',
+    'callback_not_tls'                    => 'Firefly III 侦测到以下回呼 URI。您的伺服器似乎没有设定成 TLS-连接 (HTTP)。YNAB 不会接受此 URI，你可以继续导入 (因为 Firefly III 可能是错的)，但请记住这一点。',
     // prerequisites success messages:
     'prerequisites_saved_for_fake'        => '假 API 金钥存储成功！',
     'prerequisites_saved_for_spectre'     => '应用程式 ID 与密钥已储存！',
@@ -92,14 +92,14 @@ return [
     'job_config_fake_album_text'          => '某些导入惯常程序在导入过程中需要额外的资料。在假导入供应商的情况下，你必须回答一些奇怪的问题。请输入 "Station to station" 继续。',
     // job configuration form the file provider
     'job_config_file_upload_title'        => '导入设定 (1/4) - 上传您的档案',
-    'job_config_file_upload_text'         => '此惯常程序将协助您从您银行将档案导入 '.config('app.name').'。',
+    'job_config_file_upload_text'         => '此惯常程序将协助您从您银行将档案导入 Firefly III。',
     'job_config_file_upload_help'         => '选择您的档案，请确定档案是 UTF-8 编码。',
-    'job_config_file_upload_config_help'  => '如果您之前已导入过档案至 '.config('app.name').'，您可能已有可提供预设值的设定档案。就部分银行，其他使用者业已慷慨地提供了他们的 <a href="https://github.com/firefly-iii/import-configurations/wiki">设定档</a>。',
+    'job_config_file_upload_config_help'  => '如果您之前已导入过档案至 Firefly III，您可能已有可提供预设值的设定档案。就部分银行，其他使用者业已慷慨地提供了他们的 <a href="https://github.com/firefly-iii/import-configurations/wiki">设定档</a>。',
     'job_config_file_upload_type_help'    => '选择要上传的档案类型',
     'job_config_file_upload_submit'       => '上传档案',
     'import_file_type_csv'                => 'CSV (以逗号分隔值)',
     'import_file_type_ofx'                => 'OFX',
-    'file_not_utf8'                       => '您上传的档案并非以 UTF-8 或 ASCII 编码，'.config('app.name').' 无法处理此类档案，请使用 Notepad++ 或 Sublime 转换您的档案成 UTF-8 格式。',
+    'file_not_utf8'                       => '您上传的档案并非以 UTF-8 或 ASCII 编码，Firefly III 无法处理此类档案，请使用 Notepad++ 或 Sublime 转换您的档案成 UTF-8 格式。',
     'job_config_uc_title'                 => '导入设定 (2/4) - 基本档案设定',
     'job_config_uc_text'                  => '若要正确导入您的档案，请验证以下选项。',
     'job_config_uc_header_help'           => '若您的 CSV 档案第一列均为栏位标题，请核选此选项。',
@@ -109,19 +109,19 @@ return [
     'job_config_uc_apply_rules_title'     => '套用规则',
     'job_config_uc_apply_rules_text'      => '套用规则至每一个导入的交易，请注意此功能会显著地降低导入速度。',
     'job_config_uc_specifics_title'       => '特定银行选项',
-    'job_config_uc_specifics_txt'         => '部分银行提供格式残不佳的档案，'.config('app.name').' 可以自动修复这个问题。如果银行提供了不佳的档案，又没有列在这边，请至 GitHub 开启新的讨论。',
+    'job_config_uc_specifics_txt'         => '部分银行提供格式残不佳的档案，Firefly III 可以自动修复这个问题。如果银行提供了不佳的档案，又没有列在这边，请至 GitHub 开启新的讨论。',
     'job_config_uc_submit'                => '继续',
     'invalid_import_account'              => '您选择了一个无效帐号来导入。',
     'import_liability_select'             => '债务',
     // job configuration for Spectre:
     'job_config_spectre_login_title'      => '选择您的登入',
-    'job_config_spectre_login_text'       => config('app.name').' 已在您的 Spectre 帐户找到 :count 笔既存登入，哪一个是您想要导入的呢？',
+    'job_config_spectre_login_text'       => 'Firefly III 已在您的 Spectre 帐户找到 :count 笔既存登入，哪一个是您想要导入的呢？',
     'spectre_login_status_active'         => '启用',
     'spectre_login_status_inactive'       => '未启用',
     'spectre_login_status_disabled'       => '停用',
     'spectre_login_new_login'             => '使用其他银行登入，或其中一间具有不同凭证的银行。',
     'job_config_spectre_accounts_title'   => '选择欲导入的帐户',
-    'job_config_spectre_accounts_text'    => '您以选择 ":name" (:country)。您在这个供应商有 :count 个可用帐户，请在 '.config('app.name').' 的资产帐户中选择这些交易应被储存的帐户。请记得，若要导入资料，'.config('app.name').' 与 ":name"-帐户两者均需使用相同货币。',
+    'job_config_spectre_accounts_text'    => '您以选择 ":name" (:country)。您在这个供应商有 :count 个可用帐户，请在 Firefly III 的资产帐户中选择这些交易应被储存的帐户。请记得，若要导入资料，Firefly III 与 ":name"-帐户两者均需使用相同货币。',
     'spectre_do_not_import'               => '(不导入)',
     'spectre_no_mapping'                  => '您似乎没有选择任何欲导入的帐户。',
     'imported_from_account'               => '已自 ":account" 导入',
@@ -159,7 +159,7 @@ return [
 
     // job configuration for YNAB:
     'job_config_ynab_select_budgets'       => '选择您的预算',
-    'job_config_ynab_select_budgets_text'  => '您有 :count 笔储存于 YNAB 的预算，请选择以供 '.config('app.name').' 导入其中交易纪录。',
+    'job_config_ynab_select_budgets_text'  => '您有 :count 笔储存于 YNAB 的预算，请选择以供 Firefly III 导入其中交易纪录。',
     'job_config_ynab_no_budgets'           => '没有可被导入的预算。',
     'ynab_no_mapping'                      => '您似乎没有选择任何欲导入的帐户。',
     'job_config_ynab_bad_currency'         => '您无法自以下预算导入，因为您没有与这些预算使用相同货币的帐户。',
@@ -195,7 +195,7 @@ return [
     'job_config_fints_username_help'  => '对多数银行而言，这是你的帐号。',
     'job_config_fints_port_help'      => '预设埠号为 443。',
     'job_config_fints_account_help'   => '选择您欲导入交易的银行帐户。',
-    'job_config_local_account_help'   => '选择对应您上方所选银行帐户的 '.config('app.name').' 帐户。',
+    'job_config_local_account_help'   => '选择对应您上方所选银行帐户的 Firefly III 帐户。',
     // specifics:
     'specific_ing_name'               => 'ING NL',
     'specific_ing_descr'              => '在 ING 汇出中建立更好的描述',
@@ -222,8 +222,8 @@ return [
     'job_config_roles_rwarning'       => '请至少将一个栏标示为金额-栏，亦建议为描述、日期与对应帐户选择栏。',
     'job_config_roles_colum_count'    => '栏',
     // job config for the file provider (stage: mapping):
-    'job_config_map_title'            => '导入设定 (4/) - 连接导入资料与 '.config('app.name').' 资料',
-    'job_config_map_text'             => '在下方的表格中，左边值显示在您上传的档案中所找到的资讯，而映射这些值是您当前的任务。如果可能，请映射至呈现在您资料库既有的值，'.config('app.name').' 会依此映射。若无可供映射的值，或您不希望映射特定值，请别选取。',
+    'job_config_map_title'            => '导入设定 (4/) - 连接导入资料与 Firefly III 资料',
+    'job_config_map_text'             => '在下方的表格中，左边值显示在您上传的档案中所找到的资讯，而映射这些值是您当前的任务。如果可能，请映射至呈现在您资料库既有的值，Firefly III 会依此映射。若无可供映射的值，或您不希望映射特定值，请别选取。',
     'job_config_map_nothing'          => '您档案中并无可映射至既有数值的资料，请点选 "开始导入" 以继续。',
     'job_config_field_value'          => '栏位数值',
     'job_config_field_mapped'         => '映射至',
@@ -241,14 +241,14 @@ return [
     'status_job_rules'                => '请稍候，执行规则…',
     'status_fatal_title'              => '重大错误',
     'status_fatal_text'               => '此次导入遇到了无法回复的错误，抱歉！',
-    'status_fatal_more'               => '此一讯息 (可能非常加密) 是由日志档所补完，您可在硬碟内或您运行的 '.config('app.name').' 空间中找到日志档。',
+    'status_fatal_more'               => '此一讯息 (可能非常加密) 是由日志档所补完，您可在硬碟内或您运行的 Firefly III 空间中找到日志档。',
     'status_finished_title'           => '导入完成',
     'status_finished_text'            => '导入已完成',
     'finished_with_errors'            => '执行导入时有些错误，请仔细複审。',
     'unknown_import_result'           => '未知的导入结果',
     'result_no_transactions'          => '没有导入任何交易纪录，或许是因为均为重複记录或无纪录可供导入。日志档也许能告诉你来龙去脉，若您定期导入资料，这是正常的。',
     'result_one_transaction'          => '仅有1笔交易被导入，并储存在 <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a>，您之后可进一步检视。',
-    'result_many_transactions'        => config('app.name').' 已导入 :count 笔交易，并储存 <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> 标签下，您之后可进一步检视。',
+    'result_many_transactions'        => 'Firefly III 已导入 :count 笔交易，并储存 <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> 标签下，您之后可进一步检视。',
 
 
     // general errors and warnings:

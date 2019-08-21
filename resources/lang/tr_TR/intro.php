@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => config('app.name').' indeks sayfasına hoşgeldiniz. '.config('app.name').'\'nin nasıl çalıştığını öğrenmek için lütfen bu tanıtımı izleyin.',
+    'index_intro'                           => 'Firefly III indeks sayfasına hoşgeldiniz. Firefly III\'nin nasıl çalıştığını öğrenmek için lütfen bu tanıtımı izleyin.',
     'index_accounts-chart'                  => 'Bu grafik, varlık hesaplarınızın geçerli bakiyesini gösterir. Burada görünen hesapları tercihlerinizde seçebilirsiniz.',
     'index_box_out_holder'                  => 'Bu küçük kutu ve bunun yanındaki kutular size finansal durumunuza hızlı bir bakış sunar.',
     'index_help'                            => 'Bir sayfa veya formla ilgili yardıma ihtiyacınız varsa, bu düğmeye basın.',
-    'index_outro'                           => config('app.name').'\'ün çoğu sayfası bunun gibi küçük bir turla başlayacak. Sorularınız ve yorumlarınız olursa lütfen benimle iletişime geçin. Keyfini çıkarın!',
+    'index_outro'                           => 'Firefly III\'ün çoğu sayfası bunun gibi küçük bir turla başlayacak. Sorularınız ve yorumlarınız olursa lütfen benimle iletişime geçin. Keyfini çıkarın!',
     'index_sidebar-toggle'                  => 'Yeni işlemler, hesaplar veya başka şeyler oluşturmak için bu simgenin altındaki menüyü kullanın.',
 
     // create account:
     'accounts_create_iban'                  => 'Hesaplarınıza geçerli IBAN girin. Bu, ileride veri aktarma işlemini kolaylaştırabilir.',
-    'accounts_create_asset_opening_balance' => 'Aktif hesapların, '.config('app.name').'\'da bu hesap geçmişinin başlangıcını gösteren bir "açılış bakiyesi" olabilir.',
-    'accounts_create_asset_currency'        => config('app.name').', birden fazla para birimini destekliyor. Varlık hesaplarının bir ana para birimi var, burada ayarlamanız gerekir.',
+    'accounts_create_asset_opening_balance' => 'Aktif hesapların, Firefly\'da bu hesap geçmişinin başlangıcını gösteren bir "açılış bakiyesi" olabilir.',
+    'accounts_create_asset_currency'        => 'Firefly III, birden fazla para birimini destekliyor. Varlık hesaplarının bir ana para birimi var, burada ayarlamanız gerekir.',
     'accounts_create_asset_virtual'         => 'Bazen hesabınıza sanal bir bakiye sağlamanıza yardımcı olabilir: ek bir miktar her zaman gerçek bakiyeye eklenir veya gerçek bakiyeden çıkarılır.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Bütçeler, finansmanınızı yönetmek ve '.config('app.name').'\'nin temel işlevlerinden birini oluşturmak için kullanılır.',
-    'budgets_index_set_budget'              => 'Toplam bütçenizi her dönem için belirleyin, böylelikle '.config('app.name').' size mevcut tüm parayı bütçelendirdiğinizde söyleyebilir.',
+    'budgets_index_intro'                   => 'Bütçeler, finansmanınızı yönetmek ve Firefly III\'nin temel işlevlerinden birini oluşturmak için kullanılır.',
+    'budgets_index_set_budget'              => 'Toplam bütçenizi her dönem için belirleyin, böylelikle Firefly size mevcut tüm parayı bütçelendirdiğinizde söyleyebilir.',
     'budgets_index_see_expenses_bar'        => 'Para harcamak yavaşça bu çubuğu dolduracaktır.',
     'budgets_index_navigate_periods'        => 'Bütçeleri önceden kolayca ayarlamak için dönemleri gezinin.',
     'budgets_index_new_budget'              => 'Uygun gördüğünüz yeni bütçeler oluşturun.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'If a bill repeats every 2 weeks, the "skip"-field should be set to "1" to skip every other week.',
 
     // rules index
-    'rules_index_intro'                                       => config('app.name').', oluşturduğunuz veya düzenlediğiniz herhangi bir işleme otomatik olarak uygulanacak olan kuralları yönetmenize olanak verir.',
+    'rules_index_intro'                                       => 'Firefly III, oluşturduğunuz veya düzenlediğiniz herhangi bir işleme otomatik olarak uygulanacak olan kuralları yönetmenize olanak verir.',
     'rules_index_new_rule_group'                              => 'Daha kolay yönetim için kuralları gruplar halinde bir araya getirebilirsiniz.',
     'rules_index_new_rule'                                    => 'İstediğiniz kadar kural oluşturun.',
     'rules_index_prio_buttons'                                => 'Onları uygun gördüğün herhangi bir şekilde sipariş edin.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Bu sekmelerin arkasında daha fazla seçenek bulunmaktadır.',
 
     // currencies
-    'currencies_index_intro'                                  => config('app.name').', bu sayfada değiştirebileceğiniz birden fazla para birimini destekliyor.',
-    'currencies_index_default'                                => config('app.name').' has one default currency.',
+    'currencies_index_intro'                                  => 'Firefly III, bu sayfada değiştirebileceğiniz birden fazla para birimini destekliyor.',
+    'currencies_index_default'                                => 'Firefly III has one default currency.',
     'currencies_index_buttons'                                => 'Varsayılan para birimini değiştirmek veya diğer para etkinleştirmek için bu düğmeleri kullanın.',
 
     // create currency
