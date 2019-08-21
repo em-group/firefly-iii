@@ -35,7 +35,7 @@ declare(strict_types=1);
 return [
 
     // tour!
-    'main-content-title'     => 'Welkom bij '.config('app.name'),
+    'main-content-title'     => 'Welkom bij Firefly III',
     'main-content-text'      => 'Doe jezelf een lol en volg deze korte tour. Je weet dan precies hoe alles werkt.',
     'sidebar-toggle-title'   => 'Sidebar om nieuwe dingen te maken',
     'sidebar-toggle-text'    => 'Verstopt onder het plusje vind je de knoppen die je nodig hebt om nieuwe dingen te maken.',

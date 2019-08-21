@@ -197,6 +197,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewarePriority
         = [
+            Whitelabel::class,
             StartFireflySession::class,
             ShareErrorsFromSession::class,
             Authenticate::class,
@@ -218,5 +219,6 @@ class Kernel extends HttpKernel
             'can'        => Authorize::class,
             'guest'      => RedirectIfAuthenticated::class,
             'throttle'   => ThrottleRequests::class,
+            'whitelabel' => Whitelabel::class,
         ];
 }

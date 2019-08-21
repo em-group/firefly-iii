@@ -5,6 +5,7 @@ namespace FireflyIII\Http\Middleware;
 use Closure;
 use FireflyIII\Models\WhitelabelConfig;
 use FireflyIII\Support\WhitelabelConfiguration;
+use Illuminate\Http\Request;
 
 class Whitelabel
 {
@@ -17,6 +18,21 @@ class Whitelabel
      */
     public function handle($request, Closure $next)
     {
+        static::getWhitelabel($request);
+
+        return $next($request);
+    }
+
+    public static function handleStatic(): void
+    {
+        static::getWhitelabel(request());
+    }
+
+    /**
+     * @param Request $request
+     */
+    protected static function getWhitelabel($request): void
+    {
         $domain = $request->getHost();
 
         /** @var \FireflyIII\Models\Whitelabel $whitelabel */
@@ -26,8 +42,6 @@ class Whitelabel
         if ($whitelabel !== null) {
             static::setConfig($whitelabel);
         }
-
-        return $next($request);
     }
 
     /**

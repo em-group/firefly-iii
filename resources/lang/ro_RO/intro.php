@@ -4,42 +4,42 @@
  * intro.php
  * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
- * This file is part of '.config('app.name').'.
+ * This file is part of Firefly III.
  *
- * '.config('app.name').' is free software: you can redistribute it and/or modify
+ * Firefly III is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * '.config('app.name').' is distributed in the hope that it will be useful,
+ * Firefly III is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with '.config('app.name').'. If not, see <http://www.gnu.org/licenses/>.
+ * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Bun venit pe pagina principală a '.config('app.name').'. Vă rugăm să parcurgeţi acest intro pentru a vedea cum funcționează '.config('app.name').'.',
+    'index_intro'                           => 'Bun venit pe pagina principală a Firefly III. Vă rugăm să parcurgeţi acest intro pentru a vedea cum funcționează Firefly III.',
     'index_accounts-chart'                  => 'Acest grafic arată soldul curent al conturilor dvs. de active. Puteți selecta conturile vizibile aici în preferințele dvs.',
     'index_box_out_holder'                  => 'Aceast dreptunghi mic și cele de lângă el vă vor oferi o imagine de ansamblu rapidă a situației financiare.',
     'index_help'                            => 'Dacă aveți nevoie vreodată de ajutor cu o pagină sau un formular, apăsați acest buton.',
-    'index_outro'                           => 'Cele mai multe pagini ale '.config('app.name').' vor începe cu un mic tur ca acesta. Contactați-mă atunci când aveți întrebări sau comentarii. Bucurați-vă!',
+    'index_outro'                           => 'Cele mai multe pagini ale Firefly III vor începe cu un mic tur ca acesta. Contactați-mă atunci când aveți întrebări sau comentarii. Bucurați-vă!',
     'index_sidebar-toggle'                  => 'Pentru a crea noi tranzacții, conturi sau alte lucruri, utilizați meniul de sub această pictogramă.',
 
     // create account:
     'accounts_create_iban'                  => 'Dați conturilor dvs. un IBAN valid. Acest lucru ar putea face ca importul de date să fie foarte ușor în viitor.',
-    'accounts_create_asset_opening_balance' => 'Conturile de active pot avea un "sold de deschidere", indicând începutul istoricului acestui cont în '.config('app.name').'.',
-    'accounts_create_asset_currency'        => config('app.name').' acceptă mai multe valute. Conturile de active au o monedă principală, pe care trebuie să o setați aici.',
+    'accounts_create_asset_opening_balance' => 'Conturile de active pot avea un "sold de deschidere", indicând începutul istoricului acestui cont în Firefly III.',
+    'accounts_create_asset_currency'        => 'Firefly III acceptă mai multe valute. Conturile de active au o monedă principală, pe care trebuie să o setați aici.',
     'accounts_create_asset_virtual'         => 'Câteodată este de ajutor să adăugaţi contului dvs. un sold virtual: o sumă suplimentară adăugată sau retrasă întotdeauna din soldul real.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Bugetele sunt folosite pentru a vă gestiona finanțele; ele sunt una dintre funcțiile de bază ale '.config('app.name').'.',
-    'budgets_index_set_budget'              => 'Stabiliți bugetul total pentru fiecare perioadă, astfel încât '.config('app.name').' vă poate spune dacă ați bugetat toți banii disponibili.',
+    'budgets_index_intro'                   => 'Bugetele sunt folosite pentru a vă gestiona finanțele; ele sunt una dintre funcțiile de bază ale Firefly III.',
+    'budgets_index_set_budget'              => 'Stabiliți bugetul total pentru fiecare perioadă, astfel încât Firefly III vă poate spune dacă ați bugetat toți banii disponibili.',
     'budgets_index_see_expenses_bar'        => 'Banii cheltuiți vor umple încet această linie.',
     'budgets_index_navigate_periods'        => 'Navigați prin perioade de timp pentru a stabili cu ușurință bugetele viitoare.',
     'budgets_index_new_budget'              => 'Creați bugete noi după cum doriți.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'Dacă o factură se repetă la fiecare 2 săptămâni, câmpul "săriți" ar trebui să fie setat la "1" pentru a sări peste o săptămână.',
 
     // rules index
-    'rules_index_intro'                                       => config('app.name').' vă permite să gestionați reguli, care vor fi aplicate automat pentru orice tranzacție pe care o creați sau o editați.',
+    'rules_index_intro'                                       => 'Firefly III vă permite să gestionați reguli, care vor fi aplicate automat pentru orice tranzacție pe care o creați sau o editați.',
     'rules_index_new_rule_group'                              => 'Puteți combina regulile în grupuri pentru o gestionare mai ușoară.',
     'rules_index_new_rule'                                    => 'Creați câte reguli doriți.',
     'rules_index_prio_buttons'                                => 'Comandați-le în orice fel doriți.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Mai multe opțiuni sunt disponibile în spatele acestor file.',
 
     // currencies
-    'currencies_index_intro'                                  => config('app.name').' acceptă mai multe valute, pe care le puteți schimba în această pagină.',
-    'currencies_index_default'                                => config('app.name').' are o monedă implicită.',
+    'currencies_index_intro'                                  => 'Firefly III acceptă mai multe valute, pe care le puteți schimba în această pagină.',
+    'currencies_index_default'                                => 'Firefly III are o monedă implicită.',
     'currencies_index_buttons'                                => 'Utilizați aceste butoane pentru a modifica moneda prestabilită sau a activa alte valute.',
 
     // create currency

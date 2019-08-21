@@ -24,22 +24,22 @@ declare(strict_types=1);
 
 return [
     // index
-    'index_intro'                           => 'Witamy na stronie domowej '.config('app.name').'. Proszę poświęć trochę czasu, aby przejść przez to wprowadzenie, aby poznać sposób działania '.config('app.name').'.',
+    'index_intro'                           => 'Witamy na stronie domowej Firefly III. Proszę poświęć trochę czasu, aby przejść przez to wprowadzenie, aby poznać sposób działania Firefly III.',
     'index_accounts-chart'                  => 'Ten wykres przedstawia bieżące saldo kont aktywów. Możesz wybrać konta widoczne tutaj w Twoich preferencjach.',
     'index_box_out_holder'                  => 'To małe pole i pola obok niego umożliwiają szybki przegląd Twojej sytuacji finansowej.',
     'index_help'                            => 'Jeśli potrzebujesz pomocy na stronie lub formularzu, naciśnij ten przycisk.',
-    'index_outro'                           => 'Większość stron z '.config('app.name').' zacznie się od małego wprowadzenia jak to. Skontaktuj się ze mną, jeśli masz pytania lub komentarze. Miłego korzystania!',
+    'index_outro'                           => 'Większość stron z Firefly III zacznie się od małego wprowadzenia jak to. Skontaktuj się ze mną, jeśli masz pytania lub komentarze. Miłego korzystania!',
     'index_sidebar-toggle'                  => 'Aby utworzyć nowe transakcje, konta lub inne rzeczy, użyj menu pod tą ikoną.',
 
     // create account:
     'accounts_create_iban'                  => 'Nadaj kontom ważny numer IBAN. Może to ułatwić import danych w przyszłości.',
-    'accounts_create_asset_opening_balance' => 'Konta aktywów mogą mieć "bilans otwarcia", wskazujący początek historii tego konta w '.config('app.name').'.',
-    'accounts_create_asset_currency'        => config('app.name').' obsługuje wiele walut. Konta aktywów mają jedną główną walutę, który należy ustawić tutaj.',
+    'accounts_create_asset_opening_balance' => 'Konta aktywów mogą mieć "bilans otwarcia", wskazujący początek historii tego konta w Firefly III.',
+    'accounts_create_asset_currency'        => 'Firefly III obsługuje wiele walut. Konta aktywów mają jedną główną walutę, który należy ustawić tutaj.',
     'accounts_create_asset_virtual'         => 'Czasami warto dodać do konta wirtualne saldo: dodatkowa kwota zawsze dodawana lub odejmowana od rzeczywistego salda.',
 
     // budgets index
-    'budgets_index_intro'                   => 'Budżety są wykorzystywane do zarządzania finansami i stanowią jedną z podstawowych funkcji '.config('app.name').'.',
-    'budgets_index_set_budget'              => 'Ustaw całkowity budżet na każdy okres, aby '.config('app.name').' mógł Ci powiedzieć, czy wydałeś wszystkie dostępne pieniądze.',
+    'budgets_index_intro'                   => 'Budżety są wykorzystywane do zarządzania finansami i stanowią jedną z podstawowych funkcji Firefly III.',
+    'budgets_index_set_budget'              => 'Ustaw całkowity budżet na każdy okres, aby Firefly III mógł Ci powiedzieć, czy wydałeś wszystkie dostępne pieniądze.',
     'budgets_index_see_expenses_bar'        => 'Wydawanie pieniędzy powoli wypełnia ten pasek.',
     'budgets_index_navigate_periods'        => 'Przejrzyj okresy, aby łatwiej ustawić przyszłe budżety.',
     'budgets_index_new_budget'              => 'Utwórz nowe budżety zgodnie z Twoimi potrzebami.',
@@ -111,7 +111,7 @@ return [
     'bills_create_skip_holder'                                => 'Jeśli rachunek powtarza się co 2 tygodnie, pole "Pomiń" powinno być ustawione na "1", aby pominąć co drugi tydzień.',
 
     // rules index
-    'rules_index_intro'                                       => config('app.name').' pozwala zarządzać regułami, które automatycznie zostaną zastosowane do każdej transakcji, którą tworzysz lub edytujesz.',
+    'rules_index_intro'                                       => 'Firefly III pozwala zarządzać regułami, które automatycznie zostaną zastosowane do każdej transakcji, którą tworzysz lub edytujesz.',
     'rules_index_new_rule_group'                              => 'Możesz łączyć reguły w grupach, aby ułatwić zarządzanie.',
     'rules_index_new_rule'                                    => 'Twórz dowolną liczbę reguł.',
     'rules_index_prio_buttons'                                => 'Szereguj je w dowolny sposób, jaki uznasz za stosowny.',
@@ -129,8 +129,8 @@ return [
     'preferences_index_tabs'                                  => 'Więcej opcji dostępne są za tymi kartami.',
 
     // currencies
-    'currencies_index_intro'                                  => config('app.name').' obsługuje wiele walut, które możesz zmienić na tej stronie.',
-    'currencies_index_default'                                => config('app.name').' ma jedną domyślną walutę.',
+    'currencies_index_intro'                                  => 'Firefly III obsługuje wiele walut, które możesz zmienić na tej stronie.',
+    'currencies_index_default'                                => 'Firefly III ma jedną domyślną walutę.',
     'currencies_index_buttons'                                => 'Użyj tych przycisków, aby zmienić domyślną walutę lub aktywować inne waluty.',
 
     // create currency
