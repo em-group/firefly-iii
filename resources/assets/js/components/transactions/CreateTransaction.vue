@@ -76,6 +76,12 @@
                         <div class="box-body">
                             <div class="row">
                                 <div class="col-lg-4">
+                                    <transaction-description
+                                            v-model="transaction.description"
+                                            :index="index"
+                                            :error="transaction.errors.description"
+                                    >
+                                    </transaction-description>
                                     <account-select
                                             inputName="source[]"
                                             title="Source account"
@@ -98,12 +104,6 @@
                                             v-on:select:account="selectedDestinationAccount(index, $event)"
                                             :error="transaction.errors.destination_account"
                                     ></account-select>
-                                    <transaction-description
-                                            v-model="transaction.description"
-                                            :index="index"
-                                            :error="transaction.errors.description"
-                                    >
-                                    </transaction-description>
                                     <standard-date
                                             v-model="transaction.date"
                                             :index="index"
@@ -297,7 +297,7 @@
                 foreignCurrency = null;
                 // loop tags
                 for (let tagKey in row.tags) {
-                    if (row.tags.hasOwnProperty(tagKey) && /^0$|^[1-9]\d*$/.test(tagKey) && key <= 4294967294) {
+                    if (row.tags.hasOwnProperty(tagKey) && /^0$|^[1-9]\d*$/.test(tagKey) && tagKey <= 4294967294) {
                         tagList.push(row.tags[tagKey].text);
                     }
                 }
@@ -405,14 +405,15 @@
                     this.success_message = '<a href="transactions/show/' + groupId + '">The transaction</a> has been stored.';
                     this.error_message = '';
                     if (this.resetFormAfter) {
-                        this.addTransaction();
+                        this.addTransactionToArray();
                     }
                     if (button) {
                         button.prop("disabled", false);
                     }
                 } else {
-                    console.log('Will redirect to transaction.');
-                    window.location.href = 'transactions/show/' + groupId + '?message=created';
+                    console.log('Will redirect to previous URL. (' + previousUri + ')');
+                    window.location.href = window.previousUri + '?transaction_group_id=' + groupId+ '&message=created';
+                    //window.location.href = 'transactions/show/' + groupId + '?message=created';
                 }
             },
 

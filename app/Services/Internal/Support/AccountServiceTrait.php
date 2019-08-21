@@ -86,7 +86,7 @@ trait AccountServiceTrait
      *
      * @param Account $account
      * @param array $data
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function updateMetaData(Account $account, array $data): void
     {
@@ -225,6 +225,11 @@ trait AccountServiceTrait
             $destName = trans('firefly.initial_balance_account', ['account' => $account->name], $language);
             $sourceId = $account->id;
         }
+        if (0 === bccomp($amount, '0')) {
+            Log::debug('Amount is zero, so will not make an OB group.');
+
+            return null;
+        }
         $amount     = app('steam')->positive($amount);
         $submission = [
             'group_title'  => null,
@@ -238,6 +243,7 @@ trait AccountServiceTrait
                     'destination_id'   => $destId,
                     'destination_name' => $destName,
                     'user'             => $account->user_id,
+                    'currency_id'      => $data['currency_id'],
                     'order'            => 0,
                     'amount'           => $amount,
                     'foreign_amount'   => null,

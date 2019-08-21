@@ -66,8 +66,8 @@ trait RequestInformation
      * @param string $language
      *
      * @return string
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
+     *
      */
     protected function getHelpText(string $route, string $language): string // get from internet.
     {
@@ -168,6 +168,8 @@ trait RequestInformation
         $page         = $this->getPageName();
         $specificPage = $this->getSpecificPageName();
 
+
+
         // indicator if user has seen the help for this page ( + special page):
         $key = sprintf('shown_demo_%s%s', $page, $specificPage);
         // is there an intro for this route?
@@ -212,7 +214,7 @@ trait RequestInformation
      * @param Carbon $date
      *
      * @return bool
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     protected function notInSessionRange(Carbon $date): bool // Validate a preference
     {
@@ -244,7 +246,7 @@ trait RequestInformation
         $attributes['location'] = $attributes['location'] ?? '';
         $attributes['accounts'] = AccountList::routeBinder($attributes['accounts'] ?? '', new Route('get', '', []));
         try {
-            $attributes['startDate'] = Carbon::createFromFormat('Ymd', $attributes['startDate']);
+            $attributes['startDate'] = Carbon::createFromFormat('Ymd', $attributes['startDate'])->startOfDay();
         } catch (InvalidArgumentException $e) {
             Log::debug(sprintf('Not important error message: %s', $e->getMessage()));
             $date                    = Carbon::now()->startOfMonth();
@@ -252,7 +254,7 @@ trait RequestInformation
         }
 
         try {
-            $attributes['endDate'] = Carbon::createFromFormat('Ymd', $attributes['endDate']);
+            $attributes['endDate'] = Carbon::createFromFormat('Ymd', $attributes['endDate'])->endOfDay();
         } catch (InvalidArgumentException $e) {
             Log::debug(sprintf('Not important error message: %s', $e->getMessage()));
             $date                  = Carbon::now()->startOfMonth();

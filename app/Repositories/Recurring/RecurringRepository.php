@@ -220,7 +220,7 @@ class RecurringRepository implements RecurringRepositoryInterface
         foreach ($meta as $metaEntry) {
             if ('piggy_bank_id' === $metaEntry->name) {
                 $piggyId = (int)$metaEntry->value;
-                return $this->user->piggyBanks()->where('id', $piggyId)->first(['piggy_banks.*']);
+                return $this->user->piggyBanks()->where('piggy_banks.id', $piggyId)->first(['piggy_banks.*']);
             }
         }
 
@@ -234,9 +234,8 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param Carbon $start
      * @param Carbon $end
      *
-     *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function getOccurrencesInRange(RecurrenceRepetition $repetition, Carbon $start, Carbon $end): array
     {
@@ -366,7 +365,7 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param int $count
      *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * 
      */
     public function getXOccurrences(RecurrenceRepetition $repetition, Carbon $date, int $count): array
     {
@@ -400,7 +399,7 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param RecurrenceRepetition $repetition
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * 
      */
     public function repetitionDescription(RecurrenceRepetition $repetition): string
     {

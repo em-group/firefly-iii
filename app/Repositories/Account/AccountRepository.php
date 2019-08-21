@@ -40,7 +40,7 @@ use Log;
 
 /**
  * Class AccountRepository.
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
  */
 class AccountRepository implements AccountRepositoryInterface
 {
@@ -128,6 +128,8 @@ class AccountRepository implements AccountRepositoryInterface
             $query->leftJoin('account_types', 'accounts.account_type_id', '=', 'account_types.id');
             $query->whereIn('account_types.type', $types);
         }
+
+        // TODO a loop like this is no longer necessary
 
         $accounts = $query->get(['accounts.*']);
         /** @var Account $account */

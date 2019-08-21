@@ -1,7 +1,7 @@
 <?php
 /**
- * BalanceHeader.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * RuleForm.php
+ * Copyright (c) 2019 thegrumpydictator@gmail.com
  *
  * This file is part of Firefly III.
  *
@@ -20,46 +20,25 @@
  */
 declare(strict_types=1);
 
-namespace FireflyIII\Helpers\Collection;
+namespace FireflyIII\Support\Facades;
 
-use FireflyIII\Models\Account as AccountModel;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Facade;
 
 /**
- * Class BalanceHeader.
- *
  * @codeCoverageIgnore
+ * Class RuleForm.
+ *
  */
-class BalanceHeader
+class RuleForm extends Facade
 {
-    /** @var Collection The accounts. */
-    protected $accounts;
-
     /**
-     * BalanceHeader constructor.
-     */
-    public function __construct()
-    {
-        $this->accounts = new Collection;
-    }
-
-    /**
-     * Add an account.
+     * Get the registered name of the component.
      *
-     * @param AccountModel $account
+     * @return string
      */
-    public function addAccount(AccountModel $account): void
+    protected static function getFacadeAccessor(): string
     {
-        $this->accounts->push($account);
-    }
-
-    /**
-     * Get them all.
-     *
-     * @return Collection
-     */
-    public function getAccounts(): Collection
-    {
-        return $this->accounts;
+        return 'ruleform';
     }
 }

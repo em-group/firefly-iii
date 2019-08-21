@@ -34,7 +34,7 @@ use Route;
 /**
  * Class Controller.
  *
- * @SuppressWarnings(PHPMD.NumberOfChildren)
+ *
  */
 class Controller extends BaseController
 {

@@ -41,7 +41,7 @@ use Log;
 
 /**
  * Class BillRepository.
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ *
  */
 class BillRepository implements BillRepositoryInterface
 {
@@ -192,13 +192,13 @@ class BillRepository implements BillRepositoryInterface
         $set    = $this->user->bills()
                              ->leftJoin(
                                  'transaction_journals',
-                                 function (JoinClause $join) {
+                                 static function (JoinClause $join) {
                                      $join->on('transaction_journals.bill_id', '=', 'bills.id')->whereNull('transaction_journals.deleted_at');
                                  }
                              )
                              ->leftJoin(
                                  'transactions',
-                                 function (JoinClause $join) {
+                                 static function (JoinClause $join) {
                                      $join->on('transaction_journals.id', '=', 'transactions.transaction_journal_id')->where('transactions.amount', '<', 0);
                                  }
                              )
@@ -413,13 +413,13 @@ class BillRepository implements BillRepositoryInterface
      */
     public function getPaidDatesInRange(Bill $bill, Carbon $start, Carbon $end): Collection
     {
-        $dates = $bill->transactionJournals()->before($end)->after($start)->get(
+        return $bill->transactionJournals()
+                    ->before($end)->after($start)->get(
             [
                 'transaction_journals.id', 'transaction_journals.date',
+                'transaction_journals.transaction_group_id',
             ]
-        )->pluck('date', 'id');
-
-        return $dates;
+            );
     }
 
     /**

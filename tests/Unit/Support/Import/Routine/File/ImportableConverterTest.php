@@ -45,6 +45,9 @@ use Tests\TestCase;
  * todo test foreign currency
  *
  * Class ImportableConverterTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ImportableConverterTest extends TestCase
 {
@@ -144,8 +147,7 @@ class ImportableConverterTest extends TestCase
         $currencyMapper = $this->mock(CurrencyMapper::class);
         $accountRepos   = $this->mock(AccountRepositoryInterface::class);
         $accountRepos->shouldReceive('setUser')->once();
-        $accountRepos->shouldReceive('getMetaValue')
-                     ->withArgs([Mockery::any(), 'currency_id'])->atLeast()->once()->andReturn('1');
+        $accountRepos->shouldReceive('getMetaValue')->withArgs([Mockery::any(), 'currency_id'])->atLeast()->once()->andReturn('1');
 
         // get default currency
         $euro = TransactionCurrency::whereCode('EUR')->first();
@@ -162,12 +164,12 @@ class ImportableConverterTest extends TestCase
         $asset = $this->user()->accounts()->where('account_type_id', 3)->first();
         $other = $this->user()->accounts()->where('account_type_id', 3)->where('id', '!=', $asset->id)->first();
 
-        $assetMapper->shouldReceive('map')->once()->withArgs([null, $nullAccount])->andReturn($asset);
-        $opposingMapper->shouldReceive('map')->once()->withArgs([null, '45.67', $nullAccount])->andReturn($other);
+        $assetMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, $nullAccount])->andReturn($asset);
+        $opposingMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, '45.67', $nullAccount])->andReturn($other);
 
-        $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['name' => null, 'code' => null, 'symbol' => null]])->andReturn(null);
-        $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['code' => null]])->andReturn(null);
-        $currencyMapper->shouldReceive('map')->times(2)->withArgs([$euro->id, []])->andReturn($euro);
+        $currencyMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, ['name' => null, 'code' => null, 'symbol' => null]])->andReturn(null);
+        $currencyMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, ['code' => null]])->andReturn(null);
+        $currencyMapper->shouldReceive('map')->atLeast()->once()->withArgs([$euro->id, []])->andReturn($euro);
 
 
         $converter = new ImportableConverter;
@@ -226,8 +228,8 @@ class ImportableConverterTest extends TestCase
         $asset   = $this->user()->accounts()->where('account_type_id', 3)->first();
         $revenue = $this->user()->accounts()->where('account_type_id', 5)->first();
 
-        $assetMapper->shouldReceive('map')->once()->withArgs([null, $nullAccount])->andReturn($asset);
-        $opposingMapper->shouldReceive('map')->once()->withArgs([null, '45.67', $nullAccount])->andReturn($revenue);
+        $assetMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, $nullAccount])->andReturn($asset);
+        $opposingMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, '45.67', $nullAccount])->andReturn($revenue);
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['name' => null, 'code' => null, 'symbol' => null]])->andReturn($usd);
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['code' => null]])->andReturn(null);
 
@@ -289,8 +291,8 @@ class ImportableConverterTest extends TestCase
         // respond to mapping call:
         $asset = $this->user()->accounts()->where('account_type_id', 3)->first();
 
-        $assetMapper->shouldReceive('map')->once()->withArgs([null, $nullAccount])->andReturn($asset);
-        $opposingMapper->shouldReceive('map')->once()->withArgs([null, '-45.67', $nullAccount])->andReturn($asset);
+        $assetMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, $nullAccount])->andReturn($asset);
+        $opposingMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, '-45.67', $nullAccount])->andReturn($asset);
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['name' => null, 'code' => null, 'symbol' => null]])->andReturn($usd);
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['code' => null]])->andReturn(null);
         $repository->shouldReceive('addErrorMessage')->withArgs(
@@ -349,8 +351,8 @@ class ImportableConverterTest extends TestCase
         $asset = $this->user()->accounts()->where('account_type_id', 3)->first();
         $other = $this->user()->accounts()->where('account_type_id', 3)->where('id', '!=', $asset->id)->first();
 
-        $assetMapper->shouldReceive('map')->once()->withArgs([null, $nullAccount])->andReturn($asset);
-        $opposingMapper->shouldReceive('map')->once()->withArgs([null, '45.67', $nullAccount])->andReturn($other);
+        $assetMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, $nullAccount])->andReturn($asset);
+        $opposingMapper->shouldReceive('map')->atLeast()->once()->withArgs([null, '45.67', $nullAccount])->andReturn($other);
 
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['name' => null, 'code' => null, 'symbol' => null]])->andReturn($usd);
         $currencyMapper->shouldReceive('map')->once()->withArgs([null, ['code' => null]])->andReturn(null);

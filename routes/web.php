@@ -703,6 +703,16 @@ Route::group(
 );
 
 /**
+ * Report Data Bill Controller
+ */
+Route::group(
+    ['middleware' => 'user-full-auth', 'namespace' => 'FireflyIII\Http\Controllers\Report', 'prefix' => 'report-data/bill', 'as' => 'report-data.bills.'],
+    static function () {
+        Route::get('overview/{accountList}/{start_date}/{end_date}', ['uses' => 'BillController@overview', 'as' => 'overview']);
+    }
+);
+
+/**
  * Report Data Expense / Revenue Account Controller
  */
 Route::group(
@@ -875,7 +885,7 @@ Route::group(
     );
 
     // create group:
-    Route::get('create', ['uses' => 'Transaction\CreateController@create', 'as' => 'create']);
+    Route::get('create/{objectType}', ['uses' => 'Transaction\CreateController@create', 'as' => 'create']);
     Route::post('store', ['uses' => 'Transaction\CreateController@store', 'as' => 'store']);
 
     // edit group

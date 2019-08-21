@@ -5,36 +5,6 @@
 {% endblock %}
 
 {% block content %}
-    {% if message == 'created' %}
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="alert alert-success alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">
-                        <span>&times;</span><span class="sr-only">{{ 'close'|_ }}</span>
-                    </button>
-                    <strong>{{ 'flash_success'|_ }}</strong>
-                    {{ trans('firefly.stored_journal_no_descr') }}
-
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
-    {% if message == 'updated' %}
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="alert alert-success alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert">
-                        <span>&times;</span><span class="sr-only">{{ 'close'|_ }}</span>
-                    </button>
-                    <strong>{{ 'flash_success'|_ }}</strong>
-                    {{ trans('firefly.updated_journal_no_descr') }}
-
-                </div>
-            </div>
-        </div>
-    {% endif %}
-
     <div class="row">
         <div class="col-lg-6">
             <div class="box box-primary">
@@ -134,7 +104,7 @@
                                 </td>
                                 <td>
                                     {% for journal in groupArray.transactions %}
-                                        <a href="{{ route('accounts.show',journal.source_id) }}"
+                                        <a href="{{ route('accounts.show',journal.destination_id) }}"
                                            title="{{ journal.destination_iban|default(journal.destination_name) }}">
                                             {{ journal.destination_name }}
                                         </a>
@@ -206,7 +176,7 @@
                                        title="{{ journal.source_iban|default(journal.source_name) }}">{{ journal.source_name }}</a> &rarr;
                                     {% if type == 'Withdrawal' or type == 'Deposit' %}
                                         {{ formatAmountBySymbol(journal.amount*-1, journal.currency_symbol, journal.currency_decimal_places) }}
-                                    {% elseif type == 'Transfer' %}
+                                    {% elseif type == 'Transfer' or type == 'Opening balance' %}
                                         <span class="text-info">
                                         {{ formatAmountBySymbol(journal.amount, journal.currency_symbol, journal.currency_decimal_places, false) }}
                                     </span>
@@ -222,7 +192,6 @@
                                     </span>
                                         {% endif %}
                                     {% endif %}
-
 
                                     &rarr;
                                     <a href="{{ route('accounts.show', journal.destination_id) }}"

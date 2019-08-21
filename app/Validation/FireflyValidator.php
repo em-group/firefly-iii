@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Validation;
 
-use Carbon\Carbon;
 use Config;
 use DB;
 use FireflyIII\Models\Account;
@@ -47,8 +46,6 @@ use Illuminate\Validation\Validator;
 class FireflyValidator extends Validator
 {
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      *
@@ -66,8 +63,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      * @param $parameters
@@ -87,8 +82,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      *
@@ -109,8 +102,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      *
@@ -192,8 +183,6 @@ class FireflyValidator extends Validator
      * @param $attribute
      * @param $value
      * @param $parameters
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return bool
      */
     public function validateLess($attribute, $value, $parameters): bool
@@ -208,8 +197,6 @@ class FireflyValidator extends Validator
      * @param $attribute
      * @param $value
      * @param $parameters
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @return bool
      */
     public function validateMore($attribute, $value, $parameters): bool
@@ -221,8 +208,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      * @param $parameters
@@ -382,8 +367,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      * @param $parameters
@@ -416,8 +399,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      * @param $parameters
@@ -453,7 +434,7 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     *
      * Validate an object and its unicity. Checks for encryption / encrypted values as well.
      *
      * parameter 0: the table
@@ -497,8 +478,6 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     *
      * @param $attribute
      * @param $value
      * @param $parameters
