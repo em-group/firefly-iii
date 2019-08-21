@@ -24,21 +24,27 @@ class Whitelabel
             ->where('active', true)
             ->first();
         if ($whitelabel !== null) {
-//            app()->singleton(\FireflyIII\Models\Whitelabel::class, $whitelabel);
-            app()->singleton(WhitelabelConfiguration::class, function () use ($whitelabel) {
-                return new WhitelabelConfiguration($whitelabel);
-            });
-
-            // todo Not sure if we should specify it like this?
-            config(['whitelabel.id' => $whitelabel->id]);
-
-            // Overwrite existing config
-            foreach ($whitelabel->config as $config) {
-                /** @var WhitelabelConfig $config */
-                config([$config->name => $config->value]);
-            }
+            static::setConfig($whitelabel);
         }
 
         return $next($request);
+    }
+
+    /**
+     * @param \FireflyIII\Models\Whitelabel $whitelabel
+     */
+    static function setConfig($whitelabel)
+    {
+        app()->singleton(WhitelabelConfiguration::class, function () use ($whitelabel) {
+            return new WhitelabelConfiguration($whitelabel);
+        });
+
+        config(['whitelabel.id' => $whitelabel->id]);
+
+        // Overwrite existing config
+        foreach ($whitelabel->config as $config) {
+            /** @var WhitelabelConfig $config */
+            config([$config->name => $config->value]);
+        }
     }
 }

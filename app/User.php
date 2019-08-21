@@ -54,6 +54,7 @@ use Illuminate\Support\Collection;
 use Laravel\Passport\HasApiTokens;
 use Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use EM\Hub\Library\HasProductIndex;
 
 /**
  * Class User.
@@ -109,7 +110,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class User extends Authenticatable
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, HasProductIndex;
 
     /**
      * The attributes that should be casted to native types.

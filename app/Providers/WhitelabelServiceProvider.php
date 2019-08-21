@@ -2,6 +2,7 @@
 
 namespace FireflyIII\Providers;
 
+use FireflyIII\Api\V1\Controllers\HubApiControllerExtender;
 use FireflyIII\Repositories\Whitelabel\WhitelabelRepository;
 use FireflyIII\Repositories\Whitelabel\WhitelabelRepositoryInterface;
 use Illuminate\Support\ServiceProvider;

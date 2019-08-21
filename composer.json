@@ -108,7 +108,8 @@
       "database/factories"
     ],
     "psr-4": {
-      "FireflyIII\\": "app/"
+      "FireflyIII\\": "app/",
+      "EM\\Hub\\": "../global-lib/em-hub"
     }
   },
   "autoload-dev": {

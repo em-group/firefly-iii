@@ -37,6 +37,7 @@ use FireflyIII\Http\Middleware\StartFireflySession;
 use FireflyIII\Http\Middleware\TrimStrings;
 use FireflyIII\Http\Middleware\TrustProxies;
 use FireflyIII\Http\Middleware\VerifyCsrfToken;
+use FireflyIII\Http\Middleware\Whitelabel;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -71,6 +72,7 @@ class Kernel extends HttpKernel
             TrimStrings::class,
             ConvertEmptyStringsToNull::class,
             TrustProxies::class,
+            Whitelabel::class
         ];
 
     /**

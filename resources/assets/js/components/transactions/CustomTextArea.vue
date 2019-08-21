@@ -1,5 +1,5 @@
 <!--
-  - CustomTextarea.vue
+  - CustomTextArea.vue
   - Copyright (c) 2019 thegrumpydictator@gmail.com
   -
   - This file is part of Firefly III.
@@ -40,7 +40,7 @@
 
 <script>
     export default {
-        name: "CustomTextarea",
+        name: "CustomTextArea",
         props: {
             title: String,
             name: String,
