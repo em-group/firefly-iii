@@ -3,6 +3,7 @@
 namespace FireflyIII\Console\Commands;
 
 
+use EM\Hub\HubException;
 use FireflyIII\Models\Whitelabel;
 use Illuminate\Console\Command;
 
@@ -32,9 +33,11 @@ class WhitelabelHeartbeats extends Command
             \FireflyIII\Http\Middleware\Whitelabel::setConfig($whitelabel);
             try {
                 $this->call('emhub:heartbeat');
-                $this->info('Heartbeat for '. $whitelabel->name . ' successful');
+                $this->info('Heartbeat for ' . $whitelabel->name . ' successful');
+            } catch (HubException $e) {
+                $this->warn('Heartbeat for '. $whitelabel->name . ' failed; '.$e->getMessage());
             } catch (\Exception $e) {
-                $this->warn('Heartbeat for '. $whitelabel->name . ' failed');
+                $this->error('Heartbeat for '. $whitelabel->name . ' failed; '.$e->getMessage());
             }
         }
     }

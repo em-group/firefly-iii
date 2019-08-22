@@ -66,7 +66,6 @@ return [
         /*
          * Package Service Providers...
          */
-        EM\Hub\ServiceProvider::class,
 
         /*
          * Application Service Providers...

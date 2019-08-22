@@ -25,6 +25,9 @@ declare(strict_types=1);
 namespace FireflyIII;
 
 use Eloquent;
+use EM\Hub\Library\GeneratesRandomPasswords;
+use EM\Hub\Library\ManipulatesMembership;
+use EM\Hub\Models\UserInterface;
 use Exception;
 use FireflyIII\Events\RequestedNewPassword;
 use FireflyIII\Models\Account;
@@ -116,9 +119,9 @@ use EM\Hub\Library\HasProductIndex;
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class User extends Authenticatable
+class User extends Authenticatable implements UserInterface
 {
-    use Notifiable, HasApiTokens, HasProductIndex;
+    use Notifiable, HasApiTokens, HasProductIndex, ManipulatesMembership, GeneratesRandomPasswords;
 
     /**
      * The attributes that should be casted to native types.
