@@ -25,8 +25,8 @@ declare(strict_types=1);
 namespace FireflyIII;
 
 use Eloquent;
-use EM\Hub\Library\GeneratesRandomPasswords;
-use EM\Hub\Library\ManipulatesMembership;
+use EM\Hub\Library\HasProductIndex;
+use EM\Hub\Models\User as HubUser;
 use EM\Hub\Models\UserInterface;
 use Exception;
 use FireflyIII\Events\RequestedNewPassword;
@@ -54,7 +54,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -65,7 +64,6 @@ use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\Token;
 use Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use EM\Hub\Library\HasProductIndex;
 
 /**
  * Class User.
@@ -119,9 +117,9 @@ use EM\Hub\Library\HasProductIndex;
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class User extends Authenticatable implements UserInterface
+class User extends HubUser implements UserInterface
 {
-    use Notifiable, HasApiTokens, HasProductIndex, ManipulatesMembership, GeneratesRandomPasswords;
+    use Notifiable, HasApiTokens, HasProductIndex;
 
     /**
      * The attributes that should be casted to native types.

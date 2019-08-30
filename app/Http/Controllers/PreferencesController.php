@@ -138,6 +138,7 @@ class PreferencesController extends Controller
         $lang = $request->get('language');
         if (array_key_exists($lang, config('firefly.languages'))) {
             app('preferences')->set('language', $lang);
+            // todo Set users country_id based on this setting
         }
         if ($currentLang->data !== $lang) {
             session()->flash('info', 'All translations are supplied by volunteers. There might be errors and mistakes. I appreciate your feedback.');

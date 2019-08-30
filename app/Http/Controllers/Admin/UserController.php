@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Admin;
 
+use EM\Hub\Library\SubProducts;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Http\Middleware\IsSandStormUser;
@@ -129,6 +130,7 @@ class UserController extends Controller
             function (User $user) {
                 $user->isAdmin = $this->repository->hasRole($user, 'owner');
                 $user->has2FA  = null !== $user->mfa_secret;
+                $user->sub_product;
             }
         );
 

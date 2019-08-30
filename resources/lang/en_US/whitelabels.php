@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 return [
+    'whitelabel'                => 'Whitelabel',
     'all_whitelabels'           => 'All whitelabels',
     'list_all_whitelabels'      => 'List of all whitelabels',
     'edit_whitelabel'           => 'Edit whitelabel ":name"',
