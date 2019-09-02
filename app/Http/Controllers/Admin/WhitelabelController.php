@@ -5,6 +5,7 @@ namespace FireflyIII\Http\Controllers\Admin;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\WhitelabelFormRequest;
 use FireflyIII\Models\Whitelabel;
+use FireflyIII\Models\WhitelabelConfig;
 use FireflyIII\Repositories\Whitelabel\WhitelabelRepositoryInterface;
 use Illuminate\Http\Request;
 
@@ -42,6 +43,22 @@ class WhitelabelController extends Controller
         $subTitleIcon = 'fa-globe';
 
         $whitelabel->load('config');
+        $configs = config('whitelabels.default_configs');
+        foreach ($configs as $setting) {
+            $missing = true;
+            foreach ($whitelabel->config as $config) {
+                if ($config->name == $setting) {
+                    $missing = false;
+                    break;
+                }
+            }
+            if ($missing) {
+                $whitelabel->config->add(new WhitelabelConfig([
+                    'whitelabel_id' => $whitelabel->id,
+                    'name' => $setting
+                ]));
+            }
+        }
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('whitelabels.edit.fromUpdate')) {
@@ -49,7 +66,7 @@ class WhitelabelController extends Controller
         }
         $request->session()->forget('link-types.edit.fromUpdate');
 
-        return view('admin.whitelabels.edit', compact('subTitle', 'subTitleIcon', 'whitelabel'));
+        return view('admin.whitelabels.edit', compact('subTitle', 'subTitleIcon', 'whitelabel', 'configs'));
     }
 
     public function update(WhitelabelFormRequest $request, Whitelabel $whitelabel)
@@ -79,11 +96,13 @@ class WhitelabelController extends Controller
         $subTitle = (string)trans('whitelabels.create_whitelabel');
         $subTitleIcon = 'fa-globe';
 
+        $configs = config('whitelabels.default_configs');
+
         if (true !== session('whitelabels.create.fromStore')) {
             $this->rememberPreviousUri('whitelabels.create.uri');
         }
 
-        return view('admin.whitelabels.create', compact('subTitle', 'subTitleIcon'));
+        return view('admin.whitelabels.create', compact('subTitle', 'subTitleIcon', 'configs'));
     }
 
     public function store(WhitelabelFormRequest $request)
