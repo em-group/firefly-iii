@@ -63,7 +63,11 @@
                                     {% endif %}
                                 </td>
                                 <td data-value="{{ user.product_index }}">
-                                    {{ user.sub_product.name }}
+                                    {% if user.has_sub_product %}
+                                        {{ user.sub_product.name }} ({{ user.country.currency }}{{ user.sub_product.current_price }})
+                                    {% else %}
+                                        <i>None</i>
+                                    {% endif %}
                                 </td>
                                 <td data-value="{% if user.blocked %}1{% else %}0{% endif %}">
                                     {% if user.blocked == 1 %}

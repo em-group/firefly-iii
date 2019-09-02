@@ -103,6 +103,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property-read Collection|TransactionGroup[]                                               $transactionGroups
  * @property-read Collection|TransactionJournal[]                                             $transactionJournals
  * @property-read Collection|Transaction[]                                                    $transactions
+ * @property-read Collection|Whitelabel $whitelabel
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
