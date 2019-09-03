@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
-use FireflyIII\Helpers\FeatureAccess\UserLevel;
+use EM\Hub\Library\SubProducts;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Http\Request;
@@ -21,7 +21,6 @@ class FeatureAccess
     ];
 
     const level_basic = [
-        'name' => 'Basic',
         'features' => [
             'bills',
             'budgets'
@@ -29,7 +28,6 @@ class FeatureAccess
     ];
 
     const level_premium = [
-        'name' => 'Premium',
         'features' => [
             // todo These are just examples for how we can define the feature list
             'categories.create',
@@ -114,11 +112,15 @@ class FeatureAccess
             return $next($request);
         }
 
-        $level = static::$levels[$lvlIdx];
+        $product = SubProducts::getSubProductIndex($lvlIdx);
+        if (empty($product)) {
+            // Product with index doesn't exist, skip check
+            return $next($request);
+        }
 
-        if (!$userRep->hasFeature($user, new UserLevel($lvlIdx))) {
-            session()->flash('error', 'You do not have access to '.$level['name'].' level features, with your current plan');
-            return redirect('/'); // Maybe just go back to the previous page?
+        if (!$userRep->hasFeature($user, $product)) {
+            session()->flash('error', 'You do not have access to '.$product->name.' level features, with your current plan');
+            return redirect('/'); // todo Maybe just go back to the previous page?
         }
 
         return $next($request);
