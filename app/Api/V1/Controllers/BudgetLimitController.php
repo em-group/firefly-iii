@@ -28,6 +28,7 @@ use FireflyIII\Api\V1\Requests\BudgetLimitRequest;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\BudgetLimit;
+use FireflyIII\Repositories\Budget\BudgetLimitRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Support\Http\Api\TransactionFilter;
 use FireflyIII\Transformers\BudgetLimitTransformer;
@@ -46,13 +47,16 @@ use League\Fractal\Serializer\JsonApiSerializer;
 /**
  * Class BudgetLimitController.
  *
- *
  */
 class BudgetLimitController extends Controller
 {
     use TransactionFilter;
     /** @var BudgetRepositoryInterface The budget repository */
     private $repository;
+
+    /** @var BudgetLimitRepositoryInterface */
+    private $blRepository;
+
 
     /**
      * BudgetLimitController constructor.
@@ -67,7 +71,9 @@ class BudgetLimitController extends Controller
                 /** @var User $user */
                 $user             = auth()->user();
                 $this->repository = app(BudgetRepositoryInterface::class);
+                $this->blRepository = app(BudgetLimitRepositoryInterface::class);
                 $this->repository->setUser($user);
+                $this->blRepository->setUser($user);
 
                 return $next($request);
             }
@@ -84,7 +90,7 @@ class BudgetLimitController extends Controller
      */
     public function delete(BudgetLimit $budgetLimit): JsonResponse
     {
-        $this->repository->destroyBudgetLimit($budgetLimit);
+        $this->blRepository->destroyBudgetLimit($budgetLimit);
 
         return response()->json([], 204);
     }
@@ -108,10 +114,10 @@ class BudgetLimitController extends Controller
 
         $collection = new Collection;
         if (null === $budget) {
-            $collection = $this->repository->getAllBudgetLimits($this->parameters->get('start'), $this->parameters->get('end'));
+            $collection = $this->blRepository->getAllBudgetLimits($this->parameters->get('start'), $this->parameters->get('end'));
         }
         if (null !== $budget) {
-            $collection = $this->repository->getBudgetLimits($budget, $this->parameters->get('start'), $this->parameters->get('end'));
+            $collection = $this->blRepository->getBudgetLimits($budget, $this->parameters->get('start'), $this->parameters->get('end'));
         }
 
         $count        = $collection->count();
@@ -172,7 +178,7 @@ class BudgetLimitController extends Controller
             throw new FireflyException('Unknown budget.');
         }
         $data['budget'] = $budget;
-        $budgetLimit    = $this->repository->storeBudgetLimit($data);
+        $budgetLimit    = $this->blRepository->storeBudgetLimit($data);
         $manager        = new Manager;
         $baseUrl        = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));
@@ -253,7 +259,7 @@ class BudgetLimitController extends Controller
     {
         $data           = $request->getAll();
         $data['budget'] = $budgetLimit->budget;
-        $budgetLimit    = $this->repository->updateBudgetLimit($budgetLimit, $data);
+        $budgetLimit    = $this->blRepository->updateBudgetLimit($budgetLimit, $data);
         $manager        = new Manager;
         $baseUrl        = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));

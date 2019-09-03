@@ -172,9 +172,7 @@ class BillRepository implements BillRepositoryInterface
     public function getBills(): Collection
     {
         /** @var Collection $set */
-        $set = $this->user->bills()->orderBy('active', 'DESC')->orderBy('name', 'ASC')->get();
-
-        return $set;
+        return $this->user->bills()->orderBy('active', 'DESC')->orderBy('name', 'ASC')->get();
     }
 
     /**
@@ -184,10 +182,8 @@ class BillRepository implements BillRepositoryInterface
      */
     public function getBillsForAccounts(Collection $accounts): Collection
     {
-        $fields = ['bills.id', 'bills.created_at', 'bills.updated_at', 'bills.deleted_at', 'bills.user_id', 'bills.name', 'bills.match', 'bills.amount_min',
-                   'bills.amount_max', 'bills.date', 'bills.transaction_currency_id', 'bills.repeat_freq', 'bills.skip', 'bills.automatch', 'bills.active',
-                   'bills.name_encrypted',
-                   'bills.match_encrypted',];
+        $fields = ['bills.id', 'bills.created_at', 'bills.updated_at', 'bills.deleted_at', 'bills.user_id', 'bills.name', 'bills.amount_min',
+                   'bills.amount_max', 'bills.date', 'bills.transaction_currency_id', 'bills.repeat_freq', 'bills.skip', 'bills.automatch', 'bills.active',];
         $ids    = $accounts->pluck('id')->toArray();
         $set    = $this->user->bills()
                              ->leftJoin(
@@ -208,7 +204,6 @@ class BillRepository implements BillRepositoryInterface
                              ->orderBy('bills.name', 'ASC')
                              ->groupBy($fields)
                              ->get($fields);
-
         return $set;
     }
 
@@ -399,7 +394,9 @@ class BillRepository implements BillRepositoryInterface
      */
     public function getPaginator(int $size): LengthAwarePaginator
     {
-        return $this->user->bills()->paginate($size);
+        return $this->user->bills()
+                          ->orderBy('active', 'DESC')
+                          ->orderBy('name', 'ASC')->paginate($size);
     }
 
     /**
@@ -415,10 +412,10 @@ class BillRepository implements BillRepositoryInterface
     {
         return $bill->transactionJournals()
                     ->before($end)->after($start)->get(
-            [
-                'transaction_journals.id', 'transaction_journals.date',
-                'transaction_journals.transaction_group_id',
-            ]
+                [
+                    'transaction_journals.id', 'transaction_journals.date',
+                    'transaction_journals.transaction_group_id',
+                ]
             );
     }
 
@@ -457,7 +454,7 @@ class BillRepository implements BillRepositoryInterface
             $currentStart = clone $nextExpectedMatch;
         }
         $simple = $set->each(
-            function (Carbon $date) {
+            static function (Carbon $date) {
                 return $date->format('Y-m-d');
             }
         );
@@ -544,14 +541,14 @@ class BillRepository implements BillRepositoryInterface
     /**
      * Link a set of journals to a bill.
      *
-     * @param Bill       $bill
+     * @param Bill  $bill
      * @param array $transactions
      */
     public function linkCollectionToBill(Bill $bill, array $transactions): void
     {
         /** @var Transaction $transaction */
         foreach ($transactions as $transaction) {
-            $journal          = $transaction->transactionJournal;
+            $journal          = $bill->user->transactionJournals()->find((int)$transaction['transaction_journal_id']);
             $journal->bill_id = $bill->id;
             $journal->save();
             Log::debug(sprintf('Linked journal #%d to bill #%d', $journal->id, $bill->id));
