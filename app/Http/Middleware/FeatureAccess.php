@@ -31,7 +31,8 @@ class FeatureAccess
         'features' => [
             // todo These are just examples for how we can define the feature list
             'categories.create',
-            'bills.show'
+            'bills.show',
+            'accounts/revenue'
         ]
     ];
 
@@ -64,6 +65,18 @@ class FeatureAccess
                 'FireflyIII\Http\Controllers\Budget\EditController',
                 'FireflyIII\Http\Controllers\Budget\IndexController',
                 'FireflyIII\Http\Controllers\Budget\ShowController',
+            ]
+        ],
+        'accounts' => [
+            'name' => 'Accounts',
+            'route' => '/accounts',
+            'class' => [
+                'FireflyIII\Http\Controllers\Account\CreateController',
+                'FireflyIII\Http\Controllers\Account\DeleteController',
+                'FireflyIII\Http\Controllers\Account\EditController',
+                'FireflyIII\Http\Controllers\Account\IndexController',
+                'FireflyIII\Http\Controllers\Account\ReconcileController',
+                'FireflyIII\Http\Controllers\Account\ShowController',
             ]
         ]
     ];
@@ -104,9 +117,8 @@ class FeatureAccess
             $lvlIdx = static::$classMap[$class.'@'.$method];
         } else if (!empty(static::$classMap[$class])) {
             $lvlIdx = static::$classMap[$class];
-        } else if (false) {
-            // todo Check route against routemap
-            $lvlIdx = 0;
+        } else if ($route = static::routeInMap($request->getPathInfo())) {
+            $lvlIdx = static::$routeMap[$route];
         } else {
             // If not defined, assume no limiting
             return $next($request);
@@ -119,11 +131,21 @@ class FeatureAccess
         }
 
         if (!$userRep->hasFeature($user, $product)) {
-            session()->flash('error', 'You do not have access to '.$product->name.' level features, with your current plan');
-            return redirect('/'); // todo Maybe just go back to the previous page?
+            session()->flash('error', trans('features.no_access', ['name' => $product->name]));
+            return redirect(session()->previousUrl());
         }
 
         return $next($request);
+    }
+
+    public static function routeInMap($path)
+    {
+        foreach (static::$routeMap as $route => $_) {
+            if (strpos($route, $path) === 0) {
+                return $route;
+            }
+        }
+        return false;
     }
 
     public static function mapFeatures(): array
@@ -190,6 +212,27 @@ class FeatureAccess
                         return $copy;
                     }
                 }
+            }
+        }
+
+        // Featurenotation is specified as a route
+        if (strpos($feature, '/') !== false) {
+            $order = explode('/', $feature);
+            $feature = reset($order);
+
+            $obj = static::getFeature($feature);
+            if ($obj !== null) {
+                $route = $obj['route'];
+                $blockRoute = $route;
+                while (false !== ($method = next($order))) {
+                    $blockRoute .= '/'.$method;
+                }
+
+                return [
+                    'class' => [],
+                    'route' => $blockRoute
+                ];
+
             }
         }
 
