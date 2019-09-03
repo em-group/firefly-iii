@@ -30,24 +30,24 @@ class FeatureAccess
     const level_premium = [
         'features' => [
             // todo These are just examples for how we can define the feature list
-            'categories.create',
-            'bills.show',
-            'accounts/revenue'
+            'categories.create', // Must be premium to create categories
+            'bills.show', // To view a single bill, requires premium
+            'accounts/revenue', // Any routes to /accounts/revenue* will be blocked for basic
         ]
     ];
 
     // todo Define all the features limited to a level
     const features = [
-        'categories' => [
-            'name' => 'Categories',
-            'route' => '/categories',
+        'accounts' => [
+            'name' => 'Accounts',
+            'route' => '/accounts',
             'class' => [
-                'FireflyIII\Http\Controllers\Category\CreateController',
-                'FireflyIII\Http\Controllers\Category\DeleteController',
-                'FireflyIII\Http\Controllers\Category\EditController',
-                'FireflyIII\Http\Controllers\Category\IndexController',
-                'FireflyIII\Http\Controllers\Category\NoCategoryController',
-                'FireflyIII\Http\Controllers\Category\ShowController'
+                'FireflyIII\Http\Controllers\Account\CreateController',
+                'FireflyIII\Http\Controllers\Account\DeleteController',
+                'FireflyIII\Http\Controllers\Account\EditController',
+                'FireflyIII\Http\Controllers\Account\IndexController',
+                'FireflyIII\Http\Controllers\Account\ReconcileController',
+                'FireflyIII\Http\Controllers\Account\ShowController',
             ]
         ],
         'bills' => [
@@ -67,16 +67,94 @@ class FeatureAccess
                 'FireflyIII\Http\Controllers\Budget\ShowController',
             ]
         ],
-        'accounts' => [
-            'name' => 'Accounts',
-            'route' => '/accounts',
+        'categories' => [
+            'name' => 'Categories',
+            'route' => '/categories',
             'class' => [
-                'FireflyIII\Http\Controllers\Account\CreateController',
-                'FireflyIII\Http\Controllers\Account\DeleteController',
-                'FireflyIII\Http\Controllers\Account\EditController',
-                'FireflyIII\Http\Controllers\Account\IndexController',
-                'FireflyIII\Http\Controllers\Account\ReconcileController',
-                'FireflyIII\Http\Controllers\Account\ShowController',
+                'FireflyIII\Http\Controllers\Category\CreateController',
+                'FireflyIII\Http\Controllers\Category\DeleteController',
+                'FireflyIII\Http\Controllers\Category\EditController',
+                'FireflyIII\Http\Controllers\Category\IndexController',
+                'FireflyIII\Http\Controllers\Category\NoCategoryController',
+                'FireflyIII\Http\Controllers\Category\ShowController'
+            ]
+        ],
+        'tags' => [
+            'name' => 'Tags',
+            'route' => '/tags',
+            'class' => 'FireflyIII\Http\Controllers\TagController'
+        ],
+        'reports' => [
+            'name' => 'Reports',
+            'route' => '/reports',
+            'class' => [
+                'FireflyIII\Http\Controllers\Report\AccountController',
+                'FireflyIII\Http\Controllers\Report\BalanceController',
+                'FireflyIII\Http\Controllers\Report\BillController',
+                'FireflyIII\Http\Controllers\Report\BudgetController',
+                'FireflyIII\Http\Controllers\Report\CategoryController',
+                'FireflyIII\Http\Controllers\Report\ExpenseController',
+                'FireflyIII\Http\Controllers\Report\OperationsController',
+            ]
+        ],
+        'import' => [
+            'name' => 'Import',
+            'route' => '/import',
+            'class' => [
+                'FireflyIII\Http\Controllers\Import\CallbackController',
+                'FireflyIII\Http\Controllers\Import\IndexController',
+                'FireflyIII\Http\Controllers\Import\JobConfigurationController',
+                'FireflyIII\Http\Controllers\Import\JobStatusController',
+                'FireflyIII\Http\Controllers\Import\PrerequisitesController',
+            ],
+            'routes' => [
+                'create/file',
+                'create/bunq',
+                'create/spectre',
+                'create/ynap',
+                'create/fints'
+            ]
+        ],
+        'transactions' => [
+            'name' => 'Transactions',
+            'route' => '/transactions',
+            'class' => [
+                'FireflyIII\Http\Controllers\Transaction\BulkController',
+                'FireflyIII\Http\Controllers\Transaction\ConvertController',
+                'FireflyIII\Http\Controllers\Transaction\CreateController',
+                'FireflyIII\Http\Controllers\Transaction\DeleteController',
+                'FireflyIII\Http\Controllers\Transaction\EditController',
+                'FireflyIII\Http\Controllers\Transaction\IndexController',
+                'FireflyIII\Http\Controllers\Transaction\LinkController',
+                'FireflyIII\Http\Controllers\Transaction\MassController',
+                'FireflyIII\Http\Controllers\Transaction\ShowController',
+            ]
+        ],
+        'piggybank' => [
+            'name' => 'Piggy bank',
+            'route' => '/piggy-banks',
+            'class' => 'FireflyIII\Http\Controllers\PiggyBankController'
+        ],
+        'rules' => [
+            'name' => 'Rules',
+            'route' => '/rules',
+            'class' => [
+                'FireflyIII\Http\Controllers\Rule\CreateController',
+                'FireflyIII\Http\Controllers\Rule\DeleteController',
+                'FireflyIII\Http\Controllers\Rule\EditController',
+                'FireflyIII\Http\Controllers\Rule\IndexController',
+                'FireflyIII\Http\Controllers\Rule\SelectController',
+            ]
+        ],
+        'recurring' => [
+            'name' => 'Recurring',
+            'route' => '/recurring',
+            'class' => [
+                'FireflyIII\Http\Controllers\Recurring\CreateController',
+                'FireflyIII\Http\Controllers\Recurring\DeleteController',
+                'FireflyIII\Http\Controllers\Recurring\EditController',
+                'FireflyIII\Http\Controllers\Recurring\IndexController',
+                'FireflyIII\Http\Controllers\Recurring\ShowController',
             ]
         ]
     ];
