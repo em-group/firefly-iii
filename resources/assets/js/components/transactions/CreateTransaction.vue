@@ -19,8 +19,7 @@
   -->
 
 <template>
-    <form method="POST" action="#" accept-charset="UTF-8" class="form-horizontal" id="store"
-          enctype="multipart/form-data">
+    <form accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
         <input name="_token" type="hidden" value="xxx">
         <div class="row" v-if="error_message !== ''">
             <div class="col-lg-12">
@@ -69,7 +68,7 @@
                                 <span v-if="transactions.length === 1">Transaction information</span>
                             </h3>
                             <div class="box-tools pull-right" v-if="transactions.length > 1" x>
-                                <button v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
+                                <button type="button" v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
                                         class="fa fa-trash"></i></button>
                             </div>
                         </div>
@@ -164,7 +163,7 @@
                             </div>
                         </div>
                         <div class="box-footer" v-if="transactions.length-1 === index">
-                            <button class="split_add_btn btn btn-primary" @click="addTransactionToArray">Add another split</button>
+                            <button class="split_add_btn btn btn-primary" type="button" @click="addTransactionToArray">Add another split</button>
                         </div>
                     </div>
                 </div>
@@ -369,9 +368,6 @@
             submit(e) {
                 const uri = './api/v1/transactions?_token=' + document.head.querySelector('meta[name="csrf-token"]').content;
                 const data = this.convertData();
-                if (this.resetFormAfter) {
-                    this.resetTransactions();
-                }
 
                 let button = $(e.currentTarget);
                 button.prop("disabled", true);
@@ -401,19 +397,25 @@
                 // if count is 0, send user onwards.
                 if (this.createAnother) {
                     console.log('Will create another.');
+
                     // do message:
                     this.success_message = '<a href="transactions/show/' + groupId + '">The transaction</a> has been stored.';
                     this.error_message = '';
                     if (this.resetFormAfter) {
+                        // also clear form.
+                        this.resetTransactions();
                         this.addTransactionToArray();
                     }
+
+                    // clear errors:
+                    this.setDefaultErrors();
+
                     if (button) {
                         button.prop("disabled", false);
                     }
                 } else {
                     console.log('Will redirect to previous URL. (' + previousUri + ')');
-                    window.location.href = window.previousUri + '?transaction_group_id=' + groupId+ '&message=created';
-                    //window.location.href = 'transactions/show/' + groupId + '?message=created';
+                    window.location.href = window.previousUri + '?transaction_group_id=' + groupId + '&message=created';
                 }
             },
 
@@ -520,6 +522,8 @@
             setDefaultErrors: function () {
                 for (const key in this.transactions) {
                     if (this.transactions.hasOwnProperty(key) && /^0$|^[1-9]\d*$/.test(key) && key <= 4294967294) {
+                        console.log('Set default errors for key ' + key);
+                        //this.transactions[key].description
                         this.transactions[key].errors = {
                             source_account: [],
                             destination_account: [],
@@ -593,6 +597,11 @@
                                     break;
                             }
                         }
+                        // unique some things
+                        this.transactions[transactionIndex].errors.source_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.source_account));
+                        this.transactions[transactionIndex].errors.destination_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.destination_account));
                     }
                 }
             },
@@ -601,73 +610,73 @@
             },
             addTransactionToArray: function (e) {
                 this.transactions.push({
-                    description: "",
-                    date: "",
-                    amount: "",
-                    category: "",
-                    piggy_bank: 0,
-                    errors: {
-                        source_account: [],
-                        destination_account: [],
-                        description: [],
-                        amount: [],
-                        date: [],
-                        budget_id: [],
-                        foreign_amount: [],
-                        category: [],
-                        piggy_bank: [],
-                        tags: [],
-                        // custom fields:
-                        custom_errors: {
-                            interest_date: [],
-                            book_date: [],
-                            process_date: [],
-                            due_date: [],
-                            payment_date: [],
-                            invoice_date: [],
-                            internal_reference: [],
-                            notes: [],
-                            attachments: [],
-                        },
-                    },
-                    budget: 0,
-                    tags: [],
-                    custom_fields: {
-                        "interest_date": "",
-                        "book_date": "",
-                        "process_date": "",
-                        "due_date": "",
-                        "payment_date": "",
-                        "invoice_date": "",
-                        "internal_reference": "",
-                        "notes": "",
-                        "attachments": []
-                    },
-                    foreign_amount: {
-                        amount: "",
-                        currency_id: 0
-                    },
-                    source_account: {
-                        id: 0,
-                        name: "",
-                        type: "",
-                        currency_id: 0,
-                        currency_name: '',
-                        currency_code: '',
-                        currency_decimal_places: 2,
-                        allowed_types: []
-                    },
-                    destination_account: {
-                        id: 0,
-                        name: "",
-                        type: "",
-                        currency_id: 0,
-                        currency_name: '',
-                        currency_code: '',
-                        currency_decimal_places: 2,
-                        allowed_types: []
-                    }
-                });
+                                           description: "",
+                                           date: "",
+                                           amount: "",
+                                           category: "",
+                                           piggy_bank: 0,
+                                           errors: {
+                                               source_account: [],
+                                               destination_account: [],
+                                               description: [],
+                                               amount: [],
+                                               date: [],
+                                               budget_id: [],
+                                               foreign_amount: [],
+                                               category: [],
+                                               piggy_bank: [],
+                                               tags: [],
+                                               // custom fields:
+                                               custom_errors: {
+                                                   interest_date: [],
+                                                   book_date: [],
+                                                   process_date: [],
+                                                   due_date: [],
+                                                   payment_date: [],
+                                                   invoice_date: [],
+                                                   internal_reference: [],
+                                                   notes: [],
+                                                   attachments: [],
+                                               },
+                                           },
+                                           budget: 0,
+                                           tags: [],
+                                           custom_fields: {
+                                               "interest_date": "",
+                                               "book_date": "",
+                                               "process_date": "",
+                                               "due_date": "",
+                                               "payment_date": "",
+                                               "invoice_date": "",
+                                               "internal_reference": "",
+                                               "notes": "",
+                                               "attachments": []
+                                           },
+                                           foreign_amount: {
+                                               amount: "",
+                                               currency_id: 0
+                                           },
+                                           source_account: {
+                                               id: 0,
+                                               name: "",
+                                               type: "",
+                                               currency_id: 0,
+                                               currency_name: '',
+                                               currency_code: '',
+                                               currency_decimal_places: 2,
+                                               allowed_types: []
+                                           },
+                                           destination_account: {
+                                               id: 0,
+                                               name: "",
+                                               type: "",
+                                               currency_id: 0,
+                                               currency_name: '',
+                                               currency_code: '',
+                                               currency_decimal_places: 2,
+                                               allowed_types: []
+                                           }
+                                       });
                 if (this.transactions.length === 1) {
                     // set first date.
                     let today = new Date();

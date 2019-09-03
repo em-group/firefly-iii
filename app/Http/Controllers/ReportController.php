@@ -38,7 +38,6 @@ use Log;
 /**
  * Class ReportController.
  *
- *
  */
 class ReportController extends Controller
 {
@@ -126,8 +125,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_audit',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -163,8 +162,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_budget',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -201,8 +200,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_category',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -310,7 +309,6 @@ class ReportController extends Controller
      *
      * @throws \FireflyIII\Exceptions\FireflyException
      *
-     *
      */
     public function postIndex(ReportFormRequest $request)
     {
@@ -408,8 +406,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_tag',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );

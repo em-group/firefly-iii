@@ -1147,6 +1147,11 @@ try {
             if ($group->transactionJournals()->count() > 1) {
                 $title = limitStringLength($group->title);
             }
+            if('opening balance' === $type) {
+
+                $breadcrumbs->push($title, route('transactions.show', [$group->id]));
+                return;
+            }
 
             $breadcrumbs->parent('transactions.index', $type);
             $breadcrumbs->push($title, route('transactions.show', [$group->id]));

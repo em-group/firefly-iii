@@ -25,7 +25,9 @@ namespace FireflyIII\Http\Controllers\Report;
 use Carbon\Carbon;
 use FireflyIII\Helpers\Report\BudgetReportHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
-use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
+use FireflyIII\Models\Account;
+use FireflyIII\Models\Budget;
+use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\Support\Http\Controllers\BasicDataSupport;
 use Illuminate\Support\Collection;
@@ -39,8 +41,242 @@ class BudgetController extends Controller
 {
     use BasicDataSupport;
 
+    /** @var OperationsRepositoryInterface */
+    private $opsRepository;
+
+    /**
+     * ExpenseReportController constructor.
+     *
+     * @codeCoverageIgnore
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->middleware(
+            function ($request, $next) {
+                $this->opsRepository = app(OperationsRepositoryInterface::class);
+
+                return $next($request);
+            }
+        );
+    }
+
+    /**
+     * @param Collection $accounts
+     * @param Collection $budgets
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function accountPerBudget(Collection $accounts, Collection $budgets, Carbon $start, Carbon $end)
+    {
+        $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $budgets);
+        $report = [];
+        /** @var Account $account */
+        foreach ($accounts as $account) {
+            $accountId          = $account->id;
+            $report[$accountId] = $report[$accountId] ?? [
+                    'name'       => $account->name,
+                    'id'         => $account->id,
+                    'iban'       => $account->iban,
+                    'currencies' => [],
+                ];
+        }
+
+        // loop expenses.
+        foreach ($spent as $currency) {
+            $currencyId = $currency['currency_id'];
+
+            foreach ($currency['budgets'] as $budget) {
+                foreach ($budget['transaction_journals'] as $journal) {
+                    $sourceAccountId = $journal['source_account_id'];
+
+
+                    $report[$sourceAccountId]['currencies'][$currencyId]                           = $report[$sourceAccountId]['currencies'][$currencyId] ?? [
+                            'currency_id'             => $currency['currency_id'],
+                            'currency_symbol'         => $currency['currency_symbol'],
+                            'currency_name'           => $currency['currency_name'],
+                            'currency_decimal_places' => $currency['currency_decimal_places'],
+                            'budgets'                 => [],
+                        ];
+                    $report[$sourceAccountId]['currencies'][$currencyId]['budgets'][$budget['id']]
+                                                                                                   = $report[$sourceAccountId]['currencies'][$currencyId]['budgets'][$budget['id']]
+                                                                                                     ?? '0';
+                    $report[$sourceAccountId]['currencies'][$currencyId]['budgets'][$budget['id']] = bcadd(
+                        $report[$sourceAccountId]['currencies'][$currencyId]['budgets'][$budget['id']], $journal['amount']
+                    );
+                }
+            }
+        }
+
+        return view('reports.budget.partials.account-per-budget', compact('report', 'budgets'));
+    }
+
+    /**
+     * @param Collection $accounts
+     * @param Collection $budgets
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function accounts(Collection $accounts, Collection $budgets, Carbon $start, Carbon $end)
+    {
+        $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $budgets);
+        $report = [];
+        $sums   = [];
+        /** @var Account $account */
+        foreach ($accounts as $account) {
+            $accountId          = $account->id;
+            $report[$accountId] = $report[$accountId] ?? [
+                    'name'       => $account->name,
+                    'id'         => $account->id,
+                    'iban'       => $account->iban,
+                    'currencies' => [],
+                ];
+        }
+
+        // loop expenses.
+        foreach ($spent as $currency) {
+            $currencyId        = $currency['currency_id'];
+            $sums[$currencyId] = $sums[$currencyId] ?? [
+                    'currency_id'             => $currency['currency_id'],
+                    'currency_symbol'         => $currency['currency_symbol'],
+                    'currency_name'           => $currency['currency_name'],
+                    'currency_decimal_places' => $currency['currency_decimal_places'],
+                    'sum'                     => '0',
+                ];
+            foreach ($currency['budgets'] as $budget) {
+                foreach ($budget['transaction_journals'] as $journal) {
+                    $sourceAccountId                                            = $journal['source_account_id'];
+                    $report[$sourceAccountId]['currencies'][$currencyId]        = $report[$sourceAccountId]['currencies'][$currencyId] ?? [
+                            'currency_id'             => $currency['currency_id'],
+                            'currency_symbol'         => $currency['currency_symbol'],
+                            'currency_name'           => $currency['currency_name'],
+                            'currency_decimal_places' => $currency['currency_decimal_places'],
+                            'sum'                     => '0',
+                        ];
+                    $report[$sourceAccountId]['currencies'][$currencyId]['sum'] = bcadd(
+                        $report[$sourceAccountId]['currencies'][$currencyId]['sum'], $journal['amount']
+                    );
+                    $sums[$currencyId]['sum']                                   = bcadd($sums[$currencyId]['sum'], $journal['amount']);
+                }
+            }
+        }
+
+        return view('reports.budget.partials.accounts', compact('sums', 'report'));
+    }
+
+    /**
+     * @param Collection $accounts
+     * @param Collection $budgets
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return array|string
+     */
+    public function avgExpenses(Collection $accounts, Collection $budgets, Carbon $start, Carbon $end)
+    {
+        $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $budgets);
+        $result = [];
+        foreach ($spent as $currency) {
+            $currencyId = $currency['currency_id'];
+            foreach ($currency['budgets'] as $budget) {
+                foreach ($budget['transaction_journals'] as $journal) {
+                    $destinationId          = $journal['destination_account_id'];
+                    $key = sprintf('%d-%d', $destinationId, $currency['currency_id']);
+                    $result[$key] = $result[$key] ?? [
+                            'transactions'             => 0,
+                            'sum'                      => '0',
+                            'avg'                      => '0',
+                            'avg_float'                => 0,
+                            'destination_account_name' => $journal['destination_account_name'],
+                            'destination_account_id'   => $journal['destination_account_id'],
+                            'currency_id'              => $currency['currency_id'],
+                            'currency_name'            => $currency['currency_name'],
+                            'currency_symbol'          => $currency['currency_symbol'],
+                            'currency_decimal_places'  => $currency['currency_decimal_places'],
+                        ];
+                    $result[$key]['transactions']++;
+                    $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
+                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
+                    $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                }
+            }
+        }
+        // sort by amount_float
+        // sort temp array by amount.
+        $amounts = array_column($result, 'avg_float');
+        array_multisort($amounts, SORT_ASC, $result);
+
+        try {
+            $result = view('reports.budget.partials.avg-expenses', compact('result'))->render();
+            // @codeCoverageIgnoreStart
+        } catch (Throwable $e) {
+            Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
+            $result = sprintf('Could not render view: %s', $e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param Collection $accounts
+     * @param Collection $budgets
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function budgets(Collection $accounts, Collection $budgets, Carbon $start, Carbon $end)
+    {
+        $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $budgets);
+        $sums   = [];
+        $report = [];
+        /** @var Budget $budget */
+        foreach ($budgets as $budget) {
+            $budgetId          = $budget->id;
+            $report[$budgetId] = $report[$budgetId] ?? [
+                    'name'       => $budget->name,
+                    'id'         => $budget->id,
+                    'currencies' => [],
+                ];
+        }
+        foreach ($spent as $currency) {
+            $currencyId        = $currency['currency_id'];
+            $sums[$currencyId] = $sums[$currencyId] ?? [
+                    'currency_id'             => $currency['currency_id'],
+                    'currency_symbol'         => $currency['currency_symbol'],
+                    'currency_name'           => $currency['currency_name'],
+                    'currency_decimal_places' => $currency['currency_decimal_places'],
+                    'sum'                     => '0',
+                ];
+            /** @var array $budget */
+            foreach ($currency['budgets'] as $budget) {
+                $budgetId = $budget['id'];
+
+                foreach ($budget['transaction_journals'] as $journal) {
+                    // add currency info to report array:
+                    $report[$budgetId]['currencies'][$currencyId]        = $report[$budgetId]['currencies'][$currencyId] ?? [
+                            'sum'                     => '0',
+                            'currency_id'             => $currency['currency_id'],
+                            'currency_symbol'         => $currency['currency_symbol'],
+                            'currency_name'           => $currency['currency_name'],
+                            'currency_decimal_places' => $currency['currency_decimal_places'],
+                        ];
+                    $report[$budgetId]['currencies'][$currencyId]['sum'] = bcadd($report[$budgetId]['currencies'][$currencyId]['sum'], $journal['amount']);
+                    $sums[$currencyId]['sum']                            = bcadd($sums[$currencyId]['sum'], $journal['amount']);
+                }
+            }
+        }
+
+        return view('reports.budget.partials.budgets', compact('sums', 'report'));
+    }
+
     /**
      * Show partial overview of budgets.
+     * TODO can be replaced I think.
      *
      * @param Collection $accounts
      * @param Carbon     $start
@@ -74,7 +310,6 @@ class BudgetController extends Controller
         return $result;
     }
 
-
     /**
      * Show budget overview for a period.
      *
@@ -95,26 +330,36 @@ class BudgetController extends Controller
             return $cache->get(); // @codeCoverageIgnore
         }
 
-        // generate budget report right here.
-        /** @var BudgetRepositoryInterface $repository */
-        $repository = app(BudgetRepositoryInterface::class);
-        $budgets    = $repository->getBudgets();
-        $data       = $repository->getBudgetPeriodReport($budgets, $accounts, $start, $end);
-        $data[0]    = $repository->getNoBudgetPeriodReport($accounts, $start, $end); // append report data for "no budget"
-        $report     = $this->filterPeriodReport($data);
+        $periods   = app('navigation')->listOfPeriods($start, $end);
+        $keyFormat = app('navigation')->preferredCarbonFormat($start, $end);
 
-        // depending on the carbon format (a reliable way to determine the general date difference)
-        // change the "listOfPeriods" call so the entire period gets included correctly.
-        $range = app('navigation')->preferredCarbonFormat($start, $end);
 
-        if ('Y' === $range) {
-            $start->startOfYear();
+        // list expenses for budgets in account(s)
+        $expenses = $this->opsRepository->listExpenses($start, $end, $accounts);
+
+        $report = [];
+        foreach ($expenses as $currency) {
+            foreach ($currency['budgets'] as $budget) {
+                foreach ($budget['transaction_journals'] as $journal) {
+                    $key                                = sprintf('%d-%d', $budget['id'], $currency['currency_id']);
+                    $dateKey                            = $journal['date']->format($keyFormat);
+                    $report[$key]                       = $report[$key] ?? [
+                            'id'                      => $budget['id'],
+                            'name'                    => sprintf('%s (%s)', $budget['name'], $currency['currency_name']),
+                            'sum'                     => '0',
+                            'currency_id'             => $currency['currency_id'],
+                            'currency_name'           => $currency['currency_name'],
+                            'currency_symbol'         => $currency['currency_symbol'],
+                            'currency_code'           => $currency['currency_code'],
+                            'currency_decimal_places' => $currency['currency_decimal_places'],
+                            'entries'                 => [],
+                        ];
+                    $report[$key] ['entries'][$dateKey] = $report[$key] ['entries'][$dateKey] ?? '0';
+                    $report[$key] ['entries'][$dateKey] = bcadd($journal['amount'], $report[$key] ['entries'][$dateKey]);
+                    $report[$key] ['sum']               = bcadd($report[$key] ['sum'], $journal['amount']);
+                }
+            }
         }
-        if ('Y-m' === $range) {
-            $start->startOfMonth();
-        }
-
-        $periods    = app('navigation')->listOfPeriods($start, $end);
         try {
             $result = view('reports.partials.budget-period', compact('report', 'periods'))->render();
             // @codeCoverageIgnoreStart
@@ -124,6 +369,56 @@ class BudgetController extends Controller
         }
         // @codeCoverageIgnoreEnd
         $cache->store($result);
+
+        return $result;
+    }
+
+    /**
+     * @param Collection $accounts
+     * @param Collection $budgets
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return array|string
+     */
+    public function topExpenses(Collection $accounts, Collection $budgets, Carbon $start, Carbon $end)
+    {
+        $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $budgets);
+        $result = [];
+        foreach ($spent as $currency) {
+            $currencyId = $currency['currency_id'];
+            foreach ($currency['budgets'] as $budget) {
+                foreach ($budget['transaction_journals'] as $journal) {
+                    $result[] = [
+                        'description'              => $journal['description'],
+                        'transaction_group_id'     => $journal['transaction_group_id'],
+                        'amount_float'             => (float)$journal['amount'],
+                        'amount'                   => $journal['amount'],
+                        'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'destination_account_name' => $journal['destination_account_name'],
+                        'destination_account_id'   => $journal['destination_account_id'],
+                        'currency_id'              => $currency['currency_id'],
+                        'currency_name'            => $currency['currency_name'],
+                        'currency_symbol'          => $currency['currency_symbol'],
+                        'currency_decimal_places'  => $currency['currency_decimal_places'],
+                        'budget_id'                => $budget['id'],
+                        'budget_name'              => $budget['name'],
+                    ];
+                }
+            }
+        }
+        // sort by amount_float
+        // sort temp array by amount.
+        $amounts = array_column($result, 'amount_float');
+        array_multisort($amounts, SORT_ASC, $result);
+
+        try {
+            $result = view('reports.budget.partials.top-expenses', compact('result'))->render();
+            // @codeCoverageIgnoreStart
+        } catch (Throwable $e) {
+            Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
+            $result = sprintf('Could not render view: %s', $e->getMessage());
+        }
 
         return $result;
     }

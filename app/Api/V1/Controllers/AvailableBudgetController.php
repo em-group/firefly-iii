@@ -27,6 +27,7 @@ use FireflyIII\Api\V1\Requests\AvailableBudgetRequest;
 use FireflyIII\Factory\TransactionCurrencyFactory;
 use FireflyIII\Models\AvailableBudget;
 use FireflyIII\Models\TransactionCurrency;
+use FireflyIII\Repositories\Budget\AvailableBudgetRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Transformers\AvailableBudgetTransformer;
 use FireflyIII\User;
@@ -42,10 +43,11 @@ use League\Fractal\Serializer\JsonApiSerializer;
 /**
  * Class AvailableBudgetController.
  *
- *
  */
 class AvailableBudgetController extends Controller
 {
+    /** @var AvailableBudgetRepositoryInterface */
+    private $abRepository;
     /** @var BudgetRepositoryInterface The budget repository */
     private $repository;
 
@@ -60,9 +62,11 @@ class AvailableBudgetController extends Controller
         $this->middleware(
             function ($request, $next) {
                 /** @var User $user */
-                $user             = auth()->user();
-                $this->repository = app(BudgetRepositoryInterface::class);
+                $user               = auth()->user();
+                $this->repository   = app(BudgetRepositoryInterface::class);
+                $this->abRepository = app(AvailableBudgetRepositoryInterface::class);
                 $this->repository->setUser($user);
+                $this->abRepository->setUser($user);
 
                 return $next($request);
             }
@@ -80,7 +84,7 @@ class AvailableBudgetController extends Controller
      */
     public function delete(AvailableBudget $availableBudget): JsonResponse
     {
-        $this->repository->destroyAvailableBudget($availableBudget);
+        $this->abRepository->destroyAvailableBudget($availableBudget);
 
         return response()->json([], 204);
     }
@@ -106,7 +110,7 @@ class AvailableBudgetController extends Controller
         $end   = $this->parameters->get('end');
 
         // get list of available budgets. Count it and split it.
-        $collection       = $this->repository->getAvailableBudgetsByDate($start, $end);
+        $collection       = $this->abRepository->getAvailableBudgetsByDate($start, $end);
         $count            = $collection->count();
         $availableBudgets = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
 
@@ -130,7 +134,7 @@ class AvailableBudgetController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param Request $request
+     * @param Request         $request
      * @param AvailableBudget $availableBudget
      *
      * @return JsonResponse
@@ -168,7 +172,7 @@ class AvailableBudgetController extends Controller
         if (null === $currency) {
             $currency = app('amount')->getDefaultCurrency();
         }
-        $availableBudget = $this->repository->setAvailableBudget($currency, $data['start'], $data['end'], $data['amount']);
+        $availableBudget = $this->abRepository->setAvailableBudget($currency, $data['start'], $data['end'], $data['amount']);
         $manager         = new Manager;
         $baseUrl         = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));
@@ -187,7 +191,7 @@ class AvailableBudgetController extends Controller
      * Update the specified resource in storage.
      *
      * @param AvailableBudgetRequest $request
-     * @param AvailableBudget $availableBudget
+     * @param AvailableBudget        $availableBudget
      *
      * @return JsonResponse
      */
@@ -210,7 +214,7 @@ class AvailableBudgetController extends Controller
         $data['currency_id'] = $currency->id;
 
 
-        $this->repository->updateAvailableBudget($availableBudget, $data);
+        $this->abRepository->updateAvailableBudget($availableBudget, $data);
         $manager = new Manager;
         $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));

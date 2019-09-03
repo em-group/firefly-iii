@@ -19,7 +19,7 @@
   -->
 
 <template>
-    <form method="POST" action="transactions/update" accept-charset="UTF-8" class="form-horizontal" id="store"
+    <form method="POST" action="#" accept-charset="UTF-8" class="form-horizontal" id="store"
           enctype="multipart/form-data">
         <input name="_token" type="hidden" value="xxx">
         <div class="row" v-if="error_message !== ''">
@@ -69,7 +69,7 @@
                                 <span v-if="transactions.length === 1">Transaction information</span>
                             </h3>
                             <div class="box-tools pull-right" v-if="transactions.length > 1" x>
-                                <button v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
+                                <button  type="button" v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
                                         class="fa fa-trash"></i></button>
                             </div>
                         </div>
@@ -147,13 +147,6 @@
                                             v-model="transaction.category"
                                             :error="transaction.errors.category"
                                     ></category>
-                                    <!--
-                                    <piggy-bank
-                                            :transactionType="transactionType"
-                                            v-model="transaction.piggy_bank"
-                                            :error="transaction.errors.piggy_bank"
-                                    ></piggy-bank>
-                                    -->
                                     <tags
                                             :tags="transaction.tags"
                                             v-model="transaction.tags"
@@ -167,7 +160,7 @@
                             </div>
                         </div>
                         <div class="box-footer" v-if="transactions.length-1 === index">
-                            <button class="btn btn-primary" @click="addTransaction">Add another split</button>
+                            <button class="btn btn-primary" type="button" @click="addTransaction">Add another split</button>
                         </div>
                     </div>
                 </div>
@@ -577,9 +570,8 @@
                     currentArray.foreign_currency_id = foreignCurrency;
                 }
                 // set budget id and piggy ID.
-                if (parseInt(row.budget) > 0) {
-                    currentArray.budget_id = parseInt(row.budget);
-                }
+                currentArray.budget_id = parseInt(row.budget);
+
                 if (parseInt(row.piggy_bank) > 0) {
                     currentArray.piggy_bank_id = parseInt(row.piggy_bank);
                 }
@@ -859,6 +851,12 @@
                                     break;
                             }
                         }
+                        // unique some things
+                        this.transactions[transactionIndex].errors.source_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.source_account));
+                        this.transactions[transactionIndex].errors.destination_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.destination_account));
+
                     }
                 }
             },

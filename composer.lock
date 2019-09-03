@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2956d329fbb3e939d2007faab71806eb",
+    "content-hash": "3f739750fe2fcd798a369d0547753daa",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -210,9 +210,9 @@
             "authors": [
                 {
                     "name": "bunq",
+                    "role": "Owner",
                     "email": "sdk@bunq.com",
-                    "homepage": "https://www.bunq.com",
-                    "role": "Owner"
+                    "homepage": "https://www.bunq.com"
                 }
             ],
             "description": "bunq PHP SDK",
@@ -2770,8 +2770,8 @@
             "authors": [
                 {
                     "name": "Antonio Carlos Ribeiro",
-                    "role": "Creator & Designer",
-                    "email": "acr@antoniocarlosribeiro.com"
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "role": "Creator & Designer"
                 }
             ],
             "description": "A One Time Password Authentication package, compatible with Google Authenticator.",
@@ -7039,8 +7039,8 @@
             "authors": [
                 {
                     "name": "Marco Pivetta",
-                    "email": "ocramius@gmail.com",
-                    "role": "maintainer"
+                    "role": "maintainer",
+                    "email": "ocramius@gmail.com"
                 }
             ],
             "description": "Prevents installation of composer packages with known security vulnerabilities: no API, simply require it",
@@ -7904,7 +7904,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.2.0",
+        "php": ">=7.3.0",
         "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-fileinfo": "*",
