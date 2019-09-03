@@ -83,6 +83,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string|null $remember_token
  * @property string|null $reset
  * @property int|null $whitelabel_id
+ *
+ * @property-read int $featureLevel
  * @property-read Collection|Account[]         $accounts
  * @property-read Collection|Attachment[]      $attachments
  * @property-read Collection|AvailableBudget[] $availableBudgets
@@ -398,5 +400,10 @@ class User extends HubUser implements UserInterface
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, TransactionJournal::class);
+    }
+
+    public function getFeatureLevelAttribute(): int
+    {
+        return 0;
     }
 }

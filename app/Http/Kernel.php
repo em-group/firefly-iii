@@ -25,6 +25,7 @@ namespace FireflyIII\Http;
 use FireflyIII\Http\Middleware\Authenticate;
 use FireflyIII\Http\Middleware\Binder;
 use FireflyIII\Http\Middleware\EncryptCookies;
+use FireflyIII\Http\Middleware\FeatureAccess;
 use FireflyIII\Http\Middleware\Installer;
 use FireflyIII\Http\Middleware\InterestingMessage;
 use FireflyIII\Http\Middleware\IsAdmin;
@@ -161,6 +162,7 @@ class Kernel extends HttpKernel
                 Binder::class,
                 CreateFreshApiToken::class,
                 InterestingMessage::class,
+                FeatureAccess::class
             ],
             // MUST be logged in
             // MUST have 2fa
