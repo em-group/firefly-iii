@@ -52,8 +52,6 @@ class FakeRoutine implements RoutineInterface
      * @return void
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function run(): void
     {

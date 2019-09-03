@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * BackToJournals.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -27,13 +28,15 @@ use FireflyIII\Models\Category;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Log;
 
 /**
  * Class BackToJournals
  */
 class BackToJournals extends Command
 {
-    public const CONFIG_NAME = '4780_back_to_journals';
+    public const CONFIG_NAME = '480_back_to_journals';
     /**
      * The console command description.
      *
@@ -60,7 +63,7 @@ class BackToJournals extends Command
             $this->error('Please run firefly-iii:migrate-to-groups first.');
         }
         if ($this->isExecuted() && true !== $this->option('force')) {
-            $this->info('This command has been executed already.');
+            $this->info('This command has already been executed.');
 
             return 0;
         }
@@ -83,10 +86,18 @@ class BackToJournals extends Command
     private function getIdsForBudgets(): array
     {
         $transactions = DB::table('budget_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
 
-        return DB::table('transactions')
-                 ->whereIn('transactions.id', $transactions)
-                 ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+        foreach ($chunks as $chunk) {
+            $set = DB::table('transactions')
+                     ->whereIn('transactions.id', $chunk)
+                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
     }
 
     /**
@@ -95,10 +106,18 @@ class BackToJournals extends Command
     private function getIdsForCategories(): array
     {
         $transactions = DB::table('category_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
 
-        return DB::table('transactions')
-                 ->whereIn('transactions.id', $transactions)
-                 ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+        foreach ($chunks as $chunk) {
+            $set   = DB::table('transactions')
+                       ->whereIn('transactions.id', $chunk)
+                       ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
     }
 
     /**
@@ -140,6 +159,7 @@ class BackToJournals extends Command
      */
     private function migrateAll(): void
     {
+        Log::debug('Now in migrateAll()');
         $this->migrateBudgets();
         $this->migrateCategories();
 
@@ -153,9 +173,13 @@ class BackToJournals extends Command
      */
     private function migrateBudgets(): void
     {
-
-        $journalIds = $this->getIdsForBudgets();
-        $journals   = TransactionJournal::whereIn('id', $journalIds)->with(['transactions', 'budgets', 'transactions.budgets'])->get();
+        $journals = new Collection;
+        $allIds   = $this->getIdsForBudgets();
+        $chunks   = array_chunk($allIds, 500);
+        foreach ($chunks as $journalIds) {
+            $collected = TransactionJournal::whereIn('id', $journalIds)->with(['transactions', 'budgets', 'transactions.budgets'])->get();
+            $journals  = $journals->merge($collected);
+        }
         $this->line(sprintf('Check %d transaction journal(s) for budget info.', count($journals)));
         /** @var TransactionJournal $journal */
         foreach ($journals as $journal) {
@@ -204,8 +228,18 @@ class BackToJournals extends Command
      */
     private function migrateCategories(): void
     {
-        $journalIds = $this->getIdsForCategories();
-        $journals   = TransactionJournal::whereIn('id', $journalIds)->with(['transactions', 'categories', 'transactions.categories'])->get();
+        Log::debug('Now in migrateCategories()');
+        $journals = new Collection;
+        $allIds   = $this->getIdsForCategories();
+
+        Log::debug(sprintf('Total: %d', count($allIds)));
+
+        $chunks = array_chunk($allIds, 500);
+        foreach ($chunks as $chunk) {
+            Log::debug('Now doing a chunk.');
+            $collected = TransactionJournal::whereIn('id', $chunk)->with(['transactions', 'categories', 'transactions.categories'])->get();
+            $journals  = $journals->merge($collected);
+        }
         $this->line(sprintf('Check %d transaction journal(s) for category info.', count($journals)));
         /** @var TransactionJournal $journal */
         foreach ($journals as $journal) {

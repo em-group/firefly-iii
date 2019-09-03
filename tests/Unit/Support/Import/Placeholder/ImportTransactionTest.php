@@ -32,6 +32,11 @@ use Tests\TestCase;
 
 /**
  * Class ImportTransactionTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.TooManyMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class ImportTransactionTest extends TestCase
 {
@@ -470,7 +475,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction              = new ImportTransaction;
         $importTransaction->amountDebit = '1.01';
         try {
-            $this->assertEquals('-1.01', $importTransaction->calculateAmount());
+            $this->assertEquals('-1.010000000000', $importTransaction->calculateAmount());
         } catch (FireflyException $e) {
             $this->assertTrue(false, $e->getMessage());
         }
@@ -502,7 +507,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction->amount                            = '2.99';
         $importTransaction->modifiers['generic-debit-credit'] = 'D';
         try {
-            $this->assertEquals('-2.99', $importTransaction->calculateAmount());
+            $this->assertEquals('-2.990000000000', $importTransaction->calculateAmount());
         } catch (FireflyException $e) {
             $this->assertTrue(false, $e->getMessage());
         }
@@ -518,7 +523,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction                = new ImportTransaction;
         $importTransaction->amountNegated = '-1.56';
         try {
-            $this->assertEquals('1.56', $importTransaction->calculateAmount());
+            $this->assertEquals('1.560000000000', $importTransaction->calculateAmount());
         } catch (FireflyException $e) {
             $this->assertTrue(false, $e->getMessage());
         }
@@ -534,7 +539,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction                = new ImportTransaction;
         $importTransaction->amountNegated = '1.56';
         try {
-            $this->assertEquals('-1.56', $importTransaction->calculateAmount());
+            $this->assertEquals('-1.560000000000', $importTransaction->calculateAmount());
         } catch (FireflyException $e) {
             $this->assertTrue(false, $e->getMessage());
         }
@@ -551,7 +556,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction->amount                         = '-2.17';
         $importTransaction->modifiers['rabo-debit-credit'] = 'C';
         try {
-            $this->assertEquals('2.17', $importTransaction->calculateAmount());
+            $this->assertEquals('2.170000000000', $importTransaction->calculateAmount());
         } catch (FireflyException $e) {
             $this->assertTrue(false, $e->getMessage());
         }
@@ -638,7 +643,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction                                    = new ImportTransaction;
         $importTransaction->foreignAmount                     = '6.77';
         $importTransaction->modifiers['generic-debit-credit'] = 'D';
-        $this->assertEquals('-6.77', $importTransaction->calculateForeignAmount());
+        $this->assertEquals('-6.770000000000', $importTransaction->calculateForeignAmount());
     }
 
     /**
@@ -651,7 +656,7 @@ class ImportTransactionTest extends TestCase
         $importTransaction                                    = new ImportTransaction;
         $importTransaction->foreignAmount                     = '-5.77';
         $importTransaction->modifiers['generic-debit-credit'] = 'C';
-        $this->assertEquals('5.77', $importTransaction->calculateForeignAmount());
+        $this->assertEquals('5.770000000000', $importTransaction->calculateForeignAmount());
     }
 
     /**

@@ -39,6 +39,9 @@ use Tests\TestCase;
 
 /**
  * Class SelectControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class SelectControllerTest extends TestCase
 {
@@ -56,11 +59,11 @@ class SelectControllerTest extends TestCase
      */
     public function testExecute(): void
     {
+        $this->mockDefaultSession();
         $account      = $this->user()->accounts()->find(1);
         $accountRepos = $this->mock(AccountRepositoryInterface::class);
         $repository   = $this->mock(RuleRepositoryInterface::class);
         $userRepos    = $this->mock(UserRepositoryInterface::class);
-        $this->mockDefaultSession();
         $collector  = $this->mock(GroupCollectorInterface::class);
         $ruleEngine = $this->mock(RuleEngine::class);
 
@@ -97,9 +100,9 @@ class SelectControllerTest extends TestCase
      */
     public function testSelectTransactions(): void
     {
+        $this->mockDefaultSession();
         $accountRepos = $this->mock(AccountRepositoryInterface::class);
         $userRepos    = $this->mock(UserRepositoryInterface::class);
-        $this->mockDefaultSession();
 
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
         $accountRepos->shouldReceive('getAccountsByType')->andReturn(new Collection);
@@ -134,7 +137,7 @@ class SelectControllerTest extends TestCase
         $matcher->shouldReceive('setTriggeredLimit')->withArgs([10])->andReturnSelf()->once();
         $matcher->shouldReceive('setSearchLimit')->withArgs([200])->andReturnSelf()->once();
         $matcher->shouldReceive('setTriggers')->andReturnSelf()->once();
-        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn(new Collection);
+        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn([]);
 
         $this->be($this->user());
         $uri      = route('rules.test-triggers') . '?' . http_build_query($data);
@@ -184,6 +187,7 @@ class SelectControllerTest extends TestCase
      */
     public function testTestTriggersMax(): void
     {
+        $this->mockDefaultSession();
         $data = [
             'triggers' => [
                 'name'            => 'description',
@@ -203,7 +207,7 @@ class SelectControllerTest extends TestCase
         $matcher->shouldReceive('setTriggeredLimit')->withArgs([10])->andReturnSelf()->once();
         $matcher->shouldReceive('setSearchLimit')->withArgs([200])->andReturnSelf()->once();
         $matcher->shouldReceive('setTriggers')->andReturnSelf()->once();
-        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn(new Collection);
+        $matcher->shouldReceive('findTransactionsByTriggers')->andReturn([]);
 
         $this->be($this->user());
         $uri      = route('rules.test-triggers') . '?' . http_build_query($data);

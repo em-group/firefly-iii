@@ -5,6 +5,7 @@ namespace FireflyIII\Models;
 use Barryvdh\LaravelIdeHelper\Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -15,6 +16,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string $name
  * @property string $domain
  * @property boolean $active
+ *
+ * @property WhitelabelConfig[]|Collection $config
 */
 class Whitelabel extends Model
 {

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * RenameAccountMeta.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -29,7 +30,7 @@ use Illuminate\Console\Command;
  */
 class RenameAccountMeta extends Command
 {
-    public const CONFIG_NAME = '4780_rename_account_meta';
+    public const CONFIG_NAME = '480_rename_account_meta';
     /**
      * The console command description.
      *

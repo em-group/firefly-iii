@@ -42,7 +42,6 @@ use League\Fractal\Serializer\JsonApiSerializer;
 /**
  * Class PiggyBankController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PiggyBankController extends Controller
 {
@@ -226,7 +225,14 @@ class PiggyBankController extends Controller
      */
     public function update(PiggyBankRequest $request, PiggyBank $piggyBank): JsonResponse
     {
-        $piggyBank = $this->repository->update($piggyBank, $request->getAll());
+        $data      = $request->getAll();
+        $piggyBank = $this->repository->update($piggyBank, $data);
+
+        if ('' !== $data['current_amount']) {
+            $this->repository->setCurrentAmount($piggyBank, $data['current_amount']);
+        }
+
+
         $manager   = new Manager();
         $baseUrl   = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));

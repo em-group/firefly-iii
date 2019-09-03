@@ -23,13 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Factory;
 
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionGroup;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\User;
 
 /**
  * Class TransactionGroupFactory
+ *
  * @codeCoverageIgnore
  */
 class TransactionGroupFactory
@@ -60,10 +59,13 @@ class TransactionGroupFactory
         $collection = $this->journalFactory->create($data);
         $title      = $data['group_title'] ?? null;
         $title      = '' === $title ? null : $title;
-        /** @var TransactionJournal $first */
-        $first = $collection->first();
+
+        if (null !== $title) {
+            $title = substr($title, 0, 255);
+        }
+
         $group = new TransactionGroup;
-        $group->user()->associate($first->user);
+        $group->user()->associate($this->user);
         $group->title = $title;
         $group->save();
 

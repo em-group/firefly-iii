@@ -38,6 +38,7 @@ use Tests\TestCase;
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  * @SuppressWarnings(PHPMD.TooManyPublicMethods)
+ * @SuppressWarnings(PHPMD.ExcessiveClassLength)
  */
 class RecurrenceControllerTest extends TestCase
 {
@@ -1255,7 +1256,7 @@ class RecurrenceControllerTest extends TestCase
             [
                 'message' => 'The given data was invalid.',
                 'errors'  => [
-                    'description' => [
+                    'repetitions' => [
                         'Need at least one repetition.',
                     ],
                 ],
@@ -1308,7 +1309,7 @@ class RecurrenceControllerTest extends TestCase
             [
                 'message' => 'The given data was invalid.',
                 'errors'  => [
-                    'description' => [
+                    'transactions' => [
                         'Need at least one transaction.',
                     ],
                 ],

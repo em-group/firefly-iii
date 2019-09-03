@@ -77,8 +77,6 @@ class EditController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      * @throws \FireflyIII\Exceptions\FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function edit(Request $request, Recurrence $recurrence)
     {
@@ -129,8 +127,9 @@ class EditController extends Controller
             'apply_rules'               => $hasOldInput ? (bool)$request->old('apply_rules') : $recurrence->apply_rules,
             'deposit_source_id'         => $array['transactions'][0]['source_id'],
             'withdrawal_destination_id' => $array['transactions'][0]['destination_id'],
-
         ];
+
+        $array['transactions'][0]['tags'] = implode(',', $array['transactions'][0]['tags'] ?? []);
 
         return view(
             'recurring.edit',
@@ -150,6 +149,7 @@ class EditController extends Controller
     public function update(RecurrenceFormRequest $request, Recurrence $recurrence)
     {
         $data = $request->getAll();
+
         $this->recurring->update($recurrence, $data);
 
         $request->session()->flash('success', (string)trans('firefly.updated_recurrence', ['title' => $recurrence->title]));

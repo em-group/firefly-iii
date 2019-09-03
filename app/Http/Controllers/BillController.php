@@ -28,6 +28,7 @@ use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Requests\BillFormRequest;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Bill;
+use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\TransactionRules\TransactionMatcher;
 use FireflyIII\Transformers\AttachmentTransformer;
@@ -43,7 +44,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Class BillController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BillController extends Controller
 {
@@ -54,6 +54,7 @@ class BillController extends Controller
 
     /**
      * BillController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -124,7 +125,7 @@ class BillController extends Controller
      * Destroy a bill.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return RedirectResponse|\Illuminate\Routing\Redirector
      */
@@ -143,7 +144,7 @@ class BillController extends Controller
      * Edit a bill.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -191,11 +192,11 @@ class BillController extends Controller
      */
     public function index()
     {
-        $start      = session('start');
-        $end        = session('end');
-        $pageSize   = (int)app('preferences')->get('listPageSize', 50)->data;
-        $paginator  = $this->billRepository->getPaginator($pageSize);
-        $parameters = new ParameterBag();
+        $start           = session('start');
+        $end             = session('end');
+        $unfiltered      = $this->billRepository->getBills();
+        $defaultCurrency = app('amount')->getDefaultCurrency();
+        $parameters      = new ParameterBag();
         $parameters->set('start', $start);
         $parameters->set('end', $end);
 
@@ -204,63 +205,79 @@ class BillController extends Controller
         $transformer->setParameters($parameters);
 
         /** @var Collection $bills */
-        $bills = $paginator->getCollection()->map(
-            function (Bill $bill) use ($transformer) {
-                $return             = $transformer->transform($bill);
-                $return['currency'] = $bill->transactionCurrency;
+        $bills = $unfiltered->map(
+            static function (Bill $bill) use ($transformer, $defaultCurrency) {
+                $return                            = $transformer->transform($bill);
+                $currency                          = $bill->transactionCurrency ?? $defaultCurrency;
+                $return['currency_id']             = $currency->id;
+                $return['currency_name']           = $currency->name;
+                $return['currency_symbol']         = $currency->symbol;
+                $return['currency_code']           = $currency->code;
+                $return['currency_decimal_places'] = $currency->decimal_places;
 
                 return $return;
             }
         );
 
         // add info about rules:
-        $rules = $this->billRepository->getRulesForBills($paginator->getCollection());
+        $rules = $this->billRepository->getRulesForBills($unfiltered);
         $bills = $bills->map(
-            function (array $bill) use ($rules) {
+            static function (array $bill) use ($rules) {
                 $bill['rules'] = $rules[$bill['id']] ?? [];
 
                 return $bill;
             }
         );
 
-        $paginator->setPath(route('bills.index'));
+        // summarise per currency:
+        $sums = $this->getSums($bills);
 
-        return view('bills.index', compact('bills', 'paginator'));
+        return view('bills.index', compact('bills', 'sums'));
     }
 
     /**
      * Rescan bills for transactions.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return RedirectResponse|\Illuminate\Routing\Redirector
      * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function rescan(Request $request, Bill $bill)
     {
+        $total = 0;
         if (false === $bill->active) {
             $request->session()->flash('warning', (string)trans('firefly.cannot_scan_inactive_bill'));
+
+            return redirect(route('bills.show', [$bill->id]));
         }
+        $set = new Collection;
         if (true === $bill->active) {
             $set   = $this->billRepository->getRulesForBill($bill);
             $total = 0;
-            foreach ($set as $rule) {
-                // simply fire off all rules?
-                /** @var TransactionMatcher $matcher */
-                $matcher = app(TransactionMatcher::class);
-                $matcher->setSearchLimit(100000); // large upper limit
-                $matcher->setTriggeredLimit(100000); // large upper limit
-                $matcher->setRule($rule);
-                $matchingTransactions = $matcher->findTransactionsByRule();
-                $total                += count($matchingTransactions);
-                $this->billRepository->linkCollectionToBill($bill, $matchingTransactions);
-            }
-
-
-            $request->session()->flash('success', (string)trans('firefly.rescanned_bill', ['total' => $total]));
-            app('preferences')->mark();
         }
+        if (0 === $set->count()) {
+            $request->session()->flash('error', (string)trans('firefly.no_rules_for_bill'));
+
+            return redirect(route('bills.show', [$bill->id]));
+        }
+
+        foreach ($set as $rule) {
+            // simply fire off all rules?
+            /** @var TransactionMatcher $matcher */
+            $matcher = app(TransactionMatcher::class);
+            $matcher->setSearchLimit(100000); // large upper limit
+            $matcher->setTriggeredLimit(100000); // large upper limit
+            $matcher->setRule($rule);
+            $matchingTransactions = $matcher->findTransactionsByRule();
+            $total                += count($matchingTransactions);
+            $this->billRepository->linkCollectionToBill($bill, $matchingTransactions);
+        }
+
+
+        $request->session()->flash('success', (string)trans('firefly.rescanned_bill', ['total' => $total]));
+        app('preferences')->mark();
 
         return redirect(route('bills.show', [$bill->id]));
     }
@@ -269,7 +286,7 @@ class BillController extends Controller
      * Show a bill.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
@@ -325,6 +342,7 @@ class BillController extends Controller
                 }
             );
         }
+
         // @codeCoverageIgnoreEnd
 
 
@@ -339,8 +357,6 @@ class BillController extends Controller
      *
      * @return RedirectResponse
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function store(BillFormRequest $request): RedirectResponse
     {
@@ -370,7 +386,7 @@ class BillController extends Controller
      * Update a bill.
      *
      * @param BillFormRequest $request
-     * @param Bill $bill
+     * @param Bill            $bill
      *
      * @return RedirectResponse
      */
@@ -401,5 +417,36 @@ class BillController extends Controller
         }
 
         return $redirect;
+    }
+
+    /**
+     * @param Collection $bills
+     *
+     * @return array
+     */
+    private function getSums(Collection $bills): array
+    {
+        $sums = [];
+
+        /** @var array $bill */
+        foreach ($bills as $bill) {
+            if (false === $bill['active']) {
+                continue;
+            }
+            /** @var TransactionCurrency $currency */
+            $currencyId                   = $bill['currency_id'];
+            $sums[$currencyId]            = $sums[$currencyId] ?? [
+                    'currency_id'             => $currencyId,
+                    'currency_code'           => $bill['currency_code'],
+                    'currency_name'           => $bill['currency_name'],
+                    'currency_symbol'         => $bill['currency_symbol'],
+                    'currency_decimal_places' => $bill['currency_decimal_places'],
+                    'avg'                 => '0',
+                ];
+            $avg                          = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
+            $sums[$currencyId]['avg'] = bcadd($sums[$currencyId]['avg'], $avg);
+        }
+
+        return $sums;
     }
 }

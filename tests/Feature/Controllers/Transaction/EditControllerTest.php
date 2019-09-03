@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * EditControllerTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -23,11 +24,15 @@ namespace Tests\Feature\Controllers\Transaction;
 
 
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
+use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Log;
 use Tests\TestCase;
 
 /**
  * Class EditControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class EditControllerTest extends TestCase
 {
@@ -45,8 +50,10 @@ class EditControllerTest extends TestCase
         $group        = $this->getRandomWithdrawalGroup();
         $account      = $this->getRandomAsset();
         $accountRepos = $this->mock(AccountRepositoryInterface::class);
-        $this->mockDefaultSession();
+        $userRepos = $this->mock(UserRepositoryInterface::class);
 
+        $this->mockDefaultSession();
+        $userRepos->shouldReceive('hasRole')->atLeast()->once()->andReturn(true);
         $accountRepos->shouldReceive('getCashAccount')->atLeast()->once()->andReturn($account);
 
 

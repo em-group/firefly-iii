@@ -39,7 +39,6 @@ use Route as RouteFacade;
 /**
  * Class DebugController
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class DebugController extends Controller
 {
@@ -113,8 +112,6 @@ class DebugController extends Controller
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function index(Request $request)
     {
@@ -192,8 +189,6 @@ class DebugController extends Controller
      * Return all possible routes.
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function routes(): string
     {

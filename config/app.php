@@ -21,6 +21,7 @@
 
 
 declare(strict_types=1);
+
 use FireflyIII\Providers\ImportServiceProvider;
 
 
@@ -58,7 +59,7 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         FireflyIII\Providers\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
+        FireflyIII\Providers\WhitelabelTranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
@@ -147,6 +148,10 @@ return [
         'Amount'        => \FireflyIII\Support\Facades\Amount::class,
         'Steam'         => \FireflyIII\Support\Facades\Steam::class,
         'ExpandedForm'  => \FireflyIII\Support\Facades\ExpandedForm::class,
+        'CurrencyForm'  => \FireflyIII\Support\Facades\CurrencyForm::class,
+        'AccountForm'   => \FireflyIII\Support\Facades\AccountForm::class,
+        'PiggyBankForm' => \FireflyIII\Support\Facades\PiggyBankForm::class,
+        'RuleForm'      => \FireflyIII\Support\Facades\RuleForm::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
         'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class
 

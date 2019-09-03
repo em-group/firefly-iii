@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * RenameAccountMetaTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -30,6 +31,9 @@ use Tests\TestCase;
 
 /**
  * Class RenameAccountMetaTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class RenameAccountMetaTest extends TestCase
 {
@@ -52,8 +56,8 @@ class RenameAccountMetaTest extends TestCase
         $false        = new Configuration;
         $false->data  = false;
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_rename_account_meta', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_rename_account_meta', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_rename_account_meta', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_rename_account_meta', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:rename-account-meta')
@@ -72,8 +76,8 @@ class RenameAccountMetaTest extends TestCase
         $false        = new Configuration;
         $false->data  = false;
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_rename_account_meta', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_rename_account_meta', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_rename_account_meta', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_rename_account_meta', true]);
 
 
         $expense = $this->getRandomExpense();

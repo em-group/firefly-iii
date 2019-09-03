@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * AccountCurrenciesTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -38,6 +39,9 @@ use Tests\TestCase;
 
 /**
  * Class AccountCurrenciesTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AccountCurrenciesTest extends TestCase
 {
@@ -73,8 +77,8 @@ class AccountCurrenciesTest extends TestCase
         $userRepos->shouldReceive('all')->atLeast()->once()->andReturn(new Collection([$this->user()]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -113,8 +117,8 @@ class AccountCurrenciesTest extends TestCase
         $userRepos->shouldReceive('all')->atLeast()->once()->andReturn(new Collection([$this->user()]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -159,8 +163,8 @@ class AccountCurrenciesTest extends TestCase
         $accountRepos->shouldReceive('getAccountsByType')->atLeast()->once()->andReturn(new Collection([$account]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -201,8 +205,8 @@ class AccountCurrenciesTest extends TestCase
         $accountRepos->shouldReceive('getAccountsByType')->atLeast()->once()->andReturn(new Collection([$account]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -241,8 +245,8 @@ class AccountCurrenciesTest extends TestCase
         $accountRepos->shouldReceive('getAccountsByType')->atLeast()->once()->andReturn(new Collection([$account]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -279,8 +283,8 @@ class AccountCurrenciesTest extends TestCase
         $accountRepos->shouldReceive('getAccountsByType')->atLeast()->once()->andReturn(new Collection([$account]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -310,8 +314,8 @@ class AccountCurrenciesTest extends TestCase
         $userRepos->shouldReceive('all')->atLeast()->once()->andReturn(new Collection([$this->user()]));
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);
@@ -336,8 +340,8 @@ class AccountCurrenciesTest extends TestCase
         $this->mock(UserRepositoryInterface::class);
 
         // check config
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_account_currencies', false])->andReturn($true);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_account_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_account_currencies', false])->andReturn($true);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_account_currencies', true]);
 
         // check preferences:
         Preferences::shouldReceive('getForUser')->withArgs([Mockery::any(), 'currencyPreference', 'EUR'])->andReturn($pref);

@@ -151,12 +151,13 @@ class BillControllerTest extends TestCase
 
     /**
      * @covers \FireflyIII\Http\Controllers\BillController
-     * @covers \FireflyIII\Http\Controllers\BillController
      */
     public function testIndex(): void
     {
         $this->mockDefaultSession();
         $this->mockIntroPreference('shown_demo_bills_index');
+
+        Amount::shouldReceive('getDefaultCurrency')->andReturn($this->getEuro());
 
         // mock stuff
         $this->mock(AttachmentHelperInterface::class);
@@ -164,23 +165,30 @@ class BillControllerTest extends TestCase
         $repository  = $this->mock(BillRepositoryInterface::class);
         $userRepos   = $this->mock(UserRepositoryInterface::class);
         $transformer = $this->mock(BillTransformer::class);
-
-        $pref       = new Preference;
-        $pref->data = 50;
-        Preferences::shouldReceive('get')->withArgs(['listPageSize', 50])->atLeast()->once()->andReturn($pref);
+        $euro        = $this->getEuro();
+        //$pref        = new Preference;
+        //$pref->data  = 50;
+        //Preferences::shouldReceive('get')->withArgs(['listPageSize', 50])->atLeast()->once()->andReturn($pref);
         Amount::shouldReceive('formatAnything')->andReturn('-100');
 
         $transformer->shouldReceive('setParameters')->atLeast()->once();
         $transformer->shouldReceive('transform')->atLeast()->once()->andReturn(
-            ['id'       => 5, 'active' => true, 'name' => 'x', 'next_expected_match' => '2018-01-01',
-             'currency' => $this->getEuro(),
+            ['id'                      => 5, 'active' => true,
+             'name'                    => 'x', 'next_expected_match' => '2018-01-01',
+             'amount_min'              => '10',
+             'amount_max'              => '10',
+             'currency'                => $this->getEuro(),
+             'currency_id'             => $euro->id,
+             'currency_code'           => $euro->code,
+             'currency_symbol'         => $euro->symbol,
+             'currency_decimal_places' => $euro->decimal_places,
             ]
         );
 
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->andReturn(true)->atLeast()->once();
 
         $collection = new Collection([$bill]);
-        $repository->shouldReceive('getPaginator')->andReturn(new LengthAwarePaginator($collection, 1, 50))->once();
+        $repository->shouldReceive('getBills')->andReturn($collection)->once();
         $repository->shouldReceive('setUser');
         $repository->shouldReceive('getNoteText')->andReturn('Hi there');
         $repository->shouldReceive('getRulesForBills')->andReturn([]);

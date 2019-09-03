@@ -36,6 +36,9 @@ use Tests\TestCase;
 
 /**
  * Class EditControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class EditControllerTest extends TestCase
 {
@@ -111,7 +114,7 @@ class EditControllerTest extends TestCase
         // mock stuff
         $repository = $this->mock(RuleRepositoryInterface::class);
         $userRepos  = $this->mock(UserRepositoryInterface::class);
-
+        $groupRepos = $this->mock(RuleGroupRepositoryInterface::class);
 
         $this->mockDefaultSession();
         Preferences::shouldReceive('mark')->atLeast()->once();

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Repositories\LinkType;
 
 use Exception;
+use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\LinkType;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\TransactionJournal;
@@ -34,7 +35,6 @@ use Log;
 /**
  * Class LinkTypeRepository.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class LinkTypeRepository implements LinkTypeRepositoryInterface
 {
@@ -183,7 +183,8 @@ class LinkTypeRepository implements LinkTypeRepositoryInterface
     public function getJournalLinks(LinkType $linkType = null): Collection
     {
         $query = TransactionJournalLink
-            ::leftJoin('transaction_journals as source_journals', 'journal_links.source_id', '=', 'source_journals.id')
+            ::with(['source','destination'])
+            ->leftJoin('transaction_journals as source_journals', 'journal_links.source_id', '=', 'source_journals.id')
             ->leftJoin('transaction_journals as dest_journals', 'journal_links.destination_id', '=', 'dest_journals.id')
             ->where('source_journals.user_id', $this->user->id)
             ->where('dest_journals.user_id', $this->user->id)
@@ -193,8 +194,7 @@ class LinkTypeRepository implements LinkTypeRepositoryInterface
         if (null !== $linkType) {
             $query->where('journal_links.link_type_id', $linkType->id);
         }
-
-        return $query->get(['journal_links.*']);
+       return $query->get(['journal_links.*']);
     }
 
     /**
@@ -252,7 +252,7 @@ class LinkTypeRepository implements LinkTypeRepositoryInterface
      * @param TransactionJournal $outward
      *
      * @return TransactionJournalLink|null
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function storeLink(array $information, TransactionJournal $inward, TransactionJournal $outward): ?TransactionJournalLink
     {
@@ -347,7 +347,6 @@ class LinkTypeRepository implements LinkTypeRepositoryInterface
      * @param TransactionJournalLink $link
      * @param string                 $text
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @throws \Exception
      */
     private function setNoteText(TransactionJournalLink $link, string $text): void

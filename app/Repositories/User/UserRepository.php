@@ -34,7 +34,6 @@ use Log;
 /**
  * Class UserRepository.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class UserRepository implements UserRepositoryInterface
 {
@@ -88,10 +87,10 @@ class UserRepository implements UserRepositoryInterface
      * @param User   $user
      * @param string $newEmail
      *
-     * @see updateEmail
-     *
      * @return bool
      * @throws \Exception
+     * @see updateEmail
+     *
      */
     public function changeEmail(User $user, string $newEmail): bool
     {
@@ -247,14 +246,14 @@ class UserRepository implements UserRepositoryInterface
         $return = [];
 
         // two factor:
-        $return['has_2fa']      = $user->mfa_secret !== null;
-        $return['is_admin']     = $this->hasRole($user, 'owner');
-        $return['blocked']      = 1 === (int)$user->blocked;
-        $return['blocked_code'] = $user->blocked_code;
-        $return['accounts']     = $user->accounts()->count();
-        $return['journals']     = $user->transactionJournals()->count();
-        $return['transactions'] = $user->transactions()->count();
-        $return['attachments']  = $user->attachments()->count();
+        $return['has_2fa']             = $user->mfa_secret !== null;
+        $return['is_admin']            = $this->hasRole($user, 'owner');
+        $return['blocked']             = 1 === (int)$user->blocked;
+        $return['blocked_code']        = $user->blocked_code;
+        $return['accounts']            = $user->accounts()->count();
+        $return['journals']            = $user->transactionJournals()->count();
+        $return['transactions']        = $user->transactions()->count();
+        $return['attachments']         = $user->attachments()->count();
         $return['attachments_size']    = $user->attachments()->sum('size');
         $return['bills']               = $user->bills()->count();
         $return['categories']          = $user->categories()->count();
@@ -291,6 +290,28 @@ class UserRepository implements UserRepositoryInterface
         }
 
         return false;
+    }
+
+    /**
+     * Remove any role the user has.
+     *
+     * @param User $user
+     */
+    public function removeRole(User $user): void
+    {
+        $user->roles()->sync([]);
+    }
+
+    /**
+     * Set MFA code.
+     *
+     * @param User        $user
+     * @param string|null $code
+     */
+    public function setMFACode(User $user, ?string $code): void
+    {
+        $user->mfa_secret = $code;
+        $user->save();
     }
 
     /**
@@ -337,9 +358,17 @@ class UserRepository implements UserRepositoryInterface
      */
     public function update(User $user, array $data): User
     {
-        $this->updateEmail($user, $data['email']);
-        $user->blocked      = $data['blocked'] ?? false;
-        $user->blocked_code = $data['blocked_code'] ?? null;
+        $this->updateEmail($user, $data['email'] ?? '');
+        if (isset($data['blocked']) && is_bool($data['blocked'])) {
+            $user->blocked = $data['blocked'];
+        }
+        if (isset($data['blocked_code']) && '' !== $data['blocked_code'] && is_string($data['blocked_code'])) {
+            $user->blocked_code = $data['blocked_code'];
+        }
+        if (isset($data['role']) && '' === $data['role']) {
+            $this->removeRole($user);
+        }
+
         $user->save();
 
         return $user;
@@ -352,12 +381,15 @@ class UserRepository implements UserRepositoryInterface
      * @param User   $user
      * @param string $newEmail
      *
+     * @return bool
      * @see changeEmail
      *
-     * @return bool
      */
     public function updateEmail(User $user, string $newEmail): bool
     {
+        if ('' === $newEmail) {
+            return true;
+        }
         $oldEmail = $user->email;
 
         // save old email as pref
@@ -368,18 +400,6 @@ class UserRepository implements UserRepositoryInterface
         $user->save();
 
         return true;
-    }
-
-    /**
-     * Set MFA code.
-     *
-     * @param User   $user
-     * @param string|null $code
-     */
-    public function setMFACode(User $user, ?string $code): void
-    {
-        $user->mfa_secret = $code;
-        $user->save();
     }
 
     /**

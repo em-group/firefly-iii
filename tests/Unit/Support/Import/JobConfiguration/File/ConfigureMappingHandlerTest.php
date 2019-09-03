@@ -41,6 +41,9 @@ use Tests\TestCase;
 
 /**
  * Class ConfigureMappingHandlerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  *
  */
 class ConfigureMappingHandlerTest extends TestCase
@@ -60,6 +63,8 @@ class ConfigureMappingHandlerTest extends TestCase
     public function testApplySpecifics(): void
     {
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
+        $helper      = $this->mock(AttachmentHelperInterface::class);
+
         $importRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
@@ -142,6 +147,7 @@ class ConfigureMappingHandlerTest extends TestCase
 
         // mock repos
         $repository = $this->mock(ImportJobRepositoryInterface::class);
+        $helper     = $this->mock(AttachmentHelperInterface::class);
 
         // run configure mapping handler.
         // expect specific results:
@@ -162,6 +168,7 @@ class ConfigureMappingHandlerTest extends TestCase
     public function testDoColumnConfig(): void
     {
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
+        $helper      = $this->mock(AttachmentHelperInterface::class);
         $importRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
@@ -227,6 +234,8 @@ class ConfigureMappingHandlerTest extends TestCase
     public function testDoMapOfColumn(): void
     {
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
+        $helper      = $this->mock(AttachmentHelperInterface::class);
+
         $importRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
@@ -340,6 +349,8 @@ class ConfigureMappingHandlerTest extends TestCase
     public function testGetPreProcessorName(): void
     {
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
+        $helper      = $this->mock(AttachmentHelperInterface::class);
+
         $importRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
@@ -419,6 +430,8 @@ class ConfigureMappingHandlerTest extends TestCase
     public function testGetValuesForMapping(): void
     {
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
+        $helper      = $this->mock(AttachmentHelperInterface::class);
+
         $importRepos->shouldReceive('setUser')->once();
         // create a reader to use in method.
         // 5 columns, of which #4 (index 3) is budget-id
@@ -487,6 +500,7 @@ class ConfigureMappingHandlerTest extends TestCase
      */
     public function testSanitizeColumnName(): void
     {
+        $helper      = $this->mock(AttachmentHelperInterface::class);
         $importRepos = $this->mock(ImportJobRepositoryInterface::class);
         $importRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;

@@ -34,6 +34,9 @@ use Tests\TestCase;
 
 /**
  * Class AccountDestroyServiceTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AccountDestroyServiceTest extends TestCase
 {
@@ -52,6 +55,7 @@ class AccountDestroyServiceTest extends TestCase
     public function testDestroyBasic(): void
     {
         $this->mock(RecurrenceDestroyService::class);
+        $this->mock(JournalDestroyService::class);
         $account = Account::create(
             ['user_id'         => $this->user()->id, 'account_type_id' => 1, 'name' => 'Some name #' . $this->randomInt(),
              'virtual_balance' => '0', 'iban' => null, 'active' => true]
@@ -70,13 +74,14 @@ class AccountDestroyServiceTest extends TestCase
     public function testDestroyWithRecurrence(): void
     {
         $recService = $this->mock(RecurrenceDestroyService::class);
+        $this->mock(JournalDestroyService::class);
         $account = Account::create(
             ['user_id'         => $this->user()->id, 'account_type_id' => 1, 'name' => 'Some name #' . $this->randomInt(),
              'virtual_balance' => '0', 'iban' => null, 'active' => true]
         );
 
-        $recurrence            = $this->getRandomRecurrence();
-        $recurrenceTransaction = RecurrenceTransaction::create(
+        $recurrence  = $this->getRandomRecurrence();
+        $transaction = RecurrenceTransaction::create(
             [
                 'recurrence_id'           => $recurrence->id,
                 'transaction_currency_id' => $this->getEuro()->id,
@@ -88,7 +93,7 @@ class AccountDestroyServiceTest extends TestCase
         );
 
         $recService->shouldReceive('destroyById')->once()
-            ->withAnyArgs([$recurrenceTransaction->id]);
+                   ->withAnyArgs([$transaction->id]);
 
         /** @var AccountDestroyService $service */
         $service = app(AccountDestroyService::class);
@@ -96,7 +101,7 @@ class AccountDestroyServiceTest extends TestCase
 
         $this->assertDatabaseMissing('accounts', ['id' => $account->id, 'deleted_at' => null]);
 
-        $recurrenceTransaction->forceDelete();
+        $transaction->forceDelete();
     }
 
     /**
@@ -105,6 +110,7 @@ class AccountDestroyServiceTest extends TestCase
     public function testDestroyDontMove(): void
     {
         $this->mock(RecurrenceDestroyService::class);
+        $this->mock(JournalDestroyService::class);
         // create objects:
         $account = Account::create(
             ['user_id'         => $this->user()->id, 'account_type_id' => 1, 'name' => 'Some name #' . $this->randomInt(),
@@ -129,6 +135,7 @@ class AccountDestroyServiceTest extends TestCase
     public function testDestroyMove(): void
     {
         $this->mock(RecurrenceDestroyService::class);
+        $this->mock(JournalDestroyService::class);
         $account     = Account::create(
             ['user_id'         => $this->user()->id, 'account_type_id' => 1, 'name' => 'Some name #' . $this->randomInt(),
              'virtual_balance' => '0', 'iban' => null, 'active' => true]

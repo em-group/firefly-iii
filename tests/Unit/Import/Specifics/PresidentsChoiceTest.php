@@ -30,6 +30,9 @@ use Tests\TestCase;
 
 /**
  * Class PresidentsChoiceTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class PresidentsChoiceTest extends TestCase
 {
@@ -52,7 +55,7 @@ class PresidentsChoiceTest extends TestCase
 
         $parser = new PresidentsChoice;
         $result = $parser->run($row);
-        $this->assertEquals('-12.34', $result[3]);
+        $this->assertEquals('-12.340000000000', $result[3]);
         $this->assertEquals('Descr', $result[2]);
 
     }

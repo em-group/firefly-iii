@@ -35,6 +35,9 @@ use Tests\TestCase;
 /**
  *
  * Class HelpTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class HelpTest extends TestCase
 {
@@ -84,7 +87,7 @@ class HelpTest extends TestCase
         //client instance is bound to the mock here.
         $this->app->instance(Client::class, $client);
 
-
+        Log::warning('The following error is part of a test.');
         // now let's see what happens:
         $help   = new Help;
         $result = $help->getFromGitHub('test-route', 'en_US');

@@ -99,12 +99,15 @@ class Preferences
     public function get(string $name, $default = null): ?Preference
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+            Log::warning(sprintf('%s("%s") should NOT be called in the TEST environment!', __METHOD__, $name));
         }
         /** @var User $user */
         $user = auth()->user();
         if (null === $user) {
-            return $default;
+            $preference       = new Preference;
+            $preference->data = $default;
+
+            return $preference;
         }
 
         return $this->getForUser($user, $name, $default);
@@ -146,7 +149,7 @@ class Preferences
     public function getForUser(User $user, string $name, $default = null): ?Preference
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+            Log::warning(sprintf('%s("%s") should NOT be called in the TEST environment!', __METHOD__, $name));
         }
         $fullName = sprintf('preference%s%s', $user->id, $name);
         if (Cache::has($fullName)) {

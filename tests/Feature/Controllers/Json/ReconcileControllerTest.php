@@ -35,10 +35,14 @@ use Log;
 use Mockery;
 use Preferences;
 use Tests\TestCase;
+use Steam;
 
 /**
  *
  * Class ReconcileControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ReconcileControllerTest extends TestCase
 {
@@ -114,14 +118,16 @@ class ReconcileControllerTest extends TestCase
         $euro         = $this->getEuro();
         $withdrawal   = $this->getRandomWithdrawalAsArray();
 
+        Steam::shouldReceive('balance')->atLeast()->once()->andReturn('20');
+
 
         $accountRepos->shouldReceive('getAccountCurrency')->atLeast()->once()->andReturn($euro);
-        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
+        //Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
         Amount::shouldReceive('formatAnything')->andReturn('-100');
 
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $accountRepos->shouldReceive('getMetaValue')->withArgs([Mockery::any(), 'currency_id'])->andReturn('1')->atLeast()->once();
+        //$accountRepos->shouldReceive('getAccountCurrency')->atLeast()->once()->andReturn($euro);
 
 
         $collector->shouldReceive('setAccounts')->atLeast()->once()->andReturnSelf();

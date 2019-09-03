@@ -43,9 +43,6 @@ class VersionCheckEventHandler
     /**
      * Checks with GitHub to see if there is a new version.
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      * @param RequestedVersionCheckStatus $event
      */
     public function checkForUpdates(RequestedVersionCheckStatus $event): void

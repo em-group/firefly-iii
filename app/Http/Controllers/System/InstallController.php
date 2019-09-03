@@ -70,7 +70,7 @@ class InstallController extends Controller
             'firefly-iii:decrypt-all'                  => [],
             'generate-keys'                            => [], // an exception :(
 
-            // there are 12 upgrade commands.
+            // there are 13 upgrade commands.
             'firefly-iii:transaction-identifiers'      => [],
             'firefly-iii:migrate-to-groups'            => [],
             'firefly-iii:account-currencies'           => [],
@@ -83,8 +83,9 @@ class InstallController extends Controller
             'firefly-iii:cc-liabilities'               => [],
             'firefly-iii:back-to-journals'             => [],
             'firefly-iii:rename-account-meta'          => [],
+            'firefly-iii:migrate-recurrence-meta'      => [],
 
-            // there are 13 verify commands.
+            // there are 14 verify commands.
             'firefly-iii:fix-piggies'                  => [],
             'firefly-iii:create-link-types'            => [],
             'firefly-iii:create-access-tokens'         => [],
@@ -98,6 +99,7 @@ class InstallController extends Controller
             'firefly-iii:delete-empty-groups'          => [],
             'firefly-iii:fix-account-types'            => [],
             'firefly-iii:rename-meta-fields'           => [],
+            'firefly-iii:fix-ob-currencies'            => [],
         ];
     }
 
@@ -110,6 +112,9 @@ class InstallController extends Controller
     {
         // index will set FF3 version.
         app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
+
+        // set new DB version.
+        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
 
         return view('install.index');
     }

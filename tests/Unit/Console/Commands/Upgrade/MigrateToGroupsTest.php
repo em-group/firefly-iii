@@ -28,6 +28,7 @@ use FireflyIII\Factory\TransactionGroupFactory;
 use FireflyIII\Models\Configuration;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Repositories\Journal\JournalCLIRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Services\Internal\Destroy\JournalDestroyService;
 use Illuminate\Support\Collection;
@@ -37,6 +38,9 @@ use Tests\TestCase;
 
 /**
  * Class MigrateToGroupsTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class MigrateToGroupsTest extends TestCase
 {
@@ -59,19 +63,20 @@ class MigrateToGroupsTest extends TestCase
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
         $service      = $this->mock(JournalDestroyService::class);
         $groupFactory = $this->mock(TransactionGroupFactory::class);
+        $cliRepos     = $this->mock(JournalCLIRepositoryInterface::class);
 
         // mock calls:
-        $journalRepos->shouldReceive('getSplitJournals')
+        $cliRepos->shouldReceive('getSplitJournals')
                      ->atLeast()->once()
                      ->andReturn(new Collection);
-        $journalRepos->shouldReceive('getJournalsWithoutGroup')
+        $cliRepos->shouldReceive('getJournalsWithoutGroup')
                      ->atLeast()->once()
                      ->andReturn([]);
 
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrated_to_groups', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrated_to_groups', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrated_to_groups', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrated_to_groups', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:migrate-to-groups')
@@ -89,6 +94,7 @@ class MigrateToGroupsTest extends TestCase
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
         $service      = $this->mock(JournalDestroyService::class);
         $groupFactory = $this->mock(TransactionGroupFactory::class);
+        $cliRepos     = $this->mock(JournalCLIRepositoryInterface::class);
 
         $asset   = $this->getRandomAsset();
         $expense = $this->getRandomExpense();
@@ -121,17 +127,17 @@ class MigrateToGroupsTest extends TestCase
         $array   = $journal->toArray();
 
         // mock calls:
-        $journalRepos->shouldReceive('getSplitJournals')
+        $cliRepos->shouldReceive('getSplitJournals')
                      ->atLeast()->once()
                      ->andReturn(new Collection);
-        $journalRepos->shouldReceive('getJournalsWithoutGroup')
+        $cliRepos->shouldReceive('getJournalsWithoutGroup')
                      ->atLeast()->once()
                      ->andReturn([$array]);
 
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrated_to_groups', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrated_to_groups', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrated_to_groups', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrated_to_groups', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:migrate-to-groups')
@@ -203,19 +209,21 @@ class MigrateToGroupsTest extends TestCase
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
         $service      = $this->mock(JournalDestroyService::class);
         $factory      = $this->mock(TransactionGroupFactory::class);
+        $cliRepos     = $this->mock(JournalCLIRepositoryInterface::class);
 
         // mock calls:
+        $cliRepos->shouldReceive('setUser')->atLeast()->once();
         $journalRepos->shouldReceive('setUser')->atLeast()->once();
 
         // mock journal things:
-        $journalRepos->shouldReceive('getJournalBudgetId')->atLeast()->once()->andReturn(0);
-        $journalRepos->shouldReceive('getJournalCategoryId')->atLeast()->once()->andReturn(0);
-        $journalRepos->shouldReceive('getNoteText')->atLeast()->once()->andReturn('Some note.');
-        $journalRepos->shouldReceive('getTags')->atLeast()->once()->andReturn(['A', 'B']);
-        $journalRepos->shouldReceive('getMetaField')->atLeast()
+        $cliRepos->shouldReceive('getJournalBudgetId')->atLeast()->once()->andReturn(0);
+        $cliRepos->shouldReceive('getJournalCategoryId')->atLeast()->once()->andReturn(0);
+        $cliRepos->shouldReceive('getNoteText')->atLeast()->once()->andReturn('Some note.');
+        $cliRepos->shouldReceive('getTags')->atLeast()->once()->andReturn(['A', 'B']);
+        $cliRepos->shouldReceive('getMetaField')->atLeast()
                      ->withArgs([Mockery::any(), Mockery::any()])
                      ->once()->andReturn(null);
-        $journalRepos->shouldReceive('getMetaDate')->atLeast()
+        $cliRepos->shouldReceive('getMetaDate')->atLeast()
                      ->withArgs([Mockery::any(), Mockery::any()])
                      ->once()->andReturn(null);
 
@@ -225,17 +233,17 @@ class MigrateToGroupsTest extends TestCase
 
         $factory->shouldReceive('setUser')->atLeast()->once();
 
-        $journalRepos->shouldReceive('getSplitJournals')
+        $cliRepos->shouldReceive('getSplitJournals')
                      ->atLeast()->once()
                      ->andReturn(new Collection([$journal]));
-        $journalRepos->shouldReceive('getJournalsWithoutGroup')
+        $cliRepos->shouldReceive('getJournalsWithoutGroup')
                      ->atLeast()->once()
                      ->andReturn([]);
 
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrated_to_groups', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrated_to_groups', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrated_to_groups', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrated_to_groups', true]);
 
         $this->artisan('firefly-iii:migrate-to-groups')
              ->expectsOutput('Migrated 1 transaction journal(s).')

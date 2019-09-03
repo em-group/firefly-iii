@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * TransactionIdentifierTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -26,6 +27,7 @@ use FireflyConfig;
 use FireflyIII\Models\Configuration;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Repositories\Journal\JournalCLIRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use Illuminate\Support\Collection;
 use Log;
@@ -33,6 +35,9 @@ use Tests\TestCase;
 
 /**
  * Class TransactionIdentifierTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class TransactionIdentifierTest extends TestCase
 {
@@ -54,16 +59,16 @@ class TransactionIdentifierTest extends TestCase
     {
         // mock classes:
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
-
+        $cliRepos     = $this->mock(JournalCLIRepositoryInterface::class);
         // commands:
-        $journalRepos->shouldReceive('getSplitJournals')->andReturn(new Collection)
+        $cliRepos->shouldReceive('getSplitJournals')->andReturn(new Collection)
                      ->atLeast()->once();
 
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_transaction_identifier', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_transaction_identifier', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_transaction_identifier', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_transaction_identifier', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:transaction-identifiers')
@@ -127,16 +132,16 @@ class TransactionIdentifierTest extends TestCase
 
         // mock classes:
         $journalRepos = $this->mock(JournalRepositoryInterface::class);
-
+        $cliRepos     = $this->mock(JournalCLIRepositoryInterface::class);
         // commands:
-        $journalRepos->shouldReceive('getSplitJournals')->andReturn(new Collection([$journal]))
+        $cliRepos->shouldReceive('getSplitJournals')->andReturn(new Collection([$journal]))
                      ->atLeast()->once();
 
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_transaction_identifier', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_transaction_identifier', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_transaction_identifier', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_transaction_identifier', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:transaction-identifiers')

@@ -4,27 +4,27 @@
  * import.php
  * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
- * This file is part of '.config('app.name').'.
+ * This file is part of Firefly III.
  *
- * '.config('app.name').' is free software: you can redistribute it and/or modify
+ * Firefly III is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * '.config('app.name').' is distributed in the hope that it will be useful,
+ * Firefly III is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with '.config('app.name').'. If not, see <http://www.gnu.org/licenses/>.
+ * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 return [
     // ALL breadcrumbs and subtitles:
-    'index_breadcrumb'                    => 'Importă tranzacții în '.config('app.name'),
+    'index_breadcrumb'                    => 'Importă tranzacții în Firefly III',
     'prerequisites_breadcrumb_fake'       => 'Cerințe preliminare pentru furnizorul de import fals',
     'prerequisites_breadcrumb_spectre'    => 'Premisele pentru Spectre',
     'prerequisites_breadcrumb_bunq'       => 'Premisele pentru bunq',
@@ -34,7 +34,7 @@ return [
     'disabled_for_demo_user'              => 'dezactivat în demo',
 
     // index page:
-    'general_index_intro'                 => 'Bine ați venit la rutina de import '.config('app.name').'. Există câteva moduri de a importa date în '.config('app.name').', afișate aici ca butoane.',
+    'general_index_intro'                 => 'Bine ați venit la rutina de import Firefly III. Există câteva moduri de a importa date în Firefly III, afișate aici ca butoane.',
 
     // import provider strings (index):
     'button_fake'                         => 'Simulează un import',
@@ -64,7 +64,7 @@ return [
     'prereq_fake_title'                   => 'Premisele pentru un import fals de la furnizorul de servicii',
     'prereq_fake_text'                    => 'Acest furnizor de fals necesită un o cheie API falsă. Acesta trebuie să fie de 32 de caractere. Îl puteţi folosi pe acesta: 123456789012345678901234567890AA',
     'prereq_spectre_title'                => 'Premisele pentru un import folosind API-ul Spectre',
-    'prereq_spectre_text'                 => 'Pentru a importa date utilizând API-ul Spectre (v4), trebuie să furnizaţi către '.config('app.name').' două valori secrete. Acestea pot fi găsite <a href="https://www.saltedge.com/clients/profile/secrets">în pagina de secrete</a>.',
+    'prereq_spectre_text'                 => 'Pentru a importa date utilizând API-ul Spectre (v4), trebuie să furnizaţi către Firefly III două valori secrete. Acestea pot fi găsite <a href="https://www.saltedge.com/clients/profile/secrets">în pagina de secrete</a>.',
     'prereq_spectre_pub'                  => 'De asemenea, API-ul Spectre trebuie să cunoască cheia publică pe care o vedeţi mai jos. Fără ea, acesta nu vă va recunoaşte. Vă rugăm să introduceţi această cheie publică <a href="https://www.saltedge.com/clients/profile/secrets">în pagina de secrete</a>.',
     'prereq_bunq_title'                   => 'Premisele pentru un import din bunq',
     'prereq_bunq_text'                    => 'Pentru a importa din bunq, aveţi nevoie să obţineți o cheie API. Puteţi face acest lucru prin intermediul aplicașiei. Vă rugăm să reţineţi că funcţia de import pentru bunq este în versiune BETA. Aceasta a fost testată doar cu API-ul din sandbox.',
@@ -72,7 +72,7 @@ return [
     'prereq_ynab_title'                   => 'Premisele pentru un import din YNAB',
     'prereq_ynab_text'                    => 'Pentru a putea descărca tranzacții de la YNAB, creați o nouă aplicație pe <a href="https://app.youneedabudget.com/settings/developer"> Pagina cu setările pentru dezvoltatori </a> și introduceți ID-ul clientului și parola secretă pe această pagină.',
     'prereq_ynab_redirect'                => 'Pentru a finaliza configurația, introduceți următoarea adresă URL în <a href="https://app.youneedabudget.com/settings/developer"> Pagina cu setări pentru dezvoltatori </a> în secțiunea "Redirect URI(s) - URI de redirecționare".',
-    'callback_not_tls'                    => config('app.name').' a detectat următorul calback URI. Se pare că serverul dvs. nu este configurat să accepte conexiuni TLS (https). YNAB nu va accepta acest URI. Puteți continua importul (deoarece '.config('app.name').' ar putea greși), dar vă rugăm să păstrați acest lucru în minte.',
+    'callback_not_tls'                    => 'Firefly III a detectat următorul calback URI. Se pare că serverul dvs. nu este configurat să accepte conexiuni TLS (https). YNAB nu va accepta acest URI. Puteți continua importul (deoarece Firefly III ar putea greși), dar vă rugăm să păstrați acest lucru în minte.',
     // prerequisites success messages:
     'prerequisites_saved_for_fake'        => 'Cheia API falsă a fost stocată cu succes!',
     'prerequisites_saved_for_spectre'     => 'App ID și secret stocate!',
@@ -92,14 +92,14 @@ return [
     'job_config_fake_album_text'          => 'Unele rutine de import necesită date suplimentare la jumătatea perioadei de import. În cazul furnizorului fals de import, trebuie să răspundeți la câteva întrebări ciudate. Introduceți "Station to station" pentru a continua.',
     // job configuration form the file provider
     'job_config_file_upload_title'        => 'Configurare import (1/4) - Încărcați fișierul',
-    'job_config_file_upload_text'         => 'Această rutină vă va ajuta să importați fișiere din banca dvs. în '.config('app.name').'.',
+    'job_config_file_upload_text'         => 'Această rutină vă va ajuta să importați fișiere din banca dvs. în Firefly III.',
     'job_config_file_upload_help'         => 'Selectaţi fişierul. Asigurați-vă că fişierul este codificat UTF-8.',
-    'job_config_file_upload_config_help'  => 'Dacă ați importat anterior date în '.config('app.name').', este posibil să aveți un fișier de configurare, care va preseta valorile de configurare pentru dvs. Pentru unele bănci, alți utilizatori au oferit cu amabilitate <a href="https://github.com/firefly-iii/import-configurations/wiki"> fișierul de configurare </a>',
+    'job_config_file_upload_config_help'  => 'Dacă ați importat anterior date în Firefly III, este posibil să aveți un fișier de configurare, care va preseta valorile de configurare pentru dvs. Pentru unele bănci, alți utilizatori au oferit cu amabilitate <a href="https://github.com/firefly-iii/import-configurations/wiki"> fișierul de configurare </a>',
     'job_config_file_upload_type_help'    => 'Selectați tipul de fișier pe care îl încărcați',
     'job_config_file_upload_submit'       => 'Încarcă fişiere',
     'import_file_type_csv'                => 'CSV (valori separate prin virgulă)',
     'import_file_type_ofx'                => 'OFX',
-    'file_not_utf8'                       => 'Fișierul pe care l-ați încărcat nu este codificat ca UTF-8 sau ASCII. '.config('app.name').' nu poate gestiona astfel de fișiere. Utilizați Notepad ++ sau Sublime pentru a vă converti fișierul în UTF-8.',
+    'file_not_utf8'                       => 'Fișierul pe care l-ați încărcat nu este codificat ca UTF-8 sau ASCII. Firefly III nu poate gestiona astfel de fișiere. Utilizați Notepad ++ sau Sublime pentru a vă converti fișierul în UTF-8.',
     'job_config_uc_title'                 => 'Configurare import (2/4) - configurare fișier de bază',
     'job_config_uc_text'                  => 'Pentru a putea importa fișierul corect, validați opțiunile de mai jos.',
     'job_config_uc_header_help'           => 'Bifați această casetă dacă primul rând al fișierului dvs. CSV reprezintă titlurile coloanei.',
@@ -109,19 +109,19 @@ return [
     'job_config_uc_apply_rules_title'     => 'Aplică reguli',
     'job_config_uc_apply_rules_text'      => 'Aplică regulile dvs. pentru fiecare tranzacție importată. Rețineți că acest lucru încetinește semnificativ importul.',
     'job_config_uc_specifics_title'       => 'Opţiunile specifice pentru banca',
-    'job_config_uc_specifics_txt'         => 'Unele bănci furnizează fișiere prost formatate. '.config('app.name').' le poate remedia în mod automat. Dacă banca dvs. furnizează astfel de fișiere, dar nu este listată aici, vă rugăm să deschideți o problemă pe GitHub.',
+    'job_config_uc_specifics_txt'         => 'Unele bănci furnizează fișiere prost formatate. Firefly III le poate remedia în mod automat. Dacă banca dvs. furnizează astfel de fișiere, dar nu este listată aici, vă rugăm să deschideți o problemă pe GitHub.',
     'job_config_uc_submit'                => 'Continuă',
     'invalid_import_account'              => 'Ați selectat un cont nevalid în care să importați.',
     'import_liability_select'             => 'Provizioane',
     // job configuration for Spectre:
     'job_config_spectre_login_title'      => 'Alegeţi datele de conectare',
-    'job_config_spectre_login_text'       => config('app.name').' a găsit :count login-urile existente în contul dvs. Spectre. De la care doriți să importați?',
+    'job_config_spectre_login_text'       => 'Firefly III a găsit :count login-urile existente în contul dvs. Spectre. De la care doriți să importați?',
     'spectre_login_status_active'         => 'Activ',
     'spectre_login_status_inactive'       => 'Inactiv',
     'spectre_login_status_disabled'       => 'Dezactivat',
     'spectre_login_new_login'             => 'Conectați-vă la o altă bancă sau la una dintre aceste bănci cu acreditări diferite.',
     'job_config_spectre_accounts_title'   => 'Selectaţi conturile din care doriți să se importe',
-    'job_config_spectre_accounts_text'    => 'Ați selectat ":name" (:country). Aveți :count cont(uri)disponibile de la acest furnizor. Selectați contul (urile) de active '.config('app.name').' în care trebuie să fie stocate tranzacțiile din aceste conturi. Rețineți că, pentru a importa date, contul '.config('app.name').' și contul ":name" trebuie să aibă aceeași monedă.',
+    'job_config_spectre_accounts_text'    => 'Ați selectat ":name" (:country). Aveți :count cont(uri)disponibile de la acest furnizor. Selectați contul (urile) de active Firefly III în care trebuie să fie stocate tranzacțiile din aceste conturi. Rețineți că, pentru a importa date, contul Firefly III și contul ":name" trebuie să aibă aceeași monedă.',
     'spectre_do_not_import'               => '(nu importați)',
     'spectre_no_mapping'                  => 'Se pare că nu ați selectat niciun cont de unde să importați.',
     'imported_from_account'               => 'Importat din ":account"',
@@ -159,7 +159,7 @@ return [
 
     // job configuration for YNAB:
     'job_config_ynab_select_budgets'       => 'Selectaţi bugetul',
-    'job_config_ynab_select_budgets_text'  => 'Aveți :count bugete stocate în YNAB. Vă rugăm să selectaţi din care '.config('app.name').' va importa tranzacţiile.',
+    'job_config_ynab_select_budgets_text'  => 'Aveți :count bugete stocate în YNAB. Vă rugăm să selectaţi din care Firefly III va importa tranzacţiile.',
     'job_config_ynab_no_budgets'           => 'Nu există bugete disponibile pentru a fi importate.',
     'ynab_no_mapping'                      => 'Se pare că nu ați selectat niciun cont de unde să importați.',
     'job_config_ynab_bad_currency'         => 'Nu puteți importa din următorul buget (următoarele bugete), deoarece nu aveți conturi cu aceeași monedă ca și aceste bugete.',
@@ -195,7 +195,7 @@ return [
     'job_config_fints_username_help'  => 'Pentru mai multe bănci, acesta este numărul de cont.',
     'job_config_fints_port_help'      => 'Portul prestabilit este 443.',
     'job_config_fints_account_help'   => 'Selectaţi contul pentru care doriţi să importaţi tranzacţii.',
-    'job_config_local_account_help'   => 'Alegeți contul '.config('app.name').' corespunzător contului dvs. bancar ales mai sus.',
+    'job_config_local_account_help'   => 'Alegeți contul Firefly III corespunzător contului dvs. bancar ales mai sus.',
     // specifics:
     'specific_ing_name'               => 'ING NL',
     'specific_ing_descr'              => '41/5000
@@ -210,6 +210,8 @@ Creați descrieri mai bune în exporturile ING',
     'specific_pres_descr'             => 'Remediază posibile probleme cu fișierele PC',
     'specific_belfius_name'           => 'Belfius BE',
     'specific_belfius_descr'          => 'Remediază posibile probleme cu fișierele Belfius',
+    'specific_ingbelgium_name'        => 'ING BE',
+    'specific_ingbelgium_descr'       => 'Fixes potential problems with ING Belgium files',
     // job configuration for file provider (stage: roles)
     'job_config_roles_title'          => 'Configurarea importului (3/4) - Definiți rolul fiecărei coloane',
     'job_config_roles_text'           => 'Fiecare coloană din fișierul dvs. CSV conține anumite date. Vă rugăm să indicați ce fel de date ar trebui să aștepte importatorul. Opțiunea de a "mapa" datele înseamnă că veți conecta fiecare intrare găsită în coloană cu o valoare din baza dvs. de date. O coloană desenată de multe ori este coloana care conține IBAN-ul contului opus. Acest lucru poate fi ușor comparat cu prezența IBAN în baza dvs. de date.',
@@ -223,7 +225,7 @@ Creați descrieri mai bune în exporturile ING',
     'job_config_roles_rwarning'       => 'Cel puțin, marcați o coloană ca și coloană sumă. Se recomandă de asemenea să selectați o coloană pentru descriere, data și contul opus.',
     'job_config_roles_colum_count'    => 'Coloană',
     // job config for the file provider (stage: mapping):
-    'job_config_map_title'            => 'Configurare import (4/4) - Conectați date de import la '.config('app.name'),
+    'job_config_map_title'            => 'Configurare import (4/4) - Conectați date de import la Firefly III',
     'job_config_map_text'             => 'În tabelele următoare, valoarea din stânga vă arată informațiile găsite în fișierul încărcat. Sarcina dvs. este aceea de a mapa această valoare, dacă este posibil, la o valoare deja prezentă în baza dvs. de date. Firefly se va lipi de această cartografiere. Dacă nu există nicio valoare pentru care să fie mapată sau dacă nu doriți să cartografiați valoarea specifică, nu selectați nimic.',
     'job_config_map_nothing'          => 'Nu există date prezente în fișierul dvs. pe care să le puteți mapa la valorile existente. Vă rugăm să apăsați "Start import" pentru a continua.',
     'job_config_field_value'          => 'Valoarea câmpului',
@@ -242,14 +244,14 @@ Creați descrieri mai bune în exporturile ING',
     'status_job_rules'                => 'Așteptați, rulăm regulile...',
     'status_fatal_title'              => 'Eroare fatala',
     'status_fatal_text'               => 'Importul a întampinat o eroare și nu s-a putut recupera. Ne cerem scuze!',
-    'status_fatal_more'               => 'Acest mesaj de eroare (posibil foarte criptic) este completat de fișierele jurnal, pe care le puteți găsi pe unitatea hard disk sau în containerul Docker de unde executați '.config('app.name').'.',
+    'status_fatal_more'               => 'Acest mesaj de eroare (posibil foarte criptic) este completat de fișierele jurnal, pe care le puteți găsi pe unitatea hard disk sau în containerul Docker de unde executați Firefly III.',
     'status_finished_title'           => 'Importul s-a terminat',
     'status_finished_text'            => 'Importul s-a terminat.',
     'finished_with_errors'            => 'Au existat unele erori în timpul importului. Revedeți-le cu atenție.',
     'unknown_import_result'           => 'Rezultat necunoscut pentru import',
     'result_no_transactions'          => 'Nu au fost importate tranzacții. Poate că toate au fost duplicate. Poate că fișierele de jurnale vă pot spune ce s-a întâmplat. Dacă importați date în mod regulat, este normal.',
     'result_one_transaction'          => 'Exact o tranzacție a fost importată. Aceasta este stocată sub eticheta <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> unde o puteți inspecta mai departe.',
-    'result_many_transactions'        => config('app.name').' a importat :count tranzacții. Ele sunt stocate sub eticheta <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> unde le puteți inspecta mai departe.',
+    'result_many_transactions'        => 'Firefly III a importat :count tranzacții. Ele sunt stocate sub eticheta <a href=":route" class="label label-success" style="font-size:100%;font-weight:normal;">:tag</a> unde le puteți inspecta mai departe.',
 
 
     // general errors and warnings:
@@ -308,5 +310,8 @@ Creați descrieri mai bune în exporturile ING',
     'column_opposing-number'          => 'Cont opus (numărul contului)',
     'column_note'                     => 'Notițe',
     'column_internal-reference'       => 'Referință internă',
+
+    // error message
+    'duplicate_row'                   => 'Row #:row (":description") could not be imported. It already exists.',
 
 ];

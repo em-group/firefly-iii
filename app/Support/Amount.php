@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace FireflyIII\Support;
 
 use Crypt;
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\User;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -37,7 +36,7 @@ use Preferences as Prefs;
  */
 class Amount
 {
-    /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * bool $sepBySpace is $localeconv['n_sep_by_space']
      * int $signPosn = $localeconv['n_sign_posn']
@@ -51,8 +50,6 @@ class Amount
      *
      * @return string
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public static function getAmountJsConfig(bool $sepBySpace, int $signPosn, string $sign, bool $csPrecedes): string
     {
@@ -123,7 +120,7 @@ class Amount
      * @param bool                                   $coloured
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function formatAnything(TransactionCurrency $format, string $amount, bool $coloured = null): string
     {
@@ -165,7 +162,7 @@ class Amount
      * @param bool   $coloured
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      * @noinspection MoreThanThreeArgumentsInspection
      */
     public function formatFlat(string $symbol, int $decimalPlaces, string $amount, bool $coloured = null): string
@@ -269,8 +266,6 @@ class Amount
 
     /**
      * @return \FireflyIII\Models\TransactionCurrency
-     *
-     * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function getDefaultCurrency(): TransactionCurrency
     {
@@ -287,8 +282,6 @@ class Amount
      * @param User $user
      *
      * @return \FireflyIII\Models\TransactionCurrency
-     *
-     * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function getDefaultCurrencyByUser(User $user): TransactionCurrency
     {
@@ -309,12 +302,13 @@ class Amount
 
         // could still be json encoded:
         if (strlen($currencyCode) > 3) {
-            $currencyCode = json_decode($currencyCode) ?? 'EUR';
+            $currencyCode = json_decode($currencyCode, true) ?? 'EUR';
         }
 
         $currency = TransactionCurrency::where('code', $currencyCode)->first();
         if (null === $currency) {
-            throw new FireflyException(sprintf('No currency found with code "%s"', $currencyCode));
+            // get EUR
+            $currency = TransactionCurrency::where('code', 'EUR')->first();
         }
         $cache->store($currency);
 
@@ -349,7 +343,7 @@ class Amount
     private function tryDecrypt(string $value): string
     {
         try {
-            $value = Crypt::decrypt($value);
+            $value = Crypt::decrypt($value); // verified
         } catch (DecryptException $e) {
             Log::debug(sprintf('Could not decrypt "%s". %s', $value, $e->getMessage()));
         }

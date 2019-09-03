@@ -33,6 +33,9 @@ use Tests\TestCase;
 
 /**
  * Class PiggyBankEventFactoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class PiggyBankEventFactoryTest extends TestCase
 {
@@ -98,6 +101,7 @@ class PiggyBankEventFactoryTest extends TestCase
         $repos->shouldReceive('getRepetition')->andReturn(null);
         $repos->shouldReceive('getExactAmount')->andReturn('0');
 
+        Log::warning('The following error is part of a test.');
         $this->assertNull($factory->create($transfer, $piggy));
     }
 
@@ -112,7 +116,7 @@ class PiggyBankEventFactoryTest extends TestCase
         $piggy = $this->user()->piggyBanks()->first();
         /** @var PiggyBankEventFactory $factory */
         $factory = app(PiggyBankEventFactory::class);
-
+        Log::warning('The following error is part of a test.');
         $this->assertNull($factory->create($deposit, $piggy));
     }
 

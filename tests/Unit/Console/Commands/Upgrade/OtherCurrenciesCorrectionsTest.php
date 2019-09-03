@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * OtherCurrenciesCorrectionsTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -29,6 +30,7 @@ use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
+use FireflyIII\Repositories\Journal\JournalCLIRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use Illuminate\Support\Collection;
 use Log;
@@ -37,6 +39,9 @@ use Tests\TestCase;
 
 /**
  * Class OtherCurrenciesCorrectionsTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class OtherCurrenciesCorrectionsTest extends TestCase
 {
@@ -59,6 +64,7 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         // mock classes:
         $accountRepos  = $this->mock(AccountRepositoryInterface::class);
         $currencyRepos = $this->mock(CurrencyRepositoryInterface::class);
+        $cliRepos      = $this->mock(JournalCLIRepositoryInterface::class);
         $journalRepos  = $this->mock(JournalRepositoryInterface::class);
         $withdrawal    = $this->getRandomWithdrawal();
         $deposit       = $this->getRandomDeposit();
@@ -66,7 +72,8 @@ class OtherCurrenciesCorrectionsTest extends TestCase
 
         // collect all journals:
         $journalRepos->shouldReceive('setUser')->atLeast()->once();
-        $journalRepos->shouldReceive('getAllJournals')
+        $cliRepos->shouldReceive('setUser')->atLeast()->once();
+        $cliRepos->shouldReceive('getAllJournals')
                      ->atLeast()->once()
                      ->withArgs([[TransactionType::WITHDRAWAL, TransactionType::DEPOSIT, TransactionType::OPENING_BALANCE, TransactionType::RECONCILIATION,]])
                      ->andReturn(new Collection([$withdrawal, $deposit]));
@@ -84,8 +91,8 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_other_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_other_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_other_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_other_currencies', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:other-currencies')
@@ -136,11 +143,13 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         $accountRepos  = $this->mock(AccountRepositoryInterface::class);
         $currencyRepos = $this->mock(CurrencyRepositoryInterface::class);
         $journalRepos  = $this->mock(JournalRepositoryInterface::class);
+        $cliRepos      = $this->mock(JournalCLIRepositoryInterface::class);
         $euro          = $this->getEuro();
 
         // collect all journals:
         $journalRepos->shouldReceive('setUser')->atLeast()->once();
-        $journalRepos->shouldReceive('getAllJournals')
+        $cliRepos->shouldReceive('setUser')->atLeast()->once();
+        $cliRepos->shouldReceive('getAllJournals')
                      ->atLeast()->once()
                      ->withArgs([[TransactionType::WITHDRAWAL, TransactionType::DEPOSIT, TransactionType::OPENING_BALANCE, TransactionType::RECONCILIATION,]])
                      ->andReturn(new Collection([$journal]));
@@ -158,8 +167,8 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_other_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_other_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_other_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_other_currencies', true]);
 
         $this->artisan('firefly-iii:other-currencies')
              ->expectsOutput('Verified 1 transaction(s) and journal(s).')
@@ -219,11 +228,13 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         $accountRepos  = $this->mock(AccountRepositoryInterface::class);
         $currencyRepos = $this->mock(CurrencyRepositoryInterface::class);
         $journalRepos  = $this->mock(JournalRepositoryInterface::class);
+        $cliRepos      = $this->mock(JournalCLIRepositoryInterface::class);
         $euro          = $this->getEuro();
 
         // collect all journals:
         $journalRepos->shouldReceive('setUser')->atLeast()->once();
-        $journalRepos->shouldReceive('getAllJournals')
+        $cliRepos->shouldReceive('setUser')->atLeast()->once();
+        $cliRepos->shouldReceive('getAllJournals')
                      ->atLeast()->once()
                      ->withArgs([[TransactionType::WITHDRAWAL, TransactionType::DEPOSIT, TransactionType::OPENING_BALANCE, TransactionType::RECONCILIATION,]])
                      ->andReturn(new Collection([$journal]));
@@ -241,8 +252,8 @@ class OtherCurrenciesCorrectionsTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_other_currencies', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_other_currencies', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_other_currencies', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_other_currencies', true]);
 
         $this->artisan('firefly-iii:other-currencies')
              ->expectsOutput('Verified 1 transaction(s) and journal(s).')

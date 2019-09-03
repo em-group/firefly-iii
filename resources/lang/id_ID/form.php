@@ -66,7 +66,7 @@ return [
     'opening_balance'             => 'Opening balance',
     'tagMode'                     => 'Mode Tag',
     'tag_position'                => 'Lokasi tag',
-    'virtual_balance'              => 'Virtual balance',
+    'virtual_balance'             => 'Virtual balance',
     'targetamount'                => 'Jumlah target',
     'account_role'                => 'Account role',
     'opening_balance_date'        => 'Opening balance date',
@@ -154,7 +154,7 @@ return [
     'delete_link_type'            => 'Hapus jenis tautan ":name"',
     'delete_user'                 => 'Hapus pengguna ":email"',
     'delete_recurring'            => 'Delete recurring transaction ":title"',
-    'user_areYouSure'             => 'Jika Anda menghapus pengguna ":email", semuanya akan hilang. Tidak ada undo, undelete atau apapun. Jika Anda menghapus diri Anda sendiri, Anda akan kehilangan akses ke '.config('app.name').' ini.',
+    'user_areYouSure'             => 'Jika Anda menghapus pengguna ":email", semuanya akan hilang. Tidak ada undo, undelete atau apapun. Jika Anda menghapus diri Anda sendiri, Anda akan kehilangan akses ke Firefly III ini.',
     'attachment_areYouSure'       => 'Yakin ingin menghapus lampiran yang bernama ":name"?',
     'account_areYouSure'          => 'Yakin ingin menghapus akun dengan nama ":name"?',
     'bill_areYouSure'             => 'Yakin ingin menghapus tagihan yang bernama ":name"?',
@@ -170,7 +170,7 @@ return [
     'tag_areYouSure'              => 'Yakin ingin menghapus tag ":tag"?',
     'journal_link_areYouSure'     => 'Yakin ingin menghapus tautan antara <a href=":source_link">:source</a> and <a href=":destination_link">:destination</a>?',
     'linkType_areYouSure'         => 'Yakin ingin menghapus jenis tautan ":name" (":inward" / ":outward")?',
-    'permDeleteWarning'           => 'Deleting stuff from '.config('app.name').' is permanent and cannot be undone.',
+    'permDeleteWarning'           => 'Deleting stuff from Firefly III is permanent and cannot be undone.',
     'mass_make_selection'         => 'Anda masih dapat mencegah agar item dihapus dengan menghapus kotak centang.',
     'delete_all_permanently'      => 'Hapus yang dipilih secara permanen',
     'update_all_journals'         => 'Perbarui transaksi ini',
@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Username',
     'fints_password'        => 'PIN / Password',
     'fints_account'         => 'FinTS account',
-    'local_account'         => config('app.name').' account',
+    'local_account'         => 'Firefly III account',
     'from_date'             => 'Date from',
     'to_date'               => 'Date to',
 
@@ -252,5 +252,10 @@ return [
     'calendar'                => 'Calendar',
     'weekend'                 => 'Weekend',
     'client_secret'           => 'Client secret',
+
+    'withdrawal_destination_id' => 'Destination account',
+    'deposit_source_id'         => 'Source account',
+    'expected_on'               => 'Expected on',
+    'paid'                      => 'Paid',
 
 ];

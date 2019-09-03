@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * MigrateToRulesTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -38,6 +39,9 @@ use Tests\TestCase;
 
 /**
  * Class MigrateToRulesTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class MigrateToRulesTest extends TestCase
 {
@@ -84,8 +88,8 @@ class MigrateToRulesTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_bills_to_rules', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_bills_to_rules', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_bills_to_rules', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_bills_to_rules', true]);
 
         // preferences
         $language       = new Preference;
@@ -107,11 +111,12 @@ class MigrateToRulesTest extends TestCase
      */
     public function testHandleEvenBill(): void
     {
-        $bill = Bill::create(
+        $billName = 'I am a bill #' . $this->randomInt();
+        $bill     = Bill::create(
             [
                 'user_id'                 => $this->user()->id,
                 'transaction_currency_id' => null,
-                'name'                    => 'I am a bill',
+                'name'                    => $billName,
                 'match'                   => 'some,kind,of,match',
                 'amount_min'              => '30',
                 'amount_max'              => '30',
@@ -137,8 +142,8 @@ class MigrateToRulesTest extends TestCase
             'active'          => true,
             'strict'          => false,
             'stop_processing' => false, // field is no longer used.
-            'title'           => 'Auto-generated rule for bill "I am a bill"',
-            'description'     => 'This rule is auto-generated to try to match bill "I am a bill".',
+            'title'           => sprintf('Auto-generated rule for bill "%s"', $billName),
+            'description'     => sprintf('This rule is auto-generated to try to match bill "%s".', $billName),
             'trigger'         => 'store-journal',
             'triggers'        => [
                 [
@@ -191,8 +196,8 @@ class MigrateToRulesTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_bills_to_rules', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_bills_to_rules', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_bills_to_rules', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_bills_to_rules', true]);
 
         // preferences
         $language       = new Preference;
@@ -214,11 +219,12 @@ class MigrateToRulesTest extends TestCase
      */
     public function testHandleUnevenBill(): void
     {
-        $bill = Bill::create(
+        $billName = 'I am a bill #' . $this->randomInt();
+        $bill     = Bill::create(
             [
                 'user_id'                 => $this->user()->id,
                 'transaction_currency_id' => null,
-                'name'                    => 'I am a bill',
+                'name'                    => $billName,
                 'match'                   => 'some,kind,of,match',
                 'amount_min'              => '30',
                 'amount_max'              => '40',
@@ -244,8 +250,8 @@ class MigrateToRulesTest extends TestCase
             'active'          => true,
             'strict'          => false,
             'stop_processing' => false, // field is no longer used.
-            'title'           => 'Auto-generated rule for bill "I am a bill"',
-            'description'     => 'This rule is auto-generated to try to match bill "I am a bill".',
+            'title'           => sprintf('Auto-generated rule for bill "%s"', $billName),
+            'description'     => sprintf('This rule is auto-generated to try to match bill "%s".', $billName),
             'trigger'         => 'store-journal',
             'triggers'        => [
                 [
@@ -302,8 +308,8 @@ class MigrateToRulesTest extends TestCase
         // configuration
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_bills_to_rules', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_bills_to_rules', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_bills_to_rules', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_bills_to_rules', true]);
 
         // preferences
         $language       = new Preference;

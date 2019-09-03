@@ -42,8 +42,7 @@ trait FiltersWeekends
      * @param array                $dates
      *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
      */
     protected function filterWeekends(RecurrenceRepetition $repetition, array $dates): array
     {

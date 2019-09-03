@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * BelongsUserTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -29,6 +30,9 @@ use Tests\TestCase;
 
 /**
  * Class BelongsUserTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BelongsUserTest extends TestCase
 {
@@ -90,6 +94,8 @@ class BelongsUserTest extends TestCase
         try {
             $this->assertTrue($engine->passes($attribute, $value));
         } catch (FireflyException $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
             $this->assertTrue(false, $e->getMessage());
         }
     }

@@ -19,7 +19,6 @@
  * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
 /** @noinspection PhpUndefinedMethodInspection */
-/** @noinspection PhpUndefinedMethodInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Generator\Report;
@@ -112,7 +111,7 @@ class Support
     /**
      * Summarize collection by earned and spent data.
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity) // it's exactly five.
+     *  // it's exactly five.
      *
      * @param array $spent
      * @param array $earned

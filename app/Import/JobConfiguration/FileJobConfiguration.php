@@ -89,10 +89,9 @@ class FileJobConfiguration implements JobConfigurationInterface
     /**
      * Returns the view of the next step in the job configuration.
      *
-     * @throws FireflyException
      * @return string
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *@throws FireflyException
      */
     public function getNextView(): string
     {
@@ -132,7 +131,6 @@ class FileJobConfiguration implements JobConfigurationInterface
      * @return FileConfigurationInterface
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getConfigurationObject(): FileConfigurationInterface
     {

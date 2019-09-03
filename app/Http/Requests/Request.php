@@ -33,7 +33,6 @@ use Log;
  *
  * @codeCoverageIgnore
  *
- * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 class Request extends FormRequest
 {
@@ -178,13 +177,47 @@ class Request extends FormRequest
     }
 
     /**
+     * Return integer value, or NULL when it's not set.
+     *
+     * @param string $field
+     *
+     * @return int|null
+     */
+    public function nullableInteger(string $field): ?int
+    {
+        if (!$this->has($field)) {
+            return null;
+        }
+
+        $value = (string)$this->get($field);
+        if ('' === $value) {
+            return null;
+        }
+
+        return (int)$value;
+    }
+
+    /**
+     * Return string value, or NULL if empty.
+     *
+     * @param string $field
+     *
+     * @return string|null
+     */
+    public function nullableString(string $field): ?string
+    {
+        if (!$this->has($field)) {
+            return null;
+        }
+        return app('steam')->cleanString((string)($this->get($field) ?? ''));
+    }
+
+    /**
      * Return string value.
      *
      * @param string $field
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function string(string $field): string
     {

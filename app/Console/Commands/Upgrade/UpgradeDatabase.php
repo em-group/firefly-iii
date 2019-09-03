@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * UpgradeDatabase.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -52,8 +53,12 @@ class UpgradeDatabase extends Command
      */
     public function handle(): int
     {
+
+        $this->callInitialCommands();
+
+
         $commands = [
-            // there are 12 upgrade commands.
+            // there are 13 upgrade commands.
             'firefly-iii:transaction-identifiers',
             'firefly-iii:migrate-to-groups',
             'firefly-iii:account-currencies',
@@ -66,8 +71,9 @@ class UpgradeDatabase extends Command
             'firefly-iii:cc-liabilities',
             'firefly-iii:back-to-journals',
             'firefly-iii:rename-account-meta',
+            'firefly-iii:migrate-recurrence-meta',
 
-            // there are 13 verify commands.
+            // there are 14 verify commands.
             'firefly-iii:fix-piggies',
             'firefly-iii:create-link-types',
             'firefly-iii:create-access-tokens',
@@ -81,6 +87,7 @@ class UpgradeDatabase extends Command
             'firefly-iii:delete-empty-groups',
             'firefly-iii:fix-account-types',
             'firefly-iii:rename-meta-fields',
+            'firefly-iii:fix-ob-currencies',
 
             // two report commands
             'firefly-iii:report-empty-objects',
@@ -99,7 +106,31 @@ class UpgradeDatabase extends Command
             $result = Artisan::output();
             echo $result;
         }
+        // set new DB version.
+        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
+        // index will set FF3 version.
+        app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
 
         return 0;
+    }
+
+    private function callInitialCommands(): void
+    {
+        $this->line('Now seeding the database...');
+        Artisan::call('migrate', ['--seed' => true, '--force' => true]);
+        $result = Artisan::output();
+        echo $result;
+
+        $this->line('Now decrypting the database (if necessary)...');
+        Artisan::call('firefly-iii:decrypt-all');
+        $result = Artisan::output();
+        echo $result;
+
+        $this->line('Now installing OAuth2 keys...');
+        Artisan::call('passport:install');
+        $result = Artisan::output();
+        echo $result;
+
+        $this->line('Done!');
     }
 }

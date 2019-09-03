@@ -111,7 +111,6 @@ class SpectreJobConfiguration implements JobConfigurationInterface
      * @return SpectreJobConfigurationInterface
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getHandler(): SpectreJobConfigurationInterface
     {

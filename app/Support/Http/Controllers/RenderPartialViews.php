@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\Http\Controllers;
 
-use FireflyIII\Helpers\Collection\BalanceLine;
 use FireflyIII\Helpers\Report\PopupReportInterface;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Budget;
@@ -77,51 +76,33 @@ trait RenderPartialViews
     }
 
     /**
-     * View for balance row.
+     * View for transactions in a budget for an account.
      *
      * @param array $attributes
      *
      * @return string
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
-    protected function balanceAmount(array $attributes): string // generate view for report.
+    protected function budgetEntry(array $attributes): string // generate view for report.
     {
-        $role = (int)$attributes['role'];
-        /** @var BudgetRepositoryInterface $budgetRepository */
-        $budgetRepository = app(BudgetRepositoryInterface::class);
-
-        /** @var AccountRepositoryInterface $accountRepository */
-        $accountRepository = app(AccountRepositoryInterface::class);
-
         /** @var PopupReportInterface $popupHelper */
         $popupHelper = app(PopupReportInterface::class);
-        $budget  = $budgetRepository->findNull((int)$attributes['budgetId']);
-        $account = $accountRepository->findNull((int)$attributes['accountId']);
 
+        /** @var BudgetRepositoryInterface $budgetRepository */
+        $budgetRepository = app(BudgetRepositoryInterface::class);
+        $budget           = $budgetRepository->findNull((int)$attributes['budgetId']);
 
-        switch (true) {
-            case BalanceLine::ROLE_DEFAULTROLE === $role && null !== $budget && null !== $account:
-                // normal row with a budget:
-                $journals = $popupHelper->balanceForBudget($budget, $account, $attributes);
-                break;
-            case BalanceLine::ROLE_DEFAULTROLE === $role && null === $budget && null !== $account:
-                // normal row without a budget:
-                $budget       = new Budget;
-                $journals     = $popupHelper->balanceForNoBudget($account, $attributes);
-                $budget->name = (string)trans('firefly.no_budget');
-                break;
-            case BalanceLine::ROLE_TAGROLE === $role:
-                // row with tag info.
-                return 'Firefly cannot handle this type of info-button (BalanceLine::TagRole)';
-        }
+        $accountRepos = app(AccountRepositoryInterface::class);
+        $account      = $accountRepos->findNull((int)$attributes['accountId']);
+
+        $journals = $popupHelper->balanceForBudget($budget, $account, $attributes);
         // @codeCoverageIgnoreStart
         try {
-            $view = view('popup.report.balance-amount', compact('journals', 'budget', 'account'))->render();
+            $view = view('popup.report.balance-amount', compact('journals', 'budget','account'))->render();
         } catch (Throwable $e) {
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
+
         // @codeCoverageIgnoreEnd
 
         return $view;
@@ -177,6 +158,7 @@ trait RenderPartialViews
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
+
         // @codeCoverageIgnoreEnd
 
         return $view;
@@ -197,12 +179,7 @@ trait RenderPartialViews
         /** @var CategoryRepositoryInterface $categoryRepository */
         $categoryRepository = app(CategoryRepositoryInterface::class);
         $category           = $categoryRepository->findNull((int)$attributes['categoryId']);
-
-        if (null === $category) {
-            return 'This is an unknown category. Apologies.';
-        }
-
-        $journals = $popupHelper->byCategory($category, $attributes);
+        $journals           = $popupHelper->byCategory($category, $attributes);
         // @codeCoverageIgnoreStart
         try {
             $view = view('popup.report.category-entry', compact('journals', 'category'))->render();
@@ -210,6 +187,7 @@ trait RenderPartialViews
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
+
         // @codeCoverageIgnoreEnd
 
         return $view;
@@ -267,6 +245,7 @@ trait RenderPartialViews
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
+
         // @codeCoverageIgnoreEnd
 
         return $view;
@@ -365,7 +344,7 @@ trait RenderPartialViews
 
         /** @var PopupReportInterface $popupHelper */
         $popupHelper = app(PopupReportInterface::class);
-        $account = $accountRepository->findNull((int)$attributes['accountId']);
+        $account     = $accountRepository->findNull((int)$attributes['accountId']);
 
         if (null === $account) {
             return 'This is an unknown category. Apologies.';
@@ -379,6 +358,7 @@ trait RenderPartialViews
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
+
         // @codeCoverageIgnoreEnd
 
         return $view;

@@ -63,8 +63,10 @@ class AccountValidator
         $this->destError    = 'No error yet.';
         $this->sourceError  = 'No error yet.';
         $this->combinations = config('firefly.source_dests');
+
         /** @var AccountRepositoryInterface accountRepository */
         $this->accountRepository = app(AccountRepositoryInterface::class);
+
         if ('testing' === config('app.env')) {
             Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
@@ -133,7 +135,7 @@ class AccountValidator
     }
 
     /**
-     * @param int|null $accountId
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return bool
@@ -144,7 +146,7 @@ class AccountValidator
         switch ($this->transactionType) {
             default:
                 $result            = false;
-                $this->sourceError = sprintf('Cannot handle type "%s" :(', $this->transactionType);
+                $this->sourceError = 'Firefly III cannot validate the account information you submitted.';
                 Log::error(sprintf('AccountValidator::validateSource cannot handle "%s", so it will always return false.', $this->transactionType));
                 break;
             case TransactionType::WITHDRAWAL:
@@ -174,25 +176,12 @@ class AccountValidator
      */
     private function canCreateType(string $accountType): bool
     {
-        $result = false;
-        switch ($accountType) {
-            default:
-                Log::error(sprintf('AccountValidator::validateSource cannot handle "%s".', $this->transactionType));
-                break;
-            case AccountType::ASSET:
-            case AccountType::LOAN:
-            case AccountType::MORTGAGE:
-            case AccountType::DEBT:
-                $result = false;
-                break;
-            case AccountType::EXPENSE:
-            case AccountType::REVENUE:
-            case AccountType::INITIAL_BALANCE:
-                $result = true;
-                break;
+        $canCreate = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::INITIAL_BALANCE];
+        if (in_array($accountType, $canCreate, true)) {
+            return true;
         }
 
-        return $result;
+        return false;
     }
 
     /**
@@ -217,33 +206,28 @@ class AccountValidator
     }
 
     /**
-     * @param array $validTypes
-     * @param int|null $accountId
+     * @param array       $validTypes
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return Account|null
      */
     private function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account
     {
-        $result = null;
-
         // find by ID
         if ($accountId > 0) {
             $first = $this->accountRepository->findNull($accountId);
             if ((null !== $first) && in_array($first->accountType->type, $validTypes, true)) {
-                $result = $first;
+                return $first;
             }
         }
 
         // find by name:
-        if (null === $result && '' !== $accountName) {
-            $second = $this->accountRepository->findByName($accountName, $validTypes);
-            if (null !== $second) {
-                $result = $second;
-            }
+        if ('' !== $accountName) {
+            return $this->accountRepository->findByName($accountName, $validTypes);
         }
 
-        return $result;
+        return null;
     }
 
     /**
@@ -289,6 +273,52 @@ class AccountValidator
         $result = $result ?? false;
         Log::debug(sprintf('validateDepositDestination(%d, "%s") will return %s', $accountId, $accountName, var_export($result, true)));
 
+        return $result;
+    }
+
+    /**
+     * @param int|null    $accountId
+     * @param string|null $accountName
+     *
+     * @return bool
+     */
+    private function validateDepositSource(?int $accountId, ?string $accountName): bool
+    {
+        Log::debug(sprintf('Now in validateDepositSource(%d, "%s")', $accountId, $accountName));
+        $result = null;
+        // source can be any of the following types.
+        $validTypes = array_keys($this->combinations[$this->transactionType]);
+        if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
+            // if both values are NULL return false,
+            // because the source of a deposit can't be created.
+            // (this never happens).
+            $this->sourceError = (string)trans('validation.deposit_source_need_data');
+            $result            = false;
+        }
+
+        // if the user submits an ID only but that ID is not of the correct type,
+        // return false.
+        if (null !== $accountId && null === $accountName) {
+            $search = $this->accountRepository->findNull($accountId);
+            if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {
+                Log::debug(sprintf('User submitted only an ID (#%d), which is a "%s", so this is not a valid source.', $accountId, $search->accountType->type));
+                $result = false;
+            }
+        }
+
+        // if the account can be created anyway we don't need to search.
+        if (null === $result && true === $this->canCreateTypes($validTypes)) {
+            $result = true;
+
+            // set the source to be a (dummy) revenue account.
+            $account              = new Account;
+            $accountType          = AccountType::whereType(AccountType::REVENUE)->first();
+            $account->accountType = $accountType;
+            $this->source         = $account;
+        }
+        $result = $result ?? false;
+
+        // don't expect to end up here:
         return $result;
     }
 
@@ -339,55 +369,10 @@ class AccountValidator
     }
 
     /**
-     * @param int|null $accountId
-     * @param string|null $accountName
-     *
-     * @return bool
-     */
-    private function validateDepositSource(?int $accountId, ?string $accountName): bool
-    {
-        Log::debug(sprintf('Now in validateDepositSource(%d, "%s")', $accountId, $accountName));
-        $result = null;
-        // source can be any of the following types.
-        $validTypes = array_keys($this->combinations[$this->transactionType]);
-        if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
-            // if both values are NULL return false,
-            // because the source of a deposit can't be created.
-            // (this never happens).
-            $this->sourceError = (string)trans('validation.deposit_source_need_data');
-            $result            = false;
-        }
-
-        // if the user submits an ID only but that ID is not of the correct type,
-        // return false.
-        if (null !== $accountId && null === $accountName) {
-            $search = $this->accountRepository->findNull($accountId);
-            if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {
-                Log::debug(sprintf('User submitted only an ID (#%d), which is a "%s", so this is not a valid source.', $accountId, $search->accountType->type));
-                $result = false;
-            }
-        }
-
-        // if the account can be created anyway we don't need to search.
-        if (null === $result && true === $this->canCreateTypes($validTypes)) {
-            $result = true;
-
-            // set the source to be a (dummy) revenue account.
-            $account              = new Account;
-            $accountType          = AccountType::whereType(AccountType::REVENUE)->first();
-            $account->accountType = $accountType;
-            $this->source         = $account;
-        }
-        $result = $result ?? false;
-
-        // don't expect to end up here:
-        return $result;
-    }
-
-    /**
      * Source of an opening balance can either be an asset account
      * or an "initial balance account". The latter can be created.
-     * @param int|null $accountId
+     *
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return bool
@@ -447,6 +432,54 @@ class AccountValidator
 
     /**
      * @param int|null $accountId
+     *
+     * @return bool
+     */
+    private function validateReconciliationDestination(?int $accountId): bool
+    {
+        if (null === $accountId) {
+            return false;
+        }
+        $result = $this->accountRepository->findNull($accountId);
+        $types  = [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::RECONCILIATION];
+        if (null === $result) {
+            return false;
+        }
+        if (in_array($result->accountType->type, $types, true)) {
+            $this->destination = $result;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int|null $accountId
+     *
+     * @return bool
+     */
+    private function validateReconciliationSource(?int $accountId): bool
+    {
+        if (null === $accountId) {
+            return false;
+        }
+        $result = $this->accountRepository->findNull($accountId);
+        $types  = [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::RECONCILIATION];
+        if (null === $result) {
+            return false;
+        }
+        if (in_array($result->accountType->type, $types, true)) {
+            $this->source = $result;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param int|null $accountId
      * @param          $accountName
      *
      * @return bool
@@ -473,12 +506,13 @@ class AccountValidator
             return false;
         }
         $this->destination = $search;
+
         // must not be the same as the source account
         return !(null !== $this->source && $this->source->id === $this->destination->id);
     }
 
     /**
-     * @param int|null $accountId
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return bool
@@ -509,7 +543,7 @@ class AccountValidator
     }
 
     /**
-     * @param int|null $accountId
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return bool
@@ -553,7 +587,7 @@ class AccountValidator
     }
 
     /**
-     * @param int|null $accountId
+     * @param int|null    $accountId
      * @param string|null $accountName
      *
      * @return bool
@@ -581,52 +615,6 @@ class AccountValidator
         $this->source = $search;
 
         return true;
-    }
-
-    /**
-     * @param int|null $accountId
-     * @return bool
-     */
-    private function validateReconciliationSource(?int $accountId): bool
-    {
-        if (null === $accountId) {
-            return false;
-        }
-        $result = $this->accountRepository->findNull($accountId);
-        $types  = [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::RECONCILIATION];
-        if (null === $result) {
-            return false;
-        }
-        if (in_array($result->accountType->type, $types, true)) {
-            $this->source = $result;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @param int|null $accountId
-     * @return bool
-     */
-    private function validateReconciliationDestination(?int $accountId): bool
-    {
-        if (null === $accountId) {
-            return false;
-        }
-        $result = $this->accountRepository->findNull($accountId);
-        $types  = [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::RECONCILIATION];
-        if (null === $result) {
-            return false;
-        }
-        if (in_array($result->accountType->type, $types, true)) {
-            $this->destination = $result;
-
-            return true;
-        }
-
-        return false;
     }
 
 

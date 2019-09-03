@@ -154,7 +154,7 @@ return [
     'delete_link_type'            => 'Delete link type ":name"',
     'delete_user'                 => 'Delete user ":email"',
     'delete_recurring'            => 'Delete recurring transaction ":title"',
-    'user_areYouSure'             => 'If you delete user ":email", everything will be gone. There is no undo, undelete or anything. If you delete yourself, you will lose access to this instance of '.config('app.name').'.',
+    'user_areYouSure'             => 'If you delete user ":email", everything will be gone. There is no undo, undelete or anything. If you delete yourself, you will lose access to this instance of Firefly III.',
     'attachment_areYouSure'       => 'Are you sure you want to delete the attachment named ":name"?',
     'account_areYouSure'          => 'Are you sure you want to delete the account named ":name"?',
     'bill_areYouSure'             => 'Are you sure you want to delete the bill named ":name"?',
@@ -170,7 +170,7 @@ return [
     'tag_areYouSure'              => 'Are you sure you want to delete the tag ":tag"?',
     'journal_link_areYouSure'     => 'Are you sure you want to delete the link between <a href=":source_link">:source</a> and <a href=":destination_link">:destination</a>?',
     'linkType_areYouSure'         => 'Are you sure you want to delete the link type ":name" (":inward" / ":outward")?',
-    'permDeleteWarning'           => 'Deleting stuff from '.config('app.name').' is permanent and cannot be undone.',
+    'permDeleteWarning'           => 'Deleting stuff from Firefly III is permanent and cannot be undone.',
     'mass_make_selection'         => 'You can still prevent items from being deleted by removing the checkbox.',
     'delete_all_permanently'      => 'Delete selected permanently',
     'update_all_journals'         => 'Update these transactions',
@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Username',
     'fints_password'        => 'PIN / Password',
     'fints_account'         => 'FinTS account',
-    'local_account'         => config('app.name').' account',
+    'local_account'         => 'Firefly III account',
     'from_date'             => 'Date from',
     'to_date'               => 'Date to',
 
@@ -255,5 +255,7 @@ return [
 
     'withdrawal_destination_id' => 'Destination account',
     'deposit_source_id'         => 'Source account',
+    'expected_on'               => 'Expected on',
+    'paid'                      => 'Paid',
 
 ];

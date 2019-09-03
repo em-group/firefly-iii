@@ -59,7 +59,6 @@ class IngBelgium implements SpecificInterface
      *
      * @return array
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function run(array $row): array
     {

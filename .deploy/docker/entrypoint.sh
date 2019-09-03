@@ -56,7 +56,7 @@ php artisan cache:clear
 php artisan migrate --seed
 php artisan firefly-iii:decrypt-all
 
-# there are 12 upgrade commands
+# there are 13 upgrade commands
 php artisan firefly-iii:transaction-identifiers
 php artisan firefly-iii:migrate-to-groups
 php artisan firefly-iii:account-currencies
@@ -69,8 +69,9 @@ php artisan firefly-iii:bl-currency
 php artisan firefly-iii:cc-liabilities
 php artisan firefly-iii:back-to-journals
 php artisan firefly-iii:rename-account-meta
+php artisan firefly-iii:migrate-recurrence-meta
 
-# there are 13 verify commands
+# there are 14 verify commands
 php artisan firefly-iii:fix-piggies
 php artisan firefly-iii:create-link-types
 php artisan firefly-iii:create-access-tokens
@@ -80,10 +81,11 @@ php artisan firefly-iii:fix-transfer-budgets
 php artisan firefly-iii:fix-uneven-amount
 php artisan firefly-iii:delete-zero-amount
 php artisan firefly-iii:delete-orphaned-transactions
-    php artisan firefly-iii:delete-empty-journals
+php artisan firefly-iii:delete-empty-journals
 php artisan firefly-iii:delete-empty-groups
 php artisan firefly-iii:fix-account-types
 php artisan firefly-iii:rename-meta-fields
+php artisan firefly-iii:fix-ob-currencies
 
 # report commands
 php artisan firefly-iii:report-empty-objects

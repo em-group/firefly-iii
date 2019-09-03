@@ -66,7 +66,6 @@ class IngDescription implements SpecificInterface
      *
      * @return array
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function run(array $row): array
     {

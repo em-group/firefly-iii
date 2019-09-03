@@ -42,7 +42,6 @@ use Log;
 /**
  * Class MassController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class MassController extends Controller
 {
@@ -90,7 +89,7 @@ class MassController extends Controller
      * @param MassDeleteJournalRequest $request
      *
      * @return mixed
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function destroy(MassDeleteJournalRequest $request)
     {

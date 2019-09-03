@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use FireflyIII\Http\Middleware\Whitelabel;
 use FireflyIII\Support\Http\Controllers\RequestInformation;
 use FireflyIII\Support\Http\Controllers\UserNavigation;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -33,7 +34,6 @@ use Route;
 /**
  * Class Controller.
  *
- * @SuppressWarnings(PHPMD.NumberOfChildren)
  */
 class Controller extends BaseController
 {
@@ -50,15 +50,16 @@ class Controller extends BaseController
 
     /**
      * Controller constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
     {
         // for transaction lists:
-        app('view')->share('hideBudgets', false);
-        app('view')->share('hideCategories', false);
-        app('view')->share('hideBills', false);
-        app('view')->share('hideTags', false);
+        app('view')->share('hideBudgets', false,); // Firefly III will break here if you don't have PHP 7.3up
+        app('view')->share('hideCategories', false,);
+        app('view')->share('hideBills', false,);
+        app('view')->share('hideTags', false,);
 
         // is site a demo site?
         $isDemoSite = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
@@ -88,6 +89,10 @@ class Controller extends BaseController
                 return $next($request);
             }
         );
+
+        // This is created as a middleware, but implemented sequentially, as certain controllers will use
+        // configs within the constructor, which is run before the middleware.
+        Whitelabel::handleStatic();
     }
 
 }

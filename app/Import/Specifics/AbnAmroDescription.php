@@ -64,7 +64,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return array
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function run(array $row): array
     {
@@ -132,8 +131,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return bool true if the description is SEPA format, false otherwise
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function parseSepaDescription(): bool
     {
@@ -189,8 +186,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return bool true if the description is TRTP format, false otherwise
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function parseTRTPDescription(): bool
     {

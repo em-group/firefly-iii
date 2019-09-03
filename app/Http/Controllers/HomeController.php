@@ -48,7 +48,7 @@ class HomeController extends Controller
     public function __construct()
     {
         parent::__construct();
-        app('view')->share('title', 'Firefly III');
+        app('view')->share('title', config('app.name'));
         app('view')->share('mainTitleIcon', 'fa-fire');
         $this->middleware(Installer::class);
     }
@@ -105,7 +105,6 @@ class HomeController extends Controller
     {
         $types = config('firefly.accountTypesByIdentifier.asset');
         $count = $repository->count($types);
-
         Log::channel('audit')->info('User visits homepage.');
 
         if (0 === $count) {
@@ -127,7 +126,6 @@ class HomeController extends Controller
         /** @var BillRepositoryInterface $billRepository */
         $billRepository = app(BillRepositoryInterface::class);
         $billCount      = $billRepository->getBills()->count();
-
         foreach ($accounts as $account) {
             /** @var GroupCollectorInterface $collector */
             $collector = app(GroupCollectorInterface::class);

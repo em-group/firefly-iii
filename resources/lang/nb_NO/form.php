@@ -66,7 +66,7 @@ return [
     'opening_balance'             => 'Opening balance',
     'tagMode'                     => 'Taggmodus',
     'tag_position'                => 'Stedtagg',
-    'virtual_balance'              => 'Virtual balance',
+    'virtual_balance'             => 'Virtual balance',
     'targetamount'                => 'Målbeløp',
     'account_role'                => 'Account role',
     'opening_balance_date'        => 'Opening balance date',
@@ -154,7 +154,7 @@ return [
     'delete_link_type'            => 'Slett lenketype ":name"',
     'delete_user'                 => 'Slett bruker ":email"',
     'delete_recurring'            => 'Slett gjentakende transaksjon ":title"',
-    'user_areYouSure'             => 'Hvis du sletter brukeren ":email", vil alt bli borte. Det er ikke mulig å angre eller gjenopprette brukeren. Hvis du sletter din egen bruker, vil du miste tilgangen til '.config('app.name').'.',
+    'user_areYouSure'             => 'Hvis du sletter brukeren ":email", vil alt bli borte. Det er ikke mulig å angre eller gjenopprette brukeren. Hvis du sletter din egen bruker, vil du miste tilgangen til Firefly III.',
     'attachment_areYouSure'       => 'Er du sikker på at du vil slette vedlegget ved navn ":name"?',
     'account_areYouSure'          => 'Er du sikker på at du vil slette brukeren ved navn ":name"?',
     'bill_areYouSure'             => 'Er du sikker på at du vil slette regningen ved navn ":name"?',
@@ -170,7 +170,7 @@ return [
     'tag_areYouSure'              => 'Er du sikker på at du vil slette taggen ":tag"?',
     'journal_link_areYouSure'     => 'Er du sikker på at du vil slette koblingen mellom <a href=":source_link">:source</a> og <a href=":destination_link">:destination</a>?',
     'linkType_areYouSure'         => 'Er du sikker på at du vil slette koblingstypen ":name" (":inward" / ":outward")?',
-    'permDeleteWarning'           => 'Sletting av data fra '.config('app.name').' er permanent, og kan ikke angres.',
+    'permDeleteWarning'           => 'Sletting av data fra Firefly III er permanent, og kan ikke angres.',
     'mass_make_selection'         => 'Du kan fortsatt forhindre at elementer slettes ved å fjerne avkrysningen.',
     'delete_all_permanently'      => 'Slett valgte elementer permanent',
     'update_all_journals'         => 'Oppdater disse transaksjonene',
@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Brukernavn',
     'fints_password'        => 'PIN / Passord',
     'fints_account'         => 'FinTS konto',
-    'local_account'         => config('app.name').' konto',
+    'local_account'         => 'Firefly III konto',
     'from_date'             => 'Dato fra',
     'to_date'               => 'Dato til',
 
@@ -252,5 +252,10 @@ return [
     'calendar'                => 'Kalender',
     'weekend'                 => 'Helg',
     'client_secret'           => 'Client Secret',
+
+    'withdrawal_destination_id' => 'Destination account',
+    'deposit_source_id'         => 'Source account',
+    'expected_on'               => 'Expected on',
+    'paid'                      => 'Paid',
 
 ];

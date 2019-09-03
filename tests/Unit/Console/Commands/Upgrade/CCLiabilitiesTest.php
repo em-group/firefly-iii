@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * CCLiabilitiesTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -31,6 +32,9 @@ use Tests\TestCase;
 
 /**
  * Class CCLiabilitiesTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class CCLiabilitiesTest extends TestCase
 {
@@ -50,8 +54,8 @@ class CCLiabilitiesTest extends TestCase
     {
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_cc_liabilities', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_cc_liabilities', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_cc_liabilities', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_cc_liabilities', true]);
 
 
         $this->artisan('firefly-iii:cc-liabilities')
@@ -75,8 +79,8 @@ class CCLiabilitiesTest extends TestCase
         );
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_cc_liabilities', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_cc_liabilities', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_cc_liabilities', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_cc_liabilities', true]);
 
 
         $this->artisan('firefly-iii:cc-liabilities')
@@ -110,8 +114,8 @@ class CCLiabilitiesTest extends TestCase
 
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_cc_liabilities', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_cc_liabilities', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_cc_liabilities', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_cc_liabilities', true]);
 
 
         $this->artisan('firefly-iii:cc-liabilities')

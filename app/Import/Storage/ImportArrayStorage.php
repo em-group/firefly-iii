@@ -51,7 +51,6 @@ use Log;
  *
  * Class ImportArrayStorage
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ImportArrayStorage
 {
@@ -94,7 +93,7 @@ class ImportArrayStorage
 
         // get language of user.
         /** @var Preference $pref */
-        $pref           = app('preferences')->get('language', config('firefly.default_language', 'en_US'));
+        $pref           = app('preferences')->getForUser($importJob->user, 'language', config('firefly.default_language', 'en_US'));
         $this->language = $pref->data;
 
         Log::debug('Constructed ImportArrayStorage()');
@@ -201,8 +200,6 @@ class ImportArrayStorage
      * @return Collection
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     private function storeGroupArray(): Collection
     {
@@ -234,19 +231,21 @@ class ImportArrayStorage
     private function storeGroup(int $index, array $group): ?TransactionGroup
     {
 
+
+
+        Log::debug(sprintf('Going to store entry #%d', $index + 1));
+
+        // do some basic error catching.
+        foreach ($group['transactions'] as $groupIndex => $transaction) {
+            $group['transactions'][$groupIndex]['date']        = Carbon::parse($transaction['date'], config('app.timezone'));
+            $group['transactions'][$groupIndex]['description'] = '' === $transaction['description'] ? '(empty description)' : $transaction['description'];
+        }
+
         // do duplicate detection!
         if ($this->duplicateDetected($index, $group)) {
             Log::warning(sprintf('Row #%d seems to be a imported already and will be ignored.', $index));
 
             return null;
-        }
-
-        Log::debug(sprintf('Going to store entry #%d', $index + 1));
-
-        // do some basic error catching.
-        foreach ($group['transactions'] as $index => $transaction) {
-            $group['transactions'][$index]['date']        = Carbon::parse($transaction['date'], config('app.timezone'));
-            $group['transactions'][$index]['description'] = '' === $transaction['description'] ? '(empty description)' : $transaction['description'];
         }
 
         // store the group
@@ -386,9 +385,6 @@ class ImportArrayStorage
      *
      * @return bool
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function transferExists(array $transaction): bool
     {
@@ -457,8 +453,9 @@ class ImportArrayStorage
 
             // compare date:
             $transferDate = $transfer['date']->format('Y-m-d H:i:s');
-            Log::debug(sprintf('Comparing dates "%s" to "%s"', $transaction['date'], $transferDate));
-            if ($transaction['date'] !== $transferDate) {
+            $transactionDate = $transaction['date']->format('Y-m-d H:i:s');
+            Log::debug(sprintf('Comparing dates "%s" to "%s"', $transactionDate, $transferDate));
+            if ($transactionDate !== $transferDate) {
                 Log::debug('Date is not a match, continue with next transfer.');
                 continue; // @codeCoverageIgnore
             }
@@ -586,7 +583,6 @@ class ImportArrayStorage
                     DB::table('tag_transaction_journal')->insert(['transaction_journal_id' => $journalId, 'tag_id' => $tagId]);
                 } catch (QueryException $e) {
                     Log::error(sprintf('Could not link journal #%d to tag #%d because: %s', $journalId, $tagId, $e->getMessage()));
-                    Log::error($e->getTraceAsString());
                 }
                 // @codeCoverageIgnoreEnd
             }

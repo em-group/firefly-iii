@@ -98,9 +98,6 @@ class ProfileControllerTest extends TestCase
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'demo'])->atLeast()->once()->andReturn(false);
 
-        // set recovery codes.
-        Preferences::shouldReceive('set')->withArgs(['mfa_recovery', Mockery::any()])->atLeast()->once();
-
         Google2FA::shouldReceive('generateSecretKey')->andReturn('secret');
         Google2FA::shouldReceive('getQRCodeInline')->andReturn('long-data-url');
 
@@ -119,7 +116,8 @@ class ProfileControllerTest extends TestCase
         $this->mock(UserRepositoryInterface::class);
 
         Preferences::shouldReceive('findByName')->withArgs(['email_change_confirm_token'])->andReturn(new Collection());
-        // email_change_confirm_token
+
+        Log::warning('The following error is part of a test.');
         $response = $this->get(route('profile.confirm-email-change', ['some-fake-token']));
         $response->assertStatus(500);
     }
@@ -448,6 +446,16 @@ class ProfileControllerTest extends TestCase
 
         $userRepos->shouldReceive('setMFACode')->withArgs([Mockery::any(), $secret])->atLeast()->once();
 
+        // set recovery history
+        Preferences::shouldReceive('set')->withArgs(['mfa_history', Mockery::any()])->atLeast()->once();
+
+        // set recovery codes.
+        Preferences::shouldReceive('set')->withArgs(['mfa_recovery', null])->atLeast()->once();
+
+        $pref = new Preference;
+        $pref->data=  [];
+        Preferences::shouldReceive('get')->withArgs(['mfa_history', []])->atLeast()->once()->andReturn($pref);
+
         Preferences::shouldReceive('mark')->once();
         Google2FA::shouldReceive('verifyKey')->withArgs([$secret, $key])->andReturn(true);
 
@@ -576,6 +584,7 @@ class ProfileControllerTest extends TestCase
         Preferences::shouldReceive('findByName')->once()->andReturn(new Collection([$tokenPreference]));
         Preferences::shouldReceive('beginsWith')->once()->andReturn(new Collection([$hashPreference]));
 
+        Log::warning('The following error is part of a test.');
         $response = $this->get(route('profile.undo-email-change', ['token', $hash]));
         $response->assertStatus(500);
     }

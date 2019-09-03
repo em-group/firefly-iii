@@ -38,7 +38,6 @@ use Log;
 /**
  * Class ReportController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ReportController extends Controller
 {
@@ -69,7 +68,7 @@ class ReportController extends Controller
             }
         );
     }
-    /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * Show account report.
      *
@@ -126,8 +125,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_audit',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -138,7 +137,7 @@ class ReportController extends Controller
         return $generator->generate();
     }
 
-    /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * Show budget report.
      *
@@ -163,8 +162,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_budget',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -176,7 +175,7 @@ class ReportController extends Controller
         return $generator->generate();
     }
 
-    /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * Show category report.
      *
@@ -201,8 +200,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_category',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -238,8 +237,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_default',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );
@@ -276,7 +275,7 @@ class ReportController extends Controller
      * @param string $reportType
      *
      * @return mixed
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function options(string $reportType)
     {
@@ -310,9 +309,6 @@ class ReportController extends Controller
      *
      * @throws \FireflyIII\Exceptions\FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function postIndex(ReportFormRequest $request)
     {
@@ -386,7 +382,7 @@ class ReportController extends Controller
         return redirect($uri);
     }
 
-    /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * Get a tag report.
      *
@@ -410,8 +406,8 @@ class ReportController extends Controller
             trans(
                 'firefly.report_tag',
                 [
-                    'start' => $start->formatLocalized($this->monthFormat),
-                    'end'   => $end->formatLocalized($this->monthFormat),
+                    'start' => $start->formatLocalized($this->monthAndDayFormat),
+                    'end'   => $end->formatLocalized($this->monthAndDayFormat),
                 ]
             )
         );

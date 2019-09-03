@@ -19,7 +19,7 @@
   -->
 
 <template>
-    <form method="POST" action="transactions/update" accept-charset="UTF-8" class="form-horizontal" id="store"
+    <form method="POST" action="#" accept-charset="UTF-8" class="form-horizontal" id="store"
           enctype="multipart/form-data">
         <input name="_token" type="hidden" value="xxx">
         <div class="row" v-if="error_message !== ''">
@@ -69,13 +69,19 @@
                                 <span v-if="transactions.length === 1">Transaction information</span>
                             </h3>
                             <div class="box-tools pull-right" v-if="transactions.length > 1" x>
-                                <button v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
+                                <button  type="button" v-on:click="deleteTransaction(index, $event)" class="btn btn-xs btn-danger"><i
                                         class="fa fa-trash"></i></button>
                             </div>
                         </div>
                         <div class="box-body">
                             <div class="row">
                                 <div class="col-lg-4">
+                                    <transaction-description
+                                            v-model="transaction.description"
+                                            :index="index"
+                                            :error="transaction.errors.description"
+                                    >
+                                    </transaction-description>
                                     <account-select
                                             inputName="source[]"
                                             title="Source account"
@@ -98,12 +104,6 @@
                                             v-on:select:account="selectedDestinationAccount(index, $event)"
                                             :error="transaction.errors.destination_account"
                                     ></account-select>
-                                    <transaction-description
-                                            v-model="transaction.description"
-                                            :index="index"
-                                            :error="transaction.errors.description"
-                                    >
-                                    </transaction-description>
                                     <standard-date
                                             v-model="transaction.date"
                                             :index="index"
@@ -147,14 +147,8 @@
                                             v-model="transaction.category"
                                             :error="transaction.errors.category"
                                     ></category>
-                                    <!--
-                                    <piggy-bank
-                                            :transactionType="transactionType"
-                                            v-model="transaction.piggy_bank"
-                                            :error="transaction.errors.piggy_bank"
-                                    ></piggy-bank>
-                                    -->
                                     <tags
+                                            :tags="transaction.tags"
                                             v-model="transaction.tags"
                                             :error="transaction.errors.tags"
                                     ></tags>
@@ -166,7 +160,7 @@
                             </div>
                         </div>
                         <div class="box-footer" v-if="transactions.length-1 === index">
-                            <button class="btn btn-primary" @click="addTransaction">Add another split</button>
+                            <button class="btn btn-primary" type="button" @click="addTransaction">Add another split</button>
                         </div>
                     </div>
                 </div>
@@ -355,7 +349,16 @@
             processIncomingGroupRow(transaction) {
                 console.log(transaction);
                 this.setTransactionType(transaction.type);
+
+                let newTags = [];
+                for(let key in transaction.tags) {
+                    if (transaction.tags.hasOwnProperty(key) && /^0$|^[1-9]\d*$/.test(key) && key <= 4294967294) {
+                        newTags.push({text: transaction.tags[key], tiClasses: []});
+                    }
+                }
+
                 this.transactions.push({
+                    transaction_journal_id: transaction.transaction_journal_id,
                     description: transaction.description,
                     date: transaction.date.substr(0, 10),
                     amount: this.positiveAmount(transaction.amount),
@@ -385,7 +388,7 @@
                         },
                     },
                     budget: transaction.budget_id,
-                    tags: transaction.tags,
+                    tags: newTags,
                     custom_fields: {
                         interest_date: transaction.interest_date,
                         book_date: transaction.book_date,
@@ -404,7 +407,6 @@
                         id: transaction.source_id,
                         name: transaction.source_name,
                         type: transaction.source_type,
-                        // i dont know these
                         currency_id: transaction.currency_id,
                         currency_name: transaction.currency_name,
                         currency_code: transaction.currency_code,
@@ -531,12 +533,11 @@
                 if (0 === sourceId) {
                     sourceId = null;
                 }
-
                 currentArray =
                     {
+                        transaction_journal_id: row.transaction_journal_id,
                         type: transactionType,
                         date: date,
-
                         amount: row.amount,
                         currency_id: row.currency_id,
 
@@ -569,9 +570,8 @@
                     currentArray.foreign_currency_id = foreignCurrency;
                 }
                 // set budget id and piggy ID.
-                if (parseInt(row.budget) > 0) {
-                    currentArray.budget_id = parseInt(row.budget);
-                }
+                currentArray.budget_id = parseInt(row.budget);
+
                 if (parseInt(row.piggy_bank) > 0) {
                     currentArray.piggy_bank_id = parseInt(row.piggy_bank);
                 }
@@ -627,7 +627,7 @@
                     this.error_message = '';
                     button.prop("disabled", false);
                 } else {
-                    window.location.href = 'transactions/show/' + groupId + '?message=updated';
+                    window.location.href = window.previousUri + '?transaction_group_id=' + groupId+ '&message=updated';
                 }
             },
 
@@ -733,6 +733,7 @@
 
             addTransaction: function (e) {
                 this.transactions.push({
+                    transaction_journal_id: 0,
                     description: "",
                     date: "",
                     amount: "",
@@ -850,6 +851,12 @@
                                     break;
                             }
                         }
+                        // unique some things
+                        this.transactions[transactionIndex].errors.source_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.source_account));
+                        this.transactions[transactionIndex].errors.destination_account =
+                            Array.from(new Set(this.transactions[transactionIndex].errors.destination_account));
+
                     }
                 }
             },

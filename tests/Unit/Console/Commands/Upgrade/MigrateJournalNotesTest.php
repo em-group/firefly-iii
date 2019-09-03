@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * MigrateJournalNotesTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -30,6 +31,9 @@ use Tests\TestCase;
 
 /**
  * Class MigrateJournalNotesTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class MigrateJournalNotesTest extends TestCase
 {
@@ -49,8 +53,8 @@ class MigrateJournalNotesTest extends TestCase
     {
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrate_notes', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrate_notes', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrate_notes', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrate_notes', true]);
 
         // assume all is well.
         $this->artisan('firefly-iii:migrate-notes')
@@ -65,8 +69,8 @@ class MigrateJournalNotesTest extends TestCase
     {
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrate_notes', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrate_notes', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrate_notes', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrate_notes', true]);
 
         $journal = $this->getRandomWithdrawal();
 

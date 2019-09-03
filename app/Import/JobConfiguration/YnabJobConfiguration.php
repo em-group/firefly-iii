@@ -109,7 +109,6 @@ class YnabJobConfiguration implements JobConfigurationInterface
      * @return YnabJobConfigurationInterface
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getHandler(): YnabJobConfigurationInterface
     {

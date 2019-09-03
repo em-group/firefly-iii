@@ -38,7 +38,6 @@ use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
@@ -48,7 +47,6 @@ use League\Fractal\Serializer\JsonApiSerializer;
 /**
  * Class BillController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class BillController extends Controller
 {
@@ -82,7 +80,7 @@ class BillController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return JsonResponse
      * @codeCoverageIgnore
@@ -141,14 +139,15 @@ class BillController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $pageSize  = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
-        $paginator = $this->repository->getPaginator($pageSize);
-        /** @var Collection $bills */
-        $bills = $paginator->getCollection();
-
+        $bills   = $this->repository->getBills();
         $manager = new Manager();
         $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
         $manager->setSerializer(new JsonApiSerializer($baseUrl));
+
+        $pageSize  = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $count     = $bills->count();
+        $bills     = $bills->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
+        $paginator = new LengthAwarePaginator($bills, $count, $pageSize, $this->parameters->get('page'));
 
         /** @var BillTransformer $transformer */
         $transformer = app(BillTransformer::class);
@@ -164,7 +163,7 @@ class BillController extends Controller
      * List all of them.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return JsonResponse
      * @codeCoverageIgnore
@@ -206,7 +205,7 @@ class BillController extends Controller
      * Show the specified bill.
      *
      * @param Request $request
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return JsonResponse
      * @codeCoverageIgnore
@@ -259,7 +258,7 @@ class BillController extends Controller
      *
      * @param Request $request
      *
-     * @param Bill $bill
+     * @param Bill    $bill
      *
      * @return JsonResponse
      * @codeCoverageIgnore
@@ -318,7 +317,7 @@ class BillController extends Controller
      * Update a bill.
      *
      * @param BillRequest $request
-     * @param Bill $bill
+     * @param Bill        $bill
      *
      * @return JsonResponse
      */

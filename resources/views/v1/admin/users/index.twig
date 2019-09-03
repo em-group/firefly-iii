@@ -21,6 +21,7 @@
                             <th data-defaultsign="month" class="hidden-xs">{{ trans('list.updated_at') }}</th>
                             <th class="hidden-xs">{{ trans('list.is_admin') }}</th>
                             <th class="hidden-xs">{{ trans('list.has_two_factor') }}</th>
+                            <th>{{ trans('product_level') }}</th>
                             <th>{{ trans('list.is_blocked') }}</th>
                             <th data-defaultsign="az" class="hidden-xs">{{ trans('list.blocked_code') }}</th>
                         </tr>
@@ -60,6 +61,9 @@
                                     {% else %}
                                         <small class="text-danger"><i class="fa fa-fw fa-times"></i></small>
                                     {% endif %}
+                                </td>
+                                <td data-value="{{ user.product_level }}">
+                                    {{ user.product_level }}
                                 </td>
                                 <td data-value="{% if user.blocked %}1{% else %}0{% endif %}">
                                     {% if user.blocked == 1 %}

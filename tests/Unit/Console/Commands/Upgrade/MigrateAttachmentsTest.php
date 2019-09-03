@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * MigrateAttachmentsTest.php
  * Copyright (c) 2019 thegrumpydictator@gmail.com
@@ -32,6 +33,9 @@ use Tests\TestCase;
 
 /**
  * Class MigrateAttachmentsTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class MigrateAttachmentsTest extends TestCase
 {
@@ -51,8 +55,8 @@ class MigrateAttachmentsTest extends TestCase
     {
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrate_attachments', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrate_attachments', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrate_attachments', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrate_attachments', true]);
         // assume all is well.
         $this->artisan('firefly-iii:migrate-attachments')
              ->expectsOutput('All attachments are OK.')
@@ -66,8 +70,8 @@ class MigrateAttachmentsTest extends TestCase
     {
         $false       = new Configuration;
         $false->data = false;
-        FireflyConfig::shouldReceive('get')->withArgs(['4780_migrate_attachments', false])->andReturn($false);
-        FireflyConfig::shouldReceive('set')->withArgs(['4780_migrate_attachments', true]);
+        FireflyConfig::shouldReceive('get')->withArgs(['480_migrate_attachments', false])->andReturn($false);
+        FireflyConfig::shouldReceive('set')->withArgs(['480_migrate_attachments', true]);
 
         $attachment = Attachment::create(
             [
