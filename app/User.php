@@ -54,7 +54,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use EM\Hub\Models\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -85,6 +85,8 @@ use EM\Hub\Library\HasProductIndex;
  * @property string|null $remember_token
  * @property string|null $reset
  * @property int|null $whitelabel_id
+ *
+ * @property-read int $featureLevel
  * @property-read Collection|Account[]         $accounts
  * @property-read Collection|Attachment[]      $attachments
  * @property-read Collection|AvailableBudget[] $availableBudgets
@@ -399,5 +401,10 @@ class User extends Authenticatable implements UserInterface
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, TransactionJournal::class);
+    }
+
+    public function getFeatureLevelAttribute(): int
+    {
+        return 0;
     }
 }
