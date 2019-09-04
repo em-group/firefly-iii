@@ -3,6 +3,7 @@
 namespace FireflyIII\Models;
 
 use Barryvdh\LaravelIdeHelper\Eloquent;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
