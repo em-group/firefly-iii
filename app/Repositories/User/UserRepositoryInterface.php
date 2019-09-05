@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
-use EM\Hub\Models\SubProduct;
+use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
@@ -209,9 +209,9 @@ interface UserRepositoryInterface
      * Checks if a the user has at least the specified level of access.
      *
      * @param User $user
-     * @param SubProduct $product
+     * @param SubProductInterface $product
      *
      * @return bool
     */
-    public function hasFeature(User $user, SubProduct $product): bool;
+    public function hasFeature(User $user, SubProductInterface $product): bool;
 }

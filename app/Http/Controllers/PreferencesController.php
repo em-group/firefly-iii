@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
-use EM\Hub\Models\HubCountry;
+use EM\Hub\Models\HubCountryInterface;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Preference;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
@@ -144,7 +144,7 @@ class PreferencesController extends Controller
                 // sub-products we fetch, with may likely alter the currency, and thus price, that is
                 // used henceforth. Thus, it's been disabled for now.
                 $locale = substr($lang, 0, 2);
-                $country = HubCountry::where('locale', $locale)->first();
+                $country = app(HubCountryInterface::class)::where('locale', $locale)->first();
                 $user = auth()->user();
                 $user->country()->associate($country);
                 $user->save();
