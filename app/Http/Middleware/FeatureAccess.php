@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
-use FireflyIII\Helpers\FeatureAccess\UserLevel;
+use EM\Hub\Library\SubProducts;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Http\Request;
@@ -21,7 +21,6 @@ class FeatureAccess
     ];
 
     const level_basic = [
-        'name' => 'Basic',
         'features' => [
             'bills',
             'budgets'
@@ -29,26 +28,26 @@ class FeatureAccess
     ];
 
     const level_premium = [
-        'name' => 'Premium',
         'features' => [
             // todo These are just examples for how we can define the feature list
-            'categories.create',
-            'bills.show'
+            'categories.create', // Must be premium to create categories
+            'bills.show', // To view a single bill, requires premium
+            'accounts/revenue', // Any routes to /accounts/revenue* will be blocked for basic
         ]
     ];
 
     // todo Define all the features limited to a level
     const features = [
-        'categories' => [
-            'name' => 'Categories',
-            'route' => '/categories',
+        'accounts' => [
+            'name' => 'Accounts',
+            'route' => '/accounts',
             'class' => [
-                'FireflyIII\Http\Controllers\Category\CreateController',
-                'FireflyIII\Http\Controllers\Category\DeleteController',
-                'FireflyIII\Http\Controllers\Category\EditController',
-                'FireflyIII\Http\Controllers\Category\IndexController',
-                'FireflyIII\Http\Controllers\Category\NoCategoryController',
-                'FireflyIII\Http\Controllers\Category\ShowController'
+                'FireflyIII\Http\Controllers\Account\CreateController',
+                'FireflyIII\Http\Controllers\Account\DeleteController',
+                'FireflyIII\Http\Controllers\Account\EditController',
+                'FireflyIII\Http\Controllers\Account\IndexController',
+                'FireflyIII\Http\Controllers\Account\ReconcileController',
+                'FireflyIII\Http\Controllers\Account\ShowController',
             ]
         ],
         'bills' => [
@@ -66,6 +65,96 @@ class FeatureAccess
                 'FireflyIII\Http\Controllers\Budget\EditController',
                 'FireflyIII\Http\Controllers\Budget\IndexController',
                 'FireflyIII\Http\Controllers\Budget\ShowController',
+            ]
+        ],
+        'categories' => [
+            'name' => 'Categories',
+            'route' => '/categories',
+            'class' => [
+                'FireflyIII\Http\Controllers\Category\CreateController',
+                'FireflyIII\Http\Controllers\Category\DeleteController',
+                'FireflyIII\Http\Controllers\Category\EditController',
+                'FireflyIII\Http\Controllers\Category\IndexController',
+                'FireflyIII\Http\Controllers\Category\NoCategoryController',
+                'FireflyIII\Http\Controllers\Category\ShowController'
+            ]
+        ],
+        'tags' => [
+            'name' => 'Tags',
+            'route' => '/tags',
+            'class' => 'FireflyIII\Http\Controllers\TagController'
+        ],
+        'reports' => [
+            'name' => 'Reports',
+            'route' => '/reports',
+            'class' => [
+                'FireflyIII\Http\Controllers\Report\AccountController',
+                'FireflyIII\Http\Controllers\Report\BalanceController',
+                'FireflyIII\Http\Controllers\Report\BillController',
+                'FireflyIII\Http\Controllers\Report\BudgetController',
+                'FireflyIII\Http\Controllers\Report\CategoryController',
+                'FireflyIII\Http\Controllers\Report\ExpenseController',
+                'FireflyIII\Http\Controllers\Report\OperationsController',
+            ]
+        ],
+        'import' => [
+            'name' => 'Import',
+            'route' => '/import',
+            'class' => [
+                'FireflyIII\Http\Controllers\Import\CallbackController',
+                'FireflyIII\Http\Controllers\Import\IndexController',
+                'FireflyIII\Http\Controllers\Import\JobConfigurationController',
+                'FireflyIII\Http\Controllers\Import\JobStatusController',
+                'FireflyIII\Http\Controllers\Import\PrerequisitesController',
+            ],
+            'routes' => [
+                'create/file',
+                'create/bunq',
+                'create/spectre',
+                'create/ynap',
+                'create/fints'
+            ]
+        ],
+        'transactions' => [
+            'name' => 'Transactions',
+            'route' => '/transactions',
+            'class' => [
+                'FireflyIII\Http\Controllers\Transaction\BulkController',
+                'FireflyIII\Http\Controllers\Transaction\ConvertController',
+                'FireflyIII\Http\Controllers\Transaction\CreateController',
+                'FireflyIII\Http\Controllers\Transaction\DeleteController',
+                'FireflyIII\Http\Controllers\Transaction\EditController',
+                'FireflyIII\Http\Controllers\Transaction\IndexController',
+                'FireflyIII\Http\Controllers\Transaction\LinkController',
+                'FireflyIII\Http\Controllers\Transaction\MassController',
+                'FireflyIII\Http\Controllers\Transaction\ShowController',
+            ]
+        ],
+        'piggybank' => [
+            'name' => 'Piggy bank',
+            'route' => '/piggy-banks',
+            'class' => 'FireflyIII\Http\Controllers\PiggyBankController'
+        ],
+        'rules' => [
+            'name' => 'Rules',
+            'route' => '/rules',
+            'class' => [
+                'FireflyIII\Http\Controllers\Rule\CreateController',
+                'FireflyIII\Http\Controllers\Rule\DeleteController',
+                'FireflyIII\Http\Controllers\Rule\EditController',
+                'FireflyIII\Http\Controllers\Rule\IndexController',
+                'FireflyIII\Http\Controllers\Rule\SelectController',
+            ]
+        ],
+        'recurring' => [
+            'name' => 'Recurring',
+            'route' => '/recurring',
+            'class' => [
+                'FireflyIII\Http\Controllers\Recurring\CreateController',
+                'FireflyIII\Http\Controllers\Recurring\DeleteController',
+                'FireflyIII\Http\Controllers\Recurring\EditController',
+                'FireflyIII\Http\Controllers\Recurring\IndexController',
+                'FireflyIII\Http\Controllers\Recurring\ShowController',
             ]
         ]
     ];
@@ -106,22 +195,35 @@ class FeatureAccess
             $lvlIdx = static::$classMap[$class.'@'.$method];
         } else if (!empty(static::$classMap[$class])) {
             $lvlIdx = static::$classMap[$class];
-        } else if (false) {
-            // todo Check route against routemap
-            $lvlIdx = 0;
+        } else if ($route = static::routeInMap($request->getPathInfo())) {
+            $lvlIdx = static::$routeMap[$route];
         } else {
             // If not defined, assume no limiting
             return $next($request);
         }
 
-        $level = static::$levels[$lvlIdx];
+        $product = SubProducts::getSubProductIndex($lvlIdx);
+        if (empty($product)) {
+            // Product with index doesn't exist, skip check
+            return $next($request);
+        }
 
-        if (!$userRep->hasFeature($user, new UserLevel($lvlIdx))) {
-            session()->flash('error', 'You do not have access to '.$level['name'].' level features, with your current plan');
-            return redirect('/'); // Maybe just go back to the previous page?
+        if (!$userRep->hasFeature($user, $product)) {
+            session()->flash('error', trans('features.no_access', ['name' => $product->name]));
+            return redirect(session()->previousUrl());
         }
 
         return $next($request);
+    }
+
+    public static function routeInMap($path)
+    {
+        foreach (static::$routeMap as $route => $_) {
+            if (strpos($route, $path) === 0) {
+                return $route;
+            }
+        }
+        return false;
     }
 
     public static function mapFeatures(): array
@@ -188,6 +290,27 @@ class FeatureAccess
                         return $copy;
                     }
                 }
+            }
+        }
+
+        // Featurenotation is specified as a route
+        if (strpos($feature, '/') !== false) {
+            $order = explode('/', $feature);
+            $feature = reset($order);
+
+            $obj = static::getFeature($feature);
+            if ($obj !== null) {
+                $route = $obj['route'];
+                $blockRoute = $route;
+                while (false !== ($method = next($order))) {
+                    $blockRoute .= '/'.$method;
+                }
+
+                return [
+                    'class' => [],
+                    'route' => $blockRoute
+                ];
+
             }
         }
 

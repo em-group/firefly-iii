@@ -16,12 +16,12 @@
                         <tr>
                             <th data-defaultsign="_19" class="hidden-xs" colspan="2">&nbsp;</th>
                             <th data-defaultsign="az">{{ trans('list.email') }}</th>
-                            <th data-defaultsign="az">{{ trans('list.whitelabel') }}</th>
+                            <th data-defaultsign="az">{{ trans('whitelabels.whitelabel') }}</th>
                             <th data-defaultsign="month" class="hidden-xs">{{ trans('list.registered_at') }}</th>
                             <th data-defaultsign="month" class="hidden-xs">{{ trans('list.updated_at') }}</th>
                             <th class="hidden-xs">{{ trans('list.is_admin') }}</th>
                             <th class="hidden-xs">{{ trans('list.has_two_factor') }}</th>
-                            <th>{{ trans('product_level') }}</th>
+                            <th>{{ trans('products.name') }}</th>
                             <th>{{ trans('list.is_blocked') }}</th>
                             <th data-defaultsign="az" class="hidden-xs">{{ trans('list.blocked_code') }}</th>
                         </tr>
@@ -62,8 +62,12 @@
                                         <small class="text-danger"><i class="fa fa-fw fa-times"></i></small>
                                     {% endif %}
                                 </td>
-                                <td data-value="{{ user.product_level }}">
-                                    {{ user.product_level }}
+                                <td data-value="{{ user.product_index }}">
+                                    {% if user.has_sub_product %}
+                                        {{ user.sub_product.name }} ({{ user.country.currency }}{{ user.sub_product.current_price }})
+                                    {% else %}
+                                        <i>None</i>
+                                    {% endif %}
                                 </td>
                                 <td data-value="{% if user.blocked %}1{% else %}0{% endif %}">
                                     {% if user.blocked == 1 %}

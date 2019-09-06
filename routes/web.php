@@ -42,6 +42,8 @@ Route::group(
 Route::group(
     ['middleware' => 'user-not-logged-in', 'namespace' => 'FireflyIII\Http\Controllers'], static function () {
 
+    Route::get('/', ['uses' => 'FrontpageController@index', 'as' => 'index']);
+
     // Authentication Routes...
     Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
     Route::post('login', 'Auth\LoginController@login');
@@ -101,7 +103,8 @@ Route::group(
  */
 Route::group(
     ['middleware' => ['user-full-auth'], 'namespace' => 'FireflyIII\Http\Controllers'], static function () {
-    Route::get('/', ['uses' => 'HomeController@index', 'as' => 'index']);
+//    Route::get('/', ['uses' => 'HomeController@index', 'as' => 'index']);
+    Route::get('/dashboard', ['uses' => 'HomeController@index', 'as' => 'dashboard']);
     Route::get('/flash', ['uses' => 'DebugController@testFlash', 'as' => 'test-flash']);
     Route::get('/home', ['uses' => 'HomeController@index', 'as' => 'home']);
     Route::post('/daterange', ['uses' => 'HomeController@dateRange', 'as' => 'daterange']);
@@ -947,13 +950,13 @@ Route::group(
     Route::post('destroy/{transactionGroup}', ['uses' => 'Transaction\DeleteController@destroy', 'as' => 'destroy']);
 
     // clone group:
-    Route::get('clone/{transactionGroup}', ['uses' => 'Transaction\CloneController@clone', 'as' => 'clone']);
+//    Route::get('clone/{transactionGroup}', ['uses' => 'Transaction\CloneController@clone', 'as' => 'clone']);
 
     //Route::get('debug/{tj}', ['uses' => 'Transaction\SingleController@debugShow', 'as' => 'debug']);
     //Route::get('debug/{tj}', ['uses' => 'Transaction\SingleController@debugShow', 'as' => 'debug']);
 
-    Route::post('reorder', ['uses' => 'TransactionController@reorder', 'as' => 'reorder']);
-    Route::post('reconcile', ['uses' => 'TransactionController@reconcile', 'as' => 'reconcile']);
+//    Route::post('reorder', ['uses' => 'TransactionController@reorder', 'as' => 'reorder']);
+//    Route::post('reconcile', ['uses' => 'TransactionController@reconcile', 'as' => 'reconcile']);
     // TODO end of improvement.
 
 

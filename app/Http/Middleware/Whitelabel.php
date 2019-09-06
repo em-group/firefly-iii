@@ -5,6 +5,7 @@ namespace FireflyIII\Http\Middleware;
 use Closure;
 use FireflyIII\Models\WhitelabelConfig;
 use FireflyIII\Support\WhitelabelConfiguration;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
 
 class Whitelabel
@@ -60,5 +61,17 @@ class Whitelabel
             /** @var WhitelabelConfig $config */
             config([$config->name => $config->value]);
         }
+    }
+
+
+    /**
+     * Bootstrap method allows us to use the middleware as a bootstrap for console commands,
+     * where we in some instances may need to set _any_ whitelabel config to use.
+     * If any specific is required, it should be set by the command itself, anyway.
+     * @param Application $app
+     */
+    public function bootstrap(Application $app)
+    {
+        static::setConfig(\FireflyIII\Models\Whitelabel::first());
     }
 }

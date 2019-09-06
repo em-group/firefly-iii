@@ -25,6 +25,8 @@ declare(strict_types=1);
 namespace FireflyIII\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Log;
 
@@ -35,6 +37,13 @@ use Log;
  */
 class Kernel extends ConsoleKernel
 {
+    public function __construct(Application $app, Dispatcher $events)
+    {
+        parent::__construct($app, $events);
+
+        $this->bootstrappers[] = \FireflyIII\Http\Middleware\Whitelabel::class;
+    }
+
     /**
      * Register the commands for the application.
      */

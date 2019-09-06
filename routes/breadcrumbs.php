@@ -80,6 +80,13 @@ try {
         }
     );
 
+    Breadcrumbs::register(
+        'dashboard',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->push(trans('breadcrumbs.home'), route('dashboard'));
+        }
+    );
+
     // ACCOUNTS
     Breadcrumbs::register(
         'accounts.index',

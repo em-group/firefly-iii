@@ -19,6 +19,40 @@
                         {{ ExpandedForm.text('domain', null, {helpText: trans('whitelabels.help_domain')}) }}
                     </div>
                 </div>
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ trans('whitelabels.config_settings') }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <table>
+                            <thead>
+                            <tr class="config">
+                                <th>{{ 'name'|_ }}</th>
+                                <th>{{ trans('whitelabels.config_value') }}</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            </thead>
+                            <tbody class="configs">
+                            {% for name in configs %}
+                                <tr class="config">
+                                    <td>
+                                        <input type="text" name="config[name][]" value="{{ name }}" class="form-control"/>
+                                    </td>
+                                    <td>
+                                        <input type="text" name="config[value][]" value="" class="form-control"/>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-danger remove_config"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="box-footer">
+                        <button id="add_config" type="button" class="btn btn-info">Add configuration</button>
+                    </div>
+                </div>
             </div>
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                 <div class="box">
