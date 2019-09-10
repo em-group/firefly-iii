@@ -604,6 +604,20 @@ Route::group(
 }
 );
 
+/**
+ * Membership Controller
+ */
+Route::group(
+    ['middleware' => 'user-full-auth', 'namespace' => 'FireflyIII\Http\Controllers', 'prefix' => 'membership', 'as' => 'membership.'], static function () {
+
+    Route::get('', ['uses' => 'MembershipController@index', 'as' => 'index']);
+
+    Route::get('cancel', ['uses' => 'MembershipController@cancel', 'as' => 'cancel']);
+
+    Route::get('reactivate', ['uses' => 'MembershipController@reactivate', 'as' => 'reactivate']);
+
+}
+);
 
 /**
  * NewUser Controller
