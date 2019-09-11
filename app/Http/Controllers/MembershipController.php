@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\Library\SubProducts;
 use FireflyIII\User;
 
 /**
@@ -55,10 +56,14 @@ class MembershipController extends Controller
      */
     public function index()
     {
+        $hasActiveMembership = $this->user->hasActiveMembership();
         $membership = $this->user->currentMembership();
-        $memberships = $this->user->memberships()->withTrashed()->get();
+        $memberships = $this->user->memberships()
+            ->withTrashed()
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('membership.index', compact('memberships', 'membership'));
+        return view('membership.index', compact('memberships', 'membership', 'hasActiveMembership'));
     }
 
     public function cancel()
@@ -72,6 +77,31 @@ class MembershipController extends Controller
 
     public function reactivate()
     {
-        // todo Redirect to some membership reactivation form, probably with payment.
+        $success = false;
+        // Any membership ever
+        if (!empty($membership = $this->user->currentMembership())) {
+
+            // A still-active membership
+            if ($membership->expires_at->isPast()) {
+                $membership = $this->user->reactivateMembership();
+                if (!empty($membership)) {
+                    $success = true;
+                    session()->flash('success', trans('memberships.reactivated_success'));
+                }
+            }
+        }
+
+        if (!$success) {
+            session()->flash('error', trans('memberships.reactivate_error'));
+        }
+
+        return response()->redirectToRoute('membership.index');
+    }
+
+    public function buy()
+    {
+        $subProducts = SubProducts::getSubProducts();
+
+        return view('membership.purchase', compact('subProducts'));
     }
 }

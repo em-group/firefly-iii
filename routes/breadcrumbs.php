@@ -1209,6 +1209,14 @@ try {
         }
     );
 
+    Breadcrumbs::register(
+        'membership.buy',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('membership.index');
+            $breadcrumbs->push(trans('memberships.purchase'), route('membership.buy'));
+        }
+    );
+
     // BULK EDIT
     Breadcrumbs::register(
         'transactions.bulk.edit',

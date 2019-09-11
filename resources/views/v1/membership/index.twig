@@ -12,11 +12,12 @@
                     <h3 class="box-title">{{ trans('memberships.current') }}</h3>
                 </div>
                 <div class="box-body">
-                    {% if not membership %}
-                        <span class="text-info">{{ trans('memberships.missing') }}</span>
+                    {% if not membership or membership.expires_at.isPast() %}
+                        <span class="text-info">{{ trans('memberships.missing') }}</span><br>
+                        <a href="{{ route('membership.buy') }}" class="btn btn-success">{{ trans('memberships.purchase') }}</a>
                     {% else %}
-                        {% if membership.deleted_at %}
-                            <span class="text-danger">{{ trans('memberships.inactive') }}</span><br>
+                        {% if not hasActiveMembership %}
+                            <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
                             {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}<br>
                             {{ trans('memberships.expires_on', {'date':membership.expires_at|date}) }}
                             <br><br>
@@ -39,21 +40,24 @@
                 </div>
                 <div class="box-body table-responsive no-padding">
 
-                    <pre>{{ membership|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
                     <table class="table table-condensed sortable">
                         <thead>
                         <tr>
+                            <th>{{ 'date'|_ }}</th>
                             <th>{{ trans('memberships.amount') }}</th>
                             <th>{{ trans('products.name') }}</th>
                             <th>{{ 'period'|_ }}</th>
+                            <th>{{ trans('memberships.status') }}</th>
                         </tr>
                         </thead>
                         <tbody>
                         {% for membership in memberships %}
                         <tr>
+                            <td>{{ membership.created_at.formatLocalized(monthAndDayFormat) }}</td>
                             <td>{{ membership.transaction.currency }} {{ membership.transaction.amount }}</td>
                             <td>{{ membership.sub_product.name }}</td>
-                            <td>{{ membership.created_at|date }} - {{ membership.expires_at|date }}</td>
+                            <td>{{ membership.created_at.formatLocalized(monthAndDayFormat) }} - {{ membership.expires_at.formatLocalized(monthAndDayFormat) }}</td>
+                            <td class="text-{{ membership.status.type }}">{{ trans('memberships.'~membership.status.text) }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
