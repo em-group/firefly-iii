@@ -617,6 +617,8 @@ Route::group(
     Route::get('reactivate', ['uses' => 'MembershipController@reactivate', 'as' => 'reactivate']);
 
     Route::get('purchase', ['uses' => 'MembershipController@buy', 'as' => 'buy']);
+
+    Route::get('payment', ['uses' => 'MembershipController@forwardToPayment', 'as' => 'payment']);
 }
 );
 

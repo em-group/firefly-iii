@@ -64,7 +64,7 @@
                                 </td>
                                 <td data-value="{{ user.product_index }}">
                                     {% if user.has_sub_product %}
-                                        {{ user.sub_product.name }} ({{ user.country.currency }}{{ user.sub_product.current_price }})
+                                        {{ user.sub_product.name }} ({{ user.sub_product.price }})
                                     {% else %}
                                         <i>None</i>
                                     {% endif %}

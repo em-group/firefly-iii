@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\Library\CreateAccount;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\User;
+use Illuminate\Http\Request;
 
 /**
  * Class HomeController.
@@ -101,7 +103,25 @@ class MembershipController extends Controller
     public function buy()
     {
         $subProducts = SubProducts::getSubProducts();
+        $purchaseLink = '/membership/payment';
 
-        return view('membership.purchase', compact('subProducts'));
+        return response()->view(
+            'membership.purchase',
+            compact('subProducts', 'purchaseLink'),
+            200,
+            ['Content-Security-Policy' => "frame-src 'self'"] // todo We should probably include subdomain in list
+        );
+    }
+
+    public function forwardToPayment(Request $request)
+    {
+        $product_index = $request->input('product_index');
+
+        $parameters = CreateAccount::getPaymentLink($this->user, $product_index);
+
+        // todo We probably don't want the subdomain to be static
+        $url = config('app.url').'/payment/initiate?'.http_build_query($parameters);
+        $url = preg_replace('/(https?:\/\/)/', '$1hub.', $url);
+        return redirect($url, 302, ['X-Frame-Options' => 'SAMEORIGIN']);
     }
 }
