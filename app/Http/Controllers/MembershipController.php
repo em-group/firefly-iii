@@ -105,11 +105,13 @@ class MembershipController extends Controller
         $subProducts = SubProducts::getSubProducts();
         $purchaseLink = '/membership/payment';
 
+        $subdomain = preg_replace('/https?:\/\//', '$0*.', config('app.url')).':*';
+
         return response()->view(
             'membership.purchase',
             compact('subProducts', 'purchaseLink'),
             200,
-            ['Content-Security-Policy' => "frame-src 'self'"] // todo We should probably include subdomain in list
+            ['Content-Security-Policy' => "frame-src 'self' $subdomain"] // todo We should probably include subdomain in list
         );
     }
 
@@ -117,11 +119,8 @@ class MembershipController extends Controller
     {
         $product_index = $request->input('product_index');
 
-        $parameters = CreateAccount::getPaymentLink($this->user, $product_index);
+        ['url' => $url] = CreateAccount::getPaymentLink($this->user, $product_index);
 
-        // todo We probably don't want the subdomain to be static
-        $url = config('app.url').'/payment/initiate?'.http_build_query($parameters);
-        $url = preg_replace('/(https?:\/\/)/', '$1hub.', $url);
         return redirect($url, 302, ['X-Frame-Options' => 'SAMEORIGIN']);
     }
 }
