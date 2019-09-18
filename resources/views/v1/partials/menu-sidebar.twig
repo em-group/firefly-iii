@@ -146,6 +146,11 @@
                 <a class="{{ activeRoutePartial('currencies') }}" href="{{ route('currencies.index') }}"><i class="fa fa-usd fa-fw"></i> {{ 'currencies'|_ }}
                 </a>
             </li>
+            <li class="{{ activeRoutePartial('membership') }}">
+                <a class="{{ activeRoutePartial('membership') }}" href="{{ route('membership.index') }}">
+                    <i class="fa fa-id-card fa-fw"></i> {{ 'memberships.membership'|trans }}
+                </a>
+            </li>
             {% if hasRole('owner') %}
                 <li class="{{ activeRoutePartial('admin') }}">
                     <a class="{{ activeRoutePartial('admin') }}" href="{{ route('admin.index') }}"><i

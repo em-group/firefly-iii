@@ -12,6 +12,8 @@ class FrontpageController extends Controller
     {
         $subProducts = SubProducts::getSubProducts();
 
-        return view('frontpage.index', compact('subProducts'));
+        $layout = config('whitelabels.frontend_layout', 'default');
+
+        return view('frontpage.'.$layout.'.index', compact('subProducts'));
     }
 }

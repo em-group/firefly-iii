@@ -1200,6 +1200,23 @@ try {
         }
     );
 
+    // MEMBERSHIP
+    Breadcrumbs::register(
+        'membership.index',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('home');
+            $breadcrumbs->push(trans('memberships.membership'), route('membership.index'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'membership.buy',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('membership.index');
+            $breadcrumbs->push(trans('memberships.purchase'), route('membership.buy'));
+        }
+    );
+
     // BULK EDIT
     Breadcrumbs::register(
         'transactions.bulk.edit',

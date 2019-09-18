@@ -31,6 +31,7 @@ use FireflyIII\Http\Middleware\InterestingMessage;
 use FireflyIII\Http\Middleware\IsAdmin;
 use FireflyIII\Http\Middleware\Range;
 use FireflyIII\Http\Middleware\RedirectIfAuthenticated;
+use FireflyIII\Http\Middleware\RequiresMembership;
 use FireflyIII\Http\Middleware\Sandstorm;
 use FireflyIII\Http\Middleware\SecureHeaders;
 use FireflyIII\Http\Middleware\StartFireflySession;
@@ -162,7 +163,8 @@ class Kernel extends HttpKernel
                 Binder::class,
                 CreateFreshApiToken::class,
                 InterestingMessage::class,
-                FeatureAccess::class
+                FeatureAccess::class,
+                RequiresMembership::class
             ],
             // MUST be logged in
             // MUST have 2fa

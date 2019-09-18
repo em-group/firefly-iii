@@ -30,7 +30,7 @@ class WhitelabelController extends Controller
 
     public function index()
     {
-        $subTitle = (string)trans('firefly.whitelabel_administration');
+        $subTitle = (string)trans('whitelabels.manage');
         $subTitleIcon = 'fa-globe';
         $whitelabels = $this->repository->all();
 
