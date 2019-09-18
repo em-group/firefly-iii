@@ -24,6 +24,7 @@ namespace FireflyIII\Http\Controllers;
 
 use EM\Hub\Library\CreateAccount;
 use EM\Hub\Library\SubProducts;
+use FireflyIII\Http\Middleware\FeatureAccess;
 use FireflyIII\User;
 use Illuminate\Http\Request;
 
@@ -103,6 +104,12 @@ class MembershipController extends Controller
     public function buy()
     {
         $subProducts = SubProducts::getSubProducts();
+        $subProducts->map(function($product) {
+            $product->data = array_merge(
+                $product->data,
+                ['features' => FeatureAccess::getFeatureNames($product->index)]
+            );
+        });
         $purchaseLink = '/membership/payment';
 
         $subdomain = preg_replace('/https?:\/\//', '$0*.', config('app.url')).':*';
@@ -111,7 +118,7 @@ class MembershipController extends Controller
             'membership.purchase',
             compact('subProducts', 'purchaseLink'),
             200,
-            ['Content-Security-Policy' => "frame-src 'self' $subdomain"] // todo We should probably include subdomain in list
+            ['Content-Security-Policy' => "frame-src 'self' $subdomain"]
         );
     }
 

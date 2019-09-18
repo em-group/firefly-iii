@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
+use DaveJamesMiller\Breadcrumbs\BreadcrumbsManager;
+use DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
@@ -315,5 +317,40 @@ class FeatureAccess
         }
 
         return null;
+    }
+
+    public static function getFeatureNames($level = 0)
+    {
+        $names = [];
+        foreach (static::$levels[$level]['features'] as $feature) {
+            $name = static::getFeatureName($feature);
+            if (!empty($name)) {
+                $names[] = $name;
+            }
+        }
+        return array_unique($names);
+    }
+
+    public static function getFeatureName($route)
+    {
+        // Get the index of the route, we just want simple names for our list
+        if (strpos($route, '.') !== false) {
+            $route = preg_replace('/([a-zA-Z0-9]+\.)+[a-zA-Z0-9]+/', '$1index', $route);
+        } else {
+            $route .= '.index';
+        }
+        /** @var BreadcrumbsManager $manager */
+        $manager = app(BreadcrumbsManager::class);
+        if ($manager->exists($route)) {
+            try {
+                $item = $manager->generate($route)->last();
+                return $item->title;
+            } catch (\Exception $ex) {
+                return '';
+            }
+        } else {
+            return '';
+        }
+
     }
 }
