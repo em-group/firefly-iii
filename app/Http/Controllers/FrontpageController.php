@@ -2,8 +2,9 @@
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\HubException;
+use EM\Hub\Library\HubClient;
 use EM\Hub\Library\SubProducts;
-use Illuminate\Http\Request;
 
 class FrontpageController extends Controller
 {
@@ -14,6 +15,12 @@ class FrontpageController extends Controller
 
         $layout = config('whitelabels.frontend_layout', 'default');
 
-        return view('frontpage.'.$layout.'.index', compact('subProducts'));
+        try {
+            $terms = HubClient::getTerms(substr(app()->getLocale(), 0, 2));
+        } catch (HubException $e) {
+            $terms = '';
+        }
+
+        return view('frontpage.'.$layout.'.index', compact('subProducts', 'terms'));
     }
 }
