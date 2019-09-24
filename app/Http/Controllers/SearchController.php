@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
-use FireflyIII\Support\CacheProperties;
 use FireflyIII\Support\Search\SearchInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Log;
 use Throwable;
 
@@ -41,9 +39,9 @@ class SearchController extends Controller
     public function __construct()
     {
         parent::__construct();
-
+        app('view')->share('showCategory', true);
         $this->middleware(
-            function ($request, $next) {
+            static function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-search');
                 app('view')->share('title', (string)trans('firefly.search'));
 
@@ -62,15 +60,15 @@ class SearchController extends Controller
      */
     public function index(Request $request, SearchInterface $searcher)
     {
-        $fullQuery = (string)$request->get('q');
-
+        $fullQuery = (string)$request->get('search');
+        $page      = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
         // parse search terms:
         $searcher->parseQuery($fullQuery);
-        $query    = $searcher->getWordsAsString();
+        $query     = $searcher->getWordsAsString();
         $modifiers = $searcher->getModifiers();
-        $subTitle = (string)trans('breadcrumbs.search_result', ['query' => $query]);
+        $subTitle  = (string)trans('breadcrumbs.search_result', ['query' => $query]);
 
-        return view('search.index', compact('query','modifiers', 'fullQuery', 'subTitle'));
+        return view('search.index', compact('query', 'modifiers', 'page','fullQuery', 'subTitle'));
     }
 
     /**
@@ -83,15 +81,20 @@ class SearchController extends Controller
      */
     public function search(Request $request, SearchInterface $searcher): JsonResponse
     {
-        $fullQuery    = (string)$request->get('query');
+        $fullQuery = (string)$request->get('query');
+        $page      = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
 
         $searcher->parseQuery($fullQuery);
+        $searcher->setPage($page);
         $searcher->setLimit((int)config('firefly.search_result_limit'));
-        $transactions = $searcher->searchTransactions();
-        $searchTime = $searcher->searchTime(); // in seconds
-
+        $groups     = $searcher->searchTransactions();
+        $hasPages   = $groups->hasPages();
+        $searchTime = round($searcher->searchTime(), 3); // in seconds
+        $parameters = ['search' => $fullQuery];
+        $url        = route('search.index') . '?' . http_build_query($parameters);
+        $groups->setPath($url);
         try {
-            $html = view('search.search', compact('transactions','searchTime'))->render();
+            $html = view('search.search', compact('groups', 'hasPages', 'searchTime'))->render();
             // @codeCoverageIgnoreStart
         } catch (Throwable $e) {
             Log::error(sprintf('Cannot render search.search: %s', $e->getMessage()));
@@ -100,6 +103,6 @@ class SearchController extends Controller
 
         // @codeCoverageIgnoreEnd
 
-        return response()->json(['count' => $transactions->count(), 'html' => $html]);
+        return response()->json(['count' => $groups->count(), 'html' => $html]);
     }
 }

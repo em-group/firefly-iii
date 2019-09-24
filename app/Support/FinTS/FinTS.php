@@ -27,7 +27,7 @@ use FireflyIII\Exceptions\FireflyException;
 use Illuminate\Support\Facades\Crypt;
 
 /**
- *
+ * @codeCoverageIgnore
  * Class FinTS
  */
 class FinTS
@@ -50,7 +50,7 @@ class FinTS
             $config['fints_port'],
             $config['fints_bank_code'],
             $config['fints_username'],
-            Crypt::decrypt($config['fints_password'])
+            Crypt::decrypt($config['fints_password']) // verified
         );
     }
 

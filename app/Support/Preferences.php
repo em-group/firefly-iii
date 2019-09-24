@@ -26,12 +26,15 @@ use Cache;
 use Exception;
 use FireflyIII\Models\Preference;
 use FireflyIII\User;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Collection;
 use Log;
 use Session;
 
 /**
  * Class Preferences.
+ *
+ * @codeCoverageIgnore
  */
 class Preferences
 {
@@ -43,6 +46,9 @@ class Preferences
      */
     public function beginsWith(User $user, string $search): Collection
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $set = Preference::where('user_id', $user->id)->where('name', 'LIKE', $search . '%')->get();
 
         return $set;
@@ -55,6 +61,9 @@ class Preferences
      */
     public function delete(string $name): bool
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $fullName = sprintf('preference%s%s', auth()->user()->id, $name);
         if (Cache::has($fullName)) {
             Cache::forget($fullName);
@@ -76,6 +85,10 @@ class Preferences
      */
     public function findByName(string $name): Collection
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
+
         return Preference::where('name', $name)->get();
     }
 
@@ -87,10 +100,16 @@ class Preferences
      */
     public function get(string $name, $default = null): ?Preference
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s("%s") should NOT be called in the TEST environment!', __METHOD__, $name));
+        }
         /** @var User $user */
         $user = auth()->user();
         if (null === $user) {
-            return $default;
+            $preference       = new Preference;
+            $preference->data = $default;
+
+            return $preference;
         }
 
         return $this->getForUser($user, $name, $default);
@@ -104,6 +123,9 @@ class Preferences
      */
     public function getArrayForUser(User $user, array $list): array
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $result      = [];
         $preferences = Preference::where('user_id', $user->id)->whereIn('name', $list)->get(['id', 'name', 'data']);
         /** @var Preference $preference */
@@ -120,7 +142,7 @@ class Preferences
     }
 
     /**
-     * @param \FireflyIII\User $user
+     * @param \FireflyIII\User|Authenticatable $user
      * @param string           $name
      * @param null|string      $default
      *
@@ -128,6 +150,9 @@ class Preferences
      */
     public function getForUser(User $user, string $name, $default = null): ?Preference
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s("%s") should NOT be called in the TEST environment!', __METHOD__, $name));
+        }
         $fullName = sprintf('preference%s%s', $user->id, $name);
         if (Cache::has($fullName)) {
             return Cache::get($fullName);
@@ -162,13 +187,16 @@ class Preferences
      */
     public function lastActivity(): string
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $lastActivity = microtime();
         $preference   = $this->get('lastActivity', microtime());
 
         if (null !== $preference && null !== $preference->data) {
             $lastActivity = $preference->data;
         }
-        if (\is_array($lastActivity)) {
+        if (is_array($lastActivity)) {
             $lastActivity = implode(',', $lastActivity);
         }
 

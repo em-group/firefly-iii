@@ -28,10 +28,14 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\ImportJob;
 use FireflyIII\Repositories\ImportJob\ImportJobRepositoryInterface;
 use FireflyIII\Support\Import\Routine\File\MappingConverger;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
+
 /**
  * Class MappingConvergerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class MappingConvergerTest extends TestCase
 {
@@ -41,7 +45,7 @@ class MappingConvergerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -131,7 +135,7 @@ class MappingConvergerTest extends TestCase
 
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'linerB' . random_int(1, 10000);
+        $job->key           = 'linerB' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'fake';

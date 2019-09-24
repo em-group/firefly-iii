@@ -29,6 +29,7 @@ use Log;
 
 /**
  * Class CurrencyDestroyService
+ * @codeCoverageIgnore
  */
 class CurrencyDestroyService
 {
@@ -38,7 +39,7 @@ class CurrencyDestroyService
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -49,7 +50,7 @@ class CurrencyDestroyService
     {
 
         try {
-            $currency->forceDelete();
+            $currency->delete();
         } catch (Exception $e) { // @codeCoverageIgnore
             Log::error(sprintf('Could not delete transaction currency: %s', $e->getMessage())); // @codeCoverageIgnore
         }

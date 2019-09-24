@@ -40,14 +40,14 @@ class TagTransformer extends AbstractTransformer
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
     /**
      * Transform a tag.
      *
-     * TODO add spent, earned, tranferred, etc.
+     * TODO add spent, earned, transferred, etc.
      *
      * @param Tag $tag
      *

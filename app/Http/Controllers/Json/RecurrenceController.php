@@ -42,6 +42,7 @@ class RecurrenceController extends Controller
 
     /**
      * RecurrenceController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -62,11 +63,9 @@ class RecurrenceController extends Controller
      *
      * @param Request $request
      *
-     * @throws FireflyException
      * @return JsonResponse
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     *
+     * @throws FireflyException
      */
     public function events(Request $request): JsonResponse
     {

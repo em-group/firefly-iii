@@ -32,24 +32,59 @@ class ChangesForV474 extends Migration
 {
     /**
      * Reverse the migrations.
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      *
      * @return void
      */
     public function down(): void
     {
+        // split up for sqlite compatibility.
         Schema::table(
             'import_jobs',
-            function (Blueprint $table) {
+            static function (Blueprint $table) {
 
                 // cannot drop foreign keys in SQLite:
                 if ('sqlite' !== config('database.default')) {
                     $table->dropForeign('import_jobs_tag_id_foreign');
                 }
+            }
+        );
 
+        Schema::table(
+            'import_jobs',
+            static function (Blueprint $table) {
                 $table->dropColumn('provider');
+
+            }
+        );
+
+        Schema::table(
+            'import_jobs',
+            static function (Blueprint $table) {
                 $table->dropColumn('stage');
+
+            }
+        );
+
+        Schema::table(
+            'import_jobs',
+            static function (Blueprint $table) {
                 $table->dropColumn('transactions');
+
+            }
+        );
+
+        Schema::table(
+            'import_jobs',
+            static function (Blueprint $table) {
                 $table->dropColumn('errors');
+
+            }
+        );
+
+        Schema::table(
+            'import_jobs',
+            static function (Blueprint $table) {
                 $table->dropColumn('tag_id');
 
             }
@@ -58,6 +93,7 @@ class ChangesForV474 extends Migration
 
     /**
      * Run the migrations.
+     * @SuppressWarnings(PHPMD.ShortMethodName)
      *
      * @return void
      */
@@ -65,7 +101,7 @@ class ChangesForV474 extends Migration
     {
         Schema::table(
             'import_jobs',
-            function (Blueprint $table) {
+            static function (Blueprint $table) {
                 $table->string('provider', 50)->after('file_type')->default('');
                 $table->string('stage', 50)->after('status')->default('');
                 $table->longText('transactions')->after('extended_status')->nullable();

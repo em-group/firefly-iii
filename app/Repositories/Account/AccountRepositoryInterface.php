@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\TransactionCurrency;
+use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
@@ -36,7 +37,6 @@ use Illuminate\Support\Collection;
  */
 interface AccountRepositoryInterface
 {
-
     /**
      * Moved here from account CRUD.
      *
@@ -55,6 +55,15 @@ interface AccountRepositoryInterface
      * @return bool
      */
     public function destroy(Account $account, ?Account $moveTo): bool;
+
+    /**
+     * Find account with same name OR same IBAN or both, but not the same type or ID.
+     *
+     * @param Collection $accounts
+     *
+     * @return Collection
+     */
+    public function expandWithDoubles(Collection $accounts): Collection;
 
     /**
      * Find by account number. Is used.
@@ -139,13 +148,6 @@ interface AccountRepositoryInterface
     public function getCashAccount(): Account;
 
     /**
-     * @param $account
-     *
-     * @return string
-     */
-    public function getInterestPerDay(Account $account): string;
-
-    /**
      * Return meta value for account. Null if not found.
      *
      * @param Account $account
@@ -163,6 +165,14 @@ interface AccountRepositoryInterface
      * @return null|string
      */
     public function getNoteText(Account $account): ?string;
+
+    /**
+     * @param Account $account
+     *
+     * @return TransactionJournal|null
+     *
+     */
+    public function getOpeningBalance(Account $account): ?TransactionJournal;
 
     /**
      * Returns the amount of the opening balance for this account.
@@ -185,6 +195,13 @@ interface AccountRepositoryInterface
     /**
      * @param Account $account
      *
+     * @return TransactionGroup|null
+     */
+    public function getOpeningBalanceGroup(Account $account): ?TransactionGroup;
+
+    /**
+     * @param Account $account
+     *
      * @return Collection
      */
     public function getPiggyBanks(Account $account): Collection;
@@ -198,12 +215,6 @@ interface AccountRepositoryInterface
      */
     public function getReconciliation(Account $account): ?Account;
 
-    /**
-     * @param Account $account
-     *
-     * @return bool
-     */
-    public function isAsset(Account $account): bool;
 
     /**
      * @param Account $account
@@ -212,23 +223,6 @@ interface AccountRepositoryInterface
      */
     public function isLiability(Account $account): bool;
 
-    /**
-     * Returns the date of the very first transaction in this account.
-     *
-     * @param Account $account
-     *
-     * @return TransactionJournal|null
-     */
-    public function latestJournal(Account $account): ?TransactionJournal;
-
-    /**
-     * Returns the date of the very last transaction in this account.
-     *
-     * @param Account $account
-     *
-     * @return Carbon|null
-     */
-    public function latestJournalDate(Account $account): ?Carbon;
 
     /**
      * Returns the date of the very first transaction in this account.

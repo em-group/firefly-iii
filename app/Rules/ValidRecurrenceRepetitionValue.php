@@ -31,6 +31,7 @@ use Log;
 
 /**
  * Class ValidRecurrenceRepetitionValue
+ * @codeCoverageIgnore
  */
 class ValidRecurrenceRepetitionValue implements Rule
 {
@@ -52,8 +53,7 @@ class ValidRecurrenceRepetitionValue implements Rule
      * @param  mixed  $value
      *
      * @return bool
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function passes($attribute, $value): bool
     {
@@ -103,12 +103,11 @@ class ValidRecurrenceRepetitionValue implements Rule
      *
      * @return bool
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function validateNdom(string $value): bool
     {
         $parameters = explode(',', substr($value, 5));
-        if (2 !== \count($parameters)) {
+        if (2 !== count($parameters)) {
             return false;
         }
         $nthDay    = (int)($parameters[0] ?? 0.0);

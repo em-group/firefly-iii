@@ -33,11 +33,15 @@ use FireflyIII\Support\Import\JobConfiguration\File\ConfigureRolesHandler;
 use FireflyIII\Support\Import\JobConfiguration\File\ConfigureUploadHandler;
 use FireflyIII\Support\Import\JobConfiguration\File\NewFileJobHandler;
 use Illuminate\Support\MessageBag;
+use Log;
 use Mockery;
 use Tests\TestCase;
-use Log;
+
 /**
  * Class FileJobConfigurationTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class FileJobConfigurationTest extends TestCase
 {
@@ -47,7 +51,7 @@ class FileJobConfigurationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -62,7 +66,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'File_A_unit_' . random_int(1, 10000);
+        $job->key           = 'File_A_unit_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'fake';
@@ -87,7 +91,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'File_B_unit_' . random_int(1, 10000);
+        $job->key           = 'File_B_unit_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'ready_to_run';
         $job->provider      = 'fake';
@@ -112,7 +116,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'I-Cfile_' . random_int(1, 10000);
+        $job->key           = 'I-Cfile_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'map';
         $job->provider      = 'file';
@@ -149,7 +153,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'G-Dfile_' . random_int(1, 10000);
+        $job->key           = 'G-Dfile_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'configure-upload';
         $job->provider      = 'file';
@@ -184,7 +188,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'H-Efile_' . random_int(1, 10000);
+        $job->key           = 'H-Efile_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'map';
         $job->provider      = 'file';
@@ -219,7 +223,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'F-fFile_' . random_int(1, 10000);
+        $job->key           = 'F-fFile_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'file';
@@ -254,7 +258,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'H-fiGle_' . random_int(1, 10000);
+        $job->key           = 'H-fiGle_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'roles';
         $job->provider      = 'file';
@@ -289,7 +293,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'DfiHle_' . random_int(1, 10000);
+        $job->key           = 'DfiHle_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'configure-upload';
         $job->provider      = 'file';
@@ -319,7 +323,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'FfilIe_' . random_int(1, 10000);
+        $job->key           = 'FfilIe_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'map';
         $job->provider      = 'file';
@@ -349,7 +353,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'CfJile_' . random_int(1, 10000);
+        $job->key           = 'CfJile_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'file';
@@ -379,7 +383,7 @@ class FileJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once()->atLeast();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'EfiKle_' . random_int(1, 10000);
+        $job->key           = 'EfiKle_' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'roles';
         $job->provider      = 'file';

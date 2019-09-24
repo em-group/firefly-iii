@@ -26,10 +26,14 @@ use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\TransactionRules\Actions\ClearCategory;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
+
 /**
  * Class ClearCategoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ClearCategoryTest extends TestCase
 {
@@ -39,7 +43,7 @@ class ClearCategoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -48,8 +52,8 @@ class ClearCategoryTest extends TestCase
     public function testAct(): void
     {
         // associate budget with journal:
-        $journal  = TransactionJournal::inRandomOrder()->whereNull('deleted_at')->first();
-        $category = $journal->user->categories()->first();
+        $journal  = $this->getRandomWithdrawal();
+        $category = $this->getRandomCategory();;
         $journal->categories()->save($category);
         $this->assertGreaterThan(0, $journal->categories()->count());
 

@@ -25,14 +25,17 @@ namespace Tests\Unit\Middleware;
 
 use FireflyIII\Http\Middleware\IsAdmin;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
+use Log;
 use Mockery;
 use Route;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
-use Log;
 
 /**
  * Class IsAdminTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class IsAdminTest extends TestCase
 {
@@ -42,7 +45,7 @@ class IsAdminTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
         Route::middleware(IsAdmin::class)->any(
             '/_test/is-admin', function () {
             return 'OK';

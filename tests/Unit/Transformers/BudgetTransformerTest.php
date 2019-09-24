@@ -34,6 +34,9 @@ use Tests\TestCase;
 
 /**
  * Class BudgetTransformerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BudgetTransformerTest extends TestCase
 {
@@ -43,8 +46,9 @@ class BudgetTransformerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
+
     /**
      * Basic coverage
      *

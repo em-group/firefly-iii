@@ -32,12 +32,16 @@ use FireflyIII\Repositories\ImportJob\ImportJobRepositoryInterface;
 use FireflyIII\Services\Spectre\Object\Token;
 use FireflyIII\Services\Spectre\Request\CreateTokenRequest;
 use FireflyIII\Support\Import\JobConfiguration\Spectre\DoAuthenticateHandler;
+use Log;
 use Mockery;
 use Preferences;
 use Tests\TestCase;
-use Log;
+
 /**
  * Class DoAuthenticateHandlerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class DoAuthenticateHandlerTest extends TestCase
 {
@@ -47,7 +51,7 @@ class DoAuthenticateHandlerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -61,7 +65,7 @@ class DoAuthenticateHandlerTest extends TestCase
 
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'sda-A' . random_int(1, 10000);
+        $job->key           = 'sda-A' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'spectre';

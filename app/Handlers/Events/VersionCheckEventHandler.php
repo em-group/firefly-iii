@@ -25,7 +25,6 @@ declare(strict_types=1);
 namespace FireflyIII\Handlers\Events;
 
 
-use FireflyConfig;
 use FireflyIII\Events\RequestedVersionCheckStatus;
 use FireflyIII\Helpers\Update\UpdateTrait;
 use FireflyIII\Models\Configuration;
@@ -44,9 +43,6 @@ class VersionCheckEventHandler
     /**
      * Checks with GitHub to see if there is a new version.
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      * @param RequestedVersionCheckStatus $event
      */
     public function checkForUpdates(RequestedVersionCheckStatus $event): void
@@ -71,7 +67,7 @@ class VersionCheckEventHandler
         }
 
         /** @var Configuration $lastCheckTime */
-        $lastCheckTime = FireflyConfig::get('last_update_check', time());
+        $lastCheckTime = app('fireflyconfig')->get('last_update_check', time());
         $now           = time();
         $diff          = $now - $lastCheckTime->data;
         Log::debug(sprintf('Last check time is %d, current time is %d, difference is %d', $lastCheckTime->data, $now, $diff));
@@ -90,6 +86,6 @@ class VersionCheckEventHandler
             // flash info
             session()->flash('info', $resultString);
         }
-        FireflyConfig::set('last_update_check', time());
+        app('fireflyconfig')->set('last_update_check', time());
     }
 }

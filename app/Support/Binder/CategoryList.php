@@ -38,13 +38,13 @@ class CategoryList implements BinderInterface
      *
      * @return Collection
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public static function routeBinder(string $value, Route $route): Collection
     {
         if (auth()->check()) {
             $list = array_unique(array_map('\intval', explode(',', $value)));
-            if (0 === \count($list)) {
+            if (0 === count($list)) {
                 throw new NotFoundHttpException; // @codeCoverageIgnore
             }
 
@@ -54,7 +54,7 @@ class CategoryList implements BinderInterface
                                 ->get();
 
             // add empty category if applicable.
-            if (\in_array(0, $list, true)) {
+            if (in_array(0, $list, true)) {
                 $collection->push(new Category);
             }
 

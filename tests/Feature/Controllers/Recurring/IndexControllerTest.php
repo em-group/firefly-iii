@@ -23,8 +23,10 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Controllers\Recurring;
 
+use FireflyConfig;
 use FireflyIII\Factory\CategoryFactory;
 use FireflyIII\Models\Configuration;
+use FireflyIII\Models\Preference;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
@@ -32,11 +34,15 @@ use FireflyIII\Transformers\RecurrenceTransformer;
 use Illuminate\Support\Collection;
 use Log;
 use Mockery;
+use Preferences;
 use Tests\TestCase;
 
 /**
  *
  * Class IndexControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class IndexControllerTest extends TestCase
 {
@@ -46,7 +52,7 @@ class IndexControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -61,13 +67,22 @@ class IndexControllerTest extends TestCase
         $categoryFactory = $this->mock(CategoryFactory::class);
         $transformer     = $this->mock(RecurrenceTransformer::class);
 
+        // mock calls
+        $pref       = new Preference;
+        $pref->data = 50;
+        Preferences::shouldReceive('get')->withArgs(['listPageSize', 50])->atLeast()->once()->andReturn($pref);
+
+        $repository->shouldReceive('getOccurrencesInRange')->atLeast()->once()->andReturn([]);
+
+        $this->mockDefaultSession();
+
         $transformer->shouldReceive('setParameters')->atLeast()->once();
         $transformer->shouldReceive('transform')->atLeast()->once()->andReturn(
             [
-                'id' => 5,
-                'first_date' => '2018-01-01',
-                'repeat_until' =>null,
-                'latest_date' => null,
+                'id'           => 5,
+                'first_date'   => '2018-01-01',
+                'repeat_until' => null,
+                'latest_date'  => null,
             ]
         );
 
@@ -82,8 +97,7 @@ class IndexControllerTest extends TestCase
         $collection = $this->user()->recurrences()->take(2)->get();
 
         // mock cron job config:
-        \FireflyConfig::shouldReceive('get')->withArgs(['last_rt_job', 0])->once()->andReturn($config);
-        \FireflyConfig::shouldReceive('get')->withArgs(['is_demo_site', false])->once()->andReturn($falseConfig);
+        FireflyConfig::shouldReceive('get')->withArgs(['last_rt_job', 0])->once()->andReturn($config);
 
         $repository->shouldReceive('get')->andReturn($collection)->once();
 
@@ -94,36 +108,63 @@ class IndexControllerTest extends TestCase
         $response->assertSee('<ol class="breadcrumb">');
     }
 
-    public function testShow(): void
+
+    /**
+     * The last time the recurring job fired it was a long time ago.
+     *
+     * @covers \FireflyIII\Http\Controllers\Recurring\IndexController
+     */
+    public function testIndexLongAgo(): void
     {
+
         $repository      = $this->mock(RecurringRepositoryInterface::class);
         $budgetRepos     = $this->mock(BudgetRepositoryInterface::class);
         $userRepos       = $this->mock(UserRepositoryInterface::class);
         $categoryFactory = $this->mock(CategoryFactory::class);
         $transformer     = $this->mock(RecurrenceTransformer::class);
 
+        // mock calls
+        $pref       = new Preference;
+        $pref->data = 50;
+        Preferences::shouldReceive('get')->withArgs(['listPageSize', 50])->atLeast()->once()->andReturn($pref);
+
+        $repository->shouldReceive('getOccurrencesInRange')->atLeast()->once()->andReturn([]);
+
+        $this->mockDefaultSession();
+
         $transformer->shouldReceive('setParameters')->atLeast()->once();
         $transformer->shouldReceive('transform')->atLeast()->once()->andReturn(
             [
-                'id' => 5,
-                'first_date' => '2018-01-01',
-                'repeat_until' =>null,
-                'latest_date' => null,
-                'recurrence_repetitions' => [],
+                'id'           => 5,
+                'first_date'   => '2018-01-01',
+                'repeat_until' => null,
+                'latest_date'  => null,
             ]
         );
 
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
 
-        $recurrence = $this->user()->recurrences()->first();
-        $repository->shouldReceive('setUser');
-        $repository->shouldReceive('getTransactions')->andReturn(new Collection)->atLeast()->once();
+        $config       = new Configuration;
+        $config->data = 1;
+
+        $falseConfig       = new Configuration;
+        $falseConfig->data = false;
+
+        $collection = $this->user()->recurrences()->take(2)->get();
+
+        // mock cron job config:
+        FireflyConfig::shouldReceive('get')->withArgs(['last_rt_job', 0])->once()->andReturn($config);
+
+        $repository->shouldReceive('get')->andReturn($collection)->once();
+
 
         $this->be($this->user());
-        $response = $this->get(route('recurring.show', [$recurrence->id]));
+        $response = $this->get(route('recurring.index'));
         $response->assertStatus(200);
         $response->assertSee('<ol class="breadcrumb">');
+        $response->assertSessionHas('warning');
     }
+
 
 
 }

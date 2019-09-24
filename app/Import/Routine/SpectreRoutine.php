@@ -49,14 +49,12 @@ class SpectreRoutine implements RoutineInterface
      *
      * @throws FireflyException
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function run(): void
     {
         Log::debug(sprintf('Now in SpectreRoutine::run() with status "%s" and stage "%s".', $this->importJob->status, $this->importJob->stage));
         $valid = ['ready_to_run']; // should be only ready_to_run
-        if (\in_array($this->importJob->status, $valid, true)) {
+        if (in_array($this->importJob->status, $valid, true)) {
             switch ($this->importJob->stage) {
                 default:
                     throw new FireflyException(sprintf('SpectreRoutine cannot handle stage "%s".', $this->importJob->stage)); // @codeCoverageIgnore

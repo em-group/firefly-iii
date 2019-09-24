@@ -46,18 +46,7 @@ class AttachmentHelperTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
-    }
-
-    /**
-     * @covers  \FireflyIII\Helpers\Attachments\AttachmentHelper
-     */
-    public function testGetAttachmentLocation(): void
-    {
-        $attachment = Attachment::first();
-        $helper     = new AttachmentHelper;
-        $path       = $path = sprintf('%sat-%d.data', DIRECTORY_SEPARATOR, (int)$attachment->id);
-        $this->assertEquals($helper->getAttachmentLocation($attachment), $path);
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -72,6 +61,7 @@ class AttachmentHelperTest extends TestCase
         $path    = resource_path('stubs/binary.bin');
         $file    = new UploadedFile($path, 'binary.bin', 'application/octet-stream', filesize($path), null, true);
 
+        Log::warning('The following error is part of a test.');
         $helper->saveAttachmentsForModel($journal, [$file]);
         $errors   = $helper->getErrors();
         $messages = $helper->getMessages();
@@ -102,7 +92,7 @@ class AttachmentHelperTest extends TestCase
 
         $this->assertCount(0, $errors);
         $this->assertCount(1, $messages);
-        $this->assertEquals('Succesfully uploaded file "apple-touch-icon.png".', $messages->first());
+        $this->assertEquals('Successfully uploaded file "apple-touch-icon.png".', $messages->first());
 
         // Assert the file was stored...
         Storage::disk('upload')->assertExists(sprintf('at-%d.data', $attachments->first()->id));
@@ -114,7 +104,6 @@ class AttachmentHelperTest extends TestCase
     public function testSaveAttachmentFromApi(): void
     {
         // mock calls:
-        Crypt::shouldReceive('encrypt')->times(1)->andReturn('Some encrypted content');
         Storage::fake('upload');
 
         $path   = public_path('apple-touch-icon.png');
@@ -127,7 +116,7 @@ class AttachmentHelperTest extends TestCase
                 'attachable_id'   => $journal->id,
                 'user_id'         => $this->user()->id,
                 'attachable_type' => TransactionJournal::class,
-                'md5'             => md5('Hello' . random_int(1, 10000)),
+                'md5'             => md5('Hello' . $this->randomInt()),
                 'filename'        => 'file.txt',
                 'title'           => 'Some title',
                 'description'     => 'Some descr',
@@ -162,7 +151,7 @@ class AttachmentHelperTest extends TestCase
                 'attachable_id'   => $journal->id,
                 'user_id'         => $this->user()->id,
                 'attachable_type' => TransactionJournal::class,
-                'md5'             => md5('Hello' . random_int(1, 10000)),
+                'md5'             => md5('Hello' . $this->randomInt()),
                 'filename'        => 'file.txt',
                 'title'           => 'Some title',
                 'description'     => 'Some descr',
@@ -173,6 +162,7 @@ class AttachmentHelperTest extends TestCase
         );
 
         // call helper
+        Log::warning('The following error is part of a test.');
         $result = $helper->saveAttachmentFromApi($attachment, file_get_contents($path));
 
         $this->assertFalse($result);
@@ -206,6 +196,7 @@ class AttachmentHelperTest extends TestCase
         $path    = public_path('apple-touch-icon.png');
         $file    = new UploadedFile($path, 'apple-touch-icon.png', 'image/png', filesize($path), null, true);
 
+        Log::warning('The following error is part of a test.');
         $helper->saveAttachmentsForModel($journal, [$file]);
         $errors   = $helper->getErrors();
         $messages = $helper->getMessages();

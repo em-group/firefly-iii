@@ -25,18 +25,20 @@ namespace tests\Feature\Controllers\Rule;
 
 
 use FireflyIII\Models\Rule;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
-use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Log;
 use Mockery;
+use Preferences;
 use Tests\TestCase;
 
 /**
  * Class CreateControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class CreateControllerTest extends TestCase
 {
@@ -46,7 +48,7 @@ class CreateControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -56,12 +58,13 @@ class CreateControllerTest extends TestCase
     public function testCreate(): void
     {
         // mock stuff
-        $journalRepos   = $this->mock(JournalRepositoryInterface::class);
         $billRepos      = $this->mock(BillRepositoryInterface::class);
         $ruleRepos      = $this->mock(RuleRepositoryInterface::class);
         $ruleGroupRepos = $this->mock(RuleGroupRepositoryInterface::class);
         $userRepos      = $this->mock(UserRepositoryInterface::class);
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
+
+        $this->mockDefaultSession();
+        $this->mockIntroPreference('shown_demo_rules_create');
 
         $ruleGroupRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
         $ruleRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
@@ -80,17 +83,17 @@ class CreateControllerTest extends TestCase
     public function testCreateFromBill(): void
     {
         // mock stuff
-        $journalRepos   = $this->mock(JournalRepositoryInterface::class);
         $billRepos      = $this->mock(BillRepositoryInterface::class);
         $ruleRepos      = $this->mock(RuleRepositoryInterface::class);
         $ruleGroupRepos = $this->mock(RuleGroupRepositoryInterface::class);
         $userRepos      = $this->mock(UserRepositoryInterface::class);
 
+        $this->mockDefaultSession();
+
         $ruleGroupRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
         $ruleRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
 
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
 
         $this->be($this->user());
         $response = $this->get(route('rules.create-from-bill', [1, 1]));
@@ -114,16 +117,16 @@ class CreateControllerTest extends TestCase
         $this->session(['_old_input' => $old]);
 
         // mock stuff
-        $journalRepos   = $this->mock(JournalRepositoryInterface::class);
         $ruleRepos      = $this->mock(RuleRepositoryInterface::class);
         $ruleGroupRepos = $this->mock(RuleGroupRepositoryInterface::class);
         $userRepos      = $this->mock(UserRepositoryInterface::class);
 
+        $this->mockDefaultSession();
+        $this->mockIntroPreference('shown_demo_rules_create');
+
         $ruleGroupRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
         $ruleRepos->shouldReceive('count')->atLeast()->once()->andReturn(1);
         $userRepos->shouldReceive('hasRole')->withArgs([Mockery::any(), 'owner'])->atLeast()->once()->andReturn(true);
-
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
 
         $this->be($this->user());
         $response = $this->get(route('rules.create', [1]));
@@ -139,12 +142,13 @@ class CreateControllerTest extends TestCase
     {
         // mock stuff
         $repository     = $this->mock(RuleRepositoryInterface::class);
-        $journalRepos   = $this->mock(JournalRepositoryInterface::class);
-        $ruleGroupRepos = $this->mock(RuleGroupRepositoryInterface::class);
-        $userRepos      = $this->mock(UserRepositoryInterface::class);
+        $this->mock(RuleGroupRepositoryInterface::class);
+        $this->mock(UserRepositoryInterface::class);
+
+        $this->mockDefaultSession();
+        Preferences::shouldReceive('mark')->atLeast()->once();
 
 
-        $journalRepos->shouldReceive('firstNull')->once()->andReturn(new TransactionJournal);
         $repository->shouldReceive('store')->andReturn(new Rule);
 
         $this->session(['rules.create.uri' => 'http://localhost']);
@@ -154,7 +158,7 @@ class CreateControllerTest extends TestCase
             'title'         => 'A',
             'trigger'       => 'store-journal',
             'description'   => 'D',
-            'rule_triggers' => [
+            'triggers' => [
                 [
                     'type'            => 'description_is',
                     'value'           => 'A',
@@ -162,7 +166,7 @@ class CreateControllerTest extends TestCase
 
                 ],
             ],
-            'rule_actions'  => [
+            'actions'  => [
                 [
                     'type'            => 'set_category',
                     'value'           => 'C',

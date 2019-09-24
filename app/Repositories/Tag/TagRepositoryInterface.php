@@ -60,9 +60,9 @@ interface TagRepositoryInterface
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @return Collection
+     * @return array
      */
-    public function expenseInPeriod(Tag $tag, Carbon $start, Carbon $end): Collection;
+    public function expenseInPeriod(Tag $tag, Carbon $start, Carbon $end): array;
 
     /**
      * @param string $tag
@@ -70,6 +70,14 @@ interface TagRepositoryInterface
      * @return Tag|null
      */
     public function findByTag(string $tag): ?Tag;
+
+    /**
+     * Find one or more tags based on the query.
+     * @param string $query
+     *
+     * @return Collection
+     */
+    public function searchTag(string $query): Collection;
 
     /**
      * @param int $tagId
@@ -97,9 +105,9 @@ interface TagRepositoryInterface
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @return Collection
+     * @return array
      */
-    public function incomeInPeriod(Tag $tag, Carbon $start, Carbon $end): Collection;
+    public function incomeInPeriod(Tag $tag, Carbon $start, Carbon $end): array;
 
     /**
      * @param Tag $tag
@@ -121,6 +129,15 @@ interface TagRepositoryInterface
      * @return Tag|null
      */
     public function oldestTag(): ?Tag;
+
+    /**
+     * Search the users tags.
+     *
+     * @param string $query
+     *
+     * @return Collection
+     */
+    public function searchTags(string $query): Collection;
 
     /**
      * @param User $user
@@ -170,9 +187,9 @@ interface TagRepositoryInterface
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @return Collection
+     * @return array
      */
-    public function transferredInPeriod(Tag $tag, Carbon $start, Carbon $end): Collection;
+    public function transferredInPeriod(Tag $tag, Carbon $start, Carbon $end): array;
 
     /**
      * Update a tag.

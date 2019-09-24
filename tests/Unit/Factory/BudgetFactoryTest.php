@@ -30,6 +30,9 @@ use Tests\TestCase;
 
 /**
  * Class BudgetFactoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class BudgetFactoryTest extends TestCase
 {
@@ -40,7 +43,7 @@ class BudgetFactoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -102,7 +105,7 @@ class BudgetFactoryTest extends TestCase
         /** @var BudgetFactory $factory */
         $factory = app(BudgetFactory::class);
         $factory->setUser($this->user());
-        $this->assertNull($factory->find(null, 'I dont exist.' . random_int(1, 10000)));
+        $this->assertNull($factory->find(null, sprintf('I dont exist %d', $this->randomInt())));
     }
 
 }

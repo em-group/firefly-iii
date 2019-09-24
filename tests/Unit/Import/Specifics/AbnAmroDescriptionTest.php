@@ -25,11 +25,14 @@ namespace Tests\Unit\Import\Specifics;
 
 
 use FireflyIII\Import\Specifics\AbnAmroDescription;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class AbnAmroDescriptionTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AbnAmroDescriptionTest extends TestCase
 {
@@ -39,7 +42,7 @@ class AbnAmroDescriptionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 

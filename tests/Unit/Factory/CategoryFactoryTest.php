@@ -29,6 +29,9 @@ use Tests\TestCase;
 
 /**
  * Class CategoryFactoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class CategoryFactoryTest extends TestCase
 {
@@ -39,7 +42,7 @@ class CategoryFactoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -91,7 +94,7 @@ class CategoryFactoryTest extends TestCase
      */
     public function testFindOrCreateNewName(): void
     {
-        $name = 'Some new category #' . random_int(1, 10000);
+        $name = sprintf('Some new category #%d', $this->randomInt());
 
         /** @var CategoryFactory $factory */
         $factory = app(CategoryFactory::class);

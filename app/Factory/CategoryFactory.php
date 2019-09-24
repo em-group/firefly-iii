@@ -26,7 +26,6 @@ namespace FireflyIII\Factory;
 
 use FireflyIII\Models\Category;
 use FireflyIII\User;
-use Illuminate\Support\Collection;
 use Log;
 
 /**
@@ -39,11 +38,12 @@ class CategoryFactory
 
     /**
      * Constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -54,18 +54,7 @@ class CategoryFactory
      */
     public function findByName(string $name): ?Category
     {
-        $result = null;
-        /** @var Collection $collection */
-        $collection = $this->user->categories()->get();
-        /** @var Category $category */
-        foreach ($collection as $category) {
-            if ($category->name === $name) {
-                $result = $category;
-                break;
-            }
-        }
-
-        return $result;
+        return $this->user->categories()->where('name', $name)->first();
     }
 
     /**
@@ -73,7 +62,7 @@ class CategoryFactory
      * @param null|string $categoryName
      *
      * @return Category|null
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function findOrCreate(?int $categoryId, ?string $categoryName): ?Category
     {

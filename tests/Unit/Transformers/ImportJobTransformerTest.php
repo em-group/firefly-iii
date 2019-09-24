@@ -33,6 +33,9 @@ use Tests\TestCase;
 /**
  *
  * Class ImportJobTransformerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ImportJobTransformerTest extends TestCase
 {
@@ -42,7 +45,7 @@ class ImportJobTransformerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**

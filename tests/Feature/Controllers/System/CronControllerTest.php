@@ -30,11 +30,15 @@ use FireflyIII\Support\Cronjobs\RecurringCronjob;
 use Illuminate\Support\Collection;
 use Log;
 use Mockery;
+use Preferences;
 use Tests\TestCase;
 
 /**
  *
  * Class CronControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class CronControllerTest extends TestCase
 {
@@ -45,7 +49,7 @@ class CronControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -61,7 +65,7 @@ class CronControllerTest extends TestCase
         $job->shouldReceive('fire')->once()->andReturn(true);
         $repository = $this->mock(UserRepositoryInterface::class);
         $repository->shouldReceive('all')->andReturn($users);
-        \Preferences::shouldReceive('getForUser')
+        Preferences::shouldReceive('getForUser')
                     ->withArgs([Mockery::any(), 'access_token', null])
                     ->andReturn($preference)->once();
         $response = $this->get(route('cron.cron', ['token']));
@@ -83,7 +87,7 @@ class CronControllerTest extends TestCase
         $job->shouldReceive('fire')->once()->andThrow(new FireflyException('Exception noted.'));
         $repository = $this->mock(UserRepositoryInterface::class);
         $repository->shouldReceive('all')->andReturn($users);
-        \Preferences::shouldReceive('getForUser')
+        Preferences::shouldReceive('getForUser')
                     ->withArgs([Mockery::any(), 'access_token', null])
                     ->andReturn($preference)->once();
         $response = $this->get(route('cron.cron', ['token']));
@@ -105,7 +109,7 @@ class CronControllerTest extends TestCase
         $job->shouldReceive('fire')->once()->andReturn(false);
         $repository = $this->mock(UserRepositoryInterface::class);
         $repository->shouldReceive('all')->andReturn($users);
-        \Preferences::shouldReceive('getForUser')
+        Preferences::shouldReceive('getForUser')
                     ->withArgs([Mockery::any(), 'access_token', null])
                     ->andReturn($preference)->once();
         $response = $this->get(route('cron.cron', ['token']));

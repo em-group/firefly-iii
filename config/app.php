@@ -19,7 +19,10 @@
  * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 declare(strict_types=1);
+
+use FireflyIII\Providers\ImportServiceProvider;
 
 
 return [
@@ -87,7 +90,6 @@ return [
         FireflyIII\Providers\BudgetServiceProvider::class,
         FireflyIII\Providers\CategoryServiceProvider::class,
         FireflyIII\Providers\CurrencyServiceProvider::class,
-        FireflyIII\Providers\ExportJobServiceProvider::class,
         FireflyIII\Providers\FireflyServiceProvider::class,
         FireflyIII\Providers\JournalServiceProvider::class,
         FireflyIII\Providers\PiggyBankServiceProvider::class,
@@ -100,6 +102,7 @@ return [
         FireflyIII\Providers\WhitelabelServiceProvider::class,
 
 
+        ImportServiceProvider::class,
     ],
     'aliases'         => [
         'App'           => Illuminate\Support\Facades\App::class,
@@ -144,6 +147,10 @@ return [
         'Amount'        => \FireflyIII\Support\Facades\Amount::class,
         'Steam'         => \FireflyIII\Support\Facades\Steam::class,
         'ExpandedForm'  => \FireflyIII\Support\Facades\ExpandedForm::class,
+        'CurrencyForm'  => \FireflyIII\Support\Facades\CurrencyForm::class,
+        'AccountForm'   => \FireflyIII\Support\Facades\AccountForm::class,
+        'PiggyBankForm' => \FireflyIII\Support\Facades\PiggyBankForm::class,
+        'RuleForm'      => \FireflyIII\Support\Facades\RuleForm::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
         'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class
 

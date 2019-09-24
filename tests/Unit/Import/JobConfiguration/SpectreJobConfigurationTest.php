@@ -33,11 +33,14 @@ use FireflyIII\Support\Import\JobConfiguration\Spectre\ChooseLoginHandler;
 use FireflyIII\Support\Import\JobConfiguration\Spectre\DoAuthenticateHandler;
 use FireflyIII\Support\Import\JobConfiguration\Spectre\NewSpectreJobHandler;
 use Illuminate\Support\MessageBag;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class SpectreJobConfigurationTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class SpectreJobConfigurationTest extends TestCase
 {
@@ -47,7 +50,7 @@ class SpectreJobConfigurationTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -60,7 +63,7 @@ class SpectreJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'spectre_jc_A' . random_int(1, 10000);
+        $job->key           = 'spectre_jc_A' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'new';
         $job->provider      = 'spectre';
@@ -91,7 +94,7 @@ class SpectreJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'spectre_jc_B' . random_int(1, 10000);
+        $job->key           = 'spectre_jc_B' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'do-authenticate';
         $job->provider      = 'spectre';
@@ -125,7 +128,7 @@ class SpectreJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'spectre_jc_C' . random_int(1, 10000);
+        $job->key           = 'spectre_jc_C' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'choose-login';
         $job->provider      = 'spectre';
@@ -157,7 +160,7 @@ class SpectreJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'spectre_jc_D' . random_int(1, 10000);
+        $job->key           = 'spectre_jc_D' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'authenticated';
         $job->provider      = 'spectre';
@@ -188,7 +191,7 @@ class SpectreJobConfigurationTest extends TestCase
         $jobRepos->shouldReceive('setUser')->once();
         $job                = new ImportJob;
         $job->user_id       = $this->user()->id;
-        $job->key           = 'spectre_jc_E' . random_int(1, 10000);
+        $job->key           = 'spectre_jc_E' . $this->randomInt();
         $job->status        = 'new';
         $job->stage         = 'choose-accounts';
         $job->provider      = 'spectre';

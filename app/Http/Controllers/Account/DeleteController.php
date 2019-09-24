@@ -27,6 +27,7 @@ namespace FireflyIII\Http\Controllers\Account;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Account;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
+use FireflyIII\Support\Http\Controllers\UserNavigation;
 use Illuminate\Http\Request;
 
 /**
@@ -34,11 +35,14 @@ use Illuminate\Http\Request;
  */
 class DeleteController extends Controller
 {
+    use UserNavigation;
+
     /** @var AccountRepositoryInterface The account repository */
     private $repository;
 
     /**
      * DeleteController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -66,16 +70,20 @@ class DeleteController extends Controller
      */
     public function delete(Account $account)
     {
-        $typeName    = config('firefly.shortNamesByFullName.' . $account->accountType->type);
-        $subTitle    = (string)trans('firefly.delete_' . $typeName . '_account', ['name' => $account->name]);
+        if (!$this->isEditableAccount($account)) {
+            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+        }
+
+        $typeName    = config(sprintf('firefly.shortNamesByFullName.%s', $account->accountType->type));
+        $subTitle    = (string)trans(sprintf('firefly.delete_%s_account', $typeName), ['name' => $account->name]);
         $accountList = app('expandedform')->makeSelectListWithEmpty($this->repository->getAccountsByType([$account->accountType->type]));
-        $what        = $typeName;
+        $objectType  = $typeName;
         unset($accountList[$account->id]);
 
         // put previous url in session
         $this->rememberPreviousUri('accounts.delete.uri');
 
-        return view('accounts.delete', compact('account', 'subTitle', 'accountList', 'what'));
+        return view('accounts.delete', compact('account', 'subTitle', 'accountList', 'objectType'));
     }
 
     /**
@@ -88,14 +96,18 @@ class DeleteController extends Controller
      */
     public function destroy(Request $request, Account $account)
     {
+        if (!$this->isEditableAccount($account)) {
+            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+        }
+
         $type     = $account->accountType->type;
-        $typeName = config('firefly.shortNamesByFullName.' . $type);
+        $typeName = config(sprintf('firefly.shortNamesByFullName.%s', $type));
         $name     = $account->name;
         $moveTo   = $this->repository->findNull((int)$request->get('move_account_before_delete'));
 
         $this->repository->destroy($account, $moveTo);
 
-        $request->session()->flash('success', (string)trans('firefly.' . $typeName . '_deleted', ['name' => $name]));
+        $request->session()->flash('success', (string)trans(sprintf('firefly.%s_deleted', $typeName), ['name' => $name]));
         app('preferences')->mark();
 
         return redirect($this->getPreviousUri('accounts.delete.uri'));

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Transformers;
 
+use Amount;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
@@ -33,10 +34,12 @@ use Log;
 use Mockery;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Tests\TestCase;
-use Amount;
 
 /**
  * Class PiggyBankTransformerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class PiggyBankTransformerTest extends TestCase
 {
@@ -46,7 +49,7 @@ class PiggyBankTransformerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -68,7 +71,7 @@ class PiggyBankTransformerTest extends TestCase
 
         // return a currency
         $accountRepos->shouldReceive('getMetaValue')->withArgs([Mockery::any(), 'currency_id'])->atLeast()->once()->andReturn('1');
-        $currencyRepos->shouldReceive('findNull')->withArgs([1])->atLeast()->once()->andReturn(TransactionCurrency::find(1));
+        $currencyRepos->shouldReceive('findNull')->withArgs([1])->atLeast()->once()->andReturn($this->getEuro());
 
         // get a note
         $piggyRepos->shouldReceive('getNoteText')->atLeast()->once()->andReturn('I am a note.');
@@ -109,7 +112,7 @@ class PiggyBankTransformerTest extends TestCase
         // return a currency
         $accountRepos->shouldReceive('getMetaValue')->withArgs([Mockery::any(), 'currency_id'])->atLeast()->once()->andReturn('1');
         $currencyRepos->shouldReceive('findNull')->withArgs([1])->atLeast()->once()->andReturn(null);
-        Amount::shouldReceive('getDefaultCurrencyByUser')->atLeast()->once()->andReturn(TransactionCurrency::find(1));
+        Amount::shouldReceive('getDefaultCurrencyByUser')->atLeast()->once()->andReturn($this->getEuro());
 
         // get a note
         $piggyRepos->shouldReceive('getNoteText')->atLeast()->once()->andReturn('I am a note.');

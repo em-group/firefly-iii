@@ -24,18 +24,17 @@ declare(strict_types=1);
 namespace Tests\Unit\Transformers;
 
 
-use Carbon\Carbon;
-use FireflyIII\Models\Transaction;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Transformers\TransactionLinkTransformer;
-use FireflyIII\Transformers\TransactionTransformer;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Tests\TestCase;
 
 /**
  * Class TransactionLinkTransformerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class TransactionLinkTransformerTest extends TestCase
 {

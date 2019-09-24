@@ -24,25 +24,22 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers;
 
-use FireflyIII\Api\V1\Requests\UserRequest;
+use FireflyIII\Api\V1\Requests\UserStoreRequest;
+use FireflyIII\Api\V1\Requests\UserUpdateRequest;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\Transformers\UserTransformer;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use League\Fractal\Manager;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Resource\Item;
-use League\Fractal\Serializer\JsonApiSerializer;
 
 
 /**
  * Class UserController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UserController extends Controller
 {
@@ -52,6 +49,8 @@ class UserController extends Controller
 
     /**
      * UserController constructor.
+     *
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -69,10 +68,11 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \FireflyIII\User $user
+     * @param User $user
      *
      * @return JsonResponse
      * @throws FireflyException
+     * @codeCoverageIgnore
      */
     public function delete(User $user): JsonResponse
     {
@@ -89,19 +89,14 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param Request $request
-     *
      * @return JsonResponse
+     * @codeCoverageIgnore
      */
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         // user preferences
         $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
-
-        // make manager
-        $manager = new Manager();
-        $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
+        $manager  = $this->getManager();
 
         // build collection
         $collection = $this->repository->all();
@@ -126,18 +121,15 @@ class UserController extends Controller
     /**
      * Show a single user.
      *
-     * @param Request $request
-     * @param User    $user
+     * @param User $user
      *
      * @return JsonResponse
+     * @codeCoverageIgnore
      */
-    public function show(Request $request, User $user): JsonResponse
+    public function show(User $user): JsonResponse
     {
         // make manager
-        $manager = new Manager();
-        $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
-
+        $manager = $this->getManager();
         // make resource
         /** @var UserTransformer $transformer */
         $transformer = app(UserTransformer::class);
@@ -151,19 +143,15 @@ class UserController extends Controller
     /**
      * Store a new user.
      *
-     * @param UserRequest $request
+     * @param UserStoreRequest $request
      *
      * @return JsonResponse
      */
-    public function store(UserRequest $request): JsonResponse
+    public function store(UserStoreRequest $request): JsonResponse
     {
-        $data = $request->getAll();
-        $user = $this->repository->store($data);
-
-        // make manager
-        $manager = new Manager();
-        $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
+        $data    = $request->getAll();
+        $user    = $this->repository->store($data);
+        $manager = $this->getManager();
 
         // make resource
 
@@ -179,21 +167,16 @@ class UserController extends Controller
     /**
      * Update a user.
      *
-     * @param UserRequest $request
-     * @param User        $user
+     * @param UserUpdateRequest $request
+     * @param User              $user
      *
      * @return JsonResponse
      */
-    public function update(UserRequest $request, User $user): JsonResponse
+    public function update(UserUpdateRequest $request, User $user): JsonResponse
     {
-        $data = $request->getAll();
-        $user = $this->repository->update($user, $data);
-
-        // make manager
-        $manager = new Manager();
-        $baseUrl = $request->getSchemeAndHttpHost() . '/api/v1';
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
-
+        $data    = $request->getAll();
+        $user    = $this->repository->update($user, $data);
+        $manager = $this->getManager();
         // make resource
         /** @var UserTransformer $transformer */
         $transformer = app(UserTransformer::class);

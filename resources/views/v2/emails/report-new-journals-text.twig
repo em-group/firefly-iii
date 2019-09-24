@@ -10,7 +10,7 @@
 You can find in in your {{ config('app.name') }} installation:
 
 {% for journal in journals %}
-{{ journal.description }}: {{ route('transactions.show', journal.id) }} ({{ journal|journalTotalAmountPlain }})
+{{ journal.description }}: {{ route('transactions.show', journal.id) }} (TODO)
 {% endfor %}
 {% endif %}
 
@@ -18,7 +18,7 @@ You can find in in your {{ config('app.name') }} installation:
 You can find them in your {{ config('app.name') }} installation:
 
 {% for journal in journals %}
-- {{ journal.description }}: {{ route('transactions.show', journal.id) }} ({{ journal|journalTotalAmountPlain }})
+- {{ journal.description }}: {{ route('transactions.show', journal.id) }} (TODO)
 {% endfor %}
 {% endif %}
 

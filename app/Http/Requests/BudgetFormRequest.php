@@ -28,6 +28,7 @@ use FireflyIII\Models\Budget;
  * Class BudgetFormRequest.
  *
  * @codeCoverageIgnore
+ * TODO AFTER 4.8,0, split for update/store
  */
 class BudgetFormRequest extends Request
 {

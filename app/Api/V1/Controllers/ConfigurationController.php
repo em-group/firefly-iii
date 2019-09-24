@@ -32,6 +32,8 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * Class ConfigurationController.
+ *
+ * @codeCoverageIgnore
  */
 class ConfigurationController extends Controller
 {
@@ -41,7 +43,8 @@ class ConfigurationController extends Controller
     private $repository;
 
     /**
-     * BudgetController constructor.
+     * ConfigurationController constructor.
+     *
      */
     public function __construct()
     {
@@ -81,7 +84,6 @@ class ConfigurationController extends Controller
      * @param string               $name
      *
      * @return JsonResponse
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function update(ConfigurationRequest $request, string $name): JsonResponse
     {
@@ -96,7 +98,6 @@ class ConfigurationController extends Controller
      * Get all config values.
      *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getConfigData(): array
     {

@@ -24,13 +24,16 @@ declare(strict_types=1);
 namespace Tests\Unit\Middleware;
 
 use FireflyIII\Http\Middleware\RedirectIfAuthenticated;
+use Log;
 use Route;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
-use Log;
 
 /**
  * Class RedirectIfAuthenticatedTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class RedirectIfAuthenticatedTest extends TestCase
 {
@@ -40,7 +43,7 @@ class RedirectIfAuthenticatedTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
         Route::middleware(RedirectIfAuthenticated::class)->any(
             '/_test/authenticate', function () {
             return 'OK';

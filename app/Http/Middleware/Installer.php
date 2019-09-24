@@ -41,19 +41,17 @@ class Installer
     /**
      * Handle an incoming request.
      *
-     * @throws FireflyException
-     *
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure                 $next
      *
      * @return mixed
      *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @throws FireflyException
      *
      */
     public function handle($request, Closure $next)
     {
+        Log::debug(sprintf('Installer middleware for URI %s', $request->url()));
         // ignore installer in test environment.
         if ('testing' === config('app.env')) {
             return $next($request);

@@ -23,12 +23,9 @@ declare(strict_types=1);
 namespace FireflyIII\Helpers\Report;
 
 use Carbon\Carbon;
-use FireflyIII\Helpers\Collection\Bill as BillCollection;
-use FireflyIII\Helpers\Collection\BillLine;
-use FireflyIII\Helpers\Collector\TransactionCollectorInterface;
-use FireflyIII\Helpers\FiscalHelperInterface;
+use FireflyIII\Helpers\Collector\GroupCollectorInterface;
+use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
 use FireflyIII\Models\Bill;
-use FireflyIII\Models\Transaction;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use Illuminate\Support\Collection;
@@ -46,8 +43,6 @@ class ReportHelper implements ReportHelperInterface
 
     /**
      * ReportHelper constructor.
-     *
-     *
      * @param BudgetRepositoryInterface $budgetRepository
      */
     public function __construct(BudgetRepositoryInterface $budgetRepository)
@@ -55,7 +50,7 @@ class ReportHelper implements ReportHelperInterface
         $this->budgetRepository = $budgetRepository;
 
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
 
 
@@ -67,64 +62,57 @@ class ReportHelper implements ReportHelperInterface
      *
      * Excludes bills which have not had a payment on the mentioned accounts.
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     *
-     * @param Carbon     $start
-     * @param Carbon     $end
+     * @param Carbon $start
+     * @param Carbon $end
      * @param Collection $accounts
      *
-     * @return BillCollection
+     * @return array
      */
-    public function getBillReport(Carbon $start, Carbon $end, Collection $accounts): BillCollection
+    public function getBillReport(Collection $accounts, Carbon $start, Carbon $end): array
     {
         /** @var BillRepositoryInterface $repository */
         $repository = app(BillRepositoryInterface::class);
         $bills      = $repository->getBillsForAccounts($accounts);
-
-        $collection = new BillCollection;
-        $collection->setStartDate($start);
-        $collection->setEndDate($end);
+        $report     = [
+            'bills' => [],
+        ];
 
         /** @var Bill $bill */
         foreach ($bills as $bill) {
             $expectedDates = $repository->getPayDatesInRange($bill, $start, $end);
-            foreach ($expectedDates as $payDate) {
-                $endOfPayPeriod = app('navigation')->endOfX($payDate, $bill->repeat_freq, null);
+            $billId        = $bill->id;
+            $currency      = $bill->transactionCurrency;
+            $current       = [
+                'id'                      => $bill->id,
+                'name'                    => $bill->name,
+                'active'                  => $bill->active,
+                'amount_min'              => $bill->amount_min,
+                'amount_max'              => $bill->amount_max,
+                'currency_id'             => $bill->transaction_currency_id,
+                'currency_code'           => $currency->code,
+                'currency_name'           => $currency->name,
+                'currency_symbol'         => $currency->symbol,
+                'currency_decimal_places' => $currency->decimal_places,
+                'expected_dates'          => $expectedDates->toArray(),
+                'paid_moments'            => [],
+            ];
 
-                /** @var TransactionCollectorInterface $collector */
-                $collector = app(TransactionCollectorInterface::class);
-                $collector->setAccounts($accounts)->setRange($payDate, $endOfPayPeriod)->setBills($bills);
-                $transactions = $collector->getTransactions();
+            /** @var Carbon $start */
+            foreach ($expectedDates as $expectedStart) {
+                $expectedEnd = app('navigation')->endOfX($expectedStart, $bill->repeat_freq, null);
 
-                $billLine = new BillLine;
-                $billLine->setBill($bill);
-                $billLine->setCurrency($bill->transactionCurrency);
-                $billLine->setPayDate($payDate);
-                $billLine->setEndOfPayDate($endOfPayPeriod);
-                $billLine->setMin((string)$bill->amount_min);
-                $billLine->setMax((string)$bill->amount_max);
-                $billLine->setHit(false);
-                $entry = $transactions->filter(
-                    function (Transaction $transaction) use ($bill) {
-                        return $transaction->bill_id === $bill->id;
-                    }
-                );
-                $first = $entry->first();
-                if (null !== $first) {
-                    $billLine->setTransactionJournalId($first->id);
-                    $billLine->setAmount($first->transaction_amount);
-                    $billLine->setLastHitDate($first->date);
-                    $billLine->setHit(true);
-                }
-                if ($billLine->isActive() || $billLine->isHit()) {
-                    $collection->addBill($billLine);
-                }
+                // is paid in this period maybe?
+                /** @var GroupCollectorInterface $collector */
+                $collector = app(GroupCollectorInterface::class);
+                $collector->setAccounts($accounts)->setRange($expectedStart, $expectedEnd)->setBill($bill);
+                $current['paid_moments'][] = $collector->getExtractedJournals();
             }
-        }
-        $collection->filterBills();
 
-        return $collection;
+            // append to report:
+            $report['bills'][$billId] = $current;
+        }
+
+        return $report;
     }
 
     /**

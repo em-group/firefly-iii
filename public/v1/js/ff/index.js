@@ -106,26 +106,42 @@ function getBalanceBox() {
             // show balance in "sums", show single entry in list.
             for (x in data.sums) {
                 $('#box-balance-sums').html(data.sums[x]);
-                $('#box-balance-list').html(data.incomes[x] + ' / ' + data.expenses[x]);
+                $('#box-balance-list').html(data.incomes[x] + ' + ' + data.expenses[x]);
             }
             return;
         }
         // do not use "sums", only use list.
         $('#box-balance-progress').remove();
         var expense, string, sum, income, current;
+
+        // first loop, echo only "preferred".
+        for (x in data.sums) {
+            current = $('#box-balance-list').html();
+            sum = data.sums[x];
+            expense = data.expenses[x];
+            income = data.incomes[x];
+            string = income + ' + ' + expense + ': ' + sum;
+            if (data.preferred == x) {
+                $('#box-balance-list').html(current + '<span title="' + string + '">' + string + '</span>' + '<br>');
+            }
+        }
+        // then list the others (only 1 space)
+
         var count = 0;
         for (x in data.sums) {
-            if (count > 1) {
+            if (count > 2) {
                 return;
             }
             current = $('#box-balance-list').html();
             sum = data.sums[x];
             expense = data.expenses[x];
             income = data.incomes[x];
-            string = income + ' / ' + expense + ': ' + sum;
-
-            $('#box-balance-list').html(current + '<span title="' + string + '">' + string + '</span>' + '<br>');
+            string = income + ' + ' + expense + ': ' + sum;
+            if (data.preferred != x) {
+                $('#box-balance-list').html(current + '<span title="' + string + '">' + string + '</span>' + '<br>');
+            }
             count++;
+
         }
     });
 }

@@ -25,11 +25,14 @@ namespace Tests\Unit\Import\Specifics;
 
 
 use FireflyIII\Import\Specifics\IngDescription;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class IngDescriptionTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class IngDescriptionTest extends TestCase
 {
@@ -39,7 +42,7 @@ class IngDescriptionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 

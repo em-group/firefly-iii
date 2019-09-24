@@ -23,11 +23,16 @@ declare(strict_types=1);
 namespace Tests\Feature\Controllers\Report;
 
 use Carbon\Carbon;
-use FireflyIII\Helpers\FiscalHelperInterface;
-use FireflyIII\Helpers\Report\BudgetReportHelperInterface;
+use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
+use FireflyIII\Repositories\Budget\BudgetLimitRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
+use FireflyIII\Repositories\Budget\NoBudgetRepositoryInterface;
+use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use Illuminate\Support\Collection;
 use Log;
+use Amount;
+use Preferences;
+use Tests\Support\TestDataTrait;
 use Tests\TestCase;
 
 /**
@@ -39,13 +44,14 @@ use Tests\TestCase;
  */
 class BudgetControllerTest extends TestCase
 {
+    use TestDataTrait;
     /**
      *
      */
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -54,13 +60,27 @@ class BudgetControllerTest extends TestCase
      */
     public function testGeneral(): void
     {
-        $return = [];
-        $helper = $this->mock(BudgetReportHelperInterface::class);
-        $fiscalHelper  = $this->mock(FiscalHelperInterface::class);
-        $date          = new Carbon;
+        $this->mockDefaultSession();
+        $fiscalHelper = $this->mock(FiscalHelperInterface::class);
+        $opsRepos     = $this->mock(OperationsRepositoryInterface::class);
+        $repository   = $this->mock(BudgetRepositoryInterface::class);
+        $blRepos      = $this->mock(BudgetLimitRepositoryInterface::class);
+        $nbRepos      = $this->mock(NoBudgetRepositoryInterface::class);
+        $budget       = $this->getRandomBudget();
+        $limit = $this->getRandomBudgetLimit();
+
+        $repository->shouldReceive('getBudgets')->atLeast()->once()->andReturn(new Collection([$budget]));
+        $blRepos->shouldReceive('getBudgetLimits')->atLeast()->once()->andReturn(new Collection([$limit]));
+
+        $opsRepos->shouldReceive('sumExpenses')->atLeast()->once()->andReturn([]);
+        $nbRepos->shouldReceive('sumExpenses')->atLeast()->once()->andReturn([]);
+
+        $date         = new Carbon;
+
+        //Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
+        Amount::shouldReceive('formatAnything')->atLeast()->once()->andReturn('x');
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $helper->shouldReceive('getBudgetReport')->andReturn($return);
 
         $this->be($this->user());
         $response = $this->get(route('report-data.budget.general', ['1', '20120101', '20120131']));
@@ -72,11 +92,21 @@ class BudgetControllerTest extends TestCase
      */
     public function testPeriod(): void
     {
-        $first      = [1 => ['entries' => ['1', '1']]];
-        $second     = ['entries' => ['1', '1']];
-        $repository = $this->mock(BudgetRepositoryInterface::class);
-        $fiscalHelper  = $this->mock(FiscalHelperInterface::class);
-        $date          = new Carbon;
+        $this->mockDefaultSession();
+        $first        = [1 => ['entries' => ['1', '1']]];
+        $second       = ['entries' => ['1', '1']];
+        $repository   = $this->mock(BudgetRepositoryInterface::class);
+        $fiscalHelper = $this->mock(FiscalHelperInterface::class);
+        $repository   = $this->mock(BudgetRepositoryInterface::class);
+        $blRepos      = $this->mock(BudgetLimitRepositoryInterface::class);
+        $nbRepos      = $this->mock(NoBudgetRepositoryInterface::class);
+        $opsRepos = $this->mock(OperationsRepositoryInterface::class);
+        $date         = new Carbon;
+
+        $opsRepos->shouldReceive('listExpenses')->atLeast()->once()->andReturn($this->budgetListExpenses());
+
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
+        //Amount::shouldReceive('formatAnything')->atLeast()->once()->andReturn('x');
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
         $repository->shouldReceive('getBudgets')->andReturn(new Collection);

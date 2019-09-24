@@ -24,15 +24,22 @@ declare(strict_types=1);
 namespace Tests\Unit\Middleware;
 
 use FireflyIII\Http\Middleware\Range;
+use FireflyIII\Models\Preference;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
+use Log;
 use Route;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
-use Log;
+use Preferences;
+use Mockery;
+use Amount;
 
 /**
  * Class RangeTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class RangeTest extends TestCase
 {
@@ -42,7 +49,7 @@ class RangeTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
         Route::middleware(Range::class)->any(
             '/_test/range', function () {
             return view('test.test');
@@ -58,6 +65,27 @@ class RangeTest extends TestCase
         $repository = $this->mock(JournalRepositoryInterface::class);
         $repository->shouldReceive('firstNull')->andReturn(TransactionJournal::first());
         $this->withoutExceptionHandling();
+
+        $viewPreference = new Preference;
+        $viewPreference->data = '1M';
+
+        $langPreference = new Preference;
+        $langPreference->data = 'en_US';
+
+        $currPreference = new Preference;
+        $currPreference->data = 'EUR';
+
+        $listPreference = new Preference;
+        $listPreference->data = 10;
+
+
+        Preferences::shouldReceive('get')->withArgs(['viewRange','1M'])->atLeast()->once()->andReturn($viewPreference);
+        Preferences::shouldReceive('get')->withArgs(['language','en_US'])->atLeast()->once()->andReturn($langPreference);
+        Preferences::shouldReceive('get')->withArgs(['list-length',10])->atLeast()->once()->andReturn($listPreference);
+        Amount::shouldReceive('getDefaultCurrency')->atLeast()->once()->andReturn($this->getEuro());
+        //Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
+
+
         $this->be($this->user());
         $response = $this->get('/_test/range');
         $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());

@@ -37,8 +37,6 @@ use Log;
 /**
  * Class PiggyBankRepository.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.ExcessiveClassComplexity)
  */
 class PiggyBankRepository implements PiggyBankRepositoryInterface
 {
@@ -51,13 +49,13 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $amount
+     * @param string $amount
      *
      * @return bool
      */
@@ -79,7 +77,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBankRepetition $repetition
-     * @param string              $amount
+     * @param string $amount
      *
      * @return string
      */
@@ -94,7 +92,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $amount
+     * @param string $amount
      *
      * @return bool
      */
@@ -110,7 +108,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $amount
+     * @param string $amount
      *
      * @return bool
      */
@@ -143,7 +141,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $amount
+     * @param string $amount
      *
      * @return PiggyBankEvent
      */
@@ -156,8 +154,8 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     }
 
     /**
-     * @param PiggyBank          $piggyBank
-     * @param string             $amount
+     * @param PiggyBank $piggyBank
+     * @param string $amount
      * @param TransactionJournal $journal
      *
      * @return PiggyBankEvent
@@ -199,6 +197,9 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     public function findByName(string $name): ?PiggyBank
     {
         $set = $this->user->piggyBanks()->get(['piggy_banks.*']);
+
+        // TODO no longer need to loop like this
+
         /** @var PiggyBank $piggy */
         foreach ($set as $piggy) {
             if ($piggy->name === $name) {
@@ -220,6 +221,37 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
         if (null !== $piggyBank) {
             return $piggyBank;
         }
+
+        return null;
+    }
+
+    /**
+     * @param int|null $piggyBankId
+     * @param string|null $piggyBankName
+     *
+     * @return PiggyBank|null
+     */
+    public function findPiggyBank(?int $piggyBankId, ?string $piggyBankName): ?PiggyBank
+    {
+        Log::debug('Searching for piggy information.');
+
+        if (null !== $piggyBankId) {
+            $searchResult = $this->findNull((int)$piggyBankId);
+            if (null !== $searchResult) {
+                Log::debug(sprintf('Found piggy based on #%d, will return it.', $piggyBankId));
+
+                return $searchResult;
+            }
+        }
+        if (null !== $piggyBankName) {
+            $searchResult = $this->findByName((string)$piggyBankName);
+            if (null !== $searchResult) {
+                Log::debug(sprintf('Found piggy based on "%s", will return it.', $piggyBankName));
+
+                return $searchResult;
+            }
+        }
+        Log::debug('Found nothing');
 
         return null;
     }
@@ -254,12 +286,12 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     /**
      * Used for connecting to a piggy bank.
      *
-     * @param PiggyBank           $piggyBank
+     * @param PiggyBank $piggyBank
      * @param PiggyBankRepetition $repetition
-     * @param TransactionJournal  $journal
+     * @param TransactionJournal $journal
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function getExactAmount(PiggyBank $piggyBank, PiggyBankRepetition $repetition, TransactionJournal $journal): string
     {
@@ -274,7 +306,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
         Log::debug(sprintf('Will add/remove %f to piggy bank #%d ("%s")', $amount, $piggyBank->id, $piggyBank->name));
 
         // if piggy account matches source account, the amount is positive
-        if (\in_array($piggyBank->account_id, $sources, true)) {
+        if (in_array($piggyBank->account_id, $sources, true)) {
             $amount = bcmul($amount, '-1');
             Log::debug(sprintf('Account #%d is the source, so will remove amount from piggy bank.', $piggyBank->account_id));
         }
@@ -372,7 +404,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
      * @param PiggyBank $piggyBank
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function getSuggestedMonthlyAmount(PiggyBank $piggyBank): string
     {
@@ -401,35 +433,10 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
     }
 
     /**
-     * @param PiggyBankEvent $event
-     *
-     * @return int|null
-     */
-    public function getTransactionWithEvent(PiggyBankEvent $event): ?int
-    {
-        $journal = $event->transactionJournal;
-        if (null === $journal) {
-            return null;
-        }
-        if ((float)$event->amount < 0) {
-            $transaction = $journal->transactions()->where('amount', '<', 0)->first();
-
-            return $transaction->id ?? null;
-        }
-        if ((float)$event->amount > 0) {
-            $transaction = $journal->transactions()->where('amount', '>', 0)->first();
-
-            return $transaction->id ?? null;
-        }
-
-        return null;
-    }
-
-    /**
      * Get for piggy account what is left to put in piggies.
      *
      * @param PiggyBank $piggyBank
-     * @param Carbon    $date
+     * @param Carbon $date
      *
      * @return string
      */
@@ -454,7 +461,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $amount
+     * @param string $amount
      *
      * @return bool
      */
@@ -474,7 +481,7 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
      * set id of piggy bank.
      *
      * @param PiggyBank $piggyBank
-     * @param int       $order
+     * @param int $order
      *
      * @return bool
      */
@@ -519,26 +526,33 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param array     $data
+     * @param array $data
      *
      * @return PiggyBank
      */
     public function update(PiggyBank $piggyBank, array $data): PiggyBank
     {
-        $piggyBank->name         = $data['name'];
-        $piggyBank->account_id   = (int)$data['account_id'];
-        $piggyBank->targetamount = $data['targetamount'];
-        $piggyBank->targetdate   = $data['targetdate'];
+        if (isset($data['name']) && '' !== $data['name']) {
+            $piggyBank->name = $data['name'];
+        }
+        if (isset($data['account_id']) && 0 !== $data['account_id']) {
+            $piggyBank->account_id = (int)$data['account_id'];
+        }
+        if (isset($data['targetamount']) && '' !== $data['targetamount']) {
+            $piggyBank->targetamount = $data['targetamount'];
+        }
+        if (isset($data['targetdate']) && '' !== $data['targetdate']) {
+            $piggyBank->targetdate = $data['targetdate'];
+        }
         $piggyBank->startdate    = $data['startdate'] ?? $piggyBank->startdate;
-
         $piggyBank->save();
 
-        $this->updateNote($piggyBank, $data['notes']);
+        $this->updateNote($piggyBank, $data['notes'] ?? '');
 
         // if the piggy bank is now smaller than the current relevant rep,
         // remove money from the rep.
         $repetition = $this->getRepetition($piggyBank);
-        if ($repetition->currentamount > $piggyBank->targetamount) {
+        if (null !== $repetition && $repetition->currentamount > $piggyBank->targetamount) {
             $diff = bcsub($piggyBank->targetamount, $repetition->currentamount);
             $this->createEvent($piggyBank, $diff);
 
@@ -551,10 +565,34 @@ class PiggyBankRepository implements PiggyBankRepositoryInterface
 
     /**
      * @param PiggyBank $piggyBank
-     * @param string    $note
+     * @param string    $amount
+     *
+     * @return PiggyBank
+     */
+    public function setCurrentAmount(PiggyBank $piggyBank, string $amount): PiggyBank
+    {
+        $repetition = $this->getRepetition($piggyBank);
+        if (null === $repetition) {
+            return $piggyBank;
+        }
+        $max = $piggyBank->targetamount;
+        if (1 === bccomp($amount, $max)) {
+            $amount = $max;
+        }
+        $repetition->currentamount = $amount;
+        $repetition->save();
+
+        // create event
+        $this->createEvent($piggyBank, $amount);
+
+        return $piggyBank;
+    }
+
+    /**
+     * @param PiggyBank $piggyBank
+     * @param string $note
      *
      * @return bool
-     * @throws \Exception
      */
     private function updateNote(PiggyBank $piggyBank, string $note): bool
     {

@@ -31,7 +31,6 @@ use Illuminate\Http\Request;
 /**
  * Class ReportController.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ReportController extends Controller
 {
@@ -43,7 +42,7 @@ class ReportController extends Controller
      * @param Request $request
      *
      * @return JsonResponse
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function general(Request $request): JsonResponse
     {
@@ -69,8 +68,8 @@ class ReportController extends Controller
             case 'category-entry':
                 $html = $this->categoryEntry($attributes);
                 break;
-            case 'balance-amount':
-                $html = $this->balanceAmount($attributes);
+            case 'budget-entry':
+                $html = $this->budgetEntry($attributes);
                 break;
         }
 

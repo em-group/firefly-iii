@@ -78,7 +78,7 @@ class ImportDataHandler
         }
 
         $totalSet = array_merge(...$total);
-        Log::debug(sprintf('Found %d transactions in total.', \count($totalSet)));
+        Log::debug(sprintf('Found %d transactions in total.', count($totalSet)));
         $this->repository->setTransactions($this->importJob, $totalSet);
 
         // assuming this works, store today's date as a preference
@@ -114,9 +114,9 @@ class ImportDataHandler
     {
         $config = $this->repository->getConfiguration($this->importJob);
         $array  = [];
-        $total  = \count($transactions);
+        $total  = count($transactions);
         $budget = $this->getSelectedBudget();
-        Log::debug(sprintf('Now in StageImportDataHandler::convertToArray() with count %d', \count($transactions)));
+        Log::debug(sprintf('Now in StageImportDataHandler::convertToArray() with count %d', count($transactions)));
         /** @var array $transaction */
         foreach ($transactions as $index => $transaction) {
             $description = $transaction['memo'] ?? '(empty)';
@@ -182,16 +182,26 @@ class ImportDataHandler
                 // transaction data:
                 'transactions'    => [
                     [
+                        'type'                  => $type,
+                        'date'                  => $transaction['date'] ?? date('Y-m-d'),
+                        'tags'                  => $tags,
+                        'user'                  => $this->importJob->user_id,
+                        'notes'                 => null,
                         'currency_id'           => null,
                         'currency_code'         => $budget['currency_code'] ?? $this->defaultCurrency->code,
-                        'description'           => null,
                         'amount'                => bcdiv((string)$transaction['amount'], '1000'),
                         'budget_id'             => null,
+                        'original-source'       => sprintf('ynab-v%s', config('firefly.version')),
                         'budget_name'           => null,
                         'category_id'           => null,
                         'category_name'         => $transaction['category_name'],
                         'source_id'             => $source->id,
                         'source_name'           => null,
+                        // all custom fields:
+                        'external_id'           => $transaction['id'] ?? '',
+
+                        // journal data:
+                        'description'           => $description,
                         'destination_id'        => $destination->id,
                         'destination_name'      => null,
                         'foreign_currency_id'   => null,

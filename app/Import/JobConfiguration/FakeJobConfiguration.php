@@ -46,7 +46,7 @@ class FakeJobConfiguration implements JobConfigurationInterface
      * if stage is not "new", then album must be 'station to station'
      *
      * @return bool
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function configurationComplete(): bool
     {
@@ -70,7 +70,6 @@ class FakeJobConfiguration implements JobConfigurationInterface
      *
      * @return MessageBag
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function configureJob(array $data): MessageBag
     {
@@ -100,8 +99,8 @@ class FakeJobConfiguration implements JobConfigurationInterface
         $this->repository->setConfiguration($this->importJob, $configuration);
         $messages = new MessageBag();
 
-        if (3 !== \count($configuration)) {
-            $messages->add('some_key', 'Ignore this error: ' . \count($configuration));
+        if (3 !== count($configuration)) {
+            $messages->add('some_key', 'Ignore this error: ' . count($configuration));
         }
 
         return $messages;
@@ -128,7 +127,6 @@ class FakeJobConfiguration implements JobConfigurationInterface
      *
      * @return string
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function getNextView(): string
     {

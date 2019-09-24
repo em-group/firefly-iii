@@ -28,6 +28,8 @@ use FireflyIII\Rules\IsBoolean;
 
 /**
  * Class ConfigurationRequest
+ *
+ * @codeCoverageIgnore
  */
 class ConfigurationRequest extends Request
 {

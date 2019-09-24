@@ -26,9 +26,9 @@ namespace FireflyIII\Repositories\Recurring;
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\RecurrenceFactory;
-use FireflyIII\Helpers\Collector\TransactionCollectorInterface;
-use FireflyIII\Helpers\Filter\InternalTransferFilter;
+use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Note;
+use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\Preference;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\RecurrenceMeta;
@@ -62,7 +62,7 @@ class RecurringRepository implements RecurringRepositoryInterface
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -216,9 +216,8 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param Carbon               $start
      * @param Carbon               $end
      *
-     *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function getOccurrencesInRange(RecurrenceRepetition $repetition, Carbon $start, Carbon $end): array
     {
@@ -250,6 +249,26 @@ class RecurringRepository implements RecurringRepositoryInterface
         $occurrences = $this->filterWeekends($repetition, $occurrences);
 
         return $occurrences;
+    }
+
+    /**
+     * @param Recurrence $recurrence
+     *
+     * @return PiggyBank|null
+     */
+    public function getPiggyBank(Recurrence $recurrence): ?PiggyBank
+    {
+        $meta = $recurrence->recurrenceMeta;
+        /** @var RecurrenceMeta $metaEntry */
+        foreach ($meta as $metaEntry) {
+            if ('piggy_bank_id' === $metaEntry->name) {
+                $piggyId = (int)$metaEntry->value;
+
+                return $this->user->piggyBanks()->where('piggy_banks.id', $piggyId)->first(['piggy_banks.*']);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -290,17 +309,17 @@ class RecurringRepository implements RecurringRepositoryInterface
             ->get()->pluck('transaction_journal_id')->toArray();
         $search      = [];
         foreach ($journalMeta as $journalId) {
-            $search[] = ['id' => (int)$journalId];
+            $search[] = (int)$journalId;
         }
-        /** @var TransactionCollectorInterface $collector */
-        $collector = app(TransactionCollectorInterface::class);
-        $collector->setUser($recurrence->user);
-        $collector->withOpposingAccount()->setAllAssetAccounts()->withCategoryInformation()->withBudgetInformation()->setLimit($pageSize)->setPage($page);
-        // filter on specific journals.
-        $collector->removeFilter(InternalTransferFilter::class);
-        $collector->setJournals(new Collection($search));
+        /** @var GroupCollectorInterface $collector */
+        $collector = app(GroupCollectorInterface::class);
 
-        return $collector->getPaginatedTransactions();
+        $collector->setUser($recurrence->user);
+        $collector->withCategoryInformation()->withBudgetInformation()->setLimit($pageSize)->setPage($page)
+                  ->withAccountInformation();
+        $collector->setJournalIds($search);
+
+        return $collector->getPaginatedGroups();
     }
 
     /**
@@ -318,18 +337,24 @@ class RecurringRepository implements RecurringRepositoryInterface
             ->where('data', json_encode((string)$recurrence->id))
             ->get()->pluck('transaction_journal_id')->toArray();
         $search      = [];
-        foreach ($journalMeta as $journalId) {
-            $search[] = ['id' => (int)$journalId];
-        }
-        /** @var TransactionCollectorInterface $collector */
-        $collector = app(TransactionCollectorInterface::class);
-        $collector->setUser($recurrence->user);
-        $collector->withOpposingAccount()->setAllAssetAccounts()->withCategoryInformation()->withBudgetInformation();
-        // filter on specific journals.
-        $collector->removeFilter(InternalTransferFilter::class);
-        $collector->setJournals(new Collection($search));
 
-        return $collector->getTransactions();
+        foreach ($journalMeta as $journalId) {
+            $search[] = (int)$journalId;
+        }
+        if (0 === count($search)) {
+
+            return new Collection;
+        }
+
+        /** @var GroupCollectorInterface $collector */
+        $collector = app(GroupCollectorInterface::class);
+
+        $collector->setUser($recurrence->user);
+        $collector->withCategoryInformation()->withBudgetInformation()->withAccountInformation();
+        // filter on specific journals.
+        $collector->setJournalIds($search);
+
+        return $collector->getGroups();
     }
 
     /**
@@ -340,7 +365,7 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param int                  $count
      *
      * @return array
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function getXOccurrences(RecurrenceRepetition $repetition, Carbon $date, int $count): array
     {
@@ -374,7 +399,7 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param RecurrenceRepetition $repetition
      *
      * @return string
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function repetitionDescription(RecurrenceRepetition $repetition): string
     {
@@ -385,12 +410,24 @@ class RecurringRepository implements RecurringRepositoryInterface
             return (string)trans('firefly.recurring_daily', [], $language);
         }
         if ('weekly' === $repetition->repetition_type) {
+
             $dayOfWeek = trans(sprintf('config.dow_%s', $repetition->repetition_moment), [], $language);
+            if ($repetition->repetition_skip > 0) {
+                return (string)trans('firefly.recurring_weekly_skip', ['weekday' => $dayOfWeek, 'skip' => $repetition->repetition_skip + 1], $language);
+            }
 
             return (string)trans('firefly.recurring_weekly', ['weekday' => $dayOfWeek], $language);
         }
         if ('monthly' === $repetition->repetition_type) {
-            return (string)trans('firefly.recurring_monthly', ['dayOfMonth' => $repetition->repetition_moment], $language);
+            if ($repetition->repetition_skip > 0) {
+                return (string)trans(
+                    'firefly.recurring_monthly_skip', ['dayOfMonth' => $repetition->repetition_moment, 'skip' => $repetition->repetition_skip + 1], $language
+                );
+            }
+
+            return (string)trans(
+                'firefly.recurring_monthly', ['dayOfMonth' => $repetition->repetition_moment, 'skip' => $repetition->repetition_skip - 1], $language
+            );
         }
         if ('ndom' === $repetition->repetition_type) {
             $parts = explode(',', $repetition->repetition_moment);
@@ -428,13 +465,19 @@ class RecurringRepository implements RecurringRepositoryInterface
      * @param array $data
      *
      * @return Recurrence
+     * @throws FireflyException
      */
     public function store(array $data): Recurrence
     {
-        $factory = new RecurrenceFactory;
+        /** @var RecurrenceFactory $factory */
+        $factory = app(RecurrenceFactory::class);
         $factory->setUser($this->user);
+        $result = $factory->create($data);
+        if (null === $result) {
+            throw new FireflyException($factory->getErrors()->first());
+        }
 
-        return $factory->create($data);
+        return $result;
     }
 
     /**

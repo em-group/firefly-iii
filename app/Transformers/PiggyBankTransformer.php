@@ -54,7 +54,7 @@ class PiggyBankTransformer extends AbstractTransformer
         $this->currencyRepos = app(CurrencyRepositoryInterface::class);
         $this->piggyRepos    = app(PiggyBankRepositoryInterface::class);
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -77,6 +77,7 @@ class PiggyBankTransformer extends AbstractTransformer
         $this->piggyRepos->setUser($account->user);
 
         // get currency from account, or use default.
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($account, 'currency_id');
         $currency   = $this->currencyRepos->findNull($currencyId);
         if (null === $currency) {

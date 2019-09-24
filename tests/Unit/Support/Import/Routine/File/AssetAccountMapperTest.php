@@ -28,11 +28,14 @@ use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Support\Import\Routine\File\AssetAccountMapper;
 use Illuminate\Support\Collection;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class AssetAccountMapperTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AssetAccountMapperTest extends TestCase
 {
@@ -42,7 +45,7 @@ class AssetAccountMapperTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -144,7 +147,8 @@ class AssetAccountMapperTest extends TestCase
         // mock repository:
         $repository = $this->mock(AccountRepositoryInterface::class);
         $repository->shouldReceive('setUser')->once();
-        $repository->shouldReceive('findByIbanNull')->once()->withArgs([$searchValue, [AccountType::ASSET]])->andReturn($expected);
+        $repository->shouldReceive('findByIbanNull')->once()
+                   ->withArgs([$searchValue, [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE]])->andReturn($expected);
 
         $mapper = new AssetAccountMapper;
         $mapper->setUser($this->user());
@@ -164,7 +168,8 @@ class AssetAccountMapperTest extends TestCase
         // mock repository:
         $repository = $this->mock(AccountRepositoryInterface::class);
         $repository->shouldReceive('setUser')->once();
-        $repository->shouldReceive('findByName')->once()->withArgs([$searchValue, [AccountType::ASSET]])->andReturn($expected);
+        $repository->shouldReceive('findByName')->once()
+                   ->withArgs([$searchValue, [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE]])->andReturn($expected);
 
         $mapper = new AssetAccountMapper;
         $mapper->setUser($this->user());
@@ -184,7 +189,8 @@ class AssetAccountMapperTest extends TestCase
         // mock repository:
         $repository = $this->mock(AccountRepositoryInterface::class);
         $repository->shouldReceive('setUser')->once();
-        $repository->shouldReceive('findByAccountNumber')->once()->withArgs([$searchValue, [AccountType::ASSET]])->andReturn($expected);
+        $repository->shouldReceive('findByAccountNumber')->once()
+                   ->withArgs([$searchValue, [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE]])->andReturn($expected);
 
         $mapper = new AssetAccountMapper;
         $mapper->setUser($this->user());

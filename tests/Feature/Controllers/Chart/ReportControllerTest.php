@@ -24,19 +24,22 @@ namespace Tests\Feature\Controllers\Chart;
 
 use Carbon\Carbon;
 use FireflyIII\Generator\Chart\Basic\GeneratorInterface;
-use FireflyIII\Helpers\FiscalHelperInterface;
+use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
 use FireflyIII\Helpers\Report\NetWorthInterface;
-use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Account\AccountTaskerInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use Log;
 use Mockery;
+use Preferences;
 use Steam;
 use Tests\TestCase;
 
 /**
  * Class ReportControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class ReportControllerTest extends TestCase
 {
@@ -46,7 +49,7 @@ class ReportControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -62,13 +65,15 @@ class ReportControllerTest extends TestCase
         $date          = new Carbon;
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        //$currencyRepos->shouldReceive('setUser');
-        //$currencyRepos->shouldReceive('findNull')->withArgs([1])->andReturn(TransactionCurrency::find(1))->atLeast()->once();
+
+
+        $this->mockDefaultSession();
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
 
         $netWorth->shouldReceive('getNetWorthByCurrency')->andReturn(
             [
                 [
-                    'currency' => TransactionCurrency::first(),
+                    'currency' => $this->getEuro(),
                     'balance'  => '123',
                 ],
             ]
@@ -104,41 +109,22 @@ class ReportControllerTest extends TestCase
         $currencyRepos = $this->mock(CurrencyRepositoryInterface::class);
         $fiscalHelper  = $this->mock(FiscalHelperInterface::class);
         $date          = new Carbon;
+
+        $this->mockDefaultSession();
+        Preferences::shouldReceive('lastActivity')->atLeast()->once()->andReturn('md512345');
+
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $income  = [1 => ['sum' => '100']];
-        $expense = [2 => ['sum' => '-100']];
-        $tasker->shouldReceive('getIncomeReport')->once()->andReturn($income);
-        $tasker->shouldReceive('getExpenseReport')->once()->andReturn($expense);
+        $income  = [
+            'accounts' => [
+                1 => ['sum' => '100']]];
+        $expense = [
+            'accounts' => [
+                2 => ['sum' => '-100']]];
         $generator->shouldReceive('multiSet')->andReturn([]);
 
         $this->be($this->user());
         $response = $this->get(route('chart.report.operations', [1, '20120101', '20120131']));
-        $response->assertStatus(200);
-    }
-
-    /**
-     * @covers \FireflyIII\Http\Controllers\Chart\ReportController
-     */
-    public function testSum(): void
-    {
-        $generator     = $this->mock(GeneratorInterface::class);
-        $tasker        = $this->mock(AccountTaskerInterface::class);
-        $currencyRepos = $this->mock(CurrencyRepositoryInterface::class);
-        $fiscalHelper  = $this->mock(FiscalHelperInterface::class);
-        $date          = new Carbon;
-        $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-
-        $income  = [];
-        $expense = [];
-        $tasker->shouldReceive('getIncomeReport')->andReturn($income)->times(1);
-        $tasker->shouldReceive('getExpenseReport')->andReturn($expense)->times(1);
-
-        $generator->shouldReceive('multiSet')->andReturn([]);
-
-        $this->be($this->user());
-        $response = $this->get(route('chart.report.sum', [1, '20120101', '20120131']));
         $response->assertStatus(200);
     }
 }

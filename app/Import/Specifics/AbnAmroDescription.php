@@ -64,7 +64,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return array
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function run(array $row): array
     {
@@ -132,8 +131,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return bool true if the description is SEPA format, false otherwise
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function parseSepaDescription(): bool
     {
@@ -147,7 +144,7 @@ class AbnAmroDescription implements SpecificInterface
             // SEPA plain descriptions contain several key-value pairs, split by a colon
             preg_match_all('/([A-Za-z]+(?=:\s)):\s([A-Za-z 0-9._#-]+(?=\s|$))/', $this->row[7], $matches, PREG_SET_ORDER);
 
-            if (\is_array($matches)) {
+            if (is_array($matches)) {
                 foreach ($matches as $match) {
                     $key   = $match[1];
                     $value = trim($match[2]);
@@ -165,7 +162,7 @@ class AbnAmroDescription implements SpecificInterface
                         case 'IBAN':
                             $this->row[9] = $value;
                             break;
-                        default:
+                        default: // @codeCoverageIgnore
                             // Ignore the rest
                     }
                 }
@@ -189,8 +186,6 @@ class AbnAmroDescription implements SpecificInterface
      *
      * @return bool true if the description is TRTP format, false otherwise
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected function parseTRTPDescription(): bool
     {
@@ -203,7 +198,7 @@ class AbnAmroDescription implements SpecificInterface
 
             // Search for properties specified in the TRTP format. If no description
             // is provided, use the type, name and reference as new description
-            if (\is_array($matches)) {
+            if (is_array($matches)) {
                 foreach ($matches as $match) {
                     $key   = $match[1];
                     $value = trim($match[2]);
@@ -224,7 +219,7 @@ class AbnAmroDescription implements SpecificInterface
                         case 'TRTP':
                             $type = $value;
                             break;
-                        default:
+                        default: // @codeCoverageIgnore
                             // Ignore the rest
                     }
                 }

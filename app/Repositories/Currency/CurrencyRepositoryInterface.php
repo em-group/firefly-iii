@@ -49,6 +49,15 @@ interface CurrencyRepositoryInterface
     public function currencyInUse(TransactionCurrency $currency): bool;
 
     /**
+     * Currency is in use where exactly.
+     *
+     * @param TransactionCurrency $currency
+     *
+     * @return string|null
+     */
+    public function currencyInUseAt(TransactionCurrency $currency): ?string;
+
+    /**
      * @param TransactionCurrency $currency
      *
      * @return bool
@@ -133,6 +142,26 @@ interface CurrencyRepositoryInterface
     public function findBySymbolNull(string $currencySymbol): ?TransactionCurrency;
 
     /**
+     * Find by object, ID or code. Returns user default or system default.
+     *
+     * @param int|null    $currencyId
+     * @param string|null $currencyCode
+     *
+     * @return TransactionCurrency|null
+     */
+    public function findCurrency(?int $currencyId, ?string $currencyCode): TransactionCurrency;
+
+    /**
+     * Find by object, ID or code. Returns NULL if nothing found.
+     *
+     * @param int|null    $currencyId
+     * @param string|null $currencyCode
+     *
+     * @return TransactionCurrency|null
+     */
+    public function findCurrencyNull(?int $currencyId, ?string $currencyCode): ?TransactionCurrency;
+
+    /**
      * Find by ID, return NULL if not found.
      *
      * @param int $currencyId
@@ -166,6 +195,11 @@ interface CurrencyRepositoryInterface
     public function getCurrencyByPreference(Preference $preference): TransactionCurrency;
 
     /**
+     * @return Collection
+     */
+    public function getEnabled(): Collection;
+
+    /**
      * Get currency exchange rate.
      *
      * @param TransactionCurrency $fromCurrency
@@ -184,6 +218,13 @@ interface CurrencyRepositoryInterface
      * @return Collection
      */
     public function getExchangeRates(TransactionCurrency $currency): Collection;
+
+    /**
+     * @param string $search
+     *
+     * @return Collection
+     */
+    public function searchCurrency(string $search): Collection;
 
     /**
      * @param User $user

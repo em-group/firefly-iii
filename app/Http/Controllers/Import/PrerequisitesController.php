@@ -67,16 +67,14 @@ class PrerequisitesController extends Controller
      * @param ImportJob $importJob
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function index(string $importProvider, ImportJob $importJob = null)
     {
         // catch impossible status:
         $allowed = ['new'];
-        if (null !== $importJob && !\in_array($importJob->status, $allowed, true)) {
+        if (null !== $importJob && !in_array($importJob->status, $allowed, true)) {
             Log::error(sprintf('Job has state "%s" but this Prerequisites::index() only accepts %s', $importJob->status, json_encode($allowed)));
-            session()->flash('error', (string)trans('import.bad_job_status', ['status' => $importJob->status]));
+            session()->flash('error', (string)trans('import.bad_job_status', ['status' => e($importJob->status)]));
 
             return redirect(route('import.index'));
         }
@@ -111,15 +109,13 @@ class PrerequisitesController extends Controller
      * Whatever storePrerequisites does, it should make sure that the system is ready to continue immediately. So
      * no extra calls or stuff, except maybe to open a session
      *
-     * @see PrerequisitesInterface::storePrerequisites
-     *
      * @param Request   $request
      * @param string    $importProvider
      * @param ImportJob $importJob
      *
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @see PrerequisitesInterface::storePrerequisites
+     *
      */
     public function post(Request $request, string $importProvider, ImportJob $importJob = null)
     {
@@ -127,9 +123,9 @@ class PrerequisitesController extends Controller
 
         // catch impossible status:
         $allowed = ['new'];
-        if (null !== $importJob && !\in_array($importJob->status, $allowed, true)) {
+        if (null !== $importJob && !in_array($importJob->status, $allowed, true)) {
             Log::error(sprintf('Job has state "%s" but this Prerequisites::post() only accepts %s', $importJob->status, json_encode($allowed)));
-            session()->flash('error', (string)trans('import.bad_job_status', ['status' => $importJob->status]));
+            session()->flash('error', (string)trans('import.bad_job_status', ['status' => e($importJob->status)]));
 
             return redirect(route('import.index'));
         }
@@ -148,7 +144,7 @@ class PrerequisitesController extends Controller
         Log::debug(sprintf('Result of storePrerequisites has message count: %d', $result->count()));
 
         if ($result->count() > 0) {
-            $request->session()->flash('error', $result->first());
+            $request->session()->flash('error', e($result->first()));
 
             // redirect back to job, if has job:
             return redirect(route('import.prerequisites.index', [$importProvider, $importJob->key ?? '']))->withInput();

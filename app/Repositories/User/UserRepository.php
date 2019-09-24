@@ -32,7 +32,6 @@ use Log;
 /**
  * Class UserRepository.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class UserRepository implements UserRepositoryInterface
 {
@@ -42,7 +41,7 @@ class UserRepository implements UserRepositoryInterface
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -86,10 +85,10 @@ class UserRepository implements UserRepositoryInterface
      * @param User   $user
      * @param string $newEmail
      *
-     * @see updateEmail
-     *
      * @return bool
      * @throws \Exception
+     * @see updateEmail
+     *
      */
     public function changeEmail(User $user, string $newEmail): bool
     {
@@ -245,13 +244,7 @@ class UserRepository implements UserRepositoryInterface
         $return = [];
 
         // two factor:
-        $is2faEnabled      = app('preferences')->getForUser($user, 'twoFactorAuthEnabled', false)->data;
-        $has2faSecret      = null !== app('preferences')->getForUser($user, 'twoFactorAuthSecret');
-        $return['has_2fa'] = false;
-        if ($is2faEnabled && $has2faSecret) {
-            $return['has_2fa'] = true;
-        }
-
+        $return['has_2fa']             = $user->mfa_secret !== null;
         $return['is_admin']            = $this->hasRole($user, 'owner');
         $return['blocked']             = 1 === (int)$user->blocked;
         $return['blocked_code']        = $user->blocked_code;
@@ -268,8 +261,6 @@ class UserRepository implements UserRepositoryInterface
                                                     ->where('amount', '>', 0)
                                                     ->whereNull('budgets.deleted_at')
                                                     ->where('budgets.user_id', $user->id)->get(['budget_limits.budget_id'])->count();
-        $return['export_jobs']         = $user->exportJobs()->count();
-        $return['export_jobs_success'] = $user->exportJobs()->where('status', 'export_downloaded')->count();
         $return['import_jobs']         = $user->importJobs()->count();
         $return['import_jobs_success'] = $user->importJobs()->where('status', 'finished')->count();
         $return['rule_groups']         = $user->ruleGroups()->count();
@@ -287,6 +278,8 @@ class UserRepository implements UserRepositoryInterface
      */
     public function hasRole(User $user, string $role): bool
     {
+        // TODO no longer need to loop like this
+
         /** @var Role $userRole */
         foreach ($user->roles as $userRole) {
             if ($userRole->name === $role) {
@@ -295,6 +288,28 @@ class UserRepository implements UserRepositoryInterface
         }
 
         return false;
+    }
+
+    /**
+     * Remove any role the user has.
+     *
+     * @param User $user
+     */
+    public function removeRole(User $user): void
+    {
+        $user->roles()->sync([]);
+    }
+
+    /**
+     * Set MFA code.
+     *
+     * @param User        $user
+     * @param string|null $code
+     */
+    public function setMFACode(User $user, ?string $code): void
+    {
+        $user->mfa_secret = $code;
+        $user->save();
     }
 
     /**
@@ -341,9 +356,17 @@ class UserRepository implements UserRepositoryInterface
      */
     public function update(User $user, array $data): User
     {
-        $this->updateEmail($user, $data['email']);
-        $user->blocked      = $data['blocked'] ?? false;
-        $user->blocked_code = $data['blocked_code'] ?? null;
+        $this->updateEmail($user, $data['email'] ?? '');
+        if (isset($data['blocked']) && is_bool($data['blocked'])) {
+            $user->blocked = $data['blocked'];
+        }
+        if (isset($data['blocked_code']) && '' !== $data['blocked_code'] && is_string($data['blocked_code'])) {
+            $user->blocked_code = $data['blocked_code'];
+        }
+        if (isset($data['role']) && '' === $data['role']) {
+            $this->removeRole($user);
+        }
+
         $user->save();
 
         return $user;
@@ -356,12 +379,15 @@ class UserRepository implements UserRepositoryInterface
      * @param User   $user
      * @param string $newEmail
      *
+     * @return bool
      * @see changeEmail
      *
-     * @return bool
      */
     public function updateEmail(User $user, string $newEmail): bool
     {
+        if ('' === $newEmail) {
+            return true;
+        }
         $oldEmail = $user->email;
 
         // save old email as pref

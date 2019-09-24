@@ -38,11 +38,12 @@ class PiggyBankFactory
 
     /**
      * Constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -51,7 +52,7 @@ class PiggyBankFactory
      * @param null|string $piggyBankName
      *
      * @return PiggyBank|null
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function find(?int $piggyBankId, ?string $piggyBankName): ?PiggyBank
     {
@@ -89,15 +90,7 @@ class PiggyBankFactory
      */
     public function findByName(string $name): ?PiggyBank
     {
-        $set = $this->user->piggyBanks()->get();
-        /** @var PiggyBank $piggy */
-        foreach ($set as $piggy) {
-            if ($piggy->name === $name) {
-                return $piggy;
-            }
-        }
-
-        return null;
+        return $this->user->piggyBanks()->where('piggy_banks.name', $name)->first();
     }
 
     /**

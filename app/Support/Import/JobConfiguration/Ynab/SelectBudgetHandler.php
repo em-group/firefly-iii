@@ -104,7 +104,7 @@ class SelectBudgetHandler implements YnabJobConfigurationInterface
         $budgets       = $configuration['budgets'] ?? [];
         $available     = [];
         $notAvailable  = [];
-        $total         = \count($budgets);
+        $total         = count($budgets);
         foreach ($budgets as $budget) {
             if ($this->haveAssetWithCurrency($budget['currency_code'])) {
                 Log::debug('Add budget to available list.');
@@ -150,7 +150,6 @@ class SelectBudgetHandler implements YnabJobConfigurationInterface
         $this->repository->setUser($importJob->user);
         $this->currencyRepository->setUser($importJob->user);
         $this->accountRepository->setUser($importJob->user);
-        $this->accountRepository->setUser($importJob->user);
 
         $this->accounts = $this->accountRepository->getAccountsByType([AccountType::ASSET, AccountType::DEFAULT]);
     }
@@ -170,6 +169,7 @@ class SelectBudgetHandler implements YnabJobConfigurationInterface
         }
         /** @var Account $account */
         foreach ($this->accounts as $account) {
+            // TODO we can use getAccountCurrency() instead
             $currencyId = (int)$this->accountRepository->getMetaValue($account, 'currency_id');
             Log::debug(sprintf('Currency of %s is %d (looking for %d).', $account->name, $currencyId, $currency->id));
             if ($currencyId === $currency->id) {

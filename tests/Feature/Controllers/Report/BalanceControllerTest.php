@@ -23,10 +23,11 @@ declare(strict_types=1);
 namespace Tests\Feature\Controllers\Report;
 
 use Carbon\Carbon;
-use FireflyIII\Helpers\Collection\Balance;
-use FireflyIII\Helpers\FiscalHelperInterface;
-use FireflyIII\Helpers\Report\BalanceReportHelperInterface;
+use FireflyIII\Helpers\Fiscal\FiscalHelperInterface;
+use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
+use Illuminate\Support\Collection;
 use Log;
+use Preferences;
 use Tests\TestCase;
 
 /**
@@ -44,7 +45,7 @@ class BalanceControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -53,12 +54,16 @@ class BalanceControllerTest extends TestCase
      */
     public function testGeneral(): void
     {
-        $balance = $this->mock(BalanceReportHelperInterface::class);
-        $fiscalHelper  = $this->mock(FiscalHelperInterface::class);
-        $date          = new Carbon;
+        $this->mockDefaultSession();
+        $fiscalHelper = $this->mock(FiscalHelperInterface::class);
+        $repository   = $this->mock(BudgetRepositoryInterface::class);
+        $date         = new Carbon;
+        $budget       = $this->getRandomBudget();
+
+        $repository->shouldReceive('getBudgets')->atLeast()->once()->andReturn(new Collection([$budget]));
+
         $fiscalHelper->shouldReceive('endOfFiscalYear')->atLeast()->once()->andReturn($date);
         $fiscalHelper->shouldReceive('startOfFiscalYear')->atLeast()->once()->andReturn($date);
-        $balance->shouldReceive('getBalanceReport')->andReturn(new Balance);
 
         $this->be($this->user());
         $response = $this->get(route('report-data.balance.general', ['1', '20120101', '20120131']));

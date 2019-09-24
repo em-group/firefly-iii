@@ -41,8 +41,6 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 /**
  * Class PiggyBankController.
  *
- * @SuppressWarnings(PHPMD.TooManyPublicMethods)
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class PiggyBankController extends Controller
 {
@@ -56,6 +54,7 @@ class PiggyBankController extends Controller
 
     /**
      * PiggyBankController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -93,6 +92,7 @@ class PiggyBankController extends Controller
 
         // get currency:
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);
@@ -119,6 +119,7 @@ class PiggyBankController extends Controller
 
         // get currency:
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);
@@ -185,8 +186,6 @@ class PiggyBankController extends Controller
      * @param PiggyBank $piggyBank
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function edit(PiggyBank $piggyBank)
     {
@@ -227,8 +226,6 @@ class PiggyBankController extends Controller
      * @param Request $request
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function index(Request $request)
     {
@@ -297,6 +294,7 @@ class PiggyBankController extends Controller
     {
         $amount     = $request->get('amount') ?? '0';
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);
@@ -320,7 +318,7 @@ class PiggyBankController extends Controller
             'error',
             (string)trans(
                 'firefly.cannot_add_amount_piggy',
-                ['amount' => app('amount')->formatAnything($currency, $amount, false), 'name' => $piggyBank->name]
+                ['amount' => app('amount')->formatAnything($currency, $amount, false), 'name' => e($piggyBank->name)]
             )
         );
 
@@ -339,6 +337,7 @@ class PiggyBankController extends Controller
     {
         $amount     = $request->get('amount') ?? '0';
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);
@@ -363,7 +362,7 @@ class PiggyBankController extends Controller
             'error',
             (string)trans(
                 'firefly.cannot_remove_from_piggy',
-                ['amount' => app('amount')->formatAnything($currency, $amount, false), 'name' => $piggyBank->name]
+                ['amount' => app('amount')->formatAnything($currency, $amount, false), 'name' => e($piggyBank->name)]
             )
         );
 
@@ -382,6 +381,7 @@ class PiggyBankController extends Controller
         $repetition = $this->piggyRepos->getRepetition($piggyBank);
         // get currency:
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);
@@ -402,6 +402,7 @@ class PiggyBankController extends Controller
         $repetition = $this->piggyRepos->getRepetition($piggyBank);
         // get currency:
         $currency   = app('amount')->getDefaultCurrency();
+        // TODO we can use getAccountCurrency() instead
         $currencyId = (int)$this->accountRepos->getMetaValue($piggyBank->account, 'currency_id');
         if ($currencyId > 0) {
             $currency = $this->currencyRepos->findNull($currencyId);

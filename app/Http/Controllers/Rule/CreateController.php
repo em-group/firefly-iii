@@ -45,6 +45,7 @@ class CreateController extends Controller
 
     /**
      * RuleController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
@@ -69,8 +70,6 @@ class CreateController extends Controller
      * @param RuleGroup $ruleGroup
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function create(Request $request, RuleGroup $ruleGroup = null)
     {
@@ -88,8 +87,8 @@ class CreateController extends Controller
             $oldActions  = $this->getPreviousActions($request);
         }
 
-        $triggerCount = \count($oldTriggers);
-        $actionCount  = \count($oldActions);
+        $triggerCount = count($oldTriggers);
+        $actionCount  = count($oldActions);
         $subTitleIcon = 'fa-clone';
 
         // title depends on whether or not there is a rule group:
@@ -119,12 +118,10 @@ class CreateController extends Controller
      * @param Bill    $bill
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function createFromBill(Request $request, Bill $bill)
     {
-        $request->session()->flash('info', (string)trans('firefly.instructions_rule_from_bill', ['name' => $bill->name]));
+        $request->session()->flash('info', (string)trans('firefly.instructions_rule_from_bill', ['name' => e($bill->name)]));
 
         $this->createDefaultRuleGroup();
         $this->createDefaultRule();
@@ -140,8 +137,8 @@ class CreateController extends Controller
         $oldTriggers = $this->getTriggersForBill($bill);
         $oldActions  = $this->getActionsForBill($bill);
 
-        $triggerCount = \count($oldTriggers);
-        $actionCount  = \count($oldActions);
+        $triggerCount = count($oldTriggers);
+        $actionCount  = count($oldActions);
         $subTitleIcon = 'fa-clone';
 
         // title depends on whether or not there is a rule group:
@@ -167,7 +164,7 @@ class CreateController extends Controller
      * @param RuleFormRequest $request
      *
      * @return RedirectResponse|\Illuminate\Routing\Redirector
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function store(RuleFormRequest $request)
     {

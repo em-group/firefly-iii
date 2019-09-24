@@ -40,12 +40,12 @@ class CreateController extends Controller
 
     /**
      * CreateController constructor.
+     * @codeCoverageIgnore
      */
     public function __construct()
     {
         parent::__construct();
 
-        app('view')->share('hideBudgets', true);
 
         $this->middleware(
             function ($request, $next) {

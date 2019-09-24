@@ -28,10 +28,12 @@ use FireflyIII\Models\Account;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use Illuminate\Support\Collection;
+use Log;
 use stdClass;
 
 /**
  * Class Steam.
+ * @codeCoverageIgnore
  */
 class Steam
 {
@@ -44,6 +46,9 @@ class Steam
      */
     public function balance(Account $account, Carbon $date): string
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -52,29 +57,23 @@ class Steam
         if ($cache->has()) {
             return $cache->get(); // @codeCoverageIgnore
         }
-        //
         /** @var AccountRepositoryInterface $repository */
         $repository = app(AccountRepositoryInterface::class);
-        $currencyId = (int)$repository->getMetaValue($account, 'currency_id');
+        $currency = $repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrencyByUser($account->user);
 
-        // use system default currency:
-        if (0 === $currencyId) {
-            $currency   = app('amount')->getDefaultCurrencyByUser($account->user);
-            $currencyId = $currency->id;
-        }
         // first part: get all balances in own currency:
         $nativeBalance = (string)$account->transactions()
                                          ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
                                          ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
-                                         ->where('transactions.transaction_currency_id', $currencyId)
+                                         ->where('transactions.transaction_currency_id', $currency->id)
                                          ->sum('transactions.amount');
 
         // get all balances in foreign currency:
         $foreignBalance = (string)$account->transactions()
                                           ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
                                           ->where('transaction_journals.date', '<=', $date->format('Y-m-d'))
-                                          ->where('transactions.foreign_currency_id', $currencyId)
-                                          ->where('transactions.transaction_currency_id', '!=', $currencyId)
+                                          ->where('transactions.foreign_currency_id', $currency->id)
+                                          ->where('transactions.transaction_currency_id', '!=', $currency->id)
                                           ->sum('transactions.foreign_amount');
 
         $balance = bcadd($nativeBalance, $foreignBalance);
@@ -93,6 +92,9 @@ class Steam
      */
     public function balanceIgnoreVirtual(Account $account, Carbon $date): string
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -139,6 +141,9 @@ class Steam
      */
     public function balanceInRange(Account $account, Carbon $start, Carbon $end): array
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -225,7 +230,9 @@ class Steam
      */
     public function balancePerCurrency(Account $account, Carbon $date): array
     {
-
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -259,6 +266,9 @@ class Steam
      */
     public function balancesByAccounts(Collection $accounts, Carbon $date): array
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $ids = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache = new CacheProperties;
@@ -291,6 +301,9 @@ class Steam
      */
     public function balancesPerCurrencyByAccounts(Collection $accounts, Carbon $date): array
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $ids = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache = new CacheProperties;
@@ -371,6 +384,7 @@ class Steam
         ];
         $replace = "\x20"; // plain old normal space
         $string  = str_replace($search, $replace, $string);
+        $string  = str_replace(["\n", "\t", "\r"], "\x20", $string);
 
         return trim($string);
     }
@@ -382,6 +396,9 @@ class Steam
      */
     public function getLastActivities(array $accounts): array
     {
+        if ('testing' === config('app.env')) {
+            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
+        }
         $list = [];
 
         $set = auth()->user()->transactions()

@@ -30,6 +30,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use League\Fractal\Manager;
+use League\Fractal\Serializer\JsonApiSerializer;
 use Log;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -37,7 +39,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Class Controller.
  *
  * @codeCoverageIgnore
- * @SuppressWarnings(PHPMD.NumberOfChildren)
+ *
  */
 class Controller extends BaseController
 {
@@ -61,7 +63,6 @@ class Controller extends BaseController
      *
      * @return string
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function buildParams(): string
     {
@@ -83,10 +84,22 @@ class Controller extends BaseController
     }
 
     /**
+     * @return Manager
+     */
+    protected function getManager(): Manager
+    {
+        // create some objects:
+        $manager = new Manager;
+        $baseUrl = request()->getSchemeAndHttpHost() . '/api/v1';
+        $manager->setSerializer(new JsonApiSerializer($baseUrl));
+
+        return $manager;
+    }
+
+    /**
      * Method to grab all parameters from the URI.
      *
      * @return ParameterBag
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function getParameters(): ParameterBag
     {

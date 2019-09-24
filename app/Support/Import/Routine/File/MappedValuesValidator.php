@@ -81,7 +81,7 @@ class MappedValuesValidator
      *
      * @return array
      * @throws FireflyException
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function validate(array $mappings): array
     {
@@ -90,7 +90,7 @@ class MappedValuesValidator
         foreach ($mappings as $role => $values) {
             Log::debug(sprintf('Now at role "%s"', $role));
             $values = array_unique($values);
-            if (\count($values) > 0) {
+            if (count($values) > 0) {
                 switch ($role) {
                     default:
                         throw new FireflyException(sprintf('Cannot validate mapped values for role "%s"', $role)); // @codeCoverageIgnore

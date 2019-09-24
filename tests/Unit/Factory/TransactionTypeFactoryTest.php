@@ -32,6 +32,9 @@ use Tests\TestCase;
 /**
  *
  * Class TransactionTypeFactoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class TransactionTypeFactoryTest extends TestCase
 {
@@ -41,7 +44,7 @@ class TransactionTypeFactoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**

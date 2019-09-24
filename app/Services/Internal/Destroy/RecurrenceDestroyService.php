@@ -40,7 +40,7 @@ class RecurrenceDestroyService
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -48,7 +48,7 @@ class RecurrenceDestroyService
      * Delete recurrence.
      *
      * @param Recurrence $recurrence
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function destroy(Recurrence $recurrence): void
     {

@@ -60,7 +60,7 @@ interface GeneratorInterface
      *        ]
      *    ]
      *
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity) // it's five.
+     *  // it's five.
      *
      * @param array $data
      *
@@ -82,7 +82,6 @@ interface GeneratorInterface
     /**
      * Will generate a (ChartJS) compatible array from the given input. Expects this format:.
      *
-     * 'label-of-entry' => value
      * 'label-of-entry' => value
      *
      * @param string $setLabel

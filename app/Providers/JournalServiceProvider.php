@@ -22,10 +22,16 @@ declare(strict_types=1);
 
 namespace FireflyIII\Providers;
 
-use FireflyIII\Helpers\Collector\TransactionCollector;
-use FireflyIII\Helpers\Collector\TransactionCollectorInterface;
+use FireflyIII\Helpers\Collector\GroupCollector;
+use FireflyIII\Helpers\Collector\GroupCollectorInterface;
+use FireflyIII\Repositories\Journal\JournalAPIRepository;
+use FireflyIII\Repositories\Journal\JournalAPIRepositoryInterface;
+use FireflyIII\Repositories\Journal\JournalCLIRepository;
+use FireflyIII\Repositories\Journal\JournalCLIRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepository;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
+use FireflyIII\Repositories\TransactionGroup\TransactionGroupRepository;
+use FireflyIII\Repositories\TransactionGroup\TransactionGroupRepositoryInterface;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 
@@ -48,24 +54,44 @@ class JournalServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerRepository();
-        $this->registerCollector();
+        $this->registerGroupRepository();
+        $this->registerGroupCollector();
     }
 
     /**
-     * Register the collector.
+     *
      */
-    private function registerCollector(): void
+    private function registerGroupCollector(): void
     {
         $this->app->bind(
-            TransactionCollectorInterface::class,
-            function (Application $app) {
-                /** @var TransactionCollectorInterface $collector */
-                $collector = app(TransactionCollector::class);
+            GroupCollectorInterface::class,
+            static function (Application $app) {
+                /** @var GroupCollectorInterface $collector */
+                $collector = app(GroupCollector::class);
                 if ($app->auth->check()) {
                     $collector->setUser(auth()->user());
                 }
 
                 return $collector;
+            }
+        );
+    }
+
+    /**
+     * Register group repos.
+     */
+    private function registerGroupRepository(): void
+    {
+        $this->app->bind(
+            TransactionGroupRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var TransactionGroupRepositoryInterface $repository */
+                $repository = app(TransactionGroupRepository::class);
+                if ($app->auth->check()) {
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
             }
         );
     }
@@ -77,9 +103,37 @@ class JournalServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             JournalRepositoryInterface::class,
-            function (Application $app) {
+            static function (Application $app) {
                 /** @var JournalRepositoryInterface $repository */
                 $repository = app(JournalRepository::class);
+                if ($app->auth->check()) {
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        // also bind new API repository
+        $this->app->bind(
+            JournalAPIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalAPIRepositoryInterface $repository */
+                $repository = app(JournalAPIRepository::class);
+                if ($app->auth->check()) {
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        // also bind new CLI repository
+        $this->app->bind(
+            JournalCLIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalCLIRepositoryInterface $repository */
+                $repository = app(JournalCLIRepository::class);
                 if ($app->auth->check()) {
                     $repository->setUser(auth()->user());
                 }

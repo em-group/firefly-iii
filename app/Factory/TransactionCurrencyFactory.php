@@ -44,7 +44,7 @@ class TransactionCurrencyFactory
     public function __construct()
     {
         if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', \get_class($this)));
+            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
         }
     }
 
@@ -79,7 +79,7 @@ class TransactionCurrencyFactory
      * @param null|string $currencyCode
      *
      * @return TransactionCurrency|null
-     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     *
      */
     public function find(?int $currencyId, ?string $currencyCode): ?TransactionCurrency
     {

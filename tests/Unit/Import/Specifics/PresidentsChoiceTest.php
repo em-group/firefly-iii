@@ -25,11 +25,14 @@ namespace Tests\Unit\Import\Specifics;
 
 
 use FireflyIII\Import\Specifics\PresidentsChoice;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class PresidentsChoiceTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class PresidentsChoiceTest extends TestCase
 {
@@ -39,7 +42,7 @@ class PresidentsChoiceTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
 
@@ -52,7 +55,7 @@ class PresidentsChoiceTest extends TestCase
 
         $parser = new PresidentsChoice;
         $result = $parser->run($row);
-        $this->assertEquals('-12.34', $result[3]);
+        $this->assertEquals('-12.340000000000', $result[3]);
         $this->assertEquals('Descr', $result[2]);
 
     }

@@ -33,6 +33,9 @@ use Tests\TestCase;
 /**
  *
  * Class CallbackControllerTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class CallbackControllerTest extends TestCase
 {
@@ -42,7 +45,7 @@ class CallbackControllerTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -55,6 +58,8 @@ class CallbackControllerTest extends TestCase
         // config for job:
         $config    = [];
         $newConfig = ['auth_code' => 'abc'];
+
+        $this->mockDefaultSession();
 
         // mock calls.
         $repository->shouldReceive('findByKey')->andReturn(new ImportJob)->once();
@@ -79,6 +84,7 @@ class CallbackControllerTest extends TestCase
 
         // mock calls.
         $repository->shouldReceive('findByKey')->andReturnNull()->once();
+        $this->mockDefaultSession();
 
         $this->be($this->user());
         $response = $this->get(route('import.callback.ynab') . '?code=abc&state=def');
@@ -91,11 +97,9 @@ class CallbackControllerTest extends TestCase
      */
     public function testYnabBasicNoCode(): void
     {
-        $repository = $this->mock(ImportJobRepositoryInterface::class);
+        $this->mock(ImportJobRepositoryInterface::class);
 
-        // config for job:
-        $config    = [];
-        $newConfig = ['auth_code' => 'abc'];
+        $this->mockDefaultSession();
 
         // mock calls.
 

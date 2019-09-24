@@ -25,11 +25,14 @@ namespace Tests\Unit\TransactionRules\Actions;
 use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\TransactionRules\Actions\AppendDescription;
-use Tests\TestCase;
 use Log;
+use Tests\TestCase;
 
 /**
  * Class AppendDescriptionTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class AppendDescriptionTest extends TestCase
 {
@@ -39,7 +42,7 @@ class AppendDescriptionTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -49,11 +52,10 @@ class AppendDescriptionTest extends TestCase
     {
         $ruleAction               = new RuleAction;
         $ruleAction->action_value = 'APPEND';
-
-        $journal        = TransactionJournal::inRandomOrder()->whereNull('deleted_at')->first();
-        $oldDescription = $journal->description;
-        $action         = new AppendDescription($ruleAction);
-        $result         = $action->act($journal);
+        $journal                  = $this->getRandomWithdrawal();
+        $oldDescription           = $journal->description;
+        $action                   = new AppendDescription($ruleAction);
+        $result                   = $action->act($journal);
         $this->assertTrue($result);
 
         $journal = TransactionJournal::find($journal->id);

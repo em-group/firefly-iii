@@ -27,13 +27,15 @@ namespace Tests\Unit\Factory;
 use FireflyIII\Factory\PiggyBankEventFactory;
 use FireflyIII\Models\PiggyBankEvent;
 use FireflyIII\Models\PiggyBankRepetition;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\PiggyBank\PiggyBankRepositoryInterface;
 use Log;
 use Tests\TestCase;
 
 /**
  * Class PiggyBankEventFactoryTest
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class PiggyBankEventFactoryTest extends TestCase
 {
@@ -44,7 +46,7 @@ class PiggyBankEventFactoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-        Log::info(sprintf('Now in %s.', \get_class($this)));
+        Log::info(sprintf('Now in %s.', get_class($this)));
     }
 
     /**
@@ -52,9 +54,8 @@ class PiggyBankEventFactoryTest extends TestCase
      */
     public function testCreateAmountZero(): void
     {
-        /** @var TransactionJournal $transfer */
-        $transfer   = $this->user()->transactionJournals()->where('transaction_type_id', 3)->first();
-        $piggy      = $this->user()->piggyBanks()->first();
+        $transfer   = $this->getRandomTransfer();
+        $piggy      = $this->user()->piggyBanks()->inRandomOrder()->first();
         $repetition = PiggyBankRepetition::first();
         $repos      = $this->mock(PiggyBankRepositoryInterface::class);
         /** @var PiggyBankEventFactory $factory */
@@ -73,8 +74,8 @@ class PiggyBankEventFactoryTest extends TestCase
      */
     public function testCreateNoPiggy(): void
     {
-        /** @var TransactionJournal $transfer */
-        $transfer = $this->user()->transactionJournals()->where('transaction_type_id', 3)->first();
+        $this->mock(PiggyBankRepositoryInterface::class);
+        $transfer = $this->getRandomTransfer();
 
         /** @var PiggyBankEventFactory $factory */
         $factory = app(PiggyBankEventFactory::class);
@@ -89,8 +90,7 @@ class PiggyBankEventFactoryTest extends TestCase
      */
     public function testCreateNoRep(): void
     {
-        /** @var TransactionJournal $transfer */
-        $transfer = $this->user()->transactionJournals()->where('transaction_type_id', 3)->first();
+        $transfer = $this->getRandomTransfer();
         $piggy    = $this->user()->piggyBanks()->first();
         $repos    = $this->mock(PiggyBankRepositoryInterface::class);
         /** @var PiggyBankEventFactory $factory */
@@ -101,6 +101,7 @@ class PiggyBankEventFactoryTest extends TestCase
         $repos->shouldReceive('getRepetition')->andReturn(null);
         $repos->shouldReceive('getExactAmount')->andReturn('0');
 
+        Log::warning('The following error is part of a test.');
         $this->assertNull($factory->create($transfer, $piggy));
     }
 
@@ -109,12 +110,13 @@ class PiggyBankEventFactoryTest extends TestCase
      */
     public function testCreateNotTransfer(): void
     {
-        /** @var TransactionJournal $deposit */
-        $deposit = $this->user()->transactionJournals()->where('transaction_type_id', 2)->first();
-        $piggy   = $this->user()->piggyBanks()->first();
+        $this->mock(PiggyBankRepositoryInterface::class);
+        $deposit = $this->getRandomDeposit();
+
+        $piggy = $this->user()->piggyBanks()->first();
         /** @var PiggyBankEventFactory $factory */
         $factory = app(PiggyBankEventFactory::class);
-
+        Log::warning('The following error is part of a test.');
         $this->assertNull($factory->create($deposit, $piggy));
     }
 
@@ -123,12 +125,12 @@ class PiggyBankEventFactoryTest extends TestCase
      */
     public function testCreateSuccess(): void
     {
-        /** @var TransactionJournal $transfer */
-        $transfer   = $this->user()->transactionJournals()->where('transaction_type_id', 3)->first();
+        $transfer   = $this->getRandomTransfer();
         $piggy      = $this->user()->piggyBanks()->first();
         $repetition = PiggyBankRepetition::first();
         $event      = PiggyBankEvent::first();
         $repos      = $this->mock(PiggyBankRepositoryInterface::class);
+
         /** @var PiggyBankEventFactory $factory */
         $factory = app(PiggyBankEventFactory::class);
 
@@ -140,8 +142,8 @@ class PiggyBankEventFactoryTest extends TestCase
         $repos->shouldReceive('createEventWithJournal')->once()->andReturn($event);
 
         $result = $factory->create($transfer, $piggy);
+        $this->assertNotnull($result);
         $this->assertEquals($result->id, $event->id);
-
     }
 
 }
