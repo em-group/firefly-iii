@@ -60,7 +60,7 @@ class IsDemoUser
                 return response()->redirectTo($previous);
             }
 
-            return response()->redirectTo(route('index')); // @codeCoverageIgnore
+            return response()->redirectTo(route('dashboard')); // @codeCoverageIgnore
         }
 
         return $next($request);

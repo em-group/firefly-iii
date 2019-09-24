@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{{ config('app.name') }}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="fpt/sedna/css/normalize.min.css">
+    <link rel="stylesheet" href="fpt/sedna/css/bootstrap.min.css">
+    <link rel="stylesheet" href="fpt/sedna/css/jquery.fancybox.css">
+    <link rel="stylesheet" href="fpt/sedna/css/flexslider.css">
+    <link rel="stylesheet" href="fpt/sedna/css/styles.css">
+    <link rel="stylesheet" href="fpt/sedna/css/queries.css">
+    <link rel="stylesheet" href="fpt/sedna/css/etline-font.css">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <script src="fpt/sedna/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
+    <style>
+        table#price-compare .fa-check {
+            color: #6cce6b;
+        }
+        table#price-compare .fa-times {
+            color: #d3d3d3;
+        }
+        table#price-compare h4.price {
+            margin:0;
+            padding:0;
+        }
+    </style>
+
+</head>
+<body id="top">
+
+<section class="hero">
+    <section class="navigation">
+        <header>
+            <div class="header-content">
+                <div class="logo"><a href="#" style="font-size:18px;">{{ config('app.name') }}</a></div>
+                <div class="header-nav">
+                    <nav>
+                        <ul class="primary-nav">
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#prices">Prices</a></li>
+                            <li><a href="#about-contact">About</a></li>
+                            <li><a href="#about-contact">Contact</a></li>
+                            <li><a href="#terms">Terms &amp; Conditions</a></li>
+                        </ul>
+                        <ul class="member-actions">
+                            <li><a href="/login" class="login">Log in</a></li>
+                            <li><a href="/signup" class="btn-white btn-small">Sign up</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="navicon">
+                    <a class="nav-toggle" href="#"><span></span></a>
+                </div>
+            </div>
+        </header>
+    </section>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-10 col-md-offset-1">
+                <div class="hero-content text-center">
+                    <h1>Plan your budget with ease</h1>
+                    <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
+                    <a href="/signup" class="btn btn-fill btn-large btn-margin-right">Sign up</a>
+                    <a href="#features" class="btn btn-accent btn-large">Learn more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="down-arrow floating-arrow"><a href="#"><i class="fa fa-angle-down"></i></a></div>
+</section>
+<section class="intro section-padding" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <span data-icon="&#xe033;" class="icon"></span>
+                </div>
+                <div class="intro-content">
+                    <h5>Financial overview</h5>
+                    <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>
+                </div>
+            </div>
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <span data-icon="&#xe030;" class="icon"></span>
+                </div>
+                <div class="intro-content">
+                    <h5>Reports</h5>
+                    <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>
+                </div>
+            </div>
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <span data-icon="&#xe046;" class="icon"></span>
+                </div>
+                <div class="intro-content last">
+                    <h5>Lots of features</h5>
+                    <p>{{ config('app.name') }} offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="features section-padding" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-md-offset-7">
+                <div class="feature-list">
+                    <h3>Never miss a dime</h3>
+                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
+                    <ul class="features-stack">
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe03e;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Easy to use</h5>
+                                <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe040;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Works everywhere</h5>
+                                <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe03c;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Multiple accounts</h5>
+                                <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="device-showcase">
+        <div class="devices">
+            <div class="ipad-wrap wp1"></div>
+            <div class="iphone-wrap wp2"></div>
+        </div>
+    </div>
+    <div class="responsive-feature-img"><img src="fpt/sedna/img/devices-ff.png" alt="responsive devices"></div>
+</section>
+<section class="features-extra section-padding" id="prices">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-list">
+                    <h3>Prices</h3>
+                    <p>To keep things simple, we offer a Basic membership, and a Premium membership.</p>
+                    <p>The Premium membership offers advantages and extra features over the Basic membership.</p>
+                    <a href="/signup" class="btn btn-ghost btn-accent btn-small">Sign up</a>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <table class="table table-striped" id="price-compare">
+                    <thead>
+                    <tr>
+                        <th></th>
+                        <th>{{ subProducts.0.name }}</th>
+                        <th>{{ subProducts.1.name }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dashboard</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Budgets</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Reports</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Tags</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Categories</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Import transaction</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Piggy Banks</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Bills</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Recurring Transactions</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Price</td>
+                            <td><h4 class="price">{{ subProducts.0.price }}/month</h4></td>
+                            <td><h4 class="price">{{ subProducts.1.price }}/month</h4></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="features-extra section-padding" id="about-contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-list">
+                    <h3>About {{ config('app.name') }}</h3>
+                    <p>{{ config('app.name') }} is a fully-fledged budget-planning service which offers anyone to gain control over their earnings and expenses. By providing the software, we can help you get a better overview of your financial status.</p>
+                    <p>{{ config('app.name') }} is served and run by {{ config('firefly.site_owner') }}.</p>
+                    <p>If you have any questions, please don't hesitate to contact us.</p>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-6">
+                <h3>Contact information</h3>
+                <p>You can reach {{ config('app.name') }} by:</p>
+                <table class="table">
+                    <tr>
+                        <td><span class="label label-default"><i class="fa fa-phone"></i> Phone</span></td>
+                        <td>
+                            {{ config('whitelabels.phone') }}<br>
+                            <em>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 ({{ "now"|date('e') }})</em>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><span class="label label-default"><i class="fa fa-envelope"></i> Email</span></td>
+                        <td><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></td>
+                    </tr>
+                    <tr>
+                        <td><span class="label label-default"><i class="fa fa-address-book"></i> Address</span></td>
+                        <td>
+                            {{ config('app.name') }}<br>
+                            {{ config('whitelabels.address_line1') }}<br>
+                            {{ config('whitelabels.address_line2') }}<br>
+                            {{ config('whitelabels.address_line3') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="testimonial-slider section-padding text-center">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="flexslider">
+                    <ul class="slides">
+                        <li>
+                            <div class="avatar"><img src="fpt/sedna/img/testi1.jpeg" alt="Sedna Testimonial Avatar"></div>
+                            <h2>"I managed to cut my expenses by 30% by using {{ config('app.name') }}"</h2>
+                            <p class="author">Tessa May</p>
+                        </li>
+                        <li>
+                            <div class="avatar"><img src="fpt/sedna/img/testi2.jpeg" alt="Sedna Testimonial Avatar"></div>
+                            <h2>"I would recommend {{ config('app.name') }} to anyone who is in need of more financial stability"</h2>
+                            <p class="author">Suzan Boulier</p>
+                        </li>
+                        <li>
+                            <div class="avatar"><img src="fpt/sedna/img/testi3.jpeg" alt="Sedna Testimonial Avatar"></div>
+                            <h2>"{{ config('app.name') }} gives you the perfect overview of your accounts, earnings and expenses."</h2>
+                            <p class="author">Tony Vacues</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="section-padding" id="terms">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
+                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
+                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
+                <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;" id="terms-container">
+                    {{ terms | raw }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<section class="to-top">
+    <div class="container">
+        <div class="row">
+            <div class="to-top-wrap">
+                <a href="#top" class="top"><i class="fa fa-angle-up"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-7">
+                <div class="footer-links">
+                    <ul class="footer-group">
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#prices">Prices</a></li>
+                        <li><a href="#about-contact">About</a></li>
+                        <li><a href="#about-contact">Contact</a></li>
+                        <li><a href="#terms">Terms & Conditions</a></li>
+                    </ul>
+                    <p>Copyright © {{ "now"|date("Y") }} <a href="#">{{ config('app.name') }}</a>
+                </div>
+            </div>
+            <div class="social-share">
+                <p>
+                    {{ config('app.name') }}<br>
+                    {{ config('whitelabels.address_line1') }}<br>
+                    {{ config('whitelabels.address_line2') }}<br>
+                    {{ config('whitelabels.address_line3') }}
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="fpt/sedna/bower_components/retina.js/dist/retina.js"></script>
+<script src="fpt/sedna/js/jquery.fancybox.pack.js"></script>
+<script src="fpt/sedna/js/vendor/bootstrap.min.js"></script>
+<script src="fpt/sedna/js/scripts.js"></script>
+<script src="fpt/sedna/js/jquery.flexslider-min.js"></script>
+<script src="fpt/sedna/bower_components/classie/classie.js"></script>
+<script src="fpt/sedna/bower_components/jquery-waypoints/lib/jquery.waypoints.min.js"></script>
+
+<script>
+    $(function(){
+        let positions = {
+            'terms-terms': $('#terms-container').find('h2').eq(0).position().top,
+            'terms-privacy-policy': $('#terms-container').find('h2').eq(1).position().top,
+            'terms-cookie-policy': $('#terms-container').find('h2').eq(2).position().top,
+        };
+        window.gotoSection = function(section){
+            $('#terms-container').scrollTop(positions[section]-45);
+        };
+    });
+</script>
+
+</body>
+</html>

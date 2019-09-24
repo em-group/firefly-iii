@@ -1,3 +1,21 @@
 {
-    "/v1/js/app.js": "/v1/js/app.js"
+    "/fpt/sedna/bower_components/classie/classie.js": "/fpt/sedna/bower_components/classie/classie.js",
+    "/fpt/sedna/bower_components/jquery-waypoints/lib/jquery.waypoints.min.js": "/fpt/sedna/bower_components/jquery-waypoints/lib/jquery.waypoints.min.js",
+    "/fpt/sedna/bower_components/retina.js/dist/retina.js": "/fpt/sedna/bower_components/retina.js/dist/retina.js",
+    "/fpt/sedna/js/jquery.fancybox.pack.js": "/fpt/sedna/js/jquery.fancybox.pack.js",
+    "/fpt/sedna/js/jquery.flexslider-min.js": "/fpt/sedna/js/jquery.flexslider-min.js",
+    "/fpt/sedna/js/scripts.js": "/fpt/sedna/js/scripts.js",
+    "/fpt/sedna/js/vendor/bootstrap.min.js": "/fpt/sedna/js/vendor/bootstrap.min.js",
+    "/fpt/sedna/js/vendor/jquery-1.11.2.min.js": "/fpt/sedna/js/vendor/jquery-1.11.2.min.js",
+    "/fpt/sedna/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js": "/fpt/sedna/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js",
+    "/v1/js/app.js": "/v1/js/app.js",
+    "/fpt/sedna/css/ie.css": "/fpt/sedna/css/ie.css",
+    "/fpt/sedna/css/print.css": "/fpt/sedna/css/print.css",
+    "/fpt/sedna/css/styles.css": "/fpt/sedna/css/styles.css",
+    "/fpt/sedna/css/bootstrap.min.css": "/fpt/sedna/css/bootstrap.min.css",
+    "/fpt/sedna/css/etline-font.css": "/fpt/sedna/css/etline-font.css",
+    "/fpt/sedna/css/flexslider.css": "/fpt/sedna/css/flexslider.css",
+    "/fpt/sedna/css/jquery.fancybox.css": "/fpt/sedna/css/jquery.fancybox.css",
+    "/fpt/sedna/css/normalize.min.css": "/fpt/sedna/css/normalize.min.css",
+    "/fpt/sedna/css/queries.css": "/fpt/sedna/css/queries.css"
 }

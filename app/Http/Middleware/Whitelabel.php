@@ -7,6 +7,7 @@ use FireflyIII\Models\WhitelabelConfig;
 use FireflyIII\Support\WhitelabelConfiguration;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class Whitelabel
 {

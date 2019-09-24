@@ -374,7 +374,7 @@ class ProfileController extends Controller
 
             session()->flash('success', (string)trans('firefly.email_changed'));
 
-            return redirect(route('index'));
+            return redirect(route('dashboard'));
         }
 
         // now actually update user:
@@ -389,7 +389,7 @@ class ProfileController extends Controller
         $request->session()->invalidate();
         session()->flash('success', (string)trans('firefly.email_changed'));
 
-        return redirect(route('index'));
+        return redirect(route('dashboard'));
     }
 
     /**
@@ -492,7 +492,7 @@ class ProfileController extends Controller
         session()->flush();
         $repository->destroy($user);
 
-        return redirect(route('index'));
+        return redirect(route('dashboard'));
     }
 
     /**

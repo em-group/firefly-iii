@@ -87,6 +87,7 @@
     "mschindler83/fints-hbci-php": "1.*",
     "pragmarx/google2fa-laravel": "1.*",
     "pragmarx/recovery": "^0.1.0",
+    "predis/predis": "^1.1",
     "rcrowe/twigbridge": "0.9.*"
   },
   "require-dev": {
