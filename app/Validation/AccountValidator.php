@@ -106,6 +106,7 @@ class AccountValidator
 
             return false;
         }
+
         switch ($this->transactionType) {
             default:
                 $this->destError = sprintf('AccountValidator::validateDestination cannot handle "%s", so it will always return false.', $this->transactionType);
@@ -508,7 +509,14 @@ class AccountValidator
         $this->destination = $search;
 
         // must not be the same as the source account
-        return !(null !== $this->source && $this->source->id === $this->destination->id);
+        if (null !== $this->source && $this->source->id === $this->destination->id) {
+            $this->sourceError = 'Source and destination are the same.';
+            $this->destError   = 'Source and destination are the same.';
+
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -1,10 +1,10 @@
 {% include 'emails.header-html' %}
 <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;font-size:13px;">
     {% if transformed|length == 1 %}
-        {{ config('app.name') }} has created a transaction for you. You can find it in your {{ config('app.name') }} installation:
+        {{ config('app.name') }} has created a transaction for you.
     {% endif %}
     {% if transformed|length > 1 %}
-        {{ config('app.name') }} has created {{ groups.count }} transactions for you. You can find them in your {{ config('app.name') }} installation:
+        {{ config('app.name') }} has created {{ groups.count }} transactions for you.
     {% endif %}
 </p>
 

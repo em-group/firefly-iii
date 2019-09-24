@@ -99,11 +99,11 @@ return [
         FireflyIII\Providers\TagServiceProvider::class,
         FireflyIII\Providers\AdminServiceProvider::class,
         FireflyIII\Providers\RecurringServiceProvider::class,
-        ImportServiceProvider::class,
         FireflyIII\Providers\WhitelabelServiceProvider::class,
         \FireflyIII\Providers\FeatureAccessServiceProvider::class,
 
 
+        ImportServiceProvider::class,
     ],
     'aliases'         => [
         'App'           => Illuminate\Support\Facades\App::class,

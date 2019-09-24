@@ -1,7 +1,8 @@
 <?php
+
 /**
- * BalanceReportHelperInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * components.php
+ * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
  * This file is part of Firefly III.
  *
@@ -18,27 +19,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
-namespace FireflyIII\Helpers\Report;
+return [
+    // profile
+    'personal_access_tokens' => 'Τεκμήρια προσωπικής πρόσβασης',
 
-use Carbon\Carbon;
-use FireflyIII\Helpers\Collection\Balance;
-use Illuminate\Support\Collection;
-
-/**
- * Interface BalanceReportHelperInterface.
- */
-interface BalanceReportHelperInterface
-{
-    /**
-     * Generates the report (duh).
-     *
-     * @param Collection $accounts
-     * @param Carbon     $start
-     * @param Carbon     $end
-     *
-     * @return array
-     */
-    public function getBalanceReport(Collection $accounts, Carbon $start, Carbon $end): array;
-}
+    // bills:
+    'not_expected_period'    => 'Δεν αναμένεται αυτή την περίοδο',
+    'not_or_not_yet'         => 'Όχι (ακόμη)',
+];

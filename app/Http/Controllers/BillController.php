@@ -65,6 +65,7 @@ class BillController extends Controller
         $maxPostSize = app('steam')->phpBytes(ini_get('post_max_size'));
         $uploadSize  = min($maxFileSize, $maxPostSize);
         app('view')->share('uploadSize', $uploadSize);
+        app('view')->share('showBudget', true);
 
         $this->middleware(
             function ($request, $next) {
@@ -433,17 +434,22 @@ class BillController extends Controller
             if (false === $bill['active']) {
                 continue;
             }
+            if (0 === count($bill['pay_dates'])) {
+                continue;
+            }
             /** @var TransactionCurrency $currency */
-            $currencyId                   = $bill['currency_id'];
-            $sums[$currencyId]            = $sums[$currencyId] ?? [
+            $currencyId        = $bill['currency_id'];
+            $sums[$currencyId] = $sums[$currencyId] ?? [
                     'currency_id'             => $currencyId,
                     'currency_code'           => $bill['currency_code'],
                     'currency_name'           => $bill['currency_name'],
                     'currency_symbol'         => $bill['currency_symbol'],
                     'currency_decimal_places' => $bill['currency_decimal_places'],
-                    'avg'                 => '0',
+                    'avg'                     => '0',
                 ];
-            $avg                          = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
+
+            $avg                      = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
+            $avg                      = bcmul($avg, (string)count($bill['pay_dates']));
             $sums[$currencyId]['avg'] = bcadd($sums[$currencyId]['avg'], $avg);
         }
 

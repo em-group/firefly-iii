@@ -35,10 +35,11 @@ use Throwable;
 
 /**
  * Class MonthReportGenerator.
+ *  TODO include info about tags.
  *
  * @codeCoverageIgnore
  */
-class MonthReportGenerator extends Support implements ReportGeneratorInterface
+class MonthReportGenerator implements ReportGeneratorInterface
 {
     /** @var Collection The accounts in the report. */
     private $accounts;

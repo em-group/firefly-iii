@@ -53,8 +53,6 @@ class AvailableBudgetController extends Controller
     {
         parent::__construct();
 
-        app('view')->share('hideBudgets', true);
-
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('title', (string)trans('firefly.budgets'));
@@ -198,7 +196,7 @@ class AvailableBudgetController extends Controller
         }
         session()->flash('success', trans('firefly.set_ab'));
 
-        return redirect(route('budgets.index'));
+        return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
     }
 
     /**

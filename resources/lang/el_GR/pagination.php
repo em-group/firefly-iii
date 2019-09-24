@@ -1,6 +1,8 @@
-/*
- * month.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+<?php
+
+/**
+ * pagination.php
+ * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
  * This file is part of Firefly III.
  *
@@ -17,16 +19,10 @@
  * You should have received a copy of the GNU General Public License
  * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
-/** global: spentUri, categoryUri, budgetUri, expenseUri, incomeUri, mainUri  */
-$(function () {
-    "use strict";
-    doubleYChart(mainUri, 'in-out-chart');
 
-    loadAjaxPartial('inOutAccounts', spentUri);
-    loadAjaxPartial('inOutCategory', categoryUri);
-    loadAjaxPartial('inOutBudget', budgetUri);
-    loadAjaxPartial('topXexpense', expenseUri);
-    loadAjaxPartial('topXincome', incomeUri);
+declare(strict_types=1);
 
-});
-
+return [
+    'previous' => '&laquo; Προηγούμενο',
+    'next'     => 'Επόμενο &raquo;',
+];

@@ -1,6 +1,6 @@
 {% include 'emails.header-text' %}
-{% if transformed|length == 1 %}{{ config('app.name') }} has created a transaction for you. You can find it in your {{ config('app.name') }} installation:{% endif %}
-{% if transformed|length > 1 %}{{ config('app.name') }} has created {{ groups.count }} transactions for you. You can find them in your {{ config('app.name') }} installation:{% endif %}
+{% if transformed|length == 1 %}{{ config('app.name') }} has created a transaction for you.{% endif %}
+{% if transformed|length > 1 %}{{ config('app.name') }} has created {{ groups.count }} transactions for you.{% endif %}
 
 
 {% for group in transformed %}

@@ -1,7 +1,8 @@
 <?php
+
 /**
- * BudgetReportHelperInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * bank.php
+ * Copyright (c) 2018 thegrumpydictator@gmail.com
  *
  * This file is part of Firefly III.
  *
@@ -18,26 +19,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
-namespace FireflyIII\Helpers\Report;
-
-use Carbon\Carbon;
-use Illuminate\Support\Collection;
-
-/**
- * Interface BudgetReportHelperInterface.
- */
-interface BudgetReportHelperInterface
-{
-    /**
-     * Generates the budget report.
-     *
-     * @param Carbon     $start
-     * @param Carbon     $end
-     * @param Collection $accounts
-     *
-     * @return array
-     */
-    public function getBudgetReport(Carbon $start, Carbon $end, Collection $accounts): array;
-}
+return [
+];

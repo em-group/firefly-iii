@@ -181,6 +181,12 @@
                                 After updating, return here to continue editing.
                             </label>
                         </div>
+                        <div class="checkbox">
+                            <label>
+                                <input v-model="storeAsNew" name="store_as_new" type="checkbox">
+                                Store as a new transaction instead of updating.
+                            </label>
+                        </div>
                     </div>
                     <div class="box-footer">
                         <div class="btn-group">
@@ -203,7 +209,7 @@
             this.getGroup();
         },
         ready() {
-            console.log('Ready Group ID: ' + this.groupId);
+            // console.log('Ready Group ID: ' + this.groupId);
         },
         methods: {
             positiveAmount(amount) {
@@ -290,10 +296,10 @@
                 }
             },
             clearDestination(index) {
-                console.log('clearDestination(' + index + ')');
+                // console.log('clearDestination(' + index + ')');
                 // reset destination account:
-                console.log('Destination allowed types first:');
-                console.log(this.transactions[index].destination_account.allowed_types);
+                // console.log('Destination allowed types first:');
+                // console.log(this.transactions[index].destination_account.allowed_types);
                 this.transactions[index].destination_account = {
                     id: 0,
                     name: '',
@@ -313,8 +319,8 @@
                     this.selectedSourceAccount(index, this.transactions[index].source_account);
                 }
 
-                console.log('Destination allowed types after:');
-                console.log(this.transactions[index].destination_account.allowed_types);
+                // console.log('Destination allowed types after:');
+                // console.log(this.transactions[index].destination_account.allowed_types);
             },
             getGroup() {
 
@@ -323,7 +329,7 @@
 
 
                 const uri = './api/v1/transactions/' + groupId + '?_token=' + document.head.querySelector('meta[name="csrf-token"]').content;
-                console.log(uri);
+                // console.log(uri);
 
                 // fill in transactions array.
                 axios.get(uri)
@@ -331,11 +337,11 @@
                         this.processIncomingGroup(response.data.data);
                     })
                     .catch(error => {
-                        console.error('Some error.');
+                        //console.error('Some error.');
                     });
             },
             processIncomingGroup(data) {
-                console.log(data);
+                // console.log(data);
                 this.group_title = data.attributes.group_title;
                 let transactions = data.attributes.transactions.reverse();
                 for (let key in transactions) {
@@ -347,7 +353,7 @@
                 }
             },
             processIncomingGroupRow(transaction) {
-                console.log(transaction);
+                // console.log(transaction);
                 this.setTransactionType(transaction.type);
 
                 let newTags = [];
@@ -579,31 +585,30 @@
                 return currentArray;
             },
             submit: function (e) {
-                console.log('I am submit');
                 const page = window.location.href.split('/');
                 const groupId = page[page.length - 1];
-                const uri = './api/v1/transactions/' + groupId + '?_token=' + document.head.querySelector('meta[name="csrf-token"]').content;
+                let uri = './api/v1/transactions/' + groupId + '?_token=' + document.head.querySelector('meta[name="csrf-token"]').content;
+                let method = 'PUT';
+                if (this.storeAsNew) {
+                    // other links.
+                    uri = './api/v1/transactions?_token=' + document.head.querySelector('meta[name="csrf-token"]').content;
+                    method = 'POST';
+                }
                 const data = this.convertData();
 
                 let button = $(e.currentTarget);
                 button.prop("disabled", true);
 
-                axios.put(uri, data)
-                    .then(response => {
+                //axios.put(uri, data)
+                axios({
+                          method: method,
+                          url: uri,
+                          data: data,
+                      }).then(response => {
 
                         if (0 === this.collectAttachmentData(response)) {
                             this.redirectUser(response.data.data.id, button);
                         }
-
-                        // if (this.returnAfter) {
-                        //     this.setDefaultErrors();
-                        //     // do message:
-                        //     this.success_message = '<a href="transactions/show/' + response.data.data.id + '">The transaction</a> has been updated.';
-                        //     this.error_message = '';
-                        //     button.prop("disabled", false);
-                        // } else {
-                        //     window.location.href = 'transactions/show/' + response.data.data.id + '?message=updated';
-                        // }
                     }).catch(error => {
                     // give user errors things back.
                     // something something render errors.
@@ -617,22 +622,31 @@
             },
 
             redirectUser(groupId, button) {
-                console.log('In redirectUser()');
+                // console.log('In redirectUser()');
                 // if count is 0, send user onwards.
 
                 if (this.returnAfter) {
                     this.setDefaultErrors();
-                    // do message:
-                    this.success_message = '<a href="transactions/show/' + groupId + '">The transaction</a> has been updated.';
-                    this.error_message = '';
+                    // do message if update or new:
+                    if (this.storeAsNew) {
+                        this.success_message = '<a href="transactions/show/' + groupId + '">Transaction #' + groupId + '</a> has been created.';
+                        this.error_message = '';
+                    } else {
+                        this.success_message = '<a href="transactions/show/' + groupId + '">The transaction</a> has been updated.';
+                        this.error_message = '';
+                    }
                     button.prop("disabled", false);
                 } else {
-                    window.location.href = window.previousUri + '?transaction_group_id=' + groupId+ '&message=updated';
+                    if (this.storeAsNew) {
+                        window.location.href = window.previousUri + '?transaction_group_id=' + groupId + '&message=created';
+                    } else {
+                        window.location.href = window.previousUri + '?transaction_group_id=' + groupId + '&message=updated';
+                    }
                 }
             },
 
             collectAttachmentData(response) {
-                console.log('Now incollectAttachmentData()');
+                // console.log('Now incollectAttachmentData()');
                 let groupId = response.data.data.id;
 
                 // array of all files to be uploaded:
@@ -650,9 +664,12 @@
                         for (const fileKey in attachments[key].files) {
                             if (attachments[key].files.hasOwnProperty(fileKey) && /^0$|^[1-9]\d*$/.test(fileKey) && fileKey <= 4294967294) {
                                 // include journal thing.
+
+                                let transactions = response.data.data.attributes.transactions.reverse();
+
                                 toBeUploaded.push(
                                     {
-                                        journal: response.data.data.attributes.transactions[key].transaction_journal_id,
+                                        journal: transactions[key].transaction_journal_id,
                                         file: attachments[key].files[fileKey]
                                     }
                                 );
@@ -661,7 +678,7 @@
                     }
                 }
                 let count = toBeUploaded.length;
-                console.log('Found ' + toBeUploaded.length + ' attachments.');
+                // console.log('Found ' + toBeUploaded.length + ' attachments.');
 
                 // loop all uploads.
                 for (const key in toBeUploaded) {
@@ -695,7 +712,7 @@
                 let uploads = 0;
                 for (const key in fileData) {
                     if (fileData.hasOwnProperty(key) && /^0$|^[1-9]\d*$/.test(key) && key <= 4294967294) {
-                        console.log('Creating attachment #' + key);
+                        // console.log('Creating attachment #' + key);
                         // axios thing, + then.
                         const uri = './api/v1/attachments';
                         const data = {
@@ -705,23 +722,23 @@
                         };
                         axios.post(uri, data)
                             .then(response => {
-                                console.log('Created attachment #' + key);
-                                console.log('Uploading attachment #' + key);
+                                // console.log('Created attachment #' + key);
+                                // console.log('Uploading attachment #' + key);
                                 const uploadUri = './api/v1/attachments/' + response.data.data.id + '/upload';
                                 axios.post(uploadUri, fileData[key].content)
                                     .then(response => {
-                                        console.log('Uploaded attachment #' + key);
+                                        // console.log('Uploaded attachment #' + key);
                                         uploads++;
                                         if (uploads === count) {
                                             // finally we can redirect the user onwards.
-                                            console.log('FINAL UPLOAD');
+                                            // console.log('FINAL UPLOAD');
                                             this.redirectUser(groupId);
                                         }
-                                        console.log('Upload complete!');
+                                        // console.log('Upload complete!');
                                         return true;
                                     }).catch(error => {
-                                    console.error('Could not upload');
-                                    console.error(error);
+                                    // console.error('Could not upload');
+                                    // console.error(error);
                                     return false;
                                 });
                             });
@@ -850,13 +867,13 @@
                                         this.transactions[transactionIndex].errors.foreign_amount.concat(errors.errors[key]);
                                     break;
                             }
-                        }
-                        // unique some things
-                        this.transactions[transactionIndex].errors.source_account =
-                            Array.from(new Set(this.transactions[transactionIndex].errors.source_account));
-                        this.transactions[transactionIndex].errors.destination_account =
-                            Array.from(new Set(this.transactions[transactionIndex].errors.destination_account));
 
+                            // unique some things
+                            this.transactions[transactionIndex].errors.source_account =
+                                Array.from(new Set(this.transactions[transactionIndex].errors.source_account));
+                            this.transactions[transactionIndex].errors.destination_account =
+                                Array.from(new Set(this.transactions[transactionIndex].errors.destination_account));
+                        }
                     }
                 }
             },
@@ -901,6 +918,7 @@
                 transactions: [],
                 group_title: "",
                 returnAfter: false,
+                storeAsNew: false,
                 transactionType: null,
                 group_title_errors: [],
                 resetButtonDisabled: true,
