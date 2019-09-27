@@ -100,7 +100,8 @@ return [
         FireflyIII\Providers\AdminServiceProvider::class,
         FireflyIII\Providers\RecurringServiceProvider::class,
         FireflyIII\Providers\WhitelabelServiceProvider::class,
-        \FireflyIII\Providers\FeatureAccessServiceProvider::class,
+        FireflyIII\Providers\FeatureAccessServiceProvider::class,
+        FireflyIII\Providers\UserServiceProvider::class,
 
 
         ImportServiceProvider::class,
