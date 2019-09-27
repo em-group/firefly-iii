@@ -837,16 +837,16 @@ try {
     );
 
     Breadcrumbs::register(
-        'reports.report.account',
-        function (BreadcrumbsGenerator $breadcrumbs, string $accountIds, string $expenseIds, Carbon $start, Carbon $end) {
+        'reports.report.double',
+        function (BreadcrumbsGenerator $breadcrumbs, string $accountIds, string $doubleIds, Carbon $start, Carbon $end) {
             $breadcrumbs->parent('reports.index');
 
             $monthFormat = (string)trans('config.month_and_day');
             $startString = $start->formatLocalized($monthFormat);
             $endString   = $end->formatLocalized($monthFormat);
-            $title       = (string)trans('firefly.report_account', ['start' => $startString, 'end' => $endString]);
+            $title       = (string)trans('firefly.report_double', ['start' => $startString, 'end' => $endString]);
 
-            $breadcrumbs->push($title, route('reports.report.account', [$accountIds, $expenseIds, $start->format('Ymd'), $end->format('Ymd')]));
+            $breadcrumbs->push($title, route('reports.report.double', [$accountIds, $doubleIds, $start->format('Ymd'), $end->format('Ymd')]));
         }
     );
 
@@ -1197,6 +1197,23 @@ try {
             $objectType= strtolower(reset($journals)['transaction_type_type']);
             $breadcrumbs->parent('transactions.index', $objectType);
             $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.delete', ['']));
+        }
+    );
+
+    // MEMBERSHIP
+    Breadcrumbs::register(
+        'membership.index',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('home');
+            $breadcrumbs->push(trans('memberships.membership'), route('membership.index'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'membership.buy',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('membership.index');
+            $breadcrumbs->push(trans('memberships.purchase'), route('membership.buy'));
         }
     );
 

@@ -28,36 +28,36 @@ return [
     'index_accounts-chart'                            => 'Ce tableau montre le solde actuel de vos comptes d\'actifs. Vous pouvez sélectionner les comptes visibles ici dans vos préférences.',
     'index_box_out_holder'                            => 'Cette petite boîte et les cases à côté de celle-ci vous donneront un rapide aperçu de votre situation financière.',
     'index_help'                                      => 'Si vous avez besoin d’aide avec une page ou un formulaire, appuyez sur ce bouton.',
-    'index_outro'                                     => 'La plupart des pages de Firefly III vont commencer avec un petit tour comme celui-ci. Merci de me contacter si vous avez des questions ou des commentaires. Profitez-en !',
+    'index_outro'                                     => 'La plupart des pages de Firefly III vont commencer avec un petit tour comme celui-ci. Merci de me contacter si vous avez des questions ou des commentaires. Profitez-en !',
     'index_sidebar-toggle'                            => 'Pour créer de nouvelles transactions, comptes ou autres choses, utilisez le menu sous cette icône.',
     'index_cash_account'                              => 'Voici les comptes créés jusqu\'ici. Vous pouvez utilier le compte de trésorerie pour faire le suivi de vos dépenses en espèces, mais ce n\'est pas obligatoire, bien sûr.',
 
     // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Choisissez votre compte d\'actif ou passif préféré à partir de ce menu déroulant.',
+    'transactions_create_withdrawal_source'           => 'Choisissez votre compte d\'actif ou passif préféré à partir de ce menu déroulant.',
     'transactions_create_withdrawal_destination'      => 'Sélectionnez un compte de dépenses ici. Laissez-le vide si vous voulez faire une dépense en espèces.',
     'transactions_create_withdrawal_foreign_currency' => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
     'transactions_create_withdrawal_more_meta'        => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
-    'transactions_create_withdrawal_split_add'        => 'If you want to split a transaction, add more splits with this button',
+    'transactions_create_withdrawal_split_add'        => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
 
     // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Select or type the payee in this auto-completing dropdown/textbox. Leave it empty if you want to make a cash deposit.',
-    'transactions_create_deposit_destination'         => 'Select an asset or liability account here.',
-    'transactions_create_deposit_foreign_currency'    => 'Use this field to set a foreign currency and amount.',
-    'transactions_create_deposit_more_meta'           => 'Plenty of other meta data you set in these fields.',
-    'transactions_create_deposit_split_add'           => 'If you want to split a transaction, add more splits with this button',
+    'transactions_create_deposit_source'              => 'Sélectionnez ou tapez le bénéficiaire dans ce champ. Laissez le champ vide si vous voulez effectuer un dépôt d\'espèces.',
+    'transactions_create_deposit_destination'         => 'Sélectionnez un compte d\'actif ou de passif ici.',
+    'transactions_create_deposit_foreign_currency'    => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
+    'transactions_create_deposit_more_meta'           => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
+    'transactions_create_deposit_split_add'           => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
 
     // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Select the source asset account here.',
-    'transactions_create_transfer_destination'        => 'Select the destination asset account here.',
-    'transactions_create_transfer_foreign_currency'   => 'Use this field to set a foreign currency and amount.',
-    'transactions_create_transfer_more_meta'          => 'Plenty of other meta data you set in these fields.',
-    'transactions_create_transfer_split_add'          => 'If you want to split a transaction, add more splits with this button',
+    'transactions_create_transfer_source'             => 'Sélectionner le compte d\'actif source ici.',
+    'transactions_create_transfer_destination'        => 'Sélectionner le compte d\'actif de destination ici.',
+    'transactions_create_transfer_foreign_currency'   => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
+    'transactions_create_transfer_more_meta'          => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
+    'transactions_create_transfer_split_add'          => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
 
     // create account:
     'accounts_create_iban'                            => 'Donnez à vos comptes un IBAN valide. Cela pourrait rendre une importation de données très facile à l\'avenir.',
     'accounts_create_asset_opening_balance'           => 'Les comptes d\'actifs peuvent avoir un «solde d\'ouverture», indiquant le début de l\'historique de ce compte dans Firefly III.',
     'accounts_create_asset_currency'                  => 'Firefly III prend en charge plusieurs devises. Les comptes d\'actifs ont une devise principale, que vous devez définir ici.',
-    'accounts_create_asset_virtual'                   => 'Il peut parfois être utile de donner à votre compte un solde virtuel : un montant supplémentaire toujours ajouté ou soustrait du solde réel.',
+    'accounts_create_asset_virtual'                   => 'Il peut parfois être utile de donner à votre compte un solde virtuel : un montant supplémentaire toujours ajouté ou soustrait du solde réel.',
 
     // budgets index
     'budgets_index_intro'                             => 'Les budgets sont utilisés pour gérer vos finances et forment l\'une des principales fonctions de Firefly III.',
@@ -72,7 +72,7 @@ return [
     'reports_index_intro'                             => 'Utilisez ces rapports pour obtenir des informations détaillées sur vos finances.',
     'reports_index_inputReportType'                   => 'Choisissez un type de rapport. Consultez les pages d\'aide pour voir ce que vous présente chaque rapport.',
     'reports_index_inputAccountsSelect'               => 'Vous pouvez exclure ou inclure les comptes d\'actifs comme bon vous semble.',
-    'reports_index_inputDateRange'                    => 'La plage de dates sélectionnée est entièrement libre : de un jour à 10 ans.',
+    'reports_index_inputDateRange'                    => 'La plage de dates sélectionnée est entièrement libre : de un jour à 10 ans.',
     'reports_index_extra-options-box'                 => 'Selon le rapport que vous avez sélectionné, vous pouvez sélectionner des filtres et options supplémentaires ici. Regardez cette case lorsque vous modifiez les types de rapport.',
 
     // reports (reports)

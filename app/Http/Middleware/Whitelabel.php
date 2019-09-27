@@ -73,6 +73,10 @@ class Whitelabel
      */
     public function bootstrap(Application $app)
     {
-        static::setConfig(\FireflyIII\Models\Whitelabel::first());
+        try {
+            static::setConfig(\FireflyIII\Models\Whitelabel::first());
+        } catch (\Exception $ex) {
+            // Ignore, might be during setup
+        }
     }
 }
