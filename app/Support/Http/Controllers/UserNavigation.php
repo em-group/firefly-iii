@@ -130,13 +130,13 @@ trait UserNavigation
                 Log::error(sprintf('Account #%d has no valid journals. Dont know where it belongs.', $account->id));
                 session()->flash('error', trans('firefly.cant_find_redirect_account'));
 
-                return redirect(route('index'));
+                return redirect(route('dashboard'));
             }
 
             return redirect(route('accounts.show', [$other->account_id]));
         }
 
-        return redirect(route('index'));
+        return redirect(route('dashboard'));
     }
 
 

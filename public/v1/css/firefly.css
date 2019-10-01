@@ -263,3 +263,10 @@ span.twitter-typeahead {
     outline: 0;
     background-color: #428bca;
 }
+
+.control-sidebar-menu .menu-icon {
+    width:23px;
+    height:23px;
+    line-height:23px;
+    font-size:10px;
+}

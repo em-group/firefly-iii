@@ -102,7 +102,7 @@ class DebugController extends Controller
         Artisan::call('view:clear');
         Log::debug('Done! Redirecting...');
 
-        return redirect(route('index'));
+        return redirect(route('dashboard'));
     }
 
     /**
