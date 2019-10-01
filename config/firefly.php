@@ -124,6 +124,7 @@ return [
         'single_user_mode' => true,
         'is_demo_site'     => false,
     ],
+    'frontpage_template'           => env('FRONTPAGE_TEMPLATE'),
     'encryption'                   => null === env('USE_ENCRYPTION') || env('USE_ENCRYPTION') === true,
     'version'                      => '4.8.1.1',
     'api_version'                  => '0.10.2',

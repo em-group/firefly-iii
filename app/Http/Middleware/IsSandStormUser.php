@@ -51,7 +51,7 @@ class IsSandStormUser
         if (1 === (int)getenv('SANDSTORM')) {
             app('session')->flash('warning', (string)trans('firefly.sandstorm_not_available'));
 
-            return response()->redirectTo(route('index'));
+            return response()->redirectTo(route('dashboard'));
         }
 
         return $next($request);
