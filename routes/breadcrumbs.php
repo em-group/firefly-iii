@@ -80,6 +80,13 @@ try {
         }
     );
 
+    Breadcrumbs::register(
+        'dashboard',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->push(trans('breadcrumbs.home'), route('dashboard'));
+        }
+    );
+
     // ACCOUNTS
     Breadcrumbs::register(
         'accounts.index',
@@ -269,6 +276,62 @@ try {
         function (BreadcrumbsGenerator $breadcrumbs, TransactionJournalLink $link) {
             $breadcrumbs->parent('home');
             $breadcrumbs->push(trans('breadcrumbs.delete_journal_link'), route('transactions.link.delete', $link->id));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('admin.index');
+            $breadcrumbs->push(trans('whitelabels.list_all_whitelabels'), route('admin.whitelabels'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.edit',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.edit_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.edit', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.create',
+        function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.create_whitelabel'), route('admin.whitelabels.create'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.activate',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.activate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.activate', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.deactivate',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.deactivate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.deactivate', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.update',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.update_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
+        }
+    );
+
+    Breadcrumbs::register(
+        'admin.whitelabels.store',
+        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+            $breadcrumbs->parent('admin.whitelabels');
+            $breadcrumbs->push(trans('whitelabels.store_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
         }
     );
 
@@ -1134,6 +1197,23 @@ try {
             $objectType= strtolower(reset($journals)['transaction_type_type']);
             $breadcrumbs->parent('transactions.index', $objectType);
             $breadcrumbs->push(trans('firefly.mass_edit_journals'), route('transactions.mass.delete', ['']));
+        }
+    );
+
+    // MEMBERSHIP
+    Breadcrumbs::register(
+        'membership.index',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('home');
+            $breadcrumbs->push(trans('memberships.membership'), route('membership.index'));
+        }
+    );
+
+    Breadcrumbs::register(
+        'membership.buy',
+        static function (BreadcrumbsGenerator $breadcrumbs) {
+            $breadcrumbs->parent('membership.index');
+            $breadcrumbs->push(trans('memberships.purchase'), route('membership.buy'));
         }
     );
 

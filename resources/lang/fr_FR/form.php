@@ -154,7 +154,7 @@ return [
     'delete_link_type'            => 'Supprimer le type de lien ":name"',
     'delete_user'                 => 'Supprimer l\'utilisateur ":email"',
     'delete_recurring'            => 'Supprimer l\'opération périodique ":title"',
-    'user_areYouSure'             => 'Si vous supprimez l\'utilisateur ":email", tout sera perdu. Il n\'y a pas d\'annulation, de restauration ou quoi que ce soit de la sorte. Si vous supprimez votre propre compte, vous n\'aurez plus accès à cette instance de '.config('app.name').'.',
+    'user_areYouSure'             => 'Si vous supprimez l\'utilisateur ":email", tout sera perdu. Il n\'y a pas d\'annulation, de restauration ou quoi que ce soit de la sorte. Si vous supprimez votre propre compte, vous n\'aurez plus accès à cette instance de Firefly III.',
     'attachment_areYouSure'       => 'Êtes-vous sûr de vouloir supprimer la pièce jointe nommée ":name" ?',
     'account_areYouSure'          => 'Êtes-vous sûr de vouloir supprimer le compte nommé ":name" ?',
     'bill_areYouSure'             => 'Êtes-vous sûr de vouloir supprimer la facture nommée ":name" ?',
@@ -228,7 +228,7 @@ return [
     'fints_username'        => 'Nom d\'utilisateur',
     'fints_password'        => 'Code PIN / Mot de passe',
     'fints_account'         => 'Compte FinTS',
-    'local_account'         => 'Compte '.config('app.name'),
+    'local_account'         => 'Compte Firefly III',
     'from_date'             => 'À partir du',
     'to_date'               => 'Jusqu\'au',
 

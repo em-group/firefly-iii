@@ -25,10 +25,11 @@ namespace FireflyIII\Http\Controllers\Admin;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Http\Middleware\IsSandStormUser;
+use FireflyIII\Http\Middleware\Whitelabel;
 use FireflyIII\Http\Requests\UserFormRequest;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class UserController.
@@ -127,10 +128,15 @@ class UserController extends Controller
         // add meta stuff.
         $users->each(
             function (User $user) {
+                Whitelabel::setConfig($user->whitelabel);
                 $user->isAdmin = $this->repository->hasRole($user, 'owner');
                 $user->has2FA  = null !== $user->mfa_secret;
+                $user->sub_product; // Initialize the subproduct
             }
         );
+
+        // Set whitelabel back
+        Whitelabel::setConfig(auth()->user()->whitelabel);
 
         return view('admin.users.index', compact('subTitle', 'subTitleIcon', 'users'));
     }

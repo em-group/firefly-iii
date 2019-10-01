@@ -69,7 +69,7 @@ class NewUserController extends Controller
         $languages = [];
 
         if ($count > 0) {
-            return redirect(route('index'));
+            return redirect(route('dashboard'));
         }
 
         return view('new-user.index', compact('languages'));
@@ -118,7 +118,7 @@ class NewUserController extends Controller
         session()->flash('success', (string)trans('firefly.stored_new_accounts_new_user'));
         app('preferences')->mark();
 
-        return redirect(route('index'));
+        return redirect(route('dashboard'));
     }
 
 }

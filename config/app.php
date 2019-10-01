@@ -59,7 +59,7 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         FireflyIII\Providers\SessionServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
+        FireflyIII\Providers\WhitelabelTranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
@@ -100,6 +100,8 @@ return [
         FireflyIII\Providers\AdminServiceProvider::class,
         FireflyIII\Providers\RecurringServiceProvider::class,
         FireflyIII\Providers\WhitelabelServiceProvider::class,
+        FireflyIII\Providers\FeatureAccessServiceProvider::class,
+        FireflyIII\Providers\UserServiceProvider::class,
 
 
         ImportServiceProvider::class,

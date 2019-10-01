@@ -21,7 +21,7 @@
 
 declare(strict_types=1);
 
-Route::group(['middleware' => \FireflyIII\Http\Middleware\Whitelabel::class], function() {
+Route::get('/', ['uses' => 'FireflyIII\Http\Controllers\FrontpageController@index', 'as' => 'index']);
 
 Route::group(
     ['namespace' => 'FireflyIII\Http\Controllers\System',
@@ -102,7 +102,7 @@ Route::group(
  */
 Route::group(
     ['middleware' => ['user-full-auth'], 'namespace' => 'FireflyIII\Http\Controllers'], static function () {
-    Route::get('/', ['uses' => 'HomeController@index', 'as' => 'index']);
+    Route::get('/dashboard', ['uses' => 'HomeController@index', 'as' => 'dashboard']);
     Route::get('/flash', ['uses' => 'DebugController@testFlash', 'as' => 'test-flash']);
     Route::get('/home', ['uses' => 'HomeController@index', 'as' => 'home']);
     Route::post('/daterange', ['uses' => 'HomeController@dateRange', 'as' => 'daterange']);
@@ -584,6 +584,23 @@ Route::group(
 }
 );
 
+/**
+ * Membership Controller
+ */
+Route::group(
+    ['middleware' => 'user-full-auth', 'namespace' => 'FireflyIII\Http\Controllers', 'prefix' => 'membership', 'as' => 'membership.'], static function () {
+
+    Route::get('', ['uses' => 'MembershipController@index', 'as' => 'index']);
+
+    Route::get('cancel', ['uses' => 'MembershipController@cancel', 'as' => 'cancel']);
+
+    Route::get('reactivate', ['uses' => 'MembershipController@reactivate', 'as' => 'reactivate']);
+
+    Route::get('purchase', ['uses' => 'MembershipController@buy', 'as' => 'buy']);
+
+    Route::get('payment', ['uses' => 'MembershipController@forwardToPayment', 'as' => 'payment']);
+}
+);
 
 /**
  * NewUser Controller
@@ -949,8 +966,8 @@ Route::group(
     //Route::get('debug/{tj}', ['uses' => 'Transaction\SingleController@debugShow', 'as' => 'debug']);
     //Route::get('debug/{tj}', ['uses' => 'Transaction\SingleController@debugShow', 'as' => 'debug']);
 
-    Route::post('reorder', ['uses' => 'TransactionController@reorder', 'as' => 'reorder']);
-    Route::post('reconcile', ['uses' => 'TransactionController@reconcile', 'as' => 'reconcile']);
+//    Route::post('reorder', ['uses' => 'TransactionController@reorder', 'as' => 'reorder']);
+//    Route::post('reconcile', ['uses' => 'TransactionController@reconcile', 'as' => 'reconcile']);
     // TODO end of improvement.
 
 
@@ -1094,7 +1111,13 @@ Route::group(
     Route::get('configuration', ['uses' => 'ConfigurationController@index', 'as' => 'configuration.index']);
     Route::post('configuration', ['uses' => 'ConfigurationController@postIndex', 'as' => 'configuration.index.post']);
 
+    // Whitelabel extension
+    Route::get('whitelabels', ['uses' => 'WhitelabelController@index', 'as' => 'whitelabels']);
+    Route::get('whitelabels/create', ['uses' => 'WhitelabelController@create', 'as' => 'whitelabels.create']);
+    Route::get('whitelabels/edit/{whitelabel}', ['uses' => 'WhitelabelController@edit', 'as' => 'whitelabels.edit']);
+    Route::get('whitelabels/activate/{whitelabel}', ['uses' => 'WhitelabelController@activate', 'as' => 'whitelabels.activate']);
+    Route::get('whitelabels/deactivate/{whitelabel}', ['uses' => 'WhitelabelController@deactivate', 'as' => 'whitelabels.deactivate']);
+    Route::post('whitelabels/update/{whitelabel}', ['uses' => 'WhitelabelController@update', 'as' => 'whitelabels.update']);
+    Route::post('whitelabels/store', ['uses' => 'WhitelabelController@store', 'as' => 'whitelabels.store']);
 }
 );
-
-});

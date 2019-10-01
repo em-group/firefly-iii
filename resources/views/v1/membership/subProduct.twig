@@ -1,0 +1,18 @@
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3>{{ product.name }}</h3>
+    </div>
+    <div class="box-body">
+        <ul>
+            {% for feature in product.features %}
+                <li>{{ feature }}</li>
+            {% endfor %}
+        </ul>
+
+        <div class="text-center">
+            <a href="{{ purchaseLink }}" class="btn btn-success open-payment-window" data-product="{{ product.index }}">
+                {{ product.price }}
+            </a>
+        </div>
+    </div>
+</div>

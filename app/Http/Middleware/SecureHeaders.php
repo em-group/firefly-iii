@@ -53,10 +53,10 @@ class SecureHeaders
         $csp = [
             "default-src 'none'",
             "object-src 'self'",
-            sprintf("script-src 'self' 'unsafe-eval' 'unsafe-inline' %s", $google),
-            "style-src 'self' 'unsafe-inline'",
+            sprintf("script-src 'self' 'unsafe-eval' 'unsafe-inline' %s %s", $google, 'https://ajax.googleapis.com/'),
+            "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ https://fonts.googleapis.com/",
             "base-uri 'self'",
-            "font-src 'self' data:",
+            "font-src 'self' https://fonts.googleapis.com/ https://maxcdn.bootstrapcdn.com/ https://fonts.gstatic.com/ data:",
             "connect-src 'self'",
             sprintf("img-src 'self' data: https://api.tiles.mapbox.com %s", $googleImg),
             "manifest-src 'self'",
@@ -85,7 +85,9 @@ class SecureHeaders
 
         $disableFrameHeader = config('firefly.disable_frame_header');
         if (false === $disableFrameHeader || null === $disableFrameHeader) {
-            $response->header('X-Frame-Options', 'deny');
+            if (!$response->headers->has('X-Frame-Options')) {
+                $response->header('X-Frame-Options', 'deny');
+            }
         }
 
         // content security policy may be set elsewhere.

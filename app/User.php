@@ -25,6 +25,10 @@ declare(strict_types=1);
 namespace FireflyIII;
 
 use Eloquent;
+use EM\Hub\Library\HasProductIndex;
+use EM\Hub\Models\HubCountryInterface;
+use EM\Hub\Models\User as HubUser;
+use EM\Hub\Models\UserInterface;
 use Exception;
 use FireflyIII\Events\RequestedNewPassword;
 use FireflyIII\Models\Account;
@@ -45,11 +49,12 @@ use FireflyIII\Models\Tag;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Models\Whitelabel;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use Illuminate\Notifications\Notifiable;
@@ -64,43 +69,43 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 /**
  * Class User.
  *
- * @property int                                                                                $id
- * @property string                                                                             $email
- * @property bool                                                                               $isAdmin used in admin user
- *           controller.
- * @property bool                                                                                                           $has2FA  used in admin user
- *           controller.
- * @property array                                                                                                          $prefs   used in admin user
- *           controller.
- * @property string                                                                                                         password
- * @property string                                                                                                         $mfa_secret
- * @property Collection                                                                                                     roles
- * @property string                                                                                                         blocked_code
- * @property bool                                                            blocked
- * @property Carbon|null                                 $created_at
- * @property Carbon|null                                 $updated_at
- * @property string|null                                                     $remember_token
- * @property string|null                                                     $reset
- * @property-read \Illuminate\Database\Eloquent\Collection|Account[]         $accounts
- * @property-read \Illuminate\Database\Eloquent\Collection|Attachment[]      $attachments
- * @property-read \Illuminate\Database\Eloquent\Collection|AvailableBudget[] $availableBudgets
- * @property-read \Illuminate\Database\Eloquent\Collection|Bill[]            $bills
- * @property-read \Illuminate\Database\Eloquent\Collection|Budget[]          $budgets
- * @property-read \Illuminate\Database\Eloquent\Collection|Category[]        $categories
- * @property-read \Illuminate\Database\Eloquent\Collection|Client[]                     $clients
- * @property-read \Illuminate\Database\Eloquent\Collection|CurrencyExchangeRate[]          $currencyExchangeRates
- * @property-read \Illuminate\Database\Eloquent\Collection|ImportJob[]                          $importJobs
+ * @property int        $id
+ * @property string     $email
+ * @property bool       $isAdmin used in admin user controller.
+ * @property bool       $has2FA  used in admin user controller.
+ * @property array      $prefs   used in admin user controller.
+ * @property string     password
+ * @property string $mfa_secret
+ * @property Collection roles
+ * @property string     blocked_code
+ * @property bool       blocked
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $remember_token
+ * @property string|null $reset
+ * @property int|null $whitelabel_id
+ *
+ * @property-read Collection|Account[]         $accounts
+ * @property-read Collection|Attachment[]      $attachments
+ * @property-read Collection|AvailableBudget[] $availableBudgets
+ * @property-read Collection|Bill[]            $bills
+ * @property-read Collection|Budget[]          $budgets
+ * @property-read Collection|Category[]        $categories
+ * @property-read Collection|Client[]                     $clients
+ * @property-read Collection|CurrencyExchangeRate[]          $currencyExchangeRates
+ * @property-read Collection|ImportJob[]                          $importJobs
  * @property-read DatabaseNotificationCollection|DatabaseNotification[]                         $notifications
- * @property-read \Illuminate\Database\Eloquent\Collection|PiggyBank[]                          $piggyBanks
- * @property-read \Illuminate\Database\Eloquent\Collection|Preference[]                         $preferences
- * @property-read \Illuminate\Database\Eloquent\Collection|Recurrence[]                  $recurrences
- * @property-read \Illuminate\Database\Eloquent\Collection|RuleGroup[]                               $ruleGroups
- * @property-read \Illuminate\Database\Eloquent\Collection|Rule[]                                                           $rules
- * @property-read \Illuminate\Database\Eloquent\Collection|Tag[]                                                            $tags
- * @property-read \Illuminate\Database\Eloquent\Collection|Token[]                                                          $tokens
- * @property-read \Illuminate\Database\Eloquent\Collection|TransactionGroup[]                                               $transactionGroups
- * @property-read \Illuminate\Database\Eloquent\Collection|TransactionJournal[]                                             $transactionJournals
- * @property-read \Illuminate\Database\Eloquent\Collection|Transaction[]                                                    $transactions
+ * @property-read Collection|PiggyBank[]                          $piggyBanks
+ * @property-read Collection|Preference[]                         $preferences
+ * @property-read Collection|Recurrence[]                  $recurrences
+ * @property-read Collection|RuleGroup[]                               $ruleGroups
+ * @property-read Collection|Rule[]                                                           $rules
+ * @property-read Collection|Tag[]                                                            $tags
+ * @property-read Collection|Token[]                                                          $tokens
+ * @property-read Collection|TransactionGroup[]                                               $transactionGroups
+ * @property-read Collection|TransactionJournal[]                                             $transactionJournals
+ * @property-read Collection|Transaction[]                                                    $transactions
+ * @property-read Collection|Whitelabel $whitelabel
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
@@ -115,9 +120,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
  */
-class User extends Authenticatable
+class User extends HubUser implements UserInterface
 {
-    use Notifiable, HasApiTokens;
+    use Notifiable, HasApiTokens, HasProductIndex;
 
     /**
      * The attributes that should be casted to native types.
@@ -135,7 +140,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $fillable = ['email', 'password', 'blocked', 'blocked_code'];
+    protected $fillable = ['email', 'password', 'blocked', 'blocked_code', 'whitelabel_id'];
     /**
      * The attributes excluded from the model's JSON form.
      *
@@ -148,6 +153,16 @@ class User extends Authenticatable
      * @var string
      */
     protected $table = 'users';
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // When creating, make sure we have the whitelabel id set on the user, if not explicitly specified
+        static::creating(function ($user) {
+            $user->whitelabel_id = $user->whitelabel_id ?? config('whitelabel.id');
+        });
+    }
 
     /**
      * @param string $value
@@ -242,6 +257,11 @@ class User extends Authenticatable
     public function currencyExchangeRates(): HasMany
     {
         return $this->hasMany(CurrencyExchangeRate::class);
+    }
+
+    public function whitelabel(): BelongsTo
+    {
+        return $this->belongsTo(Whitelabel::class);
     }
 
     /**
@@ -390,5 +410,10 @@ class User extends Authenticatable
     public function transactions(): HasManyThrough
     {
         return $this->hasManyThrough(Transaction::class, TransactionJournal::class);
+    }
+
+    public function getFeatureLevelAttribute(): int
+    {
+        return 0;
     }
 }

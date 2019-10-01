@@ -25,17 +25,20 @@ namespace FireflyIII\Http;
 use FireflyIII\Http\Middleware\Authenticate;
 use FireflyIII\Http\Middleware\Binder;
 use FireflyIII\Http\Middleware\EncryptCookies;
+use FireflyIII\Http\Middleware\FeatureAccess;
 use FireflyIII\Http\Middleware\Installer;
 use FireflyIII\Http\Middleware\InterestingMessage;
 use FireflyIII\Http\Middleware\IsAdmin;
 use FireflyIII\Http\Middleware\Range;
 use FireflyIII\Http\Middleware\RedirectIfAuthenticated;
+use FireflyIII\Http\Middleware\RequiresMembership;
 use FireflyIII\Http\Middleware\Sandstorm;
 use FireflyIII\Http\Middleware\SecureHeaders;
 use FireflyIII\Http\Middleware\StartFireflySession;
 use FireflyIII\Http\Middleware\TrimStrings;
 use FireflyIII\Http\Middleware\TrustProxies;
 use FireflyIII\Http\Middleware\VerifyCsrfToken;
+use FireflyIII\Http\Middleware\Whitelabel;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Auth\Middleware\Authorize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -70,6 +73,7 @@ class Kernel extends HttpKernel
             TrimStrings::class,
             ConvertEmptyStringsToNull::class,
             TrustProxies::class,
+            Whitelabel::class
         ];
 
     /**
@@ -159,6 +163,8 @@ class Kernel extends HttpKernel
                 Binder::class,
                 CreateFreshApiToken::class,
                 InterestingMessage::class,
+                FeatureAccess::class,
+                RequiresMembership::class
             ],
             // MUST be logged in
             // MUST have 2fa
@@ -195,6 +201,7 @@ class Kernel extends HttpKernel
      */
     protected $middlewarePriority
         = [
+            Whitelabel::class,
             StartFireflySession::class,
             ShareErrorsFromSession::class,
             Authenticate::class,
@@ -216,5 +223,6 @@ class Kernel extends HttpKernel
             'can'        => Authorize::class,
             'guest'      => RedirectIfAuthenticated::class,
             'throttle'   => ThrottleRequests::class,
+            'whitelabel' => Whitelabel::class,
         ];
 }

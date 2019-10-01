@@ -93,7 +93,7 @@
                 return 'custom-attachments';
             },
             textareaComponent () {
-                return 'custom-textarea';
+                return 'CustomTextArea';
             }
         },
         methods: {

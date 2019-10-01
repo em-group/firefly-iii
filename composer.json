@@ -61,9 +61,9 @@
     "ext-fileinfo": "*",
     "ext-gd": "*",
     "ext-intl": "*",
-    "ext-session": "*",
     "ext-json": "*",
     "ext-openssl": "*",
+    "ext-session": "*",
     "ext-simplexml": "*",
     "ext-tokenizer": "*",
     "ext-xml": "*",
@@ -73,6 +73,7 @@
     "danhunsaker/laravel-flysystem-others": "1.*",
     "davejamesmiller/laravel-breadcrumbs": "5.*",
     "doctrine/dbal": "2.*",
+    "em-group/global-lib": "^1.0",
     "fideloper/proxy": "4.*",
     "laravel/framework": "5.8.*",
     "laravel/passport": "7.*",
@@ -86,6 +87,7 @@
     "mschindler83/fints-hbci-php": "1.*",
     "pragmarx/google2fa-laravel": "1.*",
     "pragmarx/recovery": "^0.1.0",
+    "predis/predis": "^1.1",
     "rcrowe/twigbridge": "0.9.*"
   },
   "require-dev": {
@@ -181,5 +183,11 @@
     "preferred-install": "dist",
     "sort-packages": true,
     "optimize-autoloader": true
+  },
+  "repositories": {
+    "local": {
+      "type": "path",
+      "url": "../global-lib"
+    }
   }
 }
