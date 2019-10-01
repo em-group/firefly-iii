@@ -40,7 +40,7 @@ import PersonalAccessTokens from "./components/passport/PersonalAccessTokens";
 import Budget from "./components/transactions/Budget";
 import CustomDate from "./components/transactions/CustomDate";
 import CustomString from "./components/transactions/CustomString";
-import CustomTextarea from "./components/transactions/CustomTextarea";
+import CustomTextarea from "./components/transactions/CustomTextArea";
 import StandardDate from "./components/transactions/StandardDate";
 import GroupDescription from "./components/transactions/GroupDescription";
 import TransactionDescription from "./components/transactions/TransactionDescription";
