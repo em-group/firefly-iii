@@ -77,6 +77,7 @@
     "fideloper/proxy": "4.*",
     "laravel/framework": "5.8.*",
     "laravel/passport": "7.*",
+    "laravel/tinker": "^1.0",
     "laravelcollective/html": "5.8.*",
     "league/commonmark": "1.*",
     "league/csv": "9.*",
