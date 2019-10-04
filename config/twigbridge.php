@@ -86,7 +86,7 @@ return [
             // An absolute path where to store the compiled templates, or false to disable caching. If null
             // then the cache file path is used.
             // default: cache file storage path
-            'cache'               => null,
+            'cache'               => realpath(storage_path('framework/views/twig')),
 
             // When developing with Twig, it's useful to recompile the template
             // whenever the source code changes. If you don't provide a value
