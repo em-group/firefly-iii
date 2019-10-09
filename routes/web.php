@@ -303,7 +303,7 @@ Route::group(
  * Currency Controller
  */
 Route::group(
-    ['middleware' => 'user-full-auth', 'namespace' => 'FireflyIII\Http\Controllers', 'prefix' => 'currencies', 'as' => 'currencies.'], static function () {
+    ['middleware' => 'admin', 'namespace' => 'FireflyIII\Http\Controllers', 'prefix' => 'currencies', 'as' => 'currencies.'], static function () {
     Route::get('', ['uses' => 'CurrencyController@index', 'as' => 'index']);
     Route::get('create', ['uses' => 'CurrencyController@create', 'as' => 'create']);
     Route::get('edit/{currency}', ['uses' => 'CurrencyController@edit', 'as' => 'edit']);
