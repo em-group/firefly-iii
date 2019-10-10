@@ -89,7 +89,7 @@ class MembershipController extends Controller
                 $membership = $this->user->reactivateMembership();
                 if (!empty($membership)) {
                     $success = true;
-                    session()->flash('success', trans('memberships.reactivated_success'));
+                    session()->flash('success', trans('memberships.reactivate_success'));
                 }
             }
         }
