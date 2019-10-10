@@ -85,7 +85,7 @@ class MembershipController extends Controller
         if (!empty($membership = $this->user->currentMembership())) {
 
             // A still-active membership
-            if ($membership->expires_at->isPast()) {
+            if ($membership->expires_at->isFuture()) {
                 $membership = $this->user->reactivateMembership();
                 if (!empty($membership)) {
                     $success = true;
