@@ -944,7 +944,7 @@ return [
     'submit'                                    => 'Submit',
     'submit_yes_really'                         => 'Submit (I know what I\'m doing)',
     'getting_started'                           => 'Getting started',
-    'to_get_started'                            => 'It is good to see you have successfully installed Firefly III. To get started with this tool please enter your bank\'s name and the balance of your main checking account. Do not worry yet if you have multiple accounts. You can add those later. It\'s just that Firefly III needs something to start with.',
+    'to_get_started'                            => 'To get started with Firefly III please enter your bank\'s name and the balance of your main checking account. Do not worry yet if you have multiple accounts. You can add those later. It\'s just that Firefly III needs something to start with.',
     'savings_balance_text'                      => 'Firefly III will automatically create a savings account for you. By default, there will be no money in your savings account, but if you tell Firefly III the balance it will be stored as such.',
     'finish_up_new_user'                        => 'That\'s it! You can continue by pressing <strong>Submit</strong>. You will be taken to the index of Firefly III.',
     'stored_new_accounts_new_user'              => 'Yay! Your new accounts have been stored.',
