@@ -19,7 +19,7 @@ class RequiresMembership
         /** @var User $user */
         $user = auth()->user();
 
-        if (preg_match('/^membership/im', $request->route()->uri) === 0) {
+        if (preg_match('/^membership|variables/im', $request->route()->uri) === 0) {
             $membership = $user->currentMembership();
             if (empty($membership) || $membership->expires_at->isPast()) {
 
