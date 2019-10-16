@@ -144,16 +144,19 @@
                                             :error="transaction.errors.budget_id"
                                     ></budget>
                                     <category
+                                            v-if="showCategories"
                                             :transactionType="transactionType"
                                             v-model="transaction.category"
                                             :error="transaction.errors.category"
                                     ></category>
                                     <piggy-bank
+                                            v-if="showPiggyBank"
                                             :transactionType="transactionType"
                                             v-model="transaction.piggy_bank"
                                             :error="transaction.errors.piggy_bank"
                                     ></piggy-bank>
                                     <tags
+                                            v-if="showTags"
                                             v-model="transaction.tags"
                                             :error="transaction.errors.tags"
                                     ></tags>
@@ -208,6 +211,7 @@
     export default {
         name: "CreateTransaction",
         components: {},
+        props: ['showTags','showCategories','showPiggyBank'],
         mounted() {
             this.addTransactionToArray();
         },

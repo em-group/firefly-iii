@@ -136,12 +136,12 @@
             {% block content %}{% endblock %}
         </section>
     </div>
-    <footer class="main-footer">
+    {#<footer class="main-footer">
         <div class="pull-right hidden-xs">
             <b>{{ 'version'|_ }}</b> <a href="{{ route('debug') }}">{{ Config.get('firefly.version') }}</a>
         </div>
         <strong><a href="https://github.com/em-group/firefly-iii">{{ config('app.name') }}</a></strong>
-    </footer>
+    </footer>#}
 
     {% include('partials.control-bar') %}
 

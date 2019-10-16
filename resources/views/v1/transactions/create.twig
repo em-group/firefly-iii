@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <create-transaction></create-transaction>
+    <create-transaction :show-categories="{{ app.feature.userHasAccessToPath('/categories') ? '1' : '0' }}" :show-tags="{{ app.feature.userHasAccessToPath('/tags') ? '1' : '0' }}" :show-piggy-bank="{{ app.feature.userHasAccessToPath('/piggy-banks') ? '1' : '0' }}"></create-transaction>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript">
