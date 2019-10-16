@@ -57,9 +57,11 @@
 </template>
 
 <script>
+    import CustomTextArea from "./CustomTextArea";
     export default {
         name: "CustomTransactionFields",
         props: ['value','error'],
+        components: {CustomTextArea},
         mounted() {
             this.getPreference();
         },
