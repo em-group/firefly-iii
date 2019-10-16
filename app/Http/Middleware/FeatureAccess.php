@@ -6,7 +6,6 @@ namespace FireflyIII\Http\Middleware;
 
 use Closure;
 use DaveJamesMiller\Breadcrumbs\BreadcrumbsManager;
-use DaveJamesMiller\Breadcrumbs\Facades\Breadcrumbs;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
@@ -24,21 +23,21 @@ class FeatureAccess
 
     const level_basic = [
         'features' => [
-            'bills',
-            'budgets'
         ]
     ];
 
     const level_premium = [
         'features' => [
-            // todo These are just examples for how we can define the feature list
-            'categories.create', // Must be premium to create categories
-            'bills.show', // To view a single bill, requires premium
-            'accounts/revenue', // Any routes to /accounts/revenue* will be blocked for basic
+            'bills',
+            'categories',
+            'tags',
+            'import',
+            'piggybank',
+            'rules',
+            'recurring',
         ]
     ];
 
-    // todo Define all the features limited to a level
     const features = [
         'accounts' => [
             'name' => 'Accounts',
@@ -351,6 +350,23 @@ class FeatureAccess
         } else {
             return '';
         }
+    }
 
+    public function userHasAccessToPath($path)
+    {
+        /** @var UserRepositoryInterface $userRep */
+        $userRep = app(UserRepositoryInterface::class);
+        /** @var User $user */
+        $user = auth()->user();
+
+        if ($route = static::routeInMap($path)) {
+            $lvlIdx = static::$routeMap[$route];
+            $product = SubProducts::getSubProductIndex($lvlIdx);
+            if (empty($product)) {
+                return true;
+            }
+            return $userRep->hasFeature($user, $product);
+        }
+        return true;
     }
 }
