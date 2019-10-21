@@ -11,14 +11,15 @@ use Illuminate\Support\Facades\Cache;
 
 class FrontpageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $locale = explode('_', App::getLocale());
         $locale = strtolower($locale[1] ?? $locale[0]);
         $subProducts = SubProducts::getSubProducts($locale)->keyBy(function(SubProduct $subProduct){
             return $subProduct->index;
         });
-        $terms = Cache::remember('frontpage_terms_'.$locale, now()->addDay(), function() use($locale){
+        $domain = config('whitelabels.domain');
+        $terms = Cache::remember('frontpage_terms_'.$domain.'_'.$locale, now()->addDay(), function() use($locale){
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
