@@ -52,7 +52,7 @@
                         </ul>
                         <ul class="member-actions">
                             <li><a href="/login" class="login">Log in</a></li>
-                            <li><a href="/signup" class="btn-white btn-small">Sign up</a></li>
+                            <li><a href="#prices" class="btn-white btn-small">Sign up</a></li>
                         </ul>
                     </nav>
                 </div>
@@ -68,7 +68,7 @@
                 <div class="hero-content text-center">
                     <h1>Plan your budget with ease</h1>
                     <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
-                    <a href="/signup" class="btn btn-fill btn-large btn-margin-right">Sign up</a>
+                    <a href="#prices" class="btn btn-fill btn-large btn-margin-right">Sign up</a>
                     <a href="#features" class="btn btn-accent btn-large">Learn more</a>
                 </div>
             </div>
@@ -162,10 +162,9 @@
         <div class="row">
             <div class="col-md-4">
                 <div class="feature-list">
-                    <h3>Prices</h3>
+                    <h3 id="prices">Prices</h3>
                     <p>To keep things simple, we offer a Basic membership, and a Premium membership.</p>
                     <p>The Premium membership offers advantages and extra features over the Basic membership.</p>
-                    <a href="/signup" class="btn btn-ghost btn-accent btn-small">Sign up</a>
                 </div>
             </div>
             <div class="col-md-8">
@@ -232,6 +231,17 @@
                             <td>Price</td>
                             <td><h4 class="price">{{ subProducts.0.price }}/month</h4></td>
                             <td><h4 class="price">{{ subProducts.1.price }}/month</h4></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <small>Click below to register for a 14 day trial</small><br>
+                                <a href="/signup?spi=0" class="btn btn-success">SIGN UP</a>
+                            </td>
+                            <td>
+                                <small>Click below to register for a 14 day trial</small><br>
+                                <a href="/signup?spi=1" class="btn btn-success">SIGN UP</a>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

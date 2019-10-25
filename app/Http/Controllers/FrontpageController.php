@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Cache;
 
 class FrontpageController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
         $locale = explode('_', App::getLocale());
         $locale = strtolower($locale[1] ?? $locale[0]);
@@ -24,5 +24,18 @@ class FrontpageController extends Controller
         });
         $layout = config('whitelabels.frontend_layout', 'default');
         return view('frontpage.'.$layout.'.index', compact('subProducts','terms'));
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     * @throws \EM\Hub\HubException
+     */
+    public function signup(Request $request)
+    {
+        $locale = explode('_', App::getLocale());
+        $locale = strtolower($locale[1] ?? $locale[0]);
+        $link = HubClient::getLandingpageLink(getenv('EMHUB_SIGNUP_SOURCE_UID'), ['locale' => $locale], ['name' => getenv('EMHUB_SIGNUP_PRODUCT_NAME')], $request->get('spi'));
+        return redirect()->to($link['link'], 302);
     }
 }
