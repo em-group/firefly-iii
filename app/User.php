@@ -25,8 +25,7 @@ declare(strict_types=1);
 namespace FireflyIII;
 
 use Eloquent;
-use EM\Hub\Library\HasProductIndex;
-use EM\Hub\Models\HubCountryInterface;
+use EM\Hub\Models\SubProductInterface;
 use EM\Hub\Models\User as HubUser;
 use EM\Hub\Models\UserInterface;
 use Exception;
@@ -106,6 +105,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property-read Collection|TransactionJournal[]                                             $transactionJournals
  * @property-read Collection|Transaction[]                                                    $transactions
  * @property-read Collection|Whitelabel $whitelabel
+ * @property-read int $product_index {@see static::getProductIndexAttribute()}
+ * @property-read SubProductInterface $sub_product {@see static::getSubProductAttribute()}
  * @method static Builder|User newModelQuery()
  * @method static Builder|User newQuery()
  * @method static Builder|User query()
@@ -122,7 +123,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class User extends HubUser implements UserInterface
 {
-    use Notifiable, HasApiTokens, HasProductIndex;
+    use Notifiable, HasApiTokens;
 
     /**
      * The attributes that should be casted to native types.

@@ -18,13 +18,19 @@
                     {% else %}
                         {% if not hasActiveMembership %}
                             <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}<br>
+                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {% if membership and membership.active_product_index != membership.product_index %}
+                                (Temporary access to {{ membership.active_sub_product.name }}, until {{ membership.active_property.to }})
+                            {% endif %}<br>
                             {{ trans('memberships.expires_on', {'date':membership.expires_at|date}) }}
                             <br><br>
                             <a href="{{ route('membership.reactivate') }}" class="btn btn-success">{{ trans('memberships.reactivate') }}</a>
                         {% else %}
                             <span class="text-success">{{ trans('memberships.active') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}<br>
+                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {% if membership and membership.active_product_index != membership.product_index %}
+                                (Temporary access to {{ membership.active_sub_product.name }}, until {{ membership.active_property.to }})
+                            {% endif %}<br>
                             {{ trans('memberships.renews_on', {'date':membership.expires_at|date}) }}
                             <br><br>
                             <a class="btn btn-danger" href="{{ route('membership.cancel') }}">{{ trans('memberships.cancel') }}</a>

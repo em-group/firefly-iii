@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use EM\Hub\Library\HasProductIndex;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
 use FireflyIII\Models\BudgetLimit;
@@ -407,7 +408,6 @@ class UserRepository implements UserRepositoryInterface
     */
     public function hasFeature(User $user, SubProductInterface $product): bool
     {
-        // todo A user membership implementation will probably contain the level of the user, that we can compare against.
-        return $user->product_index >= $product->index;
+        return $user->active_product_index >= $product->index;
     }
 }
