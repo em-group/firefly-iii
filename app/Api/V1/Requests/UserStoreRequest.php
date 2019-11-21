@@ -90,7 +90,7 @@ class UserStoreRequest extends Request
             'email'        => 'required|email|unique:users,email',
             'blocked'      => [new IsBoolean],
             'blocked_code' => 'in:email_changed',
-            'role'         => 'in:owner,demo',
+            'role'         => 'in:owner,demo,user',
         ];
     }
 

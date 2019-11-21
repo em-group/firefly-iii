@@ -49,6 +49,7 @@ use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\Whitelabel;
+use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -162,6 +163,12 @@ class User extends HubUser implements UserInterface
         // When creating, make sure we have the whitelabel id set on the user, if not explicitly specified
         static::creating(function ($user) {
             $user->whitelabel_id = $user->whitelabel_id ?? config('whitelabel.id');
+        });
+
+        static::created(function (self $user) {
+            /** @var UserRepositoryInterface $repo */
+            $repo = app(UserRepositoryInterface::class);
+            $repo->attachRole($user, 'user');
         });
     }
 
