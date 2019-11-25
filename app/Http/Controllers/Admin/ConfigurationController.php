@@ -23,10 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Admin;
 
+use FireflyIII\Helpers\Update\UpdateTrait;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Http\Middleware\IsSandStormUser;
 use FireflyIII\Http\Requests\ConfigurationRequest;
+use FireflyIII\Services\Github\Object\Release;
 use Illuminate\Http\RedirectResponse;
 use Log;
 
@@ -35,6 +37,11 @@ use Log;
  */
 class ConfigurationController extends Controller
 {
+    use UpdateTrait;
+
+    /** @var Release $latestRelease */
+    protected $latestRelease;
+
     /**
      * ConfigurationController constructor.
      * @codeCoverageIgnore
@@ -67,6 +74,9 @@ class ConfigurationController extends Controller
 
         Log::channel('audit')->info('User visits admin config index.');
 
+        $newerRelease = $this->updateAvailable();
+        $latestReleaseVersion = $this->latestRelease->getTitle() ?? config('firefly.version');
+
         // all available configuration and their default value in case
         // they don't exist yet.
         $singleUserMode = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
@@ -75,7 +85,7 @@ class ConfigurationController extends Controller
 
         return view(
             'admin.configuration.index',
-            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner')
+            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'newerRelease', 'latestReleaseVersion')
         );
     }
 
@@ -102,5 +112,12 @@ class ConfigurationController extends Controller
         app('preferences')->mark();
 
         return redirect()->route('admin.configuration.index');
+    }
+
+    protected function updateAvailable()
+    {
+        $this->latestRelease = $this->getLatestRelease();
+        $versionCheck  = $this->versionCheck($this->latestRelease);
+        return $versionCheck < 0;
     }
 }

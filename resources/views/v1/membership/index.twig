@@ -20,7 +20,7 @@
                             <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
                             {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
-                                ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to}) }})
+                                ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
                             {{ trans('memberships.expires_on', {'date':membership.expires_at|date}) }}
                             <br><br>
@@ -29,7 +29,7 @@
                             <span class="text-success">{{ trans('memberships.active') }}</span><br>
                             {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
-                                ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to}) }})
+                                ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
                             {{ trans('memberships.renews_on', {'date':membership.expires_at|date}) }}
                             <br><br>

@@ -55,6 +55,24 @@
                 </div>
             </div>
             #}
+            {# Info on Firefly version #}
+            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ 'version'|_ }}</h3>
+                    </div>
+                    <div class="box-body">
+                        <p class="text-info">Firefly III version: <strong>{{ config('firefly.version') }}</strong></p>
+                        <p class="text-info">
+                            {% if newerRelease %}
+                                Newer version is available: <strong>{{ latestReleaseVersion }}</strong>
+                            {% else %}
+                                Firefly is up-to-date!
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
