@@ -41,6 +41,9 @@ class HelpController extends Controller
      */
     public function show(string $route): JsonResponse
     {
+        if ($route == 'dashboard') {
+            $route = 'home';
+        }
         /** @var string $language */
         $language = app('preferences')->get('language', config('firefly.default_language', 'en_US'))->data;
         $html     = $this->getHelpText($route, $language);
