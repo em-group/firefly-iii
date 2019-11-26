@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
-use EM\Hub\Library\HasProductIndex;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
 use FireflyIII\Models\BudgetLimit;

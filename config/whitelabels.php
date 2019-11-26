@@ -9,7 +9,9 @@ return [
         'whitelabels.address_line1',
         'whitelabels.address_line2',
         'whitelabels.address_line3',
-        'whitelabels.phone'
+        'whitelabels.phone',
+        'mail.from.address',
+        'mail.from.name'
     ],
     'frontend_layout' => 'sedna',
 ];
