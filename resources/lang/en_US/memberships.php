@@ -21,5 +21,6 @@ return [
     'refunded' => 'Refunded',
     'transaction error' => 'Error',
     'status' => 'Status',
-    'purchase' => 'Purchase membership'
+    'purchase' => 'Purchase membership',
+    'temporary_access' => 'Temporary access to :name, until :date'
 ];

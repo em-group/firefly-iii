@@ -27,6 +27,7 @@ use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Services\Github\Object\Release;
 use FireflyIII\Services\Github\Request\UpdateRequest;
+use Illuminate\Support\Facades\Cache;
 use Log;
 
 /**
@@ -42,20 +43,22 @@ trait UpdateTrait
      */
     public function getLatestRelease(): ?Release
     {
-        Log::debug('Now in getLatestRelease()');
         $return = null;
-        /** @var UpdateRequest $request */
-        $request = app(UpdateRequest::class);
-        try {
-            $request->call();
-        } catch (FireflyException $e) {
-            Log::error(sprintf('Could not check for updates: %s', $e->getMessage()));
+        $releases = Cache::remember('firefly_releases', now()->addHour(), function() {
+            Log::debug('Now in getLatestRelease()');
+            /** @var UpdateRequest $request */
+            $request = app(UpdateRequest::class);
+            try {
+                $request->call();
+            } catch (FireflyException $e) {
+                Log::error(sprintf('Could not check for updates: %s', $e->getMessage()));
 
-            return null;
-        }
+                return [];
+            }
 
-        // get releases from array.
-        $releases = $request->getReleases();
+            // get releases from array.
+            return $request->getReleases();
+        });
 
         Log::debug(sprintf('Found %d releases', count($releases)));
 

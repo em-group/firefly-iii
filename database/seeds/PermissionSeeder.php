@@ -41,6 +41,11 @@ class PermissionSeeder extends Seeder
                 'display_name' => 'Demo User',
                 'description'  => 'User is a demo user',
             ],
+            [
+                'name'         => 'user',
+                'display_name' => 'User',
+                'description'  => 'User is a regular user'
+            ]
         ];
         foreach ($roles as $role) {
             try {
