@@ -73,12 +73,6 @@
             <div class="navbar-custom-menu">
                 <ul class="nav navbar-nav">
 
-                    <li class="hidden-sm hidden-xs">
-                        <a href="#" id="help" data-route="{{ original_route_name }}" data-extra="{{ what|default("") }}">
-                            <i class="fa fa-question-circle" data-route="{{ original_route_name }}" data-extra="{{ what|default("") }}"></i>
-                        </a>
-                    </li>
-
                     <li>
                         <span style="color:#fff;padding: 15px;display: block;line-height: 20px;">
                             <span id="daterange"></span>
@@ -157,10 +151,6 @@
             </div>
             <div class="modal-body" id="helpBody">&nbsp;</div>
             <div class="modal-footer">
-                <small class="pull-left">
-                    {{ 'need_more_help'|_ }}
-                </small>
-                <br/>
                 <small class="pull-left">
                     {{ trans('firefly.reenable_intro_text')|raw }}
                 </small>
