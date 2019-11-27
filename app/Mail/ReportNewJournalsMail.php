@@ -25,7 +25,7 @@ namespace FireflyIII\Mail;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Transformers\TransactionGroupTransformer;
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
+use FireflyIII\Mail\WhitelabelMailable as Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 
