@@ -25,7 +25,7 @@ namespace FireflyIII\Mail;
 
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Mail\Mailable;
+use FireflyIII\Mail\WhitelabelMailable as Mailable;
 use Illuminate\Queue\SerializesModels;
 
 /**
