@@ -58,7 +58,10 @@ return [
             'driver'   => 'stack',
             'channels' => ['daily', 'slack'],
         ],
-
+        'local' => [
+            'driver'   => 'stack',
+            'channels' => ['daily'],
+        ],
         'single'    => [
             'driver' => 'single',
             'path'   => storage_path('logs/laravel.log'),
