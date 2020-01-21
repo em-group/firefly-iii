@@ -103,7 +103,7 @@ class MembershipController extends Controller
 
     public function buy()
     {
-        $subProducts = SubProducts::getSubProducts();
+        $subProducts = SubProducts::getSubProducts($this->user->language->locale);
         $subProducts->map(function($product) {
             $product->data = array_merge(
                 $product->data,
