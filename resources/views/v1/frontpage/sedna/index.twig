@@ -233,6 +233,11 @@
                             <td><h4 class="price">{{ subProducts.1.price }}/month</h4></td>
                         </tr>
                         <tr>
+                            <td>Payment Methods</td>
+                            <td><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;"></td>
+                            <td><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;"></td>
+                        </tr>
+                        <tr>
                             <td></td>
                             <td>
                                 <small>Click below to register for a 14 day trial</small><br>
@@ -283,7 +288,8 @@
                             {{ config('whitelabels.company') }}<br>
                             {{ config('whitelabels.address_line1') }}<br>
                             {{ config('whitelabels.address_line2') }}<br>
-                            {{ config('whitelabels.address_line3') }}
+                            {{ config('whitelabels.address_line3') }}<br>
+                            {{ config('whitelabels.company_reg') }}
                         </td>
                     </tr>
                 </table>
@@ -325,6 +331,7 @@
                 <button class="btn btn-lg btn-info" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
                 <button class="btn btn-lg btn-info" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
                 <button class="btn btn-lg btn-info" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
+                <button class="btn btn-lg btn-info" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
                 <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;" id="terms-container">
                     {{ terms | raw }}
                 </div>
@@ -362,7 +369,8 @@
                     {{ config('whitelabels.company') }}<br>
                     {{ config('whitelabels.address_line1') }}<br>
                     {{ config('whitelabels.address_line2') }}<br>
-                    {{ config('whitelabels.address_line3') }}
+                    {{ config('whitelabels.address_line3') }}<br>
+                    {{ config('whitelabels.company_reg') }}
                 </p>
             </div>
         </div>
@@ -380,10 +388,12 @@
 
 <script>
     $(function(){
+        let hs = $('#terms-container').find('h3');
         let positions = {
-            'terms-terms': $('#terms-container').find('h2').eq(0).position().top,
-            'terms-privacy-policy': $('#terms-container').find('h2').eq(1).position().top,
-            'terms-cookie-policy': $('#terms-container').find('h2').eq(2).position().top,
+            'terms-terms': hs.eq(0).position() ? hs.eq(0).position().top : 0,
+            'terms-privacy-policy': hs.eq(1).position() ? hs.eq(1).position().top : 0,
+            'terms-cookie-policy': hs.eq(2).position() ? hs.eq(2).position().top : 0,
+            'refund-cancellation-policy': hs.eq(3).position() ? hs.eq(3).position().top : 0,
         };
         window.gotoSection = function(section){
             $('#terms-container').scrollTop(positions[section]-45);
