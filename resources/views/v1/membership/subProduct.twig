@@ -1,17 +1,28 @@
 <div class="box box-primary">
     <div class="box-header with-border">
         <h3>{{ product.name }}</h3>
+        <div style="margin-bottom: 10px;">
+            Price: <strong>{{ product.price }}</strong> {{ trans('firefly.repeat_freq_monthly') }}<br>
+            <img src="/fpt/sedna/img/we-accept.png" style="max-height: 20px;">
+        </div>
+        <small>
+            {% set id = product.name | lower %}
+            {{ trans("memberships.types.#{id}.description") }}
+        </small>
     </div>
+    {% if product.features|length > 0 %}
     <div class="box-body">
         <ul>
             {% for feature in product.features %}
                 <li>{{ feature }}</li>
             {% endfor %}
         </ul>
-
+    </div>
+    {% endif %}
+    <div class="box-footer">
         <div class="text-center">
             <a href="{{ purchaseLink }}" class="btn btn-success open-payment-window" data-product="{{ product.index }}">
-                {{ product.price }}
+                {{ trans('memberships.purchase') }}
             </a>
         </div>
     </div>

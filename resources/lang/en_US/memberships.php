@@ -22,5 +22,13 @@ return [
     'transaction error' => 'Error',
     'status' => 'Status',
     'purchase' => 'Purchase membership',
-    'temporary_access' => 'Temporary access to :name, until :date'
+    'temporary_access' => 'Temporary access to :name, until :date',
+    'types' => [
+        'basic' => [
+            'description' => 'Our basic membership type offers the most used features to get you started with your budget planning.',
+        ],
+        'premium' => [
+            'description' => 'Our premium membership offers the features from our Basic membership, but with added functionality which will give you more flexibility and a better overview.',
+        ],
+    ]
 ];

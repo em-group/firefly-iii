@@ -1178,3 +1178,14 @@ you can use the generic selector below, but it's slower:
 .icon-dribbble:before {
   content: "\e063";
 }
+#terms-container p {
+  padding:0;
+  line-height:initial;
+}
+#terms-container h3 {
+  margin-top:30px;
+}
+#terms-container h4 {
+  margin-top:20px;
+  margin-bottom:10px;
+}

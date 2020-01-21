@@ -4,9 +4,21 @@
     {{ Breadcrumbs.render }}
 {% endblock %}
 {% block content %}
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="box box-info">
+                <div class="box-body">
+                    {{ config('app.name') }} offers {{ subProducts | length }} different types of memberships. You can read about our membership types below and choose the one you want by clicking "{{ trans('memberships.purchase') }}".<br><br>
+                    <strong>Please notice:</strong> you will be billed the amount shown immediately upon purchase, and your membership will automatically be renewed upon expiration (every 30th day) unless it has been cancelled.
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         {% for product in subProducts %}
-            {% set colWidth = loop.length%2 == 0 ? 6 : 4 %}
+            {% set colWidth = loop.length%2 == 0 ? 3 : 4 %}
         <div class="col-lg-{{ colWidth }} col-md-{{ colWidth }}">
             {% include './membership/subProduct' %}
         </div>
