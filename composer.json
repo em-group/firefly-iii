@@ -104,7 +104,8 @@
   },
   "autoload": {
     "files": [
-      "app/Helpers/WhitelabelHelper.php"
+      "app/Helpers/WhitelabelHelper.php",
+      "app/Helpers/Google2FABugFix.php"
     ],
     "classmap": [
       "database/seeds",
