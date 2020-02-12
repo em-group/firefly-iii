@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d29da630c985e746ead6bc65e45eb23f",
+    "content-hash": "e000ba4f1a29a0f03371115185ec5f8d",
     "packages": [
         {
             "name": "adldap2/adldap2",
@@ -3099,16 +3099,16 @@
         },
         {
             "name": "pragmarx/google2fa-laravel",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antonioribeiro/google2fa-laravel.git",
-                "reference": "4ccc17dbf5ab5f752113cb6088a5afce5191309e"
+                "reference": "876cd52ddef2f39e029441ea2b8c1b9aa4549e58"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antonioribeiro/google2fa-laravel/zipball/4ccc17dbf5ab5f752113cb6088a5afce5191309e",
-                "reference": "4ccc17dbf5ab5f752113cb6088a5afce5191309e",
+                "url": "https://api.github.com/repos/antonioribeiro/google2fa-laravel/zipball/876cd52ddef2f39e029441ea2b8c1b9aa4549e58",
+                "reference": "876cd52ddef2f39e029441ea2b8c1b9aa4549e58",
                 "shasum": ""
             },
             "require": {
@@ -3166,7 +3166,7 @@
                 "google2fa",
                 "laravel"
             ],
-            "time": "2019-10-21T18:34:37+00:00"
+            "time": "2020-01-26T00:46:00+00:00"
         },
         {
             "name": "pragmarx/google2fa-qrcode",
@@ -7188,8 +7188,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
+                    "role": "lead",
+                    "email": "sebastian@phpunit.de"
                 }
             ],
             "description": "Utility class for timing",
@@ -8115,8 +8115,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "email": "sebastian@phpunit.de",
-                    "role": "lead"
+                    "role": "lead",
+                    "email": "sebastian@phpunit.de"
                 }
             ],
             "description": "Collection of value objects that represent the types of the PHP type system",
@@ -8342,8 +8342,8 @@
             "authors": [
                 {
                     "name": "Arne Blankerts",
-                    "email": "arne@blankerts.de",
-                    "role": "Developer"
+                    "role": "Developer",
+                    "email": "arne@blankerts.de"
                 }
             ],
             "description": "A small library for converting tokenized PHP source code into XML and potentially other formats",
