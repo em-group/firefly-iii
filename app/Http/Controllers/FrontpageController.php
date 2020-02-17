@@ -32,8 +32,9 @@ class FrontpageController extends Controller
      */
     public function signup(Request $request)
     {
-        ['locale' => $locale, 'currency' => $currency] = $this->getLocaleAndCurrency($request);
-        $link = HubClient::getLandingpageLink(config('landingpage.hub_signup_source_uid'), ['locale' => $locale], ['name' => config('landingpage.hub_signup_product_name')], $request->get('spi'));
+        ['locale' => $locale] = $this->getLocaleAndCurrency($request);
+        $siteDomain = config('whitelabels.domain');
+        $link = HubClient::getLandingpageLink(config('landingpage.hub_signup_source_uid'), ['locale' => $locale], ['name' => config('landingpage.hub_signup_product_name')], $request->get('spi'), $siteDomain);
         return redirect()->to($link['link'], 302);
     }
 
