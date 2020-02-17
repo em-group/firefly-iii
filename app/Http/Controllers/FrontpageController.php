@@ -11,10 +11,17 @@ use Illuminate\Support\Facades\Cache;
 
 class FrontpageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $locale = explode('_', App::getLocale());
-        $locale = strtolower($locale[1] ?? $locale[0]);
+        $currency = strtolower($request->get('currency'));
+        if($currency){
+            $locale = $currency === 'eur' ? 'ie' : 'us';
+        }else{
+            $locale = explode('_', App::getLocale());
+            $locale = strtolower($locale[1] ?? $locale[0]);
+            $currency = 'usd';
+        }
+
         $subProducts = SubProducts::getSubProducts($locale)->keyBy(function(SubProduct $subProduct){
             return $subProduct->index;
         });
@@ -23,7 +30,7 @@ class FrontpageController extends Controller
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
-        return view('frontpage.'.$layout.'.index', compact('subProducts','terms'));
+        return view('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency'));
     }
 
     /**

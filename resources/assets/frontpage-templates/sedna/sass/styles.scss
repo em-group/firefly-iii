@@ -313,6 +313,9 @@ header {
         &:hover {
           color: $accent-color;
         }
+        &.active {
+          color: $accent-color;
+        }
       }
       &:last-child a {
         padding-right: 0px;
