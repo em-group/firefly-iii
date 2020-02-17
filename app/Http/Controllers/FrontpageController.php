@@ -13,15 +13,7 @@ class FrontpageController extends Controller
 {
     public function index(Request $request)
     {
-        $currency = strtolower($request->get('currency'));
-        if($currency){
-            $locale = $currency === 'eur' ? 'ie' : 'us';
-        }else{
-            $locale = explode('_', App::getLocale());
-            $locale = strtolower($locale[1] ?? $locale[0]);
-            $currency = 'usd';
-        }
-
+        ['locale' => $locale, 'currency' => $currency] = $this->getLocaleAndCurrency($request);
         $subProducts = SubProducts::getSubProducts($locale)->keyBy(function(SubProduct $subProduct){
             return $subProduct->index;
         });
@@ -40,9 +32,21 @@ class FrontpageController extends Controller
      */
     public function signup(Request $request)
     {
-        $locale = explode('_', App::getLocale());
-        $locale = strtolower($locale[1] ?? $locale[0]);
+        ['locale' => $locale, 'currency' => $currency] = $this->getLocaleAndCurrency($request);
         $link = HubClient::getLandingpageLink(config('landingpage.hub_signup_source_uid'), ['locale' => $locale], ['name' => config('landingpage.hub_signup_product_name')], $request->get('spi'));
         return redirect()->to($link['link'], 302);
+    }
+
+    private function getLocaleAndCurrency(Request $request)
+    {
+        $currency = strtolower($request->get('currency'));
+        if($currency){
+            $locale = $currency === 'eur' ? 'ie' : 'us';
+        }else{
+            $locale = explode('_', App::getLocale());
+            $locale = strtolower($locale[1] ?? $locale[0]);
+            $currency = 'usd';
+        }
+        return ['locale' => $locale, 'currency' => $currency];
     }
 }
