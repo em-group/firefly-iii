@@ -49,6 +49,12 @@
                             <li><a href="#about-contact">About</a></li>
                             <li><a href="#about-contact">Contact</a></li>
                             <li><a href="#terms">Terms &amp; Conditions</a></li>
+                            <li><a>|</a></li>
+                            <li>
+                                <a href="?currency=USD" class="{{ currency is same as('usd') ? 'active' : '' }}">USD</a>
+                                <a>/</a>
+                                <a href="?currency=EUR" class="{{ currency is same as('eur') ? 'active' : '' }}">EUR</a>
+                            </li>
                         </ul>
                         <ul class="member-actions">
                             <li><a href="/login" class="login">Log in</a></li>
@@ -241,11 +247,11 @@
                             <td></td>
                             <td>
                                 <small>Click below to register for a 14 day trial</small><br>
-                                <a href="/signup?spi=0" class="btn btn-success">SIGN UP</a>
+                                <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-success">SIGN UP</a>
                             </td>
                             <td>
                                 <small>Click below to register for a 14 day trial</small><br>
-                                <a href="/signup?spi=1" class="btn btn-success">SIGN UP</a>
+                                <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-success">SIGN UP</a>
                             </td>
                         </tr>
                     </tbody>
