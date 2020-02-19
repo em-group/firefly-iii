@@ -600,6 +600,8 @@ Route::group(
     Route::get('purchase', ['uses' => 'MembershipController@buy', 'as' => 'buy']);
 
     Route::get('payment', ['uses' => 'MembershipController@forwardToPayment', 'as' => 'payment']);
+
+    Route::post('change-product', ['uses' => 'MembershipController@changeSubProduct', 'as' => 'changeProduct']);
 }
 );
 

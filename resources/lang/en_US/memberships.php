@@ -22,6 +22,10 @@ return [
     'transaction error' => 'Error',
     'status' => 'Status',
     'purchase' => 'Purchase membership',
+    'change' => 'Change membership',
+    'change_instructions' => 'If you choose a more expensive membership than your current, we will charge your card for the full amount, start a new subscription for 30 days, starting today.',
+    'update' => 'Update',
+    'update_pay' => 'Update and pay',
     'temporary_access' => 'Temporary access to :name, until :date',
     'types' => [
         'basic' => [

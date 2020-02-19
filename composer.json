@@ -73,7 +73,7 @@
     "danhunsaker/laravel-flysystem-others": "1.*",
     "davejamesmiller/laravel-breadcrumbs": "5.*",
     "doctrine/dbal": "2.*",
-    "em-group/global-lib": "^1.0",
+    "em-group/global-lib": "^1.1",
     "fideloper/proxy": "4.*",
     "laravel/framework": "5.8.*",
     "laravel/passport": "7.*",
