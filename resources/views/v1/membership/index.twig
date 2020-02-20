@@ -18,7 +18,7 @@
                     {% else %}
                         {% if not hasActiveMembership %}
                             <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {{ membership.sub_product.name }} for {{ membership.transaction.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
@@ -27,7 +27,7 @@
                             <a href="{{ route('membership.reactivate') }}" class="btn btn-success">{{ trans('memberships.reactivate') }}</a>
                         {% else %}
                             <span class="text-success">{{ trans('memberships.active') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {{ membership.sub_product.name }} for {{ membership.transaction.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
@@ -61,7 +61,7 @@
                         {% for trans in memberships %}
                         <tr>
                             <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }}</td>
-                            <td>{{ trans.transaction.currency }} {{ trans.transaction.amount }}</td>
+                            <td>{{ trans.transaction.formatted_amount }}</td>
                             <td>{{ trans.sub_product.name }}</td>
                             <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }} - {{ trans.expires_at.formatLocalized(monthAndDayFormat) }}</td>
                             <td class="text-{{ trans.status.type }}">{{ trans('memberships.'~trans.status.text) }}</td>
@@ -131,7 +131,7 @@
 
             let text = '{{ trans('memberships.update') }}';
             if (newPrice > oldPrice) {
-                text = '{{ trans('memberships.update_pay') }}';
+                text = '{{ trans('memberships.update_pay') }} '+newPrice;
             }
             $('#do-update-membership').text(text);
         });
