@@ -92,7 +92,7 @@
                                 {% for product in subProducts %}
                                     {% set selected = product.index is same as(membership.product_index) %}
                                     {% set relativePrice = product.formattedrelativePrice(memberships[0].transaction.amount) %}
-                                <option value="{{ product.index }}" {{ selected ? 'selected' : '' }} data-price="{{ product.current_price }}">
+                                <option value="{{ product.index }}" {{ selected ? 'selected' : '' }} data-price="{{ product.price }}">
                                     {{ product.name }} - {{ product.price }} (<i>{{ relativePrice }}</i>)
                                     {{ selected ? ' - '~ trans('memberships.current') : '' }}
                                 </option>
@@ -120,17 +120,17 @@
             $('.modal.change-membership-modal').modal('show');
         });
         $('#new-product-index').on('change', function() {
-            let newPrice = parseFloat(this.selectedOptions[0].getAttribute('data-price'));
+            let newPrice = this.selectedOptions[0].getAttribute('data-price');
             let oldPrice = 0.0;
             for (let i=this.options.length; i>0; i--) {
                 if (this.options[i-1].getAttribute('selected') !== null) {
-                    oldPrice = parseFloat(this.options[i-1].getAttribute('data-price'));
+                    oldPrice = parseFloat(this.options[i-1].getAttribute('data-price').replace(/[^\d.,]/g, ''));
                     break;
                 }
             }
 
             let text = '{{ trans('memberships.update') }}';
-            if (newPrice > oldPrice) {
+            if (parseFloat(newPrice.replace(/[^\d.,]/g,'')) > oldPrice) {
                 text = '{{ trans('memberships.update_pay') }} '+newPrice;
             }
             $('#do-update-membership').text(text);
