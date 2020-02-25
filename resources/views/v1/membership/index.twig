@@ -18,7 +18,7 @@
                     {% else %}
                         {% if not hasActiveMembership %}
                             <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.formatted_amount }}
+                            {{ membership.sub_product.name }} for {{ membership.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
@@ -27,7 +27,7 @@
                             <a href="{{ route('membership.reactivate') }}" class="btn btn-success">{{ trans('memberships.reactivate') }}</a>
                         {% else %}
                             <span class="text-success">{{ trans('memberships.active') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.formatted_amount }}
+                            {{ membership.sub_product.name }} for {{ membership.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
@@ -58,7 +58,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for trans in memberships %}
+                        {% for trans in memberships if trans.transaction_id > 0 %}
                         <tr>
                             <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }}</td>
                             <td>{{ trans.transaction.formatted_amount }}</td>
@@ -83,6 +83,7 @@
                 </div>
 
                 <form action="{{ route('membership.changeProduct') }}" method="post">
+                    <input name="_token" type="hidden" value="{{ csrf_token() }}">
                     <div class="modal-body">
                         <p>
                             {{ trans('memberships.change_instructions') }}
@@ -91,7 +92,7 @@
                             <select class="form-control" name="product_index" id="new-product-index">
                                 {% for product in subProducts %}
                                     {% set selected = product.index is same as(membership.product_index) %}
-                                    {% set relativePrice = product.formattedrelativePrice(memberships[0].transaction.amount) %}
+                                    {% set relativePrice = product.formattedrelativePrice(memberships[0].formatted_amount) %}
                                 <option value="{{ product.index }}" {{ selected ? 'selected' : '' }} data-price="{{ product.price }}">
                                     {{ product.name }} - {{ product.price }} (<i>{{ relativePrice }}</i>)
                                     {{ selected ? ' - '~ trans('memberships.current') : '' }}

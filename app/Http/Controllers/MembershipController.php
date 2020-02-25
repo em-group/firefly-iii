@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\HubException;
 use EM\Hub\Library\CreateAccount;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\Http\Middleware\FeatureAccess;
@@ -142,12 +143,19 @@ class MembershipController extends Controller
         $product_index = $request->input('product_index');
 
         if ($this->user->product_index !== $product_index) {
-            $resp = $this->user->changeSubProduct($product_index);
-            if (!$resp['success']) {
-                // Encountered an error, where we couldn't update the product - Nothing's changed
+            try {
+                $resp = $this->user->changeSubProduct($product_index);
+                if ($resp['success']) {
+                    session()->flash('success', trans('memberships.change_success'));
+                } else {
+                    // Encountered an error, where we couldn't update the product - Nothing's changed
+                    session()->flash('error', $resp['error']);
+                }
+            } catch (HubException $exception) {
+                session()->flash('error', $exception->response);
             }
         }
 
-        return redirect('membership.index');
+        return redirect(route('membership.index'));
     }
 }
