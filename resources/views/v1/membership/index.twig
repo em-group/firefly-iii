@@ -18,7 +18,7 @@
                     {% else %}
                         {% if not hasActiveMembership %}
                             <span class="text-danger">{{ trans('memberships.cancelled') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {{ membership.sub_product.name }} for {{ membership.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
@@ -27,13 +27,14 @@
                             <a href="{{ route('membership.reactivate') }}" class="btn btn-success">{{ trans('memberships.reactivate') }}</a>
                         {% else %}
                             <span class="text-success">{{ trans('memberships.active') }}</span><br>
-                            {{ membership.sub_product.name }} for {{ membership.transaction.currency }} {{ membership.transaction.amount }}
+                            {{ membership.sub_product.name }} for {{ membership.formatted_amount }}
                             {% if membership and membership.active_product_index != membership.product_index %}
                                 ({{ trans('memberships.temporary_access', {name:membership.active_sub_product.name,date:membership.active_property.to|date}) }})
                             {% endif %}<br>
                             {{ trans('memberships.renews_on', {'date':membership.expires_at|date}) }}
                             <br><br>
                             <a class="btn btn-danger" href="{{ route('membership.cancel') }}">{{ trans('memberships.cancel') }}</a>
+                            <button class="btn btn-info open-change-membership-window">{{ trans('memberships.change') }}</button>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -57,13 +58,13 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for membership in memberships %}
+                        {% for trans in memberships if trans.transaction_id > 0 %}
                         <tr>
-                            <td>{{ membership.created_at.formatLocalized(monthAndDayFormat) }}</td>
-                            <td>{{ membership.transaction.currency }} {{ membership.transaction.amount }}</td>
-                            <td>{{ membership.sub_product.name }}</td>
-                            <td>{{ membership.created_at.formatLocalized(monthAndDayFormat) }} - {{ membership.expires_at.formatLocalized(monthAndDayFormat) }}</td>
-                            <td class="text-{{ membership.status.type }}">{{ trans('memberships.'~membership.status.text) }}</td>
+                            <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }}</td>
+                            <td>{{ trans.transaction.formatted_amount }}</td>
+                            <td>{{ trans.sub_product.name }}</td>
+                            <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }} - {{ trans.expires_at.formatLocalized(monthAndDayFormat) }}</td>
+                            <td class="text-{{ trans.status.type }}">{{ trans('memberships.'~trans.status.text) }}</td>
                         </tr>
                         {% endfor %}
                         </tbody>
@@ -72,11 +73,70 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade change-membership-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document" style="width: 500px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'close'|_ }}"><span>&times;</span></button>
+                    <h4 class="modal-title">Change membership</h4>
+                </div>
+
+                <form action="{{ route('membership.changeProduct') }}" method="post">
+                    <input name="_token" type="hidden" value="{{ csrf_token() }}">
+                    <div class="modal-body">
+                        <p>
+                            {{ trans('memberships.change_instructions') }}
+                        </p>
+                        <div class="form-group">
+                            <select class="form-control" name="product_index" id="new-product-index">
+                                {% for product in subProducts %}
+                                    {% set selected = product.index is same as(membership.product_index) %}
+                                    {% set relativePrice = product.formattedrelativePrice(memberships[0].formatted_amount) %}
+                                <option value="{{ product.index }}" {{ selected ? 'selected' : '' }} data-price="{{ product.price }}">
+                                    {{ product.name }} - {{ product.price }} (<i>{{ relativePrice }}</i>)
+                                    {{ selected ? ' - '~ trans('memberships.current') : '' }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">{{ 'cancel'|_ }}</button>
+                        <button type="submit" class="btn btn-primary" id="do-update-membership">{{ trans('memberships.update') }}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" src="v1/js/lib/modernizr-custom.js?v={{ FF_VERSION }}"></script>
     <script type="text/javascript" src="v1/js/lib/jquery-ui.min.js?v={{ FF_VERSION }}"></script>
     <script type="text/javascript" src="v1/js/ff/preferences/index.js?v={{ FF_VERSION }}"></script>
+    <script type="text/javascript">
+        $('.open-change-membership-window').on('click', function(e) {
+            e.preventDefault();
+            $('.modal.change-membership-modal').modal('show');
+        });
+        $('#new-product-index').on('change', function() {
+            let newPrice = this.selectedOptions[0].getAttribute('data-price');
+            let oldPrice = 0.0;
+            for (let i=this.options.length; i>0; i--) {
+                if (this.options[i-1].getAttribute('selected') !== null) {
+                    oldPrice = parseFloat(this.options[i-1].getAttribute('data-price').replace(/[^\d.,]/g, ''));
+                    break;
+                }
+            }
+
+            let text = '{{ trans('memberships.update') }}';
+            if (parseFloat(newPrice.replace(/[^\d.,]/g,'')) > oldPrice) {
+                text = '{{ trans('memberships.update_pay') }} '+newPrice;
+            }
+            $('#do-update-membership').text(text);
+        });
+    </script>
 {% endblock %}
 
 {% block styles %}

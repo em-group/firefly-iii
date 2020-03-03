@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\HubException;
 use EM\Hub\Library\CreateAccount;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\Http\Middleware\FeatureAccess;
@@ -65,8 +66,14 @@ class MembershipController extends Controller
             ->withTrashed()
             ->orderBy('created_at', 'desc')
             ->get();
+        $subProducts = SubProducts::getSubProducts($this->user->language->locale);
 
-        return view('membership.index', compact('memberships', 'membership', 'hasActiveMembership'));
+        return view('membership.index', compact(
+            'memberships',
+            'membership',
+            'hasActiveMembership',
+            'subProducts'
+        ));
     }
 
     public function cancel()
@@ -129,5 +136,26 @@ class MembershipController extends Controller
         ['url' => $url] = CreateAccount::getPaymentLink($this->user, $product_index);
 
         return redirect($url, 302, ['X-Frame-Options' => 'SAMEORIGIN']);
+    }
+
+    public function changeSubProduct(Request $request)
+    {
+        $product_index = $request->input('product_index');
+
+        if ($this->user->product_index !== $product_index) {
+            try {
+                $resp = $this->user->changeSubProduct($product_index);
+                if ($resp['success']) {
+                    session()->flash('success', trans('memberships.change_success'));
+                } else {
+                    // Encountered an error, where we couldn't update the product - Nothing's changed
+                    session()->flash('error', $resp['error']);
+                }
+            } catch (HubException $exception) {
+                session()->flash('error', $exception->response);
+            }
+        }
+
+        return redirect(route('membership.index'));
     }
 }
