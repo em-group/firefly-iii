@@ -17,6 +17,7 @@ mix.js('resources/assets/js/app.js', 'public/v1/js');
 mix.sass('resources/assets/frontpage-templates/sedna/sass/ie.scss', 'public/fpt/sedna/css');
 mix.sass('resources/assets/frontpage-templates/sedna/sass/print.scss', 'public/fpt/sedna/css');
 mix.sass('resources/assets/frontpage-templates/sedna/sass/styles.scss', 'public/fpt/sedna/css');
+mix.sass('resources/assets/frontpage-templates/sedna-b1/sass/styles-b1.scss', 'public/fpt/sedna/css');
 mix.copy('resources/assets/frontpage-templates/sedna/css/bootstrap.min.css', 'public/fpt/sedna/css');
 mix.copy('resources/assets/frontpage-templates/sedna/css/etline-font.css', 'public/fpt/sedna/css');
 mix.copy('resources/assets/frontpage-templates/sedna/css/flexslider.css', 'public/fpt/sedna/css');
@@ -27,6 +28,9 @@ mix.copy('resources/assets/frontpage-templates/sedna/css/print.css', 'public/fpt
 mix.copy('resources/assets/frontpage-templates/sedna/css/queries.css', 'public/fpt/sedna/css');
 mix.copy('resources/assets/frontpage-templates/sedna/img', 'public/fpt/sedna/img');
 mix.copy('resources/assets/frontpage-templates/sedna/fonts/et-line-font/fonts/', 'public/fpt/sedna/fonts');
+
+// Projection frontpage template
+mix.copy('resources/assets/frontpage-templates/projection/', 'public/fpt/projection/');
 
 mix.js('resources/assets/frontpage-templates/sedna/js/scripts.js', 'public/fpt/sedna/js');
 mix.js('resources/assets/frontpage-templates/sedna/js/jquery.flexslider-min.js', 'public/fpt/sedna/js');
