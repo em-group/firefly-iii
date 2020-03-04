@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ config('app.name') }} - Manage your Budget</title>
+
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:400,300|Raleway:300,400,900,700italic,700,300,600">
+    <link rel="stylesheet" type="text/css" href="fpt/baker/css/jquery.bxslider.css">
+    <link rel="stylesheet" type="text/css" href="fpt/baker/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="fpt/baker/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="fpt/baker/css/animate.css">
+    <link rel="stylesheet" type="text/css" href="fpt/baker/css/style.css">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png">
+
+</head>
+
+<body>
+
+<div class="loader"></div>
+<div id="myDiv">
+    <!--HEADER-->
+    <div class="header">
+        <div class="bg-color">
+            <header id="main-header">
+                <nav class="navbar navbar-default navbar-fixed-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="#">{{ config('app.name') }}</a>
+                        </div>
+                        <div class="collapse navbar-collapse" id="myNavbar">
+                            <ul class="nav navbar-nav navbar-right">
+                                <li><a href="#features">Features</a></li>
+                                <li><a href="#prices">Prices</a></li>
+                                <li><a href="#about-contact">About</a></li>
+                                <li><a href="#about-contact">Contact</a></li>
+                                <li><a href="#terms">Terms &amp; Conditions</a></li>
+
+                                <li><a href="/login" class="login">Log in</a></li>
+                                <li><a href="#prices" class="btn-white btn-small">Sign up</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+            <div class="wrapper">
+                <div class="container">
+                    <div class="row">
+                        <div class="banner-info text-center wow fadeIn delay-05s">
+                            <h1 class="bnr-title">Plan your budget with ease with</h1>
+                            <h2 class="bnr-sub-title">{{ config('app.name') }}</h2>
+                            <hr class="bottom-line white-bg">
+                            <p class="bnr-para">
+                                {{ config('app.name') }} makes it easier for you to get a total overview of your finances.<br>
+                                Keeping track of your financial situation has never been easier!
+                            </p>
+                            <div class="brn-btn">
+                                <a href="#prices" class="btn btn-download">Register now!</a>
+                                <a href="#features" class="btn btn-more">Learn More</a>
+                            </div>
+                            <div class="overlay-detail">
+                                <a href="#features"><i class="fa fa-angle-down"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--/ HEADER-->
+    <!---->
+    <section id="features" class="section-padding wow fadeIn delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="fpt/baker/img/ser01.png">
+                        </div>
+                        <h3 class="pad-bt15">FINANCIAL OVERVIEW</h3>
+                        <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="fpt/baker/img/ser02.png">
+                        </div>
+                        <h3 class="pad-bt15">REPORTS</h3>
+                        <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="wrap-item text-center">
+                        <div class="item-img">
+                            <img src="fpt/baker/img/ser03.png">
+                        </div>
+                        <h3 class="pad-bt15">LOTS OF FEATURES</h3>
+                        <p>{{ config('app.name') }} offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+    <section id="service" class="section-padding wow fadeInUp delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2 class="service-title pad-bt15">About {{ config('app.name') }}</h2>
+                    <p class="sub-title pad-bt15">By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
+                    <hr class="bottom-line">
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <div class="service-item">
+                        <h3><span>E</span>asy to use</h3>
+                        <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <div class="service-item">
+                        <h3><span>W</span>orks everywhere</h3>
+                        <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world</p>
+                    </div>
+                </div>
+                <div class="col-sm-4 col-xs-12">
+                    <div class="service-item">
+                        <h3><span>M</span>ultiple accounts</h3>
+                        <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+    <!---->
+    <!---->
+    <section id="prices" class="section-padding wow fadeInUp delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <h2 class="service-title pad-bt15">Prices</h2>
+                    <p class="sub-title pad-bt15">
+                        To keep things simple, we offer a Basic membership, and a Premium membership.
+                        <br><br>
+                        The Premium membership offers advantages and extra features over the Basic membership.
+                    </p>
+                    <hr class="bottom-line">
+                </div>
+                <div class="col-md-12">
+
+                    <table class="table table-striped" id="price-compare">
+                        <thead>
+                        <tr>
+                            <th></th>
+                            <th class="align-center">{{ subProducts.0.name }}</th>
+                            <th class="align-center">{{ subProducts.1.name }}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>Multiple Accounts</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Liabilities</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Budgets</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Reports</td>
+                            <td><i class="fa fa-check"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Tags</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Categories</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Import transactions</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Piggy Banks</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Bills</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Recurring Transactions</td>
+                            <td><i class="fa fa-times"></i></td>
+                            <td><i class="fa fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Price</td>
+                            <td>
+                                <h4 class="price">{{ subProducts.0.price }}/month</h4>
+                                {% if currency is same as('usd') %}
+                                    <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
+                                {% else %}
+                                    <a href="?currency=USD#prices" class="active">Show price in USD</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <h4 class="price">{{ subProducts.1.price }}/month</h4>
+                                {% if currency is same as('usd') %}
+                                    <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
+                                {% else %}
+                                    <a href="?currency=USD#prices" class="active">Show price in USD</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Payment Methods</td>
+                            <td><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;"></td>
+                            <td><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;"></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>
+                                <small>Click below to register for a 14 day trial</small><br>
+                                <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-success">SIGN UP</a>
+                            </td>
+                            <td>
+                                <small>Click below to register for a 14 day trial</small><br>
+                                <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-success">SIGN UP</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+    <section id="about-contact" class="section-padding wow fadeInUp delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="feature-list">
+                        <h3>About {{ config('app.name') }}</h3>
+                        <p>{{ config('app.name') }} is a fully-fledged budget-planning service which offers anyone to gain control over their earnings and expenses. By providing the software, we can help you get a better overview of your financial status.</p>
+                        <p>{{ config('app.name') }} is served and run by {{ config('whitelabels.company') }}.</p>
+                        <p>If you have any questions, please don't hesitate to contact us.</p>
+                    </div>
+                </div>
+                <div class="col-md-2"></div>
+                <div class="col-md-6">
+                    <h3>Contact information</h3>
+                    <p>You can reach {{ config('app.name') }} by:</p>
+                    <table class="table">
+                        <tr>
+                            <td><span class="label label-default"><i class="fa fa-phone"></i> Phone</span></td>
+                            <td>
+                                {{ config('whitelabels.phone') }}<br>
+                                <em>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 ({{ "now"|date('e') }})</em>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span class="label label-default"><i class="fa fa-envelope"></i> Email</span></td>
+                            <td><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></td>
+                        </tr>
+                        <tr>
+                            <td><span class="label label-default"><i class="fa fa-address-book"></i> Address</span></td>
+                            <td>
+                                {{ config('app.name') }}<br>
+                                {{ config('whitelabels.company') }}<br>
+                                {{ config('whitelabels.address_line1') }}<br>
+                                {{ config('whitelabels.address_line2') }}<br>
+                                {{ config('whitelabels.address_line3') }}<br>
+                                {{ config('whitelabels.company_reg') }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <section id="terms" class="section-padding wow fadeInUp delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-lg btn-info" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
+                    <button class="btn btn-lg btn-info" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
+                    <button class="btn btn-lg btn-info" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
+                    <button class="btn btn-lg btn-info" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
+                    <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;" id="terms-container">
+                        {{ terms | raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <section id="contact" class="section-padding wow fadeInUp delay-05s">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center white">
+                    <h2 class="service-title pad-bt15">Get in touch with us</h2>
+                    <hr class="bottom-line white-bg">
+                </div>
+
+                <div class="col-md-8 col-sm-8 col-xs-12">
+                    <div class="footer-links">
+                        <ul class="footer-group">
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#prices">Prices</a></li>
+                            <li><a href="#about-contact">About</a></li>
+                            <li><a href="#about-contact">Contact</a></li>
+                            <li><a href="#terms">Terms & Conditions</a></li>
+                        </ul>
+                        <p>Copyright © {{ "now"|date("Y") }} <a href="#">{{ config('app.name') }}</a>
+                    </div>
+                </div>
+                <div class="col-md-4 col-sm-4 col-xs-12">
+                    <div class="loction-info white">
+                        <p>
+                            {{ config('app.name') }}<br>
+                            {{ config('whitelabels.company') }}<br>
+                            {{ config('whitelabels.address_line1') }}<br>
+                            {{ config('whitelabels.address_line2') }}<br>
+                            {{ config('whitelabels.address_line3') }}<br>
+                            {{ config('whitelabels.company_reg') }}
+                        </p>
+                        <p><i class="fa fa-envelope-o fa-fw pull-left fa-2x"></i><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></p>
+                        <p><i class="fa fa-phone fa-fw pull-left fa-2x"></i>{{ config('whitelabels.phone') }}<br>
+                            <em><small>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 ({{ "now"|date('e') }})</small></em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!---->
+    <!---->
+    <!---->
+</div>
+<script src="fpt/baker/js/jquery.min.js"></script>
+<script src="fpt/baker/js/jquery.easing.min.js"></script>
+<script src="fpt/baker/js/bootstrap.min.js"></script>
+<script src="fpt/baker/js/wow.js"></script>
+<script src="fpt/baker/js/jquery.bxslider.min.js"></script>
+<script src="fpt/baker/js/custom.js"></script>
+
+<script>
+    $(function(){
+        let hs = $('#terms-container').find('h3');
+        let positions = {
+            'terms-terms': hs.eq(0).position() ? hs.eq(0).position().top : 0,
+            'terms-privacy-policy': hs.eq(1).position() ? hs.eq(1).position().top : 0,
+            'terms-cookie-policy': hs.eq(2).position() ? hs.eq(2).position().top : 0,
+            'refund-cancellation-policy': hs.eq(3).position() ? hs.eq(3).position().top : 0,
+        };
+        window.gotoSection = function(section){
+            $('#terms-container').scrollTop(positions[section]-45);
+        };
+    });
+</script>
+</body>
+</html>

@@ -32,6 +32,9 @@ mix.copy('resources/assets/frontpage-templates/sedna/fonts/et-line-font/fonts/',
 // Projection frontpage template
 mix.copy('resources/assets/frontpage-templates/projection/', 'public/fpt/projection/');
 
+// Baker frontpage template
+mix.copy('resources/assets/frontpage-templates/baker/', 'public/fpt/baker/');
+
 mix.js('resources/assets/frontpage-templates/sedna/js/scripts.js', 'public/fpt/sedna/js');
 mix.js('resources/assets/frontpage-templates/sedna/js/jquery.flexslider-min.js', 'public/fpt/sedna/js');
 mix.js('resources/assets/frontpage-templates/sedna/js/jquery.fancybox.pack.js', 'public/fpt/sedna/js');
