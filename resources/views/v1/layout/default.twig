@@ -28,7 +28,7 @@
 
     {# the theme #}
     <link href="v1/lib/adminlte/css/AdminLTE.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
-    <link href="v1/lib/adminlte/css/skins/skin-blue-light.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="v1/lib/adminlte/css/skins/{{ config('whitelabels.adminlte_skin') }}.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
 
     {# Firefly III customisations #}
     <link href="v1/css/firefly.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
@@ -53,7 +53,7 @@
     {% include('partials.favicons') %}
 
 </head>
-<body class="skin-blue-light sidebar-mini hold-transition">
+<body class="{{ config('whitelabels.adminlte_skin') }} sidebar-mini hold-transition">
 <div class="wrapper" id="app">
 
     <header class="main-header">
