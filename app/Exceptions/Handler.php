@@ -125,6 +125,10 @@ class Handler extends ExceptionHandler
     public function report(Exception $exception)
     {
 
+        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+            app('sentry')->captureException($exception);
+        }
+
         $doMailError = config('firefly.send_error_message');
         // if the user wants us to mail:
         if (true === $doMailError
