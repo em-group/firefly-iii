@@ -162,6 +162,7 @@ class User extends HubUser implements UserInterface
 
         // When creating, make sure we have the whitelabel id set on the user, if not explicitly specified
         static::creating(function ($user) {
+            /** @var static $user */
             $user->whitelabel_id = $user->whitelabel_id ?? config('whitelabel.id');
         });
 
