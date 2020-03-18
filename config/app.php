@@ -157,8 +157,7 @@ return [
         'RuleForm'      => \FireflyIII\Support\Facades\RuleForm::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
         'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class,
-        'Sentry'        => Sentry\Laravel\ServiceProvider::class,
-        'HubMailable'   => \FireflyIII\Mail\WhitelabelMailable::class
+        'Sentry'        => Sentry\Laravel\ServiceProvider::class
     ],
 
 ];

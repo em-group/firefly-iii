@@ -2,9 +2,9 @@
 
 namespace FireflyIII\Providers;
 
-use FireflyIII\Api\V1\Controllers\HubApiControllerExtender;
 use FireflyIII\Repositories\Whitelabel\WhitelabelRepository;
 use FireflyIII\Repositories\Whitelabel\WhitelabelRepositoryInterface;
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 
 class WhitelabelServiceProvider extends ServiceProvider
@@ -22,5 +22,11 @@ class WhitelabelServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(WhitelabelRepositoryInterface::class, WhitelabelRepository::class);
+    }
+
+    public function boot()
+    {
+        $loader = AliasLoader::getInstance();
+        $loader->alias('HubMailable', 'FireflyIII\\Mail\\WhitelabelMailable');
     }
 }
