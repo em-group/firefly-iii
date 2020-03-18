@@ -39,13 +39,13 @@
                     <h3 class="box-title">{{ 'optionalFields'|_ }}</h3>
                 </div>
                 <div class="box-body">
-                    {{ ExpandedForm.text('iban') }}
-                    {{ ExpandedForm.text('BIC', null, {maxlength: 11}) }}
-                    {% if preFilled.account_role == 'ccAsset' %}
-                        {{ ExpandedForm.text('account_number', null , {label:trans('form.creditCardNumber')}) }}
-                    {% else %}
-                        {{ ExpandedForm.text('account_number') }}
-                    {% endif %}
+{#                    {{ ExpandedForm.text('iban') }}#}
+{#                    {{ ExpandedForm.text('BIC', null, {maxlength: 11}) }}#}
+{#                    {% if preFilled.account_role == 'ccAsset' %}#}
+{#                        {{ ExpandedForm.text('account_number', null , {label:trans('form.creditCardNumber')}) }}#}
+{#                    {% else %}#}
+{#                        {{ ExpandedForm.text('account_number') }}#}
+{#                    {% endif %}#}
 
                     {% if account.accounttype.type == 'Default account' or account.accounttype.type == 'Asset account' %}
 
