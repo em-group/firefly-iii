@@ -17,6 +17,13 @@ abstract class WhitelabelMailable extends Mailable {
 
     protected $whitelabel_id;
 
+    private function _setFrom()
+    {
+        if (empty($this->from)) {
+            $this->from(config('mail.from.address'), config('mail.from.name'));
+        }
+    }
+
     public function send(MailerContract $mailer)
     {
         // Inject whitelabel config from saved id
@@ -24,21 +31,21 @@ abstract class WhitelabelMailable extends Mailable {
             $whitelabel = \FireflyIII\Models\Whitelabel::find($this->whitelabel_id);
             Whitelabel::setConfig($whitelabel);
         }
-
+        $this->_setFrom();
         parent::send($mailer);
     }
 
     public function queue(Queue $queue)
     {
         $this->whitelabel_id = config('whitelabel.id');
-
+        $this->_setFrom();
         return parent::queue($queue);
     }
 
     public function later($delay, Queue $queue)
     {
         $this->whitelabel_id = config('whitelabel.id');
-
+        $this->_setFrom();
         return parent::later($delay, $queue);
     }
 }
