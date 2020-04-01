@@ -73,9 +73,9 @@ class ReportNewJournalsMail extends Mailable
     public function build(): self
     {
         $subject           = 1 === $this->groups->count()
-            ? 'Firefly III has created a new transaction'
+            ? config('app.name').' has created a new transaction'
             : sprintf(
-                'Firefly III has created new %d transactions', $this->groups->count()
+                config('app.name').' has created new %d transactions', $this->groups->count()
             );
         $this->transform();
 
