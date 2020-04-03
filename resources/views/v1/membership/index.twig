@@ -34,7 +34,7 @@
                             {{ trans('memberships.renews_on', {'date':membership.expires_at|date}) }}
                             <br><br>
                             <a class="btn btn-danger" href="{{ route('membership.cancel') }}">{{ trans('memberships.cancel') }}</a>
-                            <button class="btn btn-info open-change-membership-window">{{ trans('memberships.change') }}</button>
+{#                            <button class="btn btn-info open-change-membership-window">{{ trans('memberships.change') }}</button>#}
                         {% endif %}
                     {% endif %}
                 </div>
