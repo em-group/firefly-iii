@@ -86,7 +86,7 @@
                     <input name="_token" type="hidden" value="{{ csrf_token() }}">
                     <div class="modal-body">
                         <p>
-                            {{ trans('memberships.change_instructions') }}
+                            <strong class="text-warning">{{ trans('memberships.change_instructions') }}</strong>
                         </p>
                         <div class="form-group">
                             <select class="form-control" name="product_index" id="new-product-index">
