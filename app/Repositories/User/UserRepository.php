@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use EM\Hub\Models\HubEmailChange;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
 use FireflyIII\Models\BudgetLimit;
@@ -104,6 +105,12 @@ class UserRepository implements UserRepositoryInterface
         app('preferences')->setForUser($user, 'email_change_undo_token', bin2hex(random_bytes(16)));
         app('preferences')->setForUser($user, 'email_change_confirm_token', bin2hex(random_bytes(16)));
         // update user
+
+        $change = new HubEmailChange();
+        $change->email_from = $oldEmail;
+        $change->user_id = $user->id;
+        $change->email_to = $newEmail;
+        $change->save();
 
         $user->email        = $newEmail;
         $user->blocked      = 1;
