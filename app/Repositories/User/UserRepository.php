@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use EM\Hub\Library\SendsHubRequests;
 use EM\Hub\Models\HubEmailChange;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
@@ -38,6 +39,7 @@ use Log;
  */
 class UserRepository implements UserRepositoryInterface
 {
+    use SendsHubRequests;
     /**
      * Constructor.
      */
@@ -180,6 +182,10 @@ class UserRepository implements UserRepositoryInterface
     public function destroy(User $user): bool
     {
         Log::debug(sprintf('Calling delete() on user %d', $user->id));
+        $data = [
+            'external_profile_id' => $user->id,
+        ];
+        self::sendPOST('profile/cancel-site-membership', $data);
         $user->delete();
 
         return true;
