@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace FireflyIII\Repositories\User;
 
+use EM\Hub\Library\SendsHubRequests;
+use EM\Hub\Models\HubEmailChange;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
 use FireflyIII\Models\BudgetLimit;
@@ -37,6 +39,7 @@ use Log;
  */
 class UserRepository implements UserRepositoryInterface
 {
+    use SendsHubRequests;
     /**
      * Constructor.
      */
@@ -104,6 +107,12 @@ class UserRepository implements UserRepositoryInterface
         app('preferences')->setForUser($user, 'email_change_undo_token', bin2hex(random_bytes(16)));
         app('preferences')->setForUser($user, 'email_change_confirm_token', bin2hex(random_bytes(16)));
         // update user
+
+        $change = new HubEmailChange();
+        $change->email_from = $oldEmail;
+        $change->user_id = $user->id;
+        $change->email_to = $newEmail;
+        $change->save();
 
         $user->email        = $newEmail;
         $user->blocked      = 1;
@@ -173,6 +182,10 @@ class UserRepository implements UserRepositoryInterface
     public function destroy(User $user): bool
     {
         Log::debug(sprintf('Calling delete() on user %d', $user->id));
+        $data = [
+            'external_profile_id' => $user->id,
+        ];
+        self::sendPOST('profile/cancel-site-membership', $data);
         $user->delete();
 
         return true;
@@ -395,6 +408,12 @@ class UserRepository implements UserRepositoryInterface
         // save old email as pref
         app('preferences')->setForUser($user, 'admin_previous_email_latest', $oldEmail);
         app('preferences')->setForUser($user, 'admin_previous_email_' . date('Y-m-d-H-i-s'), $oldEmail);
+
+        $change = new HubEmailChange();
+        $change->email_from = $oldEmail;
+        $change->user_id = $user->id;
+        $change->email_to = $newEmail;
+        $change->save();
 
         $user->email = $newEmail;
         $user->save();
