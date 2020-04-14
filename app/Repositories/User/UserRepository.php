@@ -403,6 +403,12 @@ class UserRepository implements UserRepositoryInterface
         app('preferences')->setForUser($user, 'admin_previous_email_latest', $oldEmail);
         app('preferences')->setForUser($user, 'admin_previous_email_' . date('Y-m-d-H-i-s'), $oldEmail);
 
+        $change = new HubEmailChange();
+        $change->email_from = $oldEmail;
+        $change->user_id = $user->id;
+        $change->email_to = $newEmail;
+        $change->save();
+
         $user->email = $newEmail;
         $user->save();
 
