@@ -370,15 +370,16 @@
 
 <script>
     $(function(){
-        let hs = $('#terms-container').find('h3');
-        let positions = {
-            'terms-terms': hs.eq(0).position() ? hs.eq(0).position().top : 0,
-            'terms-privacy-policy': hs.eq(1).position() ? hs.eq(1).position().top : 0,
-            'terms-cookie-policy': hs.eq(2).position() ? hs.eq(2).position().top : 0,
-            'refund-cancellation-policy': hs.eq(3).position() ? hs.eq(3).position().top : 0,
-        };
         window.gotoSection = function(section){
-            $('#terms-container').scrollTop(positions[section]-45);
+            let e = $('#terms-container');
+            let hs = e.find('h3');
+            let positions = {
+                'terms-terms': hs.eq(0).position() ? hs.eq(0).position().top : 0,
+                'terms-privacy-policy': hs.eq(1).position() ? hs.eq(1).position().top : 0,
+                'terms-cookie-policy': hs.eq(2).position() ? hs.eq(2).position().top : 0,
+                'refund-cancellation-policy': hs.eq(3).position() ? hs.eq(3).position().top : 0,
+            };
+            e.scrollTop(e.scrollTop() + positions[section] - 45);
         };
     });
 </script>
