@@ -39,7 +39,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Schema::defaultStringLength(191);
-        if ('heroku' === config('app.env') || env('APP_ENV') === 'production') {
+        if (in_array(config('app.env'), ['heroku','production'])){
             URL::forceScheme('https');
         }
     }
