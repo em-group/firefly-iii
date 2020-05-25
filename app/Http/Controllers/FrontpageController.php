@@ -25,6 +25,16 @@ class FrontpageController extends Controller
         return view('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency'));
     }
 
+    public function terms(Request $request)
+    {
+        ['locale' => $locale, 'currency' => $currency] = $this->getLocaleAndCurrency($request);
+        $domain = config('whitelabels.domain');
+        $terms = Cache::remember('frontpage_terms_'.$domain.'_'.$locale, now()->addDay(), function() use($locale){
+            return HubClient::getTerms($locale);
+        });
+        return view('frontpage.terms', compact('terms'));
+    }
+
     /**
      * @param Request $request
      * @return mixed

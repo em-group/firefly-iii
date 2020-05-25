@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 Route::get('/', ['uses' => 'FireflyIII\Http\Controllers\FrontpageController@index', 'as' => 'index']);
 Route::get('/signup', ['uses' => 'FireflyIII\Http\Controllers\FrontpageController@signup', 'as' => 'signup']);
+Route::get('/terms', ['uses' => 'FireflyIII\Http\Controllers\FrontpageController@terms', 'as' => 'terms']);
 
 Route::group(
     ['namespace' => 'FireflyIII\Http\Controllers\System',
