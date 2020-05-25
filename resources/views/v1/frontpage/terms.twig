@@ -38,7 +38,7 @@
                 'terms-cookie-policy': {pos: hs.eq(2).position() ? hs.eq(2).position().top : 0, e: hs.eq(2)},
                 'refund-cancellation-policy': {pos: hs.eq(3).position() ? hs.eq(3).position().top : 0, e: hs.eq(3)},
             };
-            e.find('*').hide();
+            e.find('> *').hide();
             positions[section].e.show().nextUntil('h3').show();
             $(window).scrollTop(positions[section]);
         };
