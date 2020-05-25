@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{{ config('app.name') }}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="fpt/sedna/css/normalize.min.css">
+    <link rel="stylesheet" href="fpt/sedna/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+
+    <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
+
+    <style>
+        body {
+            padding:15px;
+        }
+    </style>
+
+</head>
+<body id="terms-container">
+
+{{ terms | raw }}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>
+
+    $(function(){
+        window.gotoSection = function(section){
+            let e = $('#terms-container');
+            let hs = e.find('h3');
+            let positions = {
+                'terms-terms': {pos: hs.eq(0).position() ? hs.eq(0).position().top : 0, e: hs.eq(0)},
+                'terms-privacy-policy': {pos: hs.eq(1).position() ? hs.eq(1).position().top : 0, e: hs.eq(1)},
+                'terms-cookie-policy': {pos: hs.eq(2).position() ? hs.eq(2).position().top : 0, e: hs.eq(2)},
+                'refund-cancellation-policy': {pos: hs.eq(3).position() ? hs.eq(3).position().top : 0, e: hs.eq(3)},
+            };
+            e.find('*').hide();
+            positions[section].e.show().nextUntil('h3').show();
+            $(window).scrollTop(positions[section]);
+        };
+        if(document.location.hash !== ''){
+            let hash = document.location.hash.substr(1);
+            gotoSection(hash);
+        }
+    });
+</script>
+
+</body>
+</html>
