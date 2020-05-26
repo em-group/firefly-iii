@@ -79,6 +79,9 @@ $(document).ready(function() {
 				});
 			}
 		});
+		setTimeout(function(){
+			$(window).scroll();
+		}, 100);
 	});
 	/***************** Smooth Scrolling ******************/
 
