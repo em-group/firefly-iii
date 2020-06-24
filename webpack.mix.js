@@ -44,3 +44,12 @@ mix.js('resources/assets/frontpage-templates/sedna/js/vendor/modernizr-2.8.3-res
 mix.js('resources/assets/frontpage-templates/sedna/bower_components/retina.js/dist/retina.js', 'public/fpt/sedna/bower_components/retina.js/dist/retina.js');
 mix.js('resources/assets/frontpage-templates/sedna/bower_components/classie/classie.js', 'public/fpt/sedna/bower_components/classie/classie.js');
 mix.js('resources/assets/frontpage-templates/sedna/bower_components/jquery-waypoints/lib/jquery.waypoints.min.js', 'public/fpt/sedna/bower_components/jquery-waypoints/lib/jquery.waypoints.min.js');
+
+// T-1 frontpage template
+mix.sass('resources/assets/frontpage-templates/t-1/styles.scss', 'public/fpt/t-1/css');
+mix.copy('resources/assets/frontpage-templates/t-1/bootstrap.min.css', 'public/fpt/t-1/css');
+mix.copy('resources/assets/frontpage-templates/t-1/img/background.jpg', 'public/fpt/t-1/img');
+mix.copy('resources/assets/frontpage-templates/t-1/img/about_background.jpg', 'public/fpt/t-1/img');
+mix.copy('resources/assets/frontpage-templates/t-1/js/bootstrap.min.js', 'public/fpt/t-1/js');
+mix.copy('resources/assets/frontpage-templates/t-1/img/bm.png', 'public/fpt/t-1/img');
+mix.copy('resources/assets/frontpage-templates/t-1/img/arrow.png', 'public/fpt/t-1/img');

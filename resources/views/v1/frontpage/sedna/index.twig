@@ -311,7 +311,7 @@
                 <button class="btn btn-lg btn-info" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
                 <button class="btn btn-lg btn-info" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
                 <button class="btn btn-lg btn-info" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
-                <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;" id="terms-container">
+                <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;position:relative;" id="terms-container">
                     {{ terms | raw }}
                 </div>
             </div>
@@ -375,12 +375,12 @@
             let e = $('#terms-container');
             let hs = e.find('h3');
             let positions = {
-                'terms-terms': hs.eq(0).position() ? hs.eq(0).position().top : 0,
-                'terms-privacy-policy': hs.eq(1).position() ? hs.eq(1).position().top : 0,
-                'terms-cookie-policy': hs.eq(2).position() ? hs.eq(2).position().top : 0,
-                'refund-cancellation-policy': hs.eq(3).position() ? hs.eq(3).position().top : 0,
+                'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
+                'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
+                'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
+                'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
             };
-            e.scrollTop(e.scrollTop() + positions[section] - 45);
+            e.scrollTop(positions[section]);
         };
     });
 </script>
