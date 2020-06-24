@@ -51,12 +51,13 @@ class SecureHeaders
             $googleImg = 'https://www.google-analytics.com/';
         }
         $csp = [
+            "img-src * data:",
             "default-src 'none'",
             "object-src 'self'",
-            sprintf("script-src 'self' 'unsafe-eval' 'unsafe-inline' %s %s", $google, 'https://ajax.googleapis.com/'),
-            "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ https://fonts.googleapis.com/",
+            sprintf("script-src 'self' 'unsafe-eval' 'unsafe-inline' %s %s %s", $google, 'https://ajax.googleapis.com/', 'https://kit.fontawesome.com'),
+            "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ https://fonts.googleapis.com/ https://kit-free.fontawesome.com",
             "base-uri 'self'",
-            "font-src 'self' https://fonts.googleapis.com/ https://maxcdn.bootstrapcdn.com/ https://fonts.gstatic.com/ data:",
+            "font-src 'self' https://fonts.googleapis.com/ https://maxcdn.bootstrapcdn.com/ https://fonts.gstatic.com/ https://kit-free.fontawesome.com data:",
             "connect-src 'self'",
             sprintf("img-src 'self' data: https://api.tiles.mapbox.com %s", $googleImg),
             "manifest-src 'self'",

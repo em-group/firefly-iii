@@ -21,7 +21,7 @@
     </style>
 
 </head>
-<body id="terms-container">
+<body id="terms-container" style="position: relative;">
 
 {{ terms | raw }}
 
@@ -33,14 +33,12 @@
             let e = $('#terms-container');
             let hs = e.find('h3');
             let positions = {
-                'terms-terms': {pos: hs.eq(0).position() ? hs.eq(0).position().top : 0, e: hs.eq(0)},
-                'terms-privacy-policy': {pos: hs.eq(1).position() ? hs.eq(1).position().top : 0, e: hs.eq(1)},
-                'terms-cookie-policy': {pos: hs.eq(2).position() ? hs.eq(2).position().top : 0, e: hs.eq(2)},
-                'refund-cancellation-policy': {pos: hs.eq(3).position() ? hs.eq(3).position().top : 0, e: hs.eq(3)},
+                'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
+                'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
+                'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
+                'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
             };
-            e.find('> *').hide();
-            positions[section].e.show().nextUntil('h3').show();
-            $(window).scrollTop(positions[section]);
+            e.scrollTop(positions[section]);
         };
         if(document.location.hash !== ''){
             let hash = document.location.hash.substr(1);
