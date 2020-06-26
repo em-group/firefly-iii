@@ -45,6 +45,11 @@ class FrontpageController extends Controller
         ['locale' => $locale] = $this->getLocaleAndCurrency($request);
         $siteDomain = config('whitelabels.domain');
         $link = HubClient::getLandingpageLink(config('landingpage.hub_signup_source_uid'), ['locale' => $locale], ['name' => config('landingpage.hub_signup_product_name')], $request->get('spi'), $siteDomain);
+        if(strpos($link['link'], '?') !== false){
+            $link['link'] = rtrim($link['link'], '&').'&pf=1';
+        }else{
+            $link['link'] .= '?pf=1';
+        }
         return redirect()->to($link['link'], 302);
     }
 
