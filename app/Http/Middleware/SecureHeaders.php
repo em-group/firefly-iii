@@ -58,7 +58,7 @@ class SecureHeaders
             "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ https://fonts.googleapis.com/ https://kit-free.fontawesome.com",
             "base-uri 'self'",
             "font-src 'self' https://fonts.googleapis.com/ https://maxcdn.bootstrapcdn.com/ https://fonts.gstatic.com/ https://kit-free.fontawesome.com data:",
-            "connect-src 'self'",
+            "connect-src 'self' https://ka-f.fontawesome.com/",
             sprintf("img-src 'self' data: https://api.tiles.mapbox.com %s", $googleImg),
             "manifest-src 'self'",
         ];
