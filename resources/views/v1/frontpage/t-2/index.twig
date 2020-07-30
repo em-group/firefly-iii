@@ -41,7 +41,7 @@
         </div>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container">
-                <a class="navbar-brand" href="#"><img src="{{ config('whitelabels.logo_url') }}"></a>
+                <a class="navbar-brand" href="#"><img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;"></a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-bar" aria-controls="nav-bar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -372,7 +372,7 @@
     <div class="container">
         <div class="row">
             <div class="col-md-4">
-                <img src="{{ config('whitelabels.logo_url') }}">
+                <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
                 <h4 class="mt-4 mb-0">{{ config('whitelabels.phone') }}</h4>
                 <small><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small><br>
                 <small>{{ config('whitelabels.company') }},
