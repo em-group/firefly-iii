@@ -14,6 +14,7 @@
     "/fpt/sedna/css/styles.css": "/fpt/sedna/css/styles.css",
     "/fpt/sedna/css/styles-b1.css": "/fpt/sedna/css/styles-b1.css",
     "/fpt/t-1/css/styles.css": "/fpt/t-1/css/styles.css",
+    "/fpt/t-2/css/styles.css": "/fpt/t-2/css/styles.css",
     "/fpt/sedna/css/bootstrap.min.css": "/fpt/sedna/css/bootstrap.min.css",
     "/fpt/sedna/css/etline-font.css": "/fpt/sedna/css/etline-font.css",
     "/fpt/sedna/css/flexslider.css": "/fpt/sedna/css/flexslider.css",
@@ -25,5 +26,12 @@
     "/fpt/t-1/img/about_background.jpg": "/fpt/t-1/img/about_background.jpg",
     "/fpt/t-1/js/bootstrap.min.js": "/fpt/t-1/js/bootstrap.min.js",
     "/fpt/t-1/img/bm.png": "/fpt/t-1/img/bm.png",
-    "/fpt/t-1/img/arrow.png": "/fpt/t-1/img/arrow.png"
+    "/fpt/t-1/img/arrow.png": "/fpt/t-1/img/arrow.png",
+    "/fpt/t-2/css/bootstrap.min.css": "/fpt/t-2/css/bootstrap.min.css",
+    "/fpt/t-2/img/background.jpg": "/fpt/t-2/img/background.jpg",
+    "/fpt/t-2/img/background2.jpg": "/fpt/t-2/img/background2.jpg",
+    "/fpt/t-2/img/about_background.jpg": "/fpt/t-2/img/about_background.jpg",
+    "/fpt/t-2/img/favicon.png": "/fpt/t-2/img/favicon.png",
+    "/fpt/t-2/js/bootstrap.min.js": "/fpt/t-2/js/bootstrap.min.js",
+    "/fpt/t-2/img/arrow.png": "/fpt/t-2/img/arrow.png"
 }
