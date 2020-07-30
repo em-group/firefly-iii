@@ -53,3 +53,12 @@ mix.copy('resources/assets/frontpage-templates/t-1/img/about_background.jpg', 'p
 mix.copy('resources/assets/frontpage-templates/t-1/js/bootstrap.min.js', 'public/fpt/t-1/js');
 mix.copy('resources/assets/frontpage-templates/t-1/img/bm.png', 'public/fpt/t-1/img');
 mix.copy('resources/assets/frontpage-templates/t-1/img/arrow.png', 'public/fpt/t-1/img');
+// T-2 frontpage template
+mix.sass('resources/assets/frontpage-templates/t-2/styles.scss', 'public/fpt/t-2/css');
+mix.copy('resources/assets/frontpage-templates/t-2/bootstrap.min.css', 'public/fpt/t-2/css');
+mix.copy('resources/assets/frontpage-templates/t-2/img/background.jpg', 'public/fpt/t-2/img');
+mix.copy('resources/assets/frontpage-templates/t-2/img/background2.jpg', 'public/fpt/t-2/img');
+mix.copy('resources/assets/frontpage-templates/t-2/img/about_background.jpg', 'public/fpt/t-2/img');
+mix.copy('resources/assets/frontpage-templates/t-2/img/favicon.png', 'public/fpt/t-2/img');
+mix.copy('resources/assets/frontpage-templates/t-2/js/bootstrap.min.js', 'public/fpt/t-2/js');
+mix.copy('resources/assets/frontpage-templates/t-2/img/arrow.png', 'public/fpt/t-2/img');
