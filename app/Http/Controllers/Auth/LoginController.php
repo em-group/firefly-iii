@@ -96,14 +96,19 @@ class LoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
-        Log::info('Attempting login');
+        Log::info(sprintf('Attempting login - %d bytes mem', memory_get_usage(true)));
         /** Copied directly from AuthenticatesUsers, but with logging added: */
-        if ($this->attemptLogin($request)) {
-            Log::channel('audit')->info(sprintf('User "%s" has been logged in.', $request->get('email')));
-            Log::debug(sprintf('Redirect after login is %s.', $this->redirectPath()));
-            return $this->sendLoginResponse($request);
-        }else{
+        try {
+            if ($this->attemptLogin($request)) {
+                Log::channel('audit')->info(sprintf('User "%s" has been logged in.', $request->get('email')));
+                Log::debug(sprintf('Redirect after login is %s.', $this->redirectPath()));
+                return $this->sendLoginResponse($request);
+            } else {
 
+            }
+        } catch (\Throwable $ex) {
+            Log::debug($ex->getMessage().PHP_EOL.$ex->getTraceAsString());
+            throw $ex;
         }
 
         /** Copied directly from AuthenticatesUsers, but with logging added: */
