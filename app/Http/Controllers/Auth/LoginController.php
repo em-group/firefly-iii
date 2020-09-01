@@ -80,12 +80,15 @@ class LoginController extends Controller
             /** @var Adldap\Connections\Provider $provider */
             Adldap::getProvider('default')->setSchema(new $schema);
         }
+
+        Log::info('Validating login');
         $this->validateLogin($request);
 
         /** Copied directly from AuthenticatesUsers, but with logging added: */
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
+        Log::info('checkign for hasTooManyLoginAttempts');
         if (method_exists($this, 'hasTooManyLoginAttempts') && $this->hasTooManyLoginAttempts($request)) {
             Log::channel('audit')->info(sprintf('Login for user "%s" was locked out.', $request->get('email')));
             $this->fireLockoutEvent($request);
@@ -93,11 +96,11 @@ class LoginController extends Controller
             return $this->sendLockoutResponse($request);
         }
 
+        Log::info('Attempting login');
         /** Copied directly from AuthenticatesUsers, but with logging added: */
         if ($this->attemptLogin($request)) {
             Log::channel('audit')->info(sprintf('User "%s" has been logged in.', $request->get('email')));
             Log::debug(sprintf('Redirect after login is %s.', $this->redirectPath()));
-
             return $this->sendLoginResponse($request);
         }else{
 
@@ -107,12 +110,15 @@ class LoginController extends Controller
         // If the login attempt was unsuccessful we will increment the number of attempts
         // to login and redirect the user back to the login form. Of course, when this
         // user surpasses their maximum number of attempts they will get locked out.
+        Log::info('incrementLoginAttempts');
         $this->incrementLoginAttempts($request);
         Log::channel('audit')->info(sprintf('Login attempt for user "%s" failed.', $request->get('email')));
 
+        Log::info('setPreviousUrl');
         // Make sure we properly go directly back to the login page, to properly display errors
         session()->setPreviousUrl('/login');
 
+        Log::info('sendFailedLoginResponse');
         /** @noinspection PhpInconsistentReturnPointsInspection */
         /** @noinspection PhpVoidFunctionResultUsedInspection */
         return $this->sendFailedLoginResponse($request);
