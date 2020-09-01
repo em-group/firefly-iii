@@ -158,7 +158,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function count(): int
     {
-        return $this->all()->count();
+        return User::count();
     }
 
     /**
