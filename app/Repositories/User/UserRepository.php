@@ -114,9 +114,10 @@ class UserRepository implements UserRepositoryInterface
         $change->email_to = $newEmail;
         $change->save();
 
-        $user->email        = $newEmail;
-        $user->blocked      = 1;
-        $user->blocked_code = 'email_changed';
+        $user->email         = $newEmail;
+        $user->blake2b_email = $user->getEmailHash();
+        $user->blocked       = 1;
+        $user->blocked_code  = 'email_changed';
         $user->save();
 
         return true;
@@ -183,7 +184,7 @@ class UserRepository implements UserRepositoryInterface
     {
         Log::debug(sprintf('Calling delete() on user %d', $user->id));
         $data = [
-            'external_profile_id' => $user->id,
+            'email_blake2b' => $user->blake2b_email,
         ];
         self::sendPOST('profile/cancel-site-membership', $data);
         $user->delete();
