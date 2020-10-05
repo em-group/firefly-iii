@@ -62,3 +62,7 @@ mix.copy('resources/assets/frontpage-templates/t-2/img/about_background.jpg', 'p
 mix.copy('resources/assets/frontpage-templates/t-2/img/favicon.png', 'public/fpt/t-2/img');
 mix.copy('resources/assets/frontpage-templates/t-2/js/bootstrap.min.js', 'public/fpt/t-2/js');
 mix.copy('resources/assets/frontpage-templates/t-2/img/arrow.png', 'public/fpt/t-2/img');
+
+// YBM
+mix.sass('resources/assets/frontpage-templates/YBM/sass/styles.scss', 'public/fpt/YBM/css');
+mix.copy('resources/assets/frontpage-templates/YBM/img/', 'public/fpt/YBM/img');

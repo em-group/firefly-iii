@@ -1,0 +1,223 @@
+// Google Fonts
+@import url(https://fonts.googleapis.com/css?family=Work+Sans:400,300,700);
+
+$accent-color: #47548d;
+
+body {
+  font-family: 'Work Sans', sans-serif;
+}
+#top {
+  background:#f1f1f1;
+}
+
+.navbar-brand {
+  img {
+    max-width:200px;
+  }
+}
+
+.btn-orange {
+  background: $accent-color;
+  color:white;
+}
+a.btn-orange {
+  background: $accent-color;
+  color:white;
+}
+.text-orange {
+  color:$accent-color;
+}
+.navigation {
+  background:#1b2449;
+  color:white;
+}
+#nav-bar {
+  .nav-item {
+    a.nav-link {
+      padding:10px 15px;
+      border-bottom: 2px solid transparent;
+      margin-left:15px;
+      color:white;
+    }
+    a.nav-link:active,a.nav-link:hover {
+      border-bottom: 2px solid $accent-color;
+    }
+  }
+}
+
+.hero {
+  background-image: url('/fpt/YBM/img/top.jpg');
+  background-size:cover;
+  color:white;
+  @media(min-width:992px){
+    min-height:600px;
+    padding-top:150px;
+  }
+  @media(max-width:992px){
+    padding-bottom:25px;
+    padding-top:25px;
+  }
+}
+
+#intro {
+  .intro-icon i {
+    font-size:2em;
+    color:$accent-color;
+    margin-bottom:15px;
+  }
+  .intro-feature {
+    border:1px solid black;
+    min-height:300px;
+  }
+  .budget-ss {
+    background:url('/fpt/YBM/img/ss.jpg');
+  }
+  .phone-ss {
+    background:url('/fpt/sedna/img/iphone6-ff.png') center 20px no-repeat;
+  }
+  .intro-feature-orange {
+    background-color:#f18b89;
+    color:white;
+  }
+  @media(max-width: 768px){
+    .container {
+      .intro-feature {
+        min-height: initial;
+        border:0;
+      }
+      .intro-feature-orange {
+        background-color:initial;
+        color:black;
+      }
+    }
+  }
+  @media(max-width:992px){
+    padding-top:25px;
+    margin-bottom:40px;
+  }
+  @media(min-width:992px){
+    margin-bottom:100px;
+    .container {
+      .intro-feature {
+        padding:40px;
+        margin-top:40px;
+      }
+    }
+    .intro-icon i {
+      font-size:2.5em;
+      color:$accent-color;
+      margin-bottom:15px;
+    }
+  }
+}
+#features {
+  p {
+    color:#919191;
+  }
+  .feature-item {
+    list-style-image: url('/fpt/t-1/img/arrow.png');
+  }
+}
+#prices {
+  background:white;
+  padding-top:50px;
+  padding-bottom:50px;
+  .price-tier-box {
+    box-shadow:0 0 30px #cccccc;
+    border-top:5px solid $accent-color;
+    border-radius:4px;
+    overflow:hidden;
+    z-index:1;
+    position:relative;
+    .price-tier-box-feature {
+      i {
+        min-width:25px;
+      }
+      .fa-times {
+        color:#ccc;
+      }
+      .fa-check {
+        color:#76d560;
+      }
+    }
+    .recommended-badge {
+      display:block;
+      height:30px;
+      line-height:30px;
+      width:100%;
+      background:$accent-color;
+      color:white;
+      position:absolute;
+      left:-125px;
+      top:25px;
+      font-weight:bold;
+      font-size:.7em;
+      transform:rotate(-45deg);
+      z-index:0;
+    }
+  }
+  @media(max-width:992px){
+    .price-tier-box {
+      margin-top:25px;
+    }
+  }
+}
+
+#about-contact {
+  background-image:url('/fpt/t-1/img/about_background.jpg');
+  background-size:cover;
+  color:white;
+  padding-top:50px;
+  padding-bottom:50px;
+  a, a:active, a:hover {
+    color:white;
+  }
+  #contact-info {
+    .icon {
+      width:32px;
+      height:32px;
+      background:$accent-color;
+      border-radius:50%;
+      padding:5px 8px;
+      color:black;
+    }
+  }
+}
+
+#terms {
+  padding-top:50px;
+  padding-bottom:50px;
+  #terms-container {
+    background:white;
+    box-shadow:0 0 20px #ccc;
+    border-radius:0;
+  }
+}
+
+footer {
+  padding-top:50px;
+  padding-bottom:50px;
+  background:#5e5b5b;
+  color:white;
+  a, a:hover, a:active {
+    color:white;
+  }
+  .orange-bar {
+    border-top:2px solid $accent-color;
+    max-width:48px;
+  }
+  .footer-menu-links {
+    a {
+      display:block;
+      margin-top:10px;
+      color: #bdbdbd;
+    }
+    button {
+      margin-top:10px;
+      background:transparent;
+      border:0;
+      text-align:left;
+      padding:0;
+    }
+  }
+}
