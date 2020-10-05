@@ -66,3 +66,10 @@ mix.copy('resources/assets/frontpage-templates/t-2/img/arrow.png', 'public/fpt/t
 // YBM
 mix.sass('resources/assets/frontpage-templates/YBM/sass/styles.scss', 'public/fpt/YBM/css');
 mix.copy('resources/assets/frontpage-templates/YBM/img/', 'public/fpt/YBM/img');
+
+// SO
+mix.sass('resources/assets/frontpage-templates/SO/sass/styles.scss', 'public/fpt/SO/css');
+mix.copy('resources/assets/frontpage-templates/SO/img/', 'public/fpt/SO/img');
+// BS
+mix.sass('resources/assets/frontpage-templates/BS/sass/styles.scss', 'public/fpt/BS/css');
+mix.copy('resources/assets/frontpage-templates/BS/img/', 'public/fpt/SO/img');
