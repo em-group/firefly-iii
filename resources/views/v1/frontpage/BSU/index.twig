@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{{ config('app.name') }}</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="fpt/t-2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="fpt/BSU/css/styles.css">
+    <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous"></script>
+
+    <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
+    <style>
+        table#price-compare .fa-check {
+            color: #6cce6b;
+        }
+        table#price-compare .fa-times {
+            color: #d3d3d3;
+        }
+        table#price-compare h4.price {
+            margin:0;
+            padding:0;
+        }
+    </style>
+
+</head>
+<body id="top">
+
+<section class="navigation">
+    <header>
+        <div class="border-bottom">
+            <div class="container pt-1 pb-1">
+                <small>{{ config('whitelabels.phone') }}</small>
+                <small class="pl-2 pl-sm-5"><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small>
+            </div>
+        </div>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container">
+                <a class="navbar-brand" href="#"><img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;"></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-bar" aria-controls="nav-bar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="nav-bar">
+                    <div class="navbar-nav mr-auto mt-2 mt-lg-0"></div>
+                    <div class="my-2 my-lg-0">
+                        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                            <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#prices">Prices</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#about-contact">About</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#about-contact">Contact</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#terms">Terms &amp; Conditions</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#prices">Sign up</a></li>
+                            <li class="nav-item"><a class="nav-link btn-orange" href="/login">Log in</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+</section>
+
+<section class="hero">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="hero-content">
+                    <p class="intro">Welcome to {{ config('app.name') }}</p>
+                    <h1>Plan your budget with ease</h1>
+                    <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
+                    <a href="#features" class="btn btn-orange btn-lg mt-3">Learn more</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="intro section-padding" id="intro">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <img src="/fpt/SO/img/icon1.png">
+                </div>
+                <div class="intro-content">
+                    <h5><strong>Financial overview</strong></h5>
+                    <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>
+                </div>
+            </div>
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <img src="/fpt/SO/img/icon2.png">
+                </div>
+                <div class="intro-content">
+                    <h5><strong>Reports</strong></h5>
+                    <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>
+                </div>
+            </div>
+            <div class="col-md-4 intro-feature">
+                <div class="intro-icon">
+                    <img src="/fpt/SO/img/icon3.png">
+                </div>
+                <div class="intro-content last">
+                    <h5><strong>Lots of features</strong></h5>
+                    <p>{{ config('app.name') }} offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features section-padding" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-5">
+                <div class="feature-list">
+                    <h3>Never miss a dime</h3>
+                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
+                    <ul class="features-stack pl-0">
+                        <li class="feature-item">
+                            <div class="feature-content">
+                                <h5>Easy to use</h5>
+                                <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe040;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Works everywhere</h5>
+                                <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe03c;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Multiple accounts</h5>
+                                <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-none d-md-block col-md-7 position-relative">
+                <div style="background: url('/fpt/sedna/img/ipad-device-ff.png') top right no-repeat; background-size:100%; display:block;width:100%;height:100%;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features-extra section-padding text-center" id="prices">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col-md-12">
+                <h2 class="mb-3">Prices</h2>
+                <p>
+                    To keep things simple, we offer a Basic membership, and a Premium membership.<br>
+                    The Premium membership offers advantages and extra features over the Basic membership.
+                </p>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-xs-12 col-md-4">
+                <div class="price-tier-box p-5">
+                    <h2>{{ subProducts.0.name }}</h2>
+                    <div>
+                        <span class="price-tier-price">{{ subProducts.0.price }}/month</span>
+                        <br>
+                        <small>
+                            {% if currency is same as('usd') %}
+                                <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
+                            {% else %}
+                                <a href="?currency=USD#prices" class="active">Show price in USD</a>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <hr>
+                    <div class="text-left">
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Multiple Accounts</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Liabilities</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Budgets</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Reports</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Tags</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-times"></i>
+                            <span>Categories</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-times"></i>
+                            <span>Import transactions</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-times"></i>
+                            <span>Piggy Banks</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-times"></i>
+                            <span>Bills</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        Payment Methods<br>
+                        <img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
+                    </div>
+                    <hr>
+                    <small>Click below to register for a 14 day trial</small><br>
+                    <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
+                </div>
+
+            </div>
+            <div class="col-md-1"></div>
+            <div class="col-xs-12 col-md-4">
+                <div class="price-tier-box p-5">
+                    <div class="recommended-badge">RECOMMENDED</div>
+                    <h2>{{ subProducts.1.name }}</h2>
+                    <div>
+                        <span class="price-tier-price">{{ subProducts.1.price }}/month</span>
+                        <br>
+                        <small>
+                            {% if currency is same as('usd') %}
+                                <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
+                            {% else %}
+                                <a href="?currency=USD#prices" class="active">Show price in USD</a>
+                            {% endif %}
+                        </small>
+                    </div>
+                    <hr>
+                    <div class="text-left">
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Multiple Accounts</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Liabilities</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Budgets</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Reports</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Tags</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Categories</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Import transactions</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Piggy Banks</span>
+                        </div>
+                        <div class="price-tier-box-feature">
+                            <i class="fa fa-check"></i>
+                            <span>Bills</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        Payment Methods<br>
+                        <img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
+                    </div>
+                    <hr>
+                    <small>Click below to register for a 14 day trial</small><br>
+                    <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features section-padding" id="about-contact">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="feature-list">
+                    <h3 class="text-orange">About {{ config('app.name') }}</h3>
+                    <p>{{ config('app.name') }} is a fully-fledged budget-planning service which offers anyone to gain control over their earnings and expenses. By providing the software, we can help you get a better overview of your financial status.</p>
+                    <p>{{ config('app.name') }} is served and run by {{ config('whitelabels.company') }}.</p>
+                    <p>If you have any questions, please don't hesitate to contact us.</p>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+            <div class="col-md-6">
+                <h3 class="text-orange">Contact information</h3>
+                <p>You can reach {{ config('app.name') }} by:</p>
+                <table id="contact-info">
+                    <tr>
+                        <td style="width:65px;"><div class="icon"><i class="fa fa-phone"></i></div></td>
+                        <td>
+                            {{ config('whitelabels.phone') }}<br>
+                            <em>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 (Central Europe timezone)</em>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td><div class="icon"><i class="fa fa-envelope"></i></div></td>
+                        <td><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></td>
+                    </tr>
+                    <tr>
+                        <td colspan="100%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td><div class="icon"><i class="fa fa-address-book"></i></div></td>
+                        <td>
+                            {{ config('app.name') }}<br>
+                            {{ config('whitelabels.company') }}<br>
+                            {{ config('whitelabels.address_line1') }}<br>
+                            {{ config('whitelabels.address_line2') }}<br>
+                            {{ config('whitelabels.address_line3') }}<br>
+                            {{ config('whitelabels.company_reg') }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding" id="terms">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
+                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
+                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
+                <button class="btn btn-lg btn-orange" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
+                <div style="max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;position: relative;" id="terms-container">
+                    {{ terms | raw }}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
+                <h4 class="mt-4 mb-0">{{ config('whitelabels.phone') }}</h4>
+                <small><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small><br>
+                <small>{{ config('whitelabels.company') }},
+                    {{ config('whitelabels.address_line1') }},
+                    {{ config('whitelabels.address_line2') }},
+                    {{ config('whitelabels.address_line3') }},
+                    {{ config('whitelabels.company_reg') }}</small>
+            </div>
+            <div class="col-md-4 footer-menu-links">
+                <h4>Menu Links</h4>
+                <div class="orange-bar"></div>
+                <a class="" href="#features">Features</a>
+                <a class="" href="#prices">Prices</a>
+                <a class="" href="#about-contact">About</a>
+                <a class="" href="#about-contact">Contact</a>
+                <a class="" href="#terms">Terms &amp; Conditions</a>
+            </div>
+            <div class="col-md-4 footer-menu-links">
+                <h4>Terms & Conditions</h4>
+                <div class="orange-bar"></div>
+                <a class="" href="#terms" onclick="gotoSection('terms-terms');">Terms & Conditions</a>
+                <a class="" href="#terms" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</a>
+                <a class="" href="#terms" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</a>
+                <a class="" href="#terms" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/fpt/t-2/js/bootstrap.min.js"></script>
+
+<script>
+    $(function(){
+        window.gotoSection = function(section){
+            let e = $('#terms-container');
+            let hs = e.find('h3');
+            let positions = {
+                'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
+                'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
+                'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
+                'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
+            };
+            e.scrollTop(positions[section]);
+        };
+    });
+</script>
+
+</body>
+</html>
