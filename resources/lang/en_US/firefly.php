@@ -1473,4 +1473,7 @@ return [
     'box_net_worth_in_currency'          => 'Net worth (:currency)',
     'box_spend_per_day'                  => 'Left to spend per day: :amount',
 
+    // EM Unsub
+    'enter_mail_to_unsub'                => 'Enter your email to unsubscribe',
+    'success_unsub'                      => 'Unsubscribed email',
 ];

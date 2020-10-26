@@ -1,0 +1,48 @@
+{% extends "./layout/guest" %}
+
+{% block content %}
+
+    {# SUCCESS MESSAGE (ALWAYS SINGULAR) #}
+    {% if Session.has('success') %}
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span><span class="sr-only">{{ 'close'|_ }}</span>
+            </button>
+            <strong>{{ 'flash_success'|_ }}</strong> {{ session('success') }}
+        </div>
+    {% endif %}
+
+    {% if errors.has('email') %}
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="alert alert-danger alert-dismissible" role="alert">
+                    <button type="button" class="close" data-dismiss="alert"><span>&times;</span><span class="sr-only">{{ 'close'|_ }}</span>
+                    </button>
+                    <strong>{{ 'flash_error'|_ }}</strong> {{ errors.get('email')[0] }}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="login-box-body">
+        <p class="login-box-msg">{{ 'enter_mail_to_unsub'|_ }}</p>
+
+        <form action="{{ URL.to('/unsub') }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
+
+            <div class="form-group has-feedback">
+                {% if config('firefly.login_provider') == 'eloquent' %}
+                    <input type="email" autocomplete="email" name="email" value="{{ email }}" class="form-control" placeholder="{{ trans('form.email') }}"/>
+                {% else %}
+                    <input type="text" autocomplete="username" name="email" value="{{ email }}" class="form-control" placeholder="{{ trans('form.login_name') }}"/>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-xs-4 pull-right">
+                    <button type="submit" class="btn btn-primary btn-block btn-flat">{{ 'sign_in'|_ }}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+

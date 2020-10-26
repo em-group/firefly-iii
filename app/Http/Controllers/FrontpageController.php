@@ -5,6 +5,8 @@ namespace FireflyIII\Http\Controllers;
 use EM\Hub\Library\SubProducts;
 use EM\Hub\Library\HubClient;
 use EM\Hub\Models\SubProduct;
+use FireflyIII\User;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Cache;
@@ -64,5 +66,32 @@ class FrontpageController extends Controller
             $currency = 'usd';
         }
         return ['locale' => $locale, 'currency' => $currency];
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @throws ValidationException
+     */
+    public function unsub(Request $request)
+    {
+        session()->setPreviousUrl('/unsub');
+        if ($request->method() === 'POST') {
+            $request->validate([
+                'email' => 'required|string'
+            ]);
+            /** @var User $user */
+            $user = User::whereEmail($request->input('email'))->first();
+            // Unsubscribe email
+            if (!is_null($user)) {
+                $user->cancelMembership();
+                session()->flash('success', trans('firefly.success_unsub'));
+            } else if (true) {
+                throw ValidationException::withMessages([
+                    'email' => [trans('auth.failed')],
+                ]);
+            }
+        }
+        return view('frontpage.unsub');
     }
 }
