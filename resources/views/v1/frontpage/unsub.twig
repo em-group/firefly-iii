@@ -1,5 +1,7 @@
 {% extends "./layout/guest" %}
 
+{% block box_classes %}{{ parent() }} large-box{% endblock %}
+
 {% block content %}
 
     {# SUCCESS MESSAGE (ALWAYS SINGULAR) #}
@@ -25,7 +27,7 @@
     {% endif %}
 
     <div class="login-box-body">
-        <p class="login-box-msg">{{ 'enter_mail_to_unsub'|_ }}</p>
+        <p>{{ trans('firefly.enter_mail_to_unsub', {'site': config('app.name')}) }}</p>
 
         <form action="{{ URL.to('/unsub') }}" method="post">
             <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
@@ -37,9 +39,10 @@
                     <input type="text" autocomplete="username" name="email" value="{{ email }}" class="form-control" placeholder="{{ trans('form.login_name') }}"/>
                 {% endif %}
             </div>
+            <p>{{ trans('firefly.forgot_unsub_email', {'domain': config('whitelabels.domain')})|raw }}</p>
             <div class="row">
                 <div class="col-xs-4 pull-right">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">{{ 'sign_in'|_ }}</button>
+                    <button type="submit" class="btn btn-primary btn-block btn-flat">{{ 'unsubscribe'|_ }}</button>
                 </div>
             </div>
         </form>

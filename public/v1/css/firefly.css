@@ -270,3 +270,7 @@ span.twitter-typeahead {
     line-height:23px;
     font-size:10px;
 }
+
+.large-box {
+    width: 550px;
+}
