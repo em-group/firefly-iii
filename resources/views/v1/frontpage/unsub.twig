@@ -25,7 +25,8 @@
     {% endif %}
 
     <div class="login-box-body">
-        <p class="login-box-msg">{{ 'enter_mail_to_unsub'|_ }}</p>
+        <p class="text-left">{{ trans('firefly.enter_mail_to_unsub_1') }}</p>
+        <p class="text-left">{{ trans('firefly.enter_mail_to_unsub_2', {support_email: 'support@'~config('whitelabels.domain')}) }}</p>
 
         <form action="{{ URL.to('/unsub') }}" method="post">
             <input type="hidden" name="_token" value="{{ csrf_token() }}"/>
@@ -38,8 +39,8 @@
                 {% endif %}
             </div>
             <div class="row">
-                <div class="col-xs-4 pull-right">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">{{ 'sign_in'|_ }}</button>
+                <div class="col-xs-4">
+                    <button type="submit" class="btn btn-primary btn-flat">{{ 'unsubscribe'|_ }}</button>
                 </div>
             </div>
         </form>

@@ -6,6 +6,7 @@ use EM\Hub\Library\SubProducts;
 use EM\Hub\Library\HubClient;
 use EM\Hub\Models\SubProduct;
 use FireflyIII\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -85,6 +86,21 @@ class FrontpageController extends Controller
             // Unsubscribe email
             if (!is_null($user)) {
                 $user->cancelMembership();
+                try {
+                    if (config('app.unsubscribe_email_notifications') &&
+                        !cache()->has('cancellation_email_' . $user->id))
+                    {
+                        cache()->put('cancellation_email_' . $user->id, now()->addDay(), true);
+                        $text = 'User unsubscribed from ' . config('app.name') . ': ' . $user->email;
+                        Mail::raw($text, function ($message) {
+                            $message->from(config('mail.from.address'), config('mail.from.name'));
+                            $message->to(config('app.unsubscribe_email_notifications'));
+                            $message->subject('User submitted cancellation from website');
+                        });
+                    }
+                } catch (\Throwable $e) {
+                    dd($e->getMessage());
+                }
                 session()->flash('success', trans('firefly.success_unsub'));
             } else if (true) {
                 throw ValidationException::withMessages([

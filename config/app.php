@@ -26,6 +26,8 @@ use FireflyIII\Providers\ImportServiceProvider;
 
 
 return [
+    'unsubscribe_email_notifications' => env('UNSUBSCRIBE_EMAIL_NOTIFICATIONS', null),
+
     'name'            => envNonEmpty('APP_NAME', 'Firefly III'),
     'env'             => envNonEmpty('APP_ENV', 'production'),
     'debug'           => env('APP_DEBUG', false),

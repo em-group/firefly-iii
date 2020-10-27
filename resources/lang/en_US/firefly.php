@@ -1474,6 +1474,9 @@ return [
     'box_spend_per_day'                  => 'Left to spend per day: :amount',
 
     // EM Unsub
-    'enter_mail_to_unsub'                => 'Enter your email to unsubscribe',
+    'enter_mail_to_unsub_1'                => 'If you want to cancel your membership, please type in the email you used to sign up.',
+    'enter_mail_to_unsub_2'                => 'If you do not remember the email you signed up with, you can contact our support department at :support_email who will be happy to assist you.',
+
     'success_unsub'                      => 'Unsubscribed email',
+    'unsubscribe'                        => 'Unsubscribe'
 ];
