@@ -44,7 +44,7 @@
 
 </head>
 <body class="login-page">
-<div class="login-box">
+<div class="{% block box_classes %}login-box{% endblock %}">
     <div class="login-logo">
         <a href="{{ route('index') }}">{{ config('app.name') }}</a>
     </div>
