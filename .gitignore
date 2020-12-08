@@ -14,3 +14,4 @@ public/google*.html
 report.html
 composer.phar
 /.idea
+.phpunit.result.cache
