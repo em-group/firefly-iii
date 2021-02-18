@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Editează pușculița ":name"',
     'preferences'            => 'Preferințe',
     'profile'                => 'Profil',
+    'accounts'               => 'Accounts',
     'changePassword'         => 'Modificare parolă',
     'change_email'           => 'Modificare adresă de email',
     'bills'                  => 'Facturi',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Editează tranzacția ":description"',
     'edit_reconciliation'    => 'Editează ":description"',
     'delete_journal'         => 'Șterge tranzacția ":description"',
+    'delete_group'           => 'Șterge tranzacția ":description"',
     'tags'                   => 'Etichete',
     'createTag'              => 'Crează o etichetă nouă',
     'edit_tag'               => 'Editează eticheta ":tag"',
     'delete_tag'             => 'Șterge eticheta ":tag"',
     'delete_journal_link'    => 'Şterge legătura dintre tranzacţii',
+    'telemetry_index'        => 'Telemetrie',
+    'telemetry_view'         => 'Vizualizare telemetrie',
+    'edit_object_group'      => 'Edit group ":title"',
+    'delete_object_group'    => 'Delete group ":title"',
+    'logout_others'          => 'Logout other sessions'
 ];

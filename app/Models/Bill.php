@@ -1,91 +1,96 @@
 <?php
 /**
  * Bill.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
 use Carbon\Carbon;
+use Eloquent;
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class Bill.
  *
- * @property bool                $active
- * @property int                 $transaction_currency_id
- * @property string              $amount_min
- * @property string              $amount_max
- * @property int                 $id
- * @property string              $name
- * @property Collection          $notes
- * @property TransactionCurrency $transactionCurrency
- * @property Carbon              $created_at
- * @property Carbon              $updated_at
- * @property Carbon              $date
- * @property string              $repeat_freq
- * @property int                 $skip
- * @property bool                $automatch
- * @property User                $user
- * @property string              $match
- * @property bool                match_encrypted
- * @property bool                name_encrypted
+ * @property bool                                                                                  $active
+ * @property int                                                                                   $transaction_currency_id
+ * @property string                                                                                $amount_min
+ * @property string                                                                                $amount_max
+ * @property int                                                                                   $id
+ * @property string                                                                                $name
+ * @property Collection                                                                            $notes
+ * @property TransactionCurrency                                                                   $transactionCurrency
+ * @property Carbon                                                                                $created_at
+ * @property Carbon                                                                                $updated_at
+ * @property Carbon                                                                                $date
+ * @property string                                                                                $repeat_freq
+ * @property int                                                                                   $skip
+ * @property bool                                                               $automatch
+ * @property User                                                               $user
+ * @property string                                                             $match
+ * @property bool                                                               match_encrypted
+ * @property bool                                                               name_encrypted
  * @SuppressWarnings (PHPMD.CouplingBetweenObjects)
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $user_id
+ * @property \Illuminate\Support\Carbon|null                                    $deleted_at
+ * @property int                                                                $user_id
+ * @property-read \Illuminate\Database\Eloquent\Collection|Attachment[]         $attachments
+ * @property-read \Illuminate\Database\Eloquent\Collection|TransactionJournal[] $transactionJournals
+ * @method static bool|null forceDelete()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill newQuery()
+ * @method static Builder|Bill onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill query()
+ * @method static bool|null restore()
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereActive($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereAmountMax($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereAmountMin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereAutomatch($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereDate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereMatch($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereMatchEncrypted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereNameEncrypted($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereRepeatFreq($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereSkip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereTransactionCurrencyId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Bill whereUserId($value)
+ * @method static Builder|Bill withTrashed()
+ * @method static Builder|Bill withoutTrashed()
+ * @mixin Eloquent
+ * @property-read int|null $attachments_count
+ * @property-read int|null $notes_count
+ * @property-read int|null $transaction_journals_count
  * @property bool $name_encrypted
  * @property bool $match_encrypted
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[] $attachments
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\TransactionJournal[] $transactionJournals
- * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill newQuery()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Bill onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill query()
- * @method static bool|null restore()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereActive($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereAmountMax($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereAmountMin($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereAutomatch($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereMatch($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereMatchEncrypted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereNameEncrypted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereRepeatFreq($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereSkip($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereTransactionCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Bill whereUserId($value)
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Bill withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Bill withoutTrashed()
- * @mixin \Eloquent
  */
 class Bill extends Model
 {
@@ -120,13 +125,13 @@ class Bill extends Model
      *
      * @param string $value
      *
-     * @return Bill
      * @throws NotFoundHttpException
+     * @return Bill
      */
     public static function routeBinder(string $value): Bill
     {
         if (auth()->check()) {
-            $billId = (int)$value;
+            $billId = (int) $value;
             /** @var User $user */
             $user = auth()->user();
             /** @var Bill $bill */
@@ -157,13 +162,21 @@ class Bill extends Model
     }
 
     /**
+     * Get all of the tags for the post.
+     */
+    public function objectGroups()
+    {
+        return $this->morphToMany(ObjectGroup::class, 'object_groupable');
+    }
+
+    /**
      * @codeCoverageIgnore
      *
      * @param $value
      */
     public function setAmountMaxAttribute($value): void
     {
-        $this->attributes['amount_max'] = (string)$value;
+        $this->attributes['amount_max'] = (string) $value;
     }
 
     /**
@@ -173,7 +186,7 @@ class Bill extends Model
      */
     public function setAmountMinAttribute($value): void
     {
-        $this->attributes['amount_min'] = (string)$value;
+        $this->attributes['amount_min'] = (string) $value;
     }
 
     /**

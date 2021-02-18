@@ -1,29 +1,21 @@
-sudo: required
-language: bash
-env:
-  - VERSION=4.8.1.1
-
+language: php
+php:
+- '7.4'
 dist: xenial
+os: linux
+cache:
+  directories:
+  - "/home/travis/.config"
+  - "/home/travis/build/firefly-iii/firefly-iii/vendor"
 
-# safelist
 branches:
   only:
   - develop
-  - master
 
-services:
-  - docker
+before_script:
+- phpenv config-rm xdebug.ini || return 0
+- composer global require hirak/prestissimo --no-plugins --no-scripts
 
 script:
-  # enable experimental features.
-  - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-  - mkdir $HOME/.docker
-  - touch $HOME/.docker/config.json
-  - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
-  - sudo service docker restart
-  - docker version -f '{{.Server.Experimental}}'
-  - docker version
-  # build everything
-  - .deploy/docker/build-amd64.sh
-  - .deploy/docker/build-arm.sh
-  - .deploy/docker/manifest.sh
+- "./.ci/phpstan.sh"
+- "./.ci/phpunit.sh"

@@ -1,22 +1,22 @@
 <?php
 /**
- * RuleController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * IndexController.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,13 +24,16 @@ namespace FireflyIII\Http\Controllers\Rule;
 
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Rule;
+use FireflyIII\Models\RuleGroup;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\RuleManagement;
 use FireflyIII\User;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Class IndexController
@@ -38,13 +41,13 @@ use Illuminate\Http\Request;
 class IndexController extends Controller
 {
     use RuleManagement;
-    /** @var RuleGroupRepositoryInterface Rule group repository */
-    private $ruleGroupRepos;
-    /** @var RuleRepositoryInterface Rule repository. */
-    private $ruleRepos;
+
+    private RuleGroupRepositoryInterface $ruleGroupRepos;
+    private RuleRepositoryInterface      $ruleRepos;
 
     /**
      * RuleController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -52,7 +55,7 @@ class IndexController extends Controller
         parent::__construct();
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.rules'));
+                app('view')->share('title', (string) trans('firefly.rules'));
                 app('view')->share('mainTitleIcon', 'fa-random');
                 $this->ruleGroupRepos = app(RuleGroupRepositoryInterface::class);
                 $this->ruleRepos      = app(RuleRepositoryInterface::class);
@@ -63,23 +66,9 @@ class IndexController extends Controller
     }
 
     /**
-     * Move rule down in list.
-     *
-     * @param Rule $rule
-     *
-     * @return RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    public function down(Rule $rule)
-    {
-        $this->ruleRepos->moveDown($rule);
-
-        return redirect(route('rules.index'));
-    }
-
-    /**
      * Index of all rules and groups.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -87,9 +76,24 @@ class IndexController extends Controller
         $user = auth()->user();
         $this->createDefaultRuleGroup();
         $this->createDefaultRule();
+        $this->ruleGroupRepos->resetRuleGroupOrder();
         $ruleGroups = $this->ruleGroupRepos->getRuleGroupsWithRules($user);
 
         return view('rules.index', compact('ruleGroups'));
+    }
+
+    /**
+     * @param Rule $rule
+     * @return RedirectResponse
+     * @throws \FireflyIII\Exceptions\FireflyException
+     */
+    public function search(Rule $rule): RedirectResponse
+    {
+        $route = route('search.index');
+        $query = $this->ruleRepos->getSearchQuery($rule);
+        $route = sprintf('%s?%s', $route, http_build_query(['search' => $query, 'rule' => $rule->id]));
+
+        return redirect($route);
     }
 
     /**
@@ -130,17 +134,18 @@ class IndexController extends Controller
 
 
     /**
-     * Move rule ip.
+     * @param Request   $request
+     * @param Rule      $rule
+     * @param RuleGroup $ruleGroup
      *
-     * @param Rule $rule
-     *
-     * @return RedirectResponse|\Illuminate\Routing\Redirector
+     * @return JsonResponse
      */
-    public function up(Rule $rule)
+    public function moveRule(Request $request, Rule $rule, RuleGroup $ruleGroup): JsonResponse
     {
-        $this->ruleRepos->moveUp($rule);
+        $order = (int) $request->get('order');
+        $this->ruleRepos->moveRule($rule, $ruleGroup, (int) $order);
 
-        return redirect(route('rules.index'));
+        return response()->json([]);
     }
 
 }

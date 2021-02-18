@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Sparschwein „:name” bearbeiten',
     'preferences'            => 'Einstellungen',
     'profile'                => 'Profil',
+    'accounts'               => 'Konten',
     'changePassword'         => 'Passwort ändern',
     'change_email'           => 'E-Mail Adresse ändern',
     'bills'                  => 'Rechnungen',
@@ -39,8 +40,8 @@ return [
     'reports'                => 'Berichte',
     'search_result'          => 'Suchergebnisse für ":query"',
     'withdrawal_list'        => 'Ausgaben',
-    'Withdrawal_list'        => 'Aufwendungen',
-    'deposit_list'           => 'Umsatz, Einkommen und Einzahlungen',
+    'Withdrawal_list'        => 'Ausgaben',
+    'deposit_list'           => 'Einnahmen, Einkommen und Einzahlungen',
     'transfer_list'          => 'Umbuchungen',
     'transfers_list'         => 'Umbuchungen',
     'reconciliation_list'    => 'Kontenabgleiche',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Transaktion ":description" bearbeiten',
     'edit_reconciliation'    => '„:description” bearbeiten',
     'delete_journal'         => 'Transaktion ":description" löschen',
+    'delete_group'           => 'Buchung „:description” löschen',
     'tags'                   => 'Schlagwörter',
     'createTag'              => 'Neues Schlagwort erstellen',
     'edit_tag'               => 'Schlagwort „:tag” bearbeiten',
     'delete_tag'             => 'Schlagwort „:tag” löschen',
     'delete_journal_link'    => 'Transaktionsverknüpfung löschen',
+    'telemetry_index'        => 'Telemetrie',
+    'telemetry_view'         => 'Telemetrie anzeigen',
+    'edit_object_group'      => 'Gruppe „:title” bearbeiten',
+    'delete_object_group'    => 'Gruppe „:title” löschen',
+    'logout_others'          => 'Alle anderen Sitzungen abmelden'
 ];

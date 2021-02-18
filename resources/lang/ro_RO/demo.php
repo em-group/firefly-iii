@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III acceptă mai multe monede. Deși EURO este moneda implicită, acesta poate fi schimbată în Dolar, RON și multe alte valute. După cum vedeți, o mică selecție de valute a fost inclusă, dar puteți adăuga propria dvs. monedă dacă doriți. Schimbarea monedei prestabilite nu va schimba însă moneda tranzacțiilor existente: Firefly III acceptă simultan utilizarea mai multor monede.',
     'transactions-index'     => 'Aceste cheltuieli, depozite și transferuri nu sunt deosebit de imaginative. Au fost generate automat.',
     'piggy-banks-index'      => 'După cum puteți vedea, există trei pușculițe. Utilizați butoanele plus și minus pentru a influența cantitatea de bani din fiecare pușculiță. Faceți clic pe numele pușculiței pentru a vedea gestiunea pentru fiecare pușculiță.',
-    'import-index'           => 'Orice fișier CSV poate fi importat în Firefly III. De asemenea, acceptă importul datelor de la bunq și Spectre. Alte bănci și agregatoare financiare vor fi implementate în viitor. Totuși, în calitate de utilizator demo, puteți vedea doar providerii "falși". Se vor genera unele tranzacții aleatorii pentru a vă arăta cum funcționează procesul.',
     'profile-index'          => 'Rețineți că site-ul demo se resetează la fiecare patru ore. Accesul dvs. poate fi revocat oricând. Acest lucru se întâmplă automat și nu este un bug.',
 ];

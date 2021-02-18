@@ -1,35 +1,40 @@
 <?php
 /**
  * AttachmentUpdateRequest.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Requests;
 
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
+
 /**
  * ClassAttachmentUpdateRequest
  *
  * @codeCoverageIgnore
  */
-class AttachmentUpdateRequest extends Request
+class AttachmentUpdateRequest extends FormRequest
 {
+    use ConvertsDataTypes;
+
     /**
      * Authorize logged in users.
      *
@@ -51,9 +56,9 @@ class AttachmentUpdateRequest extends Request
         return [
             'filename' => $this->string('filename'),
             'title'    => $this->string('title'),
-            'notes'    => $this->string('notes'),
-            'model'    => $this->string('model'),
-            'model_id' => $this->integer('model_id'),
+            'notes'    => $this->nlString('notes'),
+            'model'    => $this->string('attachable_type'),
+            'model_id' => $this->integer('attachable_id'),
         ];
     }
 

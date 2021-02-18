@@ -1,26 +1,25 @@
 <?php
 /**
  * CurrencyController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
-
 
 namespace FireflyIII\Api\V1\Controllers;
 
@@ -38,7 +37,6 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\Budget\AvailableBudgetRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetLimitRepositoryInterface;
-use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
@@ -64,15 +62,14 @@ use League\Fractal\Resource\Item;
 
 /**
  * Class CurrencyController.
- *
  */
 class CurrencyController extends Controller
 {
     use AccountFilter, TransactionFilter;
-    /** @var CurrencyRepositoryInterface The currency repository */
-    private $repository;
-    /** @var UserRepositoryInterface The user repository */
-    private $userRepository;
+
+    private CurrencyRepositoryInterface $repository;
+    private UserRepositoryInterface     $userRepository;
+
 
     /**
      * CurrencyRepository constructor.
@@ -116,7 +113,7 @@ class CurrencyController extends Controller
 
         // types to get, page size:
         $types    = $this->mapAccountTypes($this->parameters->get('type'));
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of accounts. Count it and split it.
         /** @var AccountRepositoryInterface $accountRepository */
@@ -126,7 +123,7 @@ class CurrencyController extends Controller
         // filter list on currency preference:
         $collection = $unfiltered->filter(
             static function (Account $account) use ($currency, $accountRepository) {
-                $currencyId = (int)$accountRepository->getMetaValue($account, 'currency_id');
+                $currencyId = (int) $accountRepository->getMetaValue($account, 'currency_id');
 
                 return $currencyId === $currency->id;
             }
@@ -147,7 +144,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($accounts, $transformer, 'accounts');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -160,22 +157,14 @@ class CurrencyController extends Controller
      */
     public function availableBudgets(TransactionCurrency $currency): JsonResponse
     {
-        /** @var User $admin */
-        $admin = auth()->user();
-
         $manager = $this->getManager();
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of available budgets. Count it and split it.
-
-        /** @var BudgetRepositoryInterface $repository */
-        $repository = app(BudgetRepositoryInterface::class);
-
         /** @var AvailableBudgetRepositoryInterface $abRepository */
         $abRepository = app(AvailableBudgetRepositoryInterface::class);
 
-        $repository->setUser($admin);
         $collection       = $abRepository->getAvailableBudgetsByCurrency($currency);
         $count            = $collection->count();
         $availableBudgets = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
@@ -192,7 +181,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($availableBudgets, $transformer, 'available_budgets');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -207,10 +196,10 @@ class CurrencyController extends Controller
     {
         $manager = $this->getManager();
 
-        /** @var BillRepositoryInterface $repository */
-        $repository = app(BillRepositoryInterface::class);
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
-        $unfiltered = $repository->getBills();
+        /** @var BillRepositoryInterface $billRepos */
+        $billRepos  = app(BillRepositoryInterface::class);
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $unfiltered = $billRepos->getBills();
 
         // filter and paginate list:
         $collection = $unfiltered->filter(
@@ -232,7 +221,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($bills, $transformer, 'bills');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -249,7 +238,7 @@ class CurrencyController extends Controller
         $blRepository = app(BudgetLimitRepositoryInterface::class);
 
         $manager      = $this->getManager();
-        $pageSize     = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize     = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection   = $blRepository->getAllBudgetLimitsByCurrency($currency, $this->parameters->get('start'), $this->parameters->get('end'));
         $count        = $collection->count();
         $budgetLimits = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
@@ -263,7 +252,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($budgetLimits, $transformer, 'budget_limits');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -278,7 +267,7 @@ class CurrencyController extends Controller
     {
         // create some objects:
         $manager    = $this->getManager();
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getExchangeRates($currency);
 
 
@@ -294,7 +283,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($exchangeRates, $transformer, 'currency_exchange_rates');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -313,11 +302,15 @@ class CurrencyController extends Controller
 
         if (!$this->userRepository->hasRole($admin, 'owner')) {
             // access denied:
-            throw new FireflyException('No access to method, user is not owner.'); // @codeCoverageIgnore
+            throw new FireflyException('200005: You need the "owner" role to do this.'); // @codeCoverageIgnore
         }
         if ($this->repository->currencyInUse($currency)) {
-            throw new FireflyException('No access to method, currency is in use.'); // @codeCoverageIgnore
+            throw new FireflyException('200006: Currency in use.'); // @codeCoverageIgnore
         }
+        if ($this->repository->isFallbackCurrency($currency)) {
+            throw new FireflyException('200026: Currency is fallback.'); // @codeCoverageIgnore
+        }
+
         $this->repository->destroy($currency);
 
         return response()->json([], 204);
@@ -349,7 +342,7 @@ class CurrencyController extends Controller
 
         $resource = new Item($currency, $transformer, 'currencies');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -375,7 +368,7 @@ class CurrencyController extends Controller
 
         $resource = new Item($currency, $transformer, 'currencies');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -387,7 +380,7 @@ class CurrencyController extends Controller
      */
     public function index(): JsonResponse
     {
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getAll();
         $count      = $collection->count();
         // slice them:
@@ -407,7 +400,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($currencies, $transformer, 'currencies');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -435,7 +428,7 @@ class CurrencyController extends Controller
 
         $resource = new Item($currency, $transformer, 'currencies');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -451,12 +444,12 @@ class CurrencyController extends Controller
     {
         $manager = $this->getManager();
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
-        /** @var RecurringRepositoryInterface $repository */
-        $repository = app(RecurringRepositoryInterface::class);
-        $unfiltered = $repository->getAll();
+        /** @var RecurringRepositoryInterface $recurringRepos */
+        $recurringRepos = app(RecurringRepositoryInterface::class);
+        $unfiltered     = $recurringRepos->getAll();
 
         // filter selection
         $collection = $unfiltered->filter(
@@ -487,7 +480,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($piggyBanks, $transformer, 'recurrences');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -502,12 +495,12 @@ class CurrencyController extends Controller
     public function rules(TransactionCurrency $currency): JsonResponse
     {
         $manager  = $this->getManager();
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
-        /** @var RuleRepositoryInterface $repository */
-        $repository = app(RuleRepositoryInterface::class);
-        $unfiltered = $repository->getAll();
+        /** @var RuleRepositoryInterface $ruleRepos */
+        $ruleRepos  = app(RuleRepositoryInterface::class);
+        $unfiltered = $ruleRepos->getAll();
 
         $collection = $unfiltered->filter(
             static function (Rule $rule) use ($currency) {
@@ -536,7 +529,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($rules, $transformer, 'rules');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -560,7 +553,28 @@ class CurrencyController extends Controller
 
         $resource = new Item($currency, $transformer, 'currencies');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
+    }
+
+    /**
+     * Show a currency.
+     *
+     * @return JsonResponse
+     * @codeCoverageIgnore
+     */
+    public function showDefault(): JsonResponse
+    {
+        $manager  = $this->getManager();
+        $currency = app('amount')->getDefaultCurrencyByUser(auth()->user());
+        $this->parameters->set('defaultCurrency', $currency);
+
+        /** @var CurrencyTransformer $transformer */
+        $transformer = app(CurrencyTransformer::class);
+        $transformer->setParameters($this->parameters);
+
+        $resource = new Item($currency, $transformer, 'currencies');
+
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -574,26 +588,21 @@ class CurrencyController extends Controller
     public function store(CurrencyRequest $request): JsonResponse
     {
         $currency = $this->repository->store($request->getAll());
-
-        if (null !== $currency) {
-            if (true === $request->boolean('default')) {
-                app('preferences')->set('currencyPreference', $currency->code);
-                app('preferences')->mark();
-            }
-            $manager         = $this->getManager();
-            $defaultCurrency = app('amount')->getDefaultCurrencyByUser(auth()->user());
-            $this->parameters->set('defaultCurrency', $defaultCurrency);
-
-            /** @var CurrencyTransformer $transformer */
-            $transformer = app(CurrencyTransformer::class);
-            $transformer->setParameters($this->parameters);
-
-            $resource = new Item($currency, $transformer, 'currencies');
-
-            return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        if (true === $request->boolean('default')) {
+            app('preferences')->set('currencyPreference', $currency->code);
+            app('preferences')->mark();
         }
-        throw new FireflyException('Could not store new currency.'); // @codeCoverageIgnore
+        $manager         = $this->getManager();
+        $defaultCurrency = app('amount')->getDefaultCurrencyByUser(auth()->user());
+        $this->parameters->set('defaultCurrency', $defaultCurrency);
 
+        /** @var CurrencyTransformer $transformer */
+        $transformer = app(CurrencyTransformer::class);
+        $transformer->setParameters($this->parameters);
+
+        $resource = new Item($currency, $transformer, 'currencies');
+
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -608,7 +617,7 @@ class CurrencyController extends Controller
      */
     public function transactions(Request $request, TransactionCurrency $currency): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 
@@ -649,7 +658,7 @@ class CurrencyController extends Controller
         $resource = new FractalCollection($transactions, $transformer, 'transactions');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -681,7 +690,7 @@ class CurrencyController extends Controller
 
         $resource = new Item($currency, $transformer, 'currencies');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }

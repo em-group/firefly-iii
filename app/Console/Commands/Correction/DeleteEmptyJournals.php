@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * DeleteEmptyJournals.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
@@ -47,6 +48,7 @@ class DeleteEmptyJournals extends Command
      */
     protected $signature = 'firefly-iii:delete-empty-journals';
 
+
     /**
      * Execute the console command.
      *
@@ -56,7 +58,6 @@ class DeleteEmptyJournals extends Command
     {
         $this->deleteUnevenJournals();
         $this->deleteEmptyJournals();
-
 
         return 0;
     }
@@ -100,18 +101,18 @@ class DeleteEmptyJournals extends Command
             ->get([DB::raw('COUNT(transactions.transaction_journal_id) as the_count'), 'transaction_journal_id']);
         $total = 0;
         foreach ($set as $row) {
-            $count = (int)$row->the_count;
+            $count = (int) $row->the_count;
             if (1 === $count % 2) {
                 // uneven number, delete journal and transactions:
                 try {
-                    TransactionJournal::find((int)$row->transaction_journal_id)->delete();
+                    TransactionJournal::find((int) $row->transaction_journal_id)->delete();
                     // @codeCoverageIgnoreStart
                 } catch (Exception $e) {
                     Log::info(sprintf('Could not delete journal: %s', $e->getMessage()));
                 }
                 // @codeCoverageIgnoreEnd
 
-                Transaction::where('transaction_journal_id', (int)$row->transaction_journal_id)->delete();
+                Transaction::where('transaction_journal_id', (int) $row->transaction_journal_id)->delete();
                 $this->info(sprintf('Deleted transaction journal #%d because it had an uneven number of transactions.', $row->transaction_journal_id));
                 $total++;
             }

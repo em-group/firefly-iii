@@ -2,22 +2,22 @@
 
 /**
  * Authenticate.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -29,6 +29,7 @@ use FireflyIII\Exceptions\FireflyException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 
 /**
  * Class Authenticate
@@ -38,14 +39,14 @@ class Authenticate
     /**
      * The authentication factory instance.
      *
-     * @var \Illuminate\Contracts\Auth\Factory
+     * @var Auth
      */
     protected $auth;
 
     /**
      * Create a new middleware instance.
      *
-     * @param  \Illuminate\Contracts\Auth\Factory $auth
+     * @param Auth $auth
      *
      * @return void
      */
@@ -57,14 +58,14 @@ class Authenticate
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
-     * @param  string[]                 ...$guards
-     *
-     * @return mixed
+     * @param Request  $request
+     * @param Closure  $next
+     * @param string[] ...$guards
      *
      * @throws AuthenticationException
      * @throws FireflyException
+     * @return mixed
+     *
      */
     public function handle($request, Closure $next, ...$guards)
     {
@@ -78,11 +79,11 @@ class Authenticate
      * Determine if the user is logged in to any of the given guards.
      *
      * @param        $request
-     * @param  array $guards
+     * @param array  $guards
      *
-     * @return mixed
      * @throws AuthenticationException
      * @throws FireflyException
+     * @return mixed
      */
     protected function authenticate($request, array $guards)
     {
@@ -96,10 +97,10 @@ class Authenticate
                     // do an extra check on user object.
                     /** @noinspection PhpUndefinedMethodInspection */
                     $user = $this->auth->authenticate();
-                    if (1 === (int)$user->blocked) {
-                        $message = (string)trans('firefly.block_account_logout');
+                    if (1 === (int) $user->blocked) {
+                        $message = (string) trans('firefly.block_account_logout');
                         if ('email_changed' === $user->blocked_code) {
-                            $message = (string)trans('firefly.email_changed_logout');
+                            $message = (string) trans('firefly.email_changed_logout');
                         }
                         app('session')->flash('logoutMessage', $message);
                         /** @noinspection PhpUndefinedMethodInspection */

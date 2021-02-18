@@ -1,29 +1,27 @@
 <?php
 /**
  * auth.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
-
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Authentication Defaults
@@ -35,10 +33,12 @@ return [
     |
     */
 
-    'defaults' => [
-        'guard'     => 'web',
+    'defaults'     => [
+        'guard'     => envNonEmpty('AUTHENTICATION_GUARD', 'web'),
         'passwords' => 'users',
     ],
+    'guard_header' => envNonEmpty('AUTHENTICATION_GUARD_HEADER', 'REMOTE_USER'),
+    'guard_email'  => envNonEmpty('AUTHENTICATION_GUARD_EMAIL', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -58,11 +58,15 @@ return [
     */
 
     'guards' => [
-        'web' => [
+        'web'               => [
             'driver'   => 'session',
             'provider' => 'users',
         ],
-        'api' => [
+        'remote_user_guard' => [
+            'driver'   => 'remote_user_guard',
+            'provider' => 'remote_user_provider',
+        ],
+        'api'               => [
             'driver'   => 'passport',
             'provider' => 'users',
         ],
@@ -86,8 +90,12 @@ return [
     */
 
     'providers' => [
-        'users' => [
-            'driver' => envNonEmpty('LOGIN_PROVIDER', 'eloquent'),//'adldap',
+        'users'                => [
+            'driver' => envNonEmpty('LOGIN_PROVIDER', 'eloquent'),
+            'model'  => FireflyIII\User::class,
+        ],
+        'remote_user_provider' => [
+            'driver' => 'remote_user_provider',
             'model'  => FireflyIII\User::class,
         ],
     ],
@@ -114,5 +122,19 @@ return [
             'expire'   => 60,
         ],
     ],
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Confirmation Timeout
+    |--------------------------------------------------------------------------
+    |
+    | Here you may define the amount of seconds before a password confirmation
+    | times out and the user is prompted to re-enter their password via the
+    | confirmation screen. By default, the timeout lasts for three hours.
+    |
+    */
+
+    'password_timeout' => 10800,
 
 ];

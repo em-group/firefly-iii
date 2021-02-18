@@ -1,22 +1,22 @@
 <?php
 /**
  * MonthReportGenerator.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /** @noinspection PhpUndefinedMethodInspection */
@@ -41,19 +41,16 @@ use Throwable;
  */
 class MonthReportGenerator implements ReportGeneratorInterface
 {
-    /** @var Collection The accounts used. */
-    private $accounts;
-    /** @var Carbon End date of the report. */
-    private $end;
-    /** @var Carbon Start date of the report. */
-    private $start;
+    private Collection $accounts;
+    private Carbon $end;
+    private Carbon $start;
 
     /**
      * Generates the report.
      *
-     * @return string
      * @throws FireflyException
      * @codeCoverageIgnore
+     * @return string
      */
     public function generate(): string
     {
@@ -100,9 +97,9 @@ class MonthReportGenerator implements ReportGeneratorInterface
      * @param Account $account
      * @param Carbon  $date
      *
+     * @throws FireflyException
      * @return array
      *
-     * @throws FireflyException
      */
     public function getAuditReport(Account $account, Carbon $date): array
     {
@@ -117,7 +114,7 @@ class MonthReportGenerator implements ReportGeneratorInterface
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setAccounts(new Collection([$account]))->setRange($this->start, $this->end)->withAccountInformation()
-            ->withBudgetInformation()->withCategoryInformation()->withBillInformation();
+                  ->withBudgetInformation()->withCategoryInformation()->withBillInformation();
         $journals         = $collector->getExtractedJournals();
         $journals         = array_reverse($journals, true);
         $dayBeforeBalance = app('steam')->balance($account, $date);
@@ -154,18 +151,16 @@ class MonthReportGenerator implements ReportGeneratorInterface
             $journals[$index]['invoice_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'invoice_date');
 
         }
-
-        $return = [
+        $locale = app('steam')->getLocale();
+        return [
             'journals'         => $journals,
             'currency'         => $currency,
-            'exists'           => count($journals) > 0,
-            'end'              => $this->end->formatLocalized((string)trans('config.month_and_day')),
+            'exists'           => !empty($journals),
+            'end'              => $this->end->formatLocalized((string) trans('config.month_and_day', [], $locale)),
             'endBalance'       => app('steam')->balance($account, $this->end),
-            'dayBefore'        => $date->formatLocalized((string)trans('config.month_and_day')),
+            'dayBefore'        => $date->formatLocalized((string) trans('config.month_and_day', [], $locale)),
             'dayBeforeBalance' => $dayBeforeBalance,
         ];
-
-        return $return;
     }
 
     /**

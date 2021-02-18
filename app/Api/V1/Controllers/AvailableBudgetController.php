@@ -1,22 +1,22 @@
 <?php
 /**
  * AvailableBudgetController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,12 +38,10 @@ use League\Fractal\Resource\Item;
 
 /**
  * Class AvailableBudgetController.
- *
  */
 class AvailableBudgetController extends Controller
 {
-    /** @var AvailableBudgetRepositoryInterface */
-    private $abRepository;
+    private AvailableBudgetRepositoryInterface $abRepository;
 
     /**
      * AvailableBudgetController constructor.
@@ -92,7 +90,7 @@ class AvailableBudgetController extends Controller
         $manager = $this->getManager();
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         $start = $this->parameters->get('start');
         $end   = $this->parameters->get('end');
@@ -113,7 +111,7 @@ class AvailableBudgetController extends Controller
         $resource = new FractalCollection($availableBudgets, $transformer, 'available_budgets');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -134,7 +132,7 @@ class AvailableBudgetController extends Controller
 
         $resource = new Item($availableBudget, $transformer, 'available_budgets');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -147,6 +145,9 @@ class AvailableBudgetController extends Controller
     public function store(AvailableBudgetRequest $request): JsonResponse
     {
         $data = $request->getAll();
+        $data['start']->startOfDay();
+        $data['end']->endOfDay();
+
         /** @var TransactionCurrencyFactory $factory */
         $factory  = app(TransactionCurrencyFactory::class);
         $currency = $factory->find($data['currency_id'], $data['currency_code']);
@@ -164,7 +165,7 @@ class AvailableBudgetController extends Controller
 
         $resource = new Item($availableBudget, $transformer, 'available_budgets');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
 
@@ -204,7 +205,7 @@ class AvailableBudgetController extends Controller
 
         $resource = new Item($availableBudget, $transformer, 'available_budgets');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }

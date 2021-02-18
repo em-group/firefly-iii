@@ -1,22 +1,22 @@
 <?php
 /**
  * AutomationHandler.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -56,9 +56,23 @@ class AutomationHandler
         $repository = app(UserRepositoryInterface::class);
         $user       = $repository->findNull($event->userId);
         if (null !== $user && 0 !== $event->groups->count()) {
+
+            $email     = $user->email;
+
+            // see if user has alternative email address:
+            $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+            if (null !== $pref) {
+                $email = $pref->data;
+            }
+
+            // if user is demo user, send to owner:
+            if($user->hasRole('demo')) {
+                $email = config('firefly.site_owner');
+            }
+
             try {
                 Log::debug('Trying to mail...');
-                Mail::to($user->email)->send(new ReportNewJournalsMail($user->email, '127.0.0.1', $event->groups));
+                Mail::to($user->email)->send(new ReportNewJournalsMail($email, '127.0.0.1', $event->groups));
                 // @codeCoverageIgnoreStart
             } catch (Exception $e) {
                 Log::debug('Send message failed! :(');

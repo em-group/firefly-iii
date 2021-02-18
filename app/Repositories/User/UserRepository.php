@@ -1,22 +1,22 @@
 <?php
 /**
  * UserRepository.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -32,6 +32,7 @@ use FireflyIII\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Log;
+use Str;
 
 /**
  * Class UserRepository.
@@ -40,16 +41,6 @@ use Log;
 class UserRepository implements UserRepositoryInterface
 {
     use SendsHubRequests;
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @return Collection
      */
@@ -277,8 +268,6 @@ class UserRepository implements UserRepositoryInterface
                                                     ->where('amount', '>', 0)
                                                     ->whereNull('budgets.deleted_at')
                                                     ->where('budgets.user_id', $user->id)->get(['budget_limits.budget_id'])->count();
-        $return['import_jobs']         = $user->importJobs()->count();
-        $return['import_jobs_success'] = $user->importJobs()->where('status', 'finished')->count();
         $return['rule_groups']         = $user->ruleGroups()->count();
         $return['rules']               = $user->rules()->count();
         $return['tags']                = $user->tags()->count();
@@ -309,11 +298,16 @@ class UserRepository implements UserRepositoryInterface
     /**
      * Remove any role the user has.
      *
-     * @param User $user
+     * @param User   $user
+     * @param string $role
      */
-    public function removeRole(User $user): void
+    public function removeRole(User $user, string $role): void
     {
-        $user->roles()->sync([]);
+        $roleObj = $this->getRole($role);
+        if (null === $roleObj) {
+            return;
+        }
+        $user->roles()->detach($roleObj->id);
     }
 
     /**
@@ -340,7 +334,7 @@ class UserRepository implements UserRepositoryInterface
                 'blocked'      => $data['blocked'] ?? false,
                 'blocked_code' => $data['blocked_code'] ?? null,
                 'email'        => $data['email'],
-                'password'     => str_random(24),
+                'password'     => Str::random(24),
             ]
         );
         $role = $data['role'] ?? '';
@@ -380,7 +374,8 @@ class UserRepository implements UserRepositoryInterface
             $user->blocked_code = $data['blocked_code'];
         }
         if (isset($data['role']) && '' === $data['role']) {
-            $this->removeRole($user);
+            $this->removeRole($user, 'owner');
+            $this->removeRole($user, 'demo');
         }
 
         $user->save();

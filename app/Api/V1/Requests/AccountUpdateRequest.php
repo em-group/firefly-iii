@@ -2,37 +2,42 @@
 
 /**
  * AccountUpdateRequest.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Requests;
 
+use FireflyIII\Models\Location;
 use FireflyIII\Rules\IsBoolean;
+use FireflyIII\Support\Request\AppendsLocationData;
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class AccountUpdateRequest
  *
  * @codeCoverageIgnore
  */
-class AccountUpdateRequest extends Request
+class AccountUpdateRequest extends FormRequest
 {
+    use ConvertsDataTypes, AppendsLocationData;
 
     /**
      * Authorize logged in users.
@@ -58,7 +63,6 @@ class AccountUpdateRequest extends Request
         if (null !== $this->get('include_net_worth')) {
             $includeNetWorth = $this->boolean('include_net_worth');
         }
-
         $data = [
             'name'                    => $this->nullableString('name'),
             'active'                  => $active,
@@ -66,6 +70,7 @@ class AccountUpdateRequest extends Request
             'account_type'            => $this->nullableString('type'),
             'account_type_id'         => null,
             'currency_id'             => $this->nullableInteger('currency_id'),
+            'order'                   => $this->integer('order'),
             'currency_code'           => $this->nullableString('currency_code'),
             'virtual_balance'         => $this->nullableString('virtual_balance'),
             'iban'                    => $this->nullableString('iban'),
@@ -75,11 +80,13 @@ class AccountUpdateRequest extends Request
             'opening_balance'         => $this->nullableString('opening_balance'),
             'opening_balance_date'    => $this->date('opening_balance_date'),
             'cc_type'                 => $this->nullableString('credit_card_type'),
-            'cc_Monthly_payment_date' => $this->nullableString('monthly_payment_date'),
-            'notes'                   => $this->nullableString('notes'),
+            'cc_monthly_payment_date' => $this->nullableString('monthly_payment_date'),
+            'notes'                   => $this->nullableNlString('notes'),
             'interest'                => $this->nullableString('interest'),
             'interest_period'         => $this->nullableString('interest_period'),
         ];
+
+        $data = $this->appendLocationData($data, null);
 
         if ('liability' === $data['account_type']) {
             $data['opening_balance']      = bcmul($this->nullableString('liability_amount'), '-1');
@@ -102,7 +109,8 @@ class AccountUpdateRequest extends Request
         $accountRoles   = implode(',', config('firefly.accountRoles'));
         $types          = implode(',', array_keys(config('firefly.subTitlesByIdentifier')));
         $ccPaymentTypes = implode(',', array_keys(config('firefly.ccTypes')));
-        $rules          = [
+
+        $rules = [
             'name'                 => sprintf('min:1|uniqueAccountForUser:%d', $account->id),
             'type'                 => sprintf('in:%s', $types),
             'iban'                 => 'iban|nullable',
@@ -111,6 +119,7 @@ class AccountUpdateRequest extends Request
             'opening_balance'      => 'numeric|required_with:opening_balance_date|nullable',
             'opening_balance_date' => 'date|required_with:opening_balance|nullable',
             'virtual_balance'      => 'numeric|nullable',
+            'order'                => 'numeric|nullable',
             'currency_id'          => 'numeric|exists:transaction_currencies,id',
             'currency_code'        => 'min:3|max:3|exists:transaction_currencies,code',
             'active'               => [new IsBoolean],
@@ -125,7 +134,6 @@ class AccountUpdateRequest extends Request
             'interest_period'      => 'required_if:type,liability|in:daily,monthly,yearly',
             'notes'                => 'min:0|max:65536',
         ];
-
-        return $rules;
+        return Location::requestRules($rules);
     }
 }

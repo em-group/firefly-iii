@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III 支援多種貨幣，預設為歐元，但亦可設成美元或其他貨幣。您可見到系統已預設包含一些貨幣種類，但您也可自行新增其他貨幣。修改預設貨幣並不會改變現有交易的貨幣種類：Firefly III 是支援同時使用多種貨幣的。',
     'transactions-index'     => '這些支出、存款與轉帳談不上別出心裁：這些範例是自動產生的。',
     'piggy-banks-index'      => '您可見到有 3 個小豬撲滿。使用 + 號、- 號按鈕控制每個小豬撲滿的存款額，按一下小豬撲滿的名稱則可查看管理詳情。',
-    'import-index'           => '任何 CSV 格式的檔案都可匯入 Firefly III，也支援自 bunq 與 Spectre 匯入資料，日後或會支援其他銀行與金融機構。展示使用者只會看到「虛擬」提供者的示範，系統會隨機產生交易紀錄以示範操作過程。',
     'profile-index'          => '請注意，本展示網站每 4 小時會自動重設，存取權限可能隨時撤銷。這是自動安排的，不是錯誤。',
 ];

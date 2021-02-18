@@ -1,22 +1,22 @@
 <?php
 /**
  * AccountRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -25,6 +25,7 @@ namespace FireflyIII\Repositories\Account;
 use Carbon\Carbon;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
+use FireflyIII\Models\Location;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
@@ -47,9 +48,39 @@ interface AccountRepositoryInterface
     public function count(array $types): int;
 
     /**
+     * Reset order types of the mentioned accounts.
+     *
+     * @param array $types
+     */
+    public function resetAccountOrder(array $types): void;
+
+    /**
+     * @param Account $account
+     *
+     * @return Collection
+     */
+    public function getUsedCurrencies(Account $account): Collection;
+
+    /**
+     * @param Account $account
+     *
+     * @return Collection
+     */
+    public function getAttachments(Account $account): Collection;
+
+    /**
+     * Get account location, if any.
+     *
+     * @param Account $account
+     *
+     * @return Location|null
+     */
+    public function getLocation(Account $account): ?Location;
+
+    /**
      * Moved here from account CRUD.
      *
-     * @param Account      $account
+     * @param Account $account
      * @param Account|null $moveTo
      *
      * @return bool
@@ -66,18 +97,8 @@ interface AccountRepositoryInterface
     public function expandWithDoubles(Collection $accounts): Collection;
 
     /**
-     * Find by account number. Is used.
-     *
-     * @param string $number
-     * @param array  $types
-     *
-     * @return Account|null
-     */
-    public function findByAccountNumber(string $number, array $types): ?Account;
-
-    /**
      * @param string $iban
-     * @param array  $types
+     * @param array $types
      *
      * @return Account|null
      */
@@ -85,7 +106,7 @@ interface AccountRepositoryInterface
 
     /**
      * @param string $name
-     * @param array  $types
+     * @param array $types
      *
      * @return Account|null
      */
@@ -104,13 +125,6 @@ interface AccountRepositoryInterface
      * @return TransactionCurrency|null
      */
     public function getAccountCurrency(Account $account): ?TransactionCurrency;
-
-    /**
-     * @param Account $account
-     *
-     * @return string
-     */
-    public function getAccountType(Account $account): string;
 
     /**
      * Return account type or null if not found.
@@ -143,6 +157,13 @@ interface AccountRepositoryInterface
     public function getActiveAccountsByType(array $types): Collection;
 
     /**
+     * @param array $types
+     *
+     * @return Collection
+     */
+    public function getInactiveAccountsByType(array $types): Collection;
+
+    /**
      * @return Account
      */
     public function getCashAccount(): Account;
@@ -151,7 +172,7 @@ interface AccountRepositoryInterface
      * Return meta value for account. Null if not found.
      *
      * @param Account $account
-     * @param string  $field
+     * @param string $field
      *
      * @return null|string
      */
@@ -244,11 +265,21 @@ interface AccountRepositoryInterface
 
     /**
      * @param string $query
-     * @param array  $types
+     * @param array $types
+     * @param int $limit
      *
      * @return Collection
      */
-    public function searchAccount(string $query, array $types): Collection;
+    public function searchAccount(string $query, array $types, int $limit): Collection;
+
+    /**
+     * @param string $query
+     * @param array $types
+     * @param int $limit
+     *
+     * @return Collection
+     */
+    public function searchAccountNr(string $query, array $types, int $limit): Collection;
 
     /**
      * @param User $user
@@ -264,7 +295,7 @@ interface AccountRepositoryInterface
 
     /**
      * @param Account $account
-     * @param array   $data
+     * @param array $data
      *
      * @return Account
      */

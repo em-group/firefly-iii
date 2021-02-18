@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -36,18 +36,18 @@ return [
     'currentBalance'          => 'Sold curent',
     'linked_to_rules'         => 'Reguli relevante',
     'active'                  => 'Este activ?',
-    'percentage'              => 'pct.',
-    'next_due'                => 'Next due',
-    'transaction_type'        => 'Type',
+    'percentage'              => 'procent %',
+    'recurring_transaction'   => 'Recurring transaction',
+    'next_due'                => 'Următoarea scadență',
+    'transaction_type'        => 'Tip',
     'lastActivity'            => 'Ultima activitate',
     'balanceDiff'             => 'Diferența de sold',
-    'matchesOn'               => 'Se potrivește',
-    'other_meta_data'         => 'Other meta data',
+    'other_meta_data'         => 'Alte meta-date',
     'account_type'            => 'Tip de cont',
     'created_at'              => 'Creat la',
     'account'                 => 'Cont',
+    'external_uri'            => 'External URI',
     'matchingAmount'          => 'Sumă',
-    'split_number'            => 'Împarte #',
     'destination'             => 'Destinație',
     'source'                  => 'Sursă',
     'next_expected_match'     => 'Următoarea potrivire așteptată',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Repetă',
     'description'             => 'Descriere',
     'amount'                  => 'Sumă',
-    'internal_reference'      => 'Referință internă',
     'date'                    => 'Dată',
     'interest_date'           => 'Dată de interes',
     'book_date'               => 'Data revervării',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Data scadentă',
     'payment_date'            => 'Data de plată',
     'invoice_date'            => 'Data facturii',
-    'interal_reference'       => 'Referință internă',
+    'internal_reference'      => 'Internal reference',
     'notes'                   => 'Notițe',
     'from'                    => 'Din',
     'piggy_bank'              => 'Pușculiță',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Număr de atașamente',
     'bills_count'             => 'Număr de facturi',
     'categories_count'        => 'Număr de categorii',
-    'import_jobs_count'       => 'Număr de servicii importate',
     'budget_count'            => 'Număr de bugete',
     'rule_and_groups_count'   => 'Număr de reguli și grupuri de reguli',
     'tags_count'              => 'Număr de etichete',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Suma retragerilor',
     'sum_deposits'            => 'Suma depozitelor',
     'sum_transfers'           => 'Suma transferurilor',
+    'sum_reconciliations'     => 'Suma împăcărilor',
     'reconcile'               => 'Reconcilia',
-    'account_on_spectre'      => 'Cont (Spectre)',
-    'account_on_ynab'         => 'Cont (YNAB)',
-    'do_import'               => 'Importați din acest cont',
     'sepa_ct_id'              => 'Identificator final SEPA',
     'sepa_ct_op'              => 'Identificatorul contului opus SEPA',
     'sepa_db'                 => 'Identificatorul mandatului SEPA',

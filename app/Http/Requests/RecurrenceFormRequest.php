@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurrenceFormRequest.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -29,26 +29,19 @@ use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Rules\ValidRecurrenceRepetitionType;
 use FireflyIII\Rules\ValidRecurrenceRepetitionValue;
+use FireflyIII\Support\Request\ChecksLogin;
+use FireflyIII\Support\Request\ConvertsDataTypes;
 use FireflyIII\Validation\AccountValidator;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Validator;
 use Log;
 
 /**
  * Class RecurrenceFormRequest
  */
-class RecurrenceFormRequest extends Request
+class RecurrenceFormRequest extends FormRequest
 {
-
-    /**
-     * Verify the request.
-     *
-     * @return bool
-     */
-    public function authorize(): bool
-    {
-        // Only allow logged in users
-        return auth()->check();
-    }
+    use ConvertsDataTypes, ChecksLogin;
 
     /**
      * Get the data required by the controller.
@@ -134,6 +127,42 @@ class RecurrenceFormRequest extends Request
     }
 
     /**
+     * Parses repetition data.
+     *
+     * @return array
+     */
+    private function parseRepetitionData(): array
+    {
+        $value  = $this->string('repetition_type');
+        $return = [
+            'type'   => '',
+            'moment' => '',
+        ];
+
+        if ('daily' === $value) {
+            $return['type'] = $value;
+        }
+        //monthly,17
+        //ndom,3,7
+        if (in_array(substr($value, 0, 6), ['yearly', 'weekly'])) {
+            $return['type']   = substr($value, 0, 6);
+            $return['moment'] = substr($value, 7);
+        }
+        if (0 === strpos($value, 'monthly')) {
+            $return['type']   = substr($value, 0, 7);
+            $return['moment'] = substr($value, 8);
+        }
+        if (0 === strpos($value, 'ndom')) {
+            $return['type']   = substr($value, 0, 4);
+            $return['moment'] = substr($value, 5);
+        }
+
+        return $return;
+
+
+    }
+
+    /**
      * The rules for this request.
      *
      * @return array
@@ -142,7 +171,7 @@ class RecurrenceFormRequest extends Request
      */
     public function rules(): array
     {
-        $today    = new Carbon;
+        $today    = today(config('app.timezone'));
         $tomorrow = Carbon::now()->addDay();
         $rules    = [
             // mandatory info for recurrence.
@@ -160,7 +189,7 @@ class RecurrenceFormRequest extends Request
             'transaction_description' => 'required|between:1,255',
             'transaction_type'        => 'required|in:withdrawal,deposit,transfer',
             'transaction_currency_id' => 'required|exists:transaction_currencies,id',
-            'amount'                  => 'numeric|required|more:0|max:1000000000',
+            'amount'                  => 'numeric|required|gt:0|max:1000000000',
             // mandatory account info:
             'source_id'               => 'numeric|belongsToUser:accounts,id|nullable',
             'source_name'             => 'between:1,255|nullable',
@@ -168,7 +197,7 @@ class RecurrenceFormRequest extends Request
             'destination_name'        => 'between:1,255|nullable',
 
             // foreign amount data:
-            'foreign_amount'          => 'nullable|more:0|max:1000000000',
+            'foreign_amount'          => 'nullable|gt:0|max:1000000000',
 
             // optional fields:
             'budget_id'               => 'mustExist:budgets,id|belongsToUser:budgets,id|nullable',
@@ -226,6 +255,23 @@ class RecurrenceFormRequest extends Request
     }
 
     /**
+     * Configure the validator instance with special rules for after the basic validation rules.
+     *
+     * @param Validator $validator
+     *
+     * @return void
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(
+            function (Validator $validator) {
+                // validate all account info
+                $this->validateAccountInformation($validator);
+            }
+        );
+    }
+
+    /**
      * Validates the given account information. Switches on given transaction type.
      *
      * @param Validator $validator
@@ -246,6 +292,8 @@ class RecurrenceFormRequest extends Request
         $sourceId      = null;
         $destinationId = null;
 
+        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+
         switch ($this->string('transaction_type')) {
             default:
                 throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); // @codeCoverageIgnore
@@ -265,7 +313,7 @@ class RecurrenceFormRequest extends Request
 
 
         // validate source account.
-        $validSource = $accountValidator->validateSource($sourceId, null);
+        $validSource = $accountValidator->validateSource($sourceId, null, null);
 
         // do something with result:
         if (false === $validSource) {
@@ -277,67 +325,12 @@ class RecurrenceFormRequest extends Request
         }
 
         // validate destination account
-        $validDestination = $accountValidator->validateDestination($destinationId, null);
+        $validDestination = $accountValidator->validateDestination($destinationId, null, null);
         // do something with result:
         if (false === $validDestination) {
             $message = (string)trans('validation.generic_invalid_destination');
             $validator->errors()->add('destination_id', $message);
             $validator->errors()->add('withdrawal_destination_id', $message);
-
-            return;
         }
-    }
-
-    /**
-     * Configure the validator instance with special rules for after the basic validation rules.
-     *
-     * @param Validator $validator
-     *
-     * @return void
-     */
-    public function withValidator(Validator $validator): void
-    {
-        $validator->after(
-            function (Validator $validator) {
-                // validate all account info
-                $this->validateAccountInformation($validator);
-            }
-        );
-    }
-
-    /**
-     * Parses repetition data.
-     *
-     * @return array
-     */
-    private function parseRepetitionData(): array
-    {
-        $value  = $this->string('repetition_type');
-        $return = [
-            'type'   => '',
-            'moment' => '',
-        ];
-
-        if ('daily' === $value) {
-            $return['type'] = $value;
-        }
-        //monthly,17
-        //ndom,3,7
-        if (in_array(substr($value, 0, 6), ['yearly', 'weekly'])) {
-            $return['type']   = substr($value, 0, 6);
-            $return['moment'] = substr($value, 7);
-        }
-        if (0 === strpos($value, 'monthly')) {
-            $return['type']   = substr($value, 0, 7);
-            $return['moment'] = substr($value, 8);
-        }
-        if (0 === strpos($value, 'ndom')) {
-            $return['type']   = substr($value, 0, 4);
-            $return['moment'] = substr($value, 5);
-        }
-
-        return $return;
-
-
     }
 }

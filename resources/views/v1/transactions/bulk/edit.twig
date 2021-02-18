@@ -140,10 +140,22 @@
                                             <input class="form-control" placeholder="" name="tags" autocomplete="off" type="text" value="">
                                         </td>
                                         <td>
-                                            <div class="checkbox">
+                                            <div class="radio">
                                                 <label>
-                                                    <input name="ignore_tags" type="checkbox" value="1" checked>
+                                                    <input type="radio" name="tags_action" id="tags_action_do_nothing" value="no_nothing" checked />
                                                     {{ 'no_bulk_tags'|_ }}
+                                                </label>
+                                            </div>
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="tags_action" id="tags_action_do_replace" value="do_replace" />
+                                                    {{ 'replace_with_these_tags'|_ }}
+                                                </label>
+                                            </div>
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="tags_action" id="tags_action_do_append" value="do_append" />
+                                                    {{ 'append_these_tags'|_ }}
                                                 </label>
                                             </div>
                                         </td>
@@ -176,13 +188,13 @@
     </form>
 {% endblock %}
 {% block scripts %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ JS_NONCE }}">
         var what = "";
     </script>
-    <script type="text/javascript" src="v1/js/lib/typeahead/typeahead.bundle.min.js?v={{ FF_VERSION }}"></script>
-    <script type="text/javascript" src="v1/js/ff/common/autocomplete.js?v={{ FF_VERSION }}"></script>
-    <script type="text/javascript" src="v1/js/lib/bootstrap-tagsinput.min.js?v={{ FF_VERSION }}"></script>
-    <script type="text/javascript" src="v1/js/ff/transactions/mass/edit-bulk.js?v={{ FF_VERSION }}"></script>
+    <script type="text/javascript" src="v1/js/lib/typeahead/typeahead.bundle.min.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script type="text/javascript" src="v1/js/ff/common/autocomplete.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script type="text/javascript" src="v1/js/lib/bootstrap-tagsinput.min.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script type="text/javascript" src="v1/js/ff/transactions/mass/edit-bulk.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% endblock %}
 {% block styles %}
     <link href="v1/css/bootstrap-tagsinput.css?v={{ FF_VERSION }}" type="text/css" rel="stylesheet" media="all">

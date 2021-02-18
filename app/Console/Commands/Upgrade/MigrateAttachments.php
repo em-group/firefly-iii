@@ -1,22 +1,22 @@
 <?php
 /**
  * MigrateAttachments.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -48,6 +48,7 @@ class MigrateAttachments extends Command
      */
     protected $signature = 'firefly-iii:migrate-attachments {--F|force : Force the execution of this command.}';
 
+
     /**
      * Execute the console command.
      *
@@ -71,8 +72,8 @@ class MigrateAttachments extends Command
         foreach ($attachments as $att) {
 
             // move description:
-            $description = (string)$att->description;
-            if ('' !== $description) {
+            $attDescription = (string) $att->description;
+            if ('' !== $attDescription) {
 
                 // find or create note:
                 $note = $att->notes()->first();
@@ -80,7 +81,7 @@ class MigrateAttachments extends Command
                     $note = new Note;
                     $note->noteable()->associate($att);
                 }
-                $note->text = $description;
+                $note->text = $attDescription;
                 $note->save();
 
                 // clear description:
@@ -111,7 +112,7 @@ class MigrateAttachments extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false; // @codeCoverageIgnore

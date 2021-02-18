@@ -1,22 +1,22 @@
 <?php
 /**
  * StoredGroupEventHandler.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,7 +24,9 @@ namespace FireflyIII\Handlers\Events;
 
 use FireflyIII\Events\StoredTransactionGroup;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\TransactionRules\Engine\RuleEngine;
+use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
 use Log;
 
 /**
@@ -35,26 +37,37 @@ class StoredGroupEventHandler
     /**
      * This method grabs all the users rules and processes them.
      *
-     * @param StoredTransactionGroup $storedJournalEvent
+     * @param StoredTransactionGroup $storedGroupEvent
      */
-    public function processRules(StoredTransactionGroup $storedJournalEvent): void
+    public function processRules(StoredTransactionGroup $storedGroupEvent): void
     {
-        if (false === $storedJournalEvent->applyRules) {
+        if (false === $storedGroupEvent->applyRules) {
+            Log::info(sprintf('Will not run rules on group #%d', $storedGroupEvent->transactionGroup->id));
+
             return;
         }
         Log::debug('Now in StoredGroupEventHandler::processRules()');
 
-        /** @var RuleEngine $ruleEngine */
-        $ruleEngine = app(RuleEngine::class);
-        $ruleEngine->setUser($storedJournalEvent->transactionGroup->user);
-        $ruleEngine->setAllRules(true);
-        $ruleEngine->setTriggerMode(RuleEngine::TRIGGER_STORE);
-        $journals = $storedJournalEvent->transactionGroup->transactionJournals;
-
+        $journals = $storedGroupEvent->transactionGroup->transactionJournals;
+        $array    = [];
         /** @var TransactionJournal $journal */
         foreach ($journals as $journal) {
-            $ruleEngine->processTransactionJournal($journal);
+            $array[] = $journal->id;
         }
+        $journalIds = implode(',', $array);
+        Log::debug(sprintf('Add local operator for journal(s): %s', $journalIds));
+
+        // collect rules:
+        $ruleRepository = app(RuleRepositoryInterface::class);
+        $ruleRepository->setUser($storedGroupEvent->transactionGroup->user);
+        $rules = $ruleRepository->getStoreRules();
+
+        // file rule engine.
+        $newRuleEngine = app(RuleEngineInterface::class);
+        $newRuleEngine->setUser($storedGroupEvent->transactionGroup->user);
+        $newRuleEngine->addOperator(['type' => 'journal_id', 'value' => $journalIds]);
+        $newRuleEngine->setRules($rules);
+        $newRuleEngine->fire();
     }
 
 }

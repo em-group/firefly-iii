@@ -1,22 +1,22 @@
 <?php
 /**
  * EventServiceProvider.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,6 +24,7 @@ namespace FireflyIII\Providers;
 
 use Exception;
 use FireflyIII\Events\AdminRequestedTestMessage;
+use FireflyIII\Events\DetectedNewIPAddress;
 use FireflyIII\Events\RegisteredUser;
 use FireflyIII\Events\RequestedNewPassword;
 use FireflyIII\Events\RequestedReportOnJournals;
@@ -31,6 +32,7 @@ use FireflyIII\Events\RequestedVersionCheckStatus;
 use FireflyIII\Events\StoredTransactionGroup;
 use FireflyIII\Events\UpdatedTransactionGroup;
 use FireflyIII\Events\UserChangedEmail;
+use FireflyIII\Handlers\Events\SendEmailVerificationNotification;
 use FireflyIII\Mail\OAuthTokenCreatedMail;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\PiggyBankRepetition;
@@ -66,7 +68,10 @@ class EventServiceProvider extends ServiceProvider
             Login::class                       => [
                 'FireflyIII\Handlers\Events\UserEventHandler@checkSingleUserIsAdmin',
                 'FireflyIII\Handlers\Events\UserEventHandler@demoUserBackToEnglish',
-
+                'FireflyIII\Handlers\Events\UserEventHandler@storeUserIPAddress',
+            ],
+            DetectedNewIPAddress::class => [
+                'FireflyIII\Handlers\Events\UserEventHandler@notifyNewIPAddress',
             ],
             RequestedVersionCheckStatus::class => [
                 'FireflyIII\Handlers\Events\VersionCheckEventHandler@checkForUpdates',
@@ -94,6 +99,7 @@ class EventServiceProvider extends ServiceProvider
             ],
             // is a Transaction Journal related event.
             UpdatedTransactionGroup::class   => [
+                'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@unifyAccounts',
                 'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@processRules',
             ],
             // API related events:
@@ -140,6 +146,12 @@ class EventServiceProvider extends ServiceProvider
 
                 $email     = $user->email;
                 $ipAddress = Request::ip();
+
+                // see if user has alternative email address:
+                $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+                if (null !== $pref) {
+                    $email = $pref->data;
+                }
 
                 Log::debug(sprintf('Now in EventServiceProvider::registerCreateEvents. Email is %s, IP is %s', $email, $ipAddress));
                 try {

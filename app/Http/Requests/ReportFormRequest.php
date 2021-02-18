@@ -1,22 +1,22 @@
 <?php
 /**
  * ReportFormRequest.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -29,24 +29,17 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
 use FireflyIII\Repositories\Tag\TagRepositoryInterface;
+use FireflyIII\Support\Request\ChecksLogin;
+use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Collection;
 use Log;
 
 /**
  * Class CategoryFormRequest.
  */
-class ReportFormRequest extends Request
+class ReportFormRequest extends FormRequest
 {
-    /**
-     * Verify the request.
-     *
-     * @return bool
-     */
-    public function authorize(): bool
-    {
-        // Only allow logged in users
-        return auth()->check();
-    }
+    use ChecksLogin;
 
     /**
      * Validate list of accounts.
@@ -119,34 +112,6 @@ class ReportFormRequest extends Request
     }
 
     /**
-     * Validate end date.
-     *
-     * @return Carbon
-     *
-     * @throws FireflyException
-     */
-    public function getEndDate(): Carbon
-    {
-        $date  = new Carbon;
-        $range = $this->get('daterange');
-        $parts = explode(' - ', (string)$range);
-        if (2 === count($parts)) {
-            try {
-                $date = new Carbon($parts[1]);
-                // @codeCoverageIgnoreStart
-            } catch (Exception $e) {
-                $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
-                Log::error($error);
-                throw new FireflyException($error);
-                // @codeCoverageIgnoreEnd
-            }
-
-        }
-
-        return $date;
-    }
-
-    /**
      * Validate list of accounts which exist twice in system.
      *
      * @return Collection
@@ -170,6 +135,34 @@ class ReportFormRequest extends Request
     }
 
     /**
+     * Validate end date.
+     *
+     * @return Carbon
+     *
+     * @throws FireflyException
+     */
+    public function getEndDate(): Carbon
+    {
+        $date  = today(config('app.timezone'));
+        $range = $this->get('daterange');
+        $parts = explode(' - ', (string)$range);
+        if (2 === count($parts)) {
+            try {
+                $date = new Carbon($parts[1]);
+                // @codeCoverageIgnoreStart
+            } catch (Exception $e) {
+                $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
+                Log::error($error);
+                throw new FireflyException($error);
+                // @codeCoverageIgnoreEnd
+            }
+
+        }
+
+        return $date;
+    }
+
+    /**
      * Validate start date.
      *
      * @return Carbon
@@ -178,7 +171,7 @@ class ReportFormRequest extends Request
      */
     public function getStartDate(): Carbon
     {
-        $date  = new Carbon;
+        $date  = today(config('app.timezone'));
         $range = $this->get('daterange');
         $parts = explode(' - ', (string)$range);
         if (2 === count($parts)) {
@@ -219,7 +212,6 @@ class ReportFormRequest extends Request
                 $tag = $repository->findNull((int)$tagTag);
                 if (null !== $tag) {
                     $collection->push($tag);
-                    continue;
                 }
             }
         }

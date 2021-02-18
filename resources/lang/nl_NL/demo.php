@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly ondersteunt meerdere valuta\'s. Hoewel het standaard de Euro is kan je ook kiezen voor de US dollar of een van de vele anderen. Er is een kleine selectie valuta meegeleverd maar je kan je eigen valuta toevoegen. Het veranderen van de standaardvaluta verandert de bestaande transacties niet: Firefly III ondersteunt het gebruik van meerdere valuta op hetzelfde moment.',
     'transactions-index'     => 'Deze uitgaven, inkomsten en overschrijvingen zijn niet heel fantasierijk. Ze zijn automatisch gegenereerd.',
     'piggy-banks-index'      => 'Zoals je kan zien zijn er drie spaarpotjes. Gebruik de plus- en minknoppen om het bedrag in de spaarpotjes te veranderen. Klik op de naam van het spaarpotje om er de geschiedenis van te zien.',
-    'import-index'           => 'Je kan elk CSV bestand importeren met Firefly III. Het is ook mogelijk om transacties te importeren van bunq en Spectre. Andere verzamelbedrijven worden ook geïntegreerd. De demo-gebruiker mag alleen de "nep"-importhulp gebruiken. Deze genereert een paar willekeurige transacties om te laten zien hoe het werkt.',
     'profile-index'          => 'Houd in gedachten dat de demosite elke vier uur reset. Je toegang kan dus te allen tijde worden herroepen. Dit gebeurt automatisch en is niet een bug.',
 ];

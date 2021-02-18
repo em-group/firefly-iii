@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Upravit pokladničku „:name“',
     'preferences'            => 'Předvolby',
     'profile'                => 'Profil',
+    'accounts'               => 'Accounts',
     'changePassword'         => 'Změnit heslo',
     'change_email'           => 'Změnit e-mailovou adresu',
     'bills'                  => 'Účtenky a faktury',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Upravit transakci „:description“',
     'edit_reconciliation'    => 'Upravit „:description“',
     'delete_journal'         => 'Odstranit transakci „:description“',
+    'delete_group'           => 'Odstranit transakci „:description“',
     'tags'                   => 'Štítky',
     'createTag'              => 'Vytvořit nový štítek',
     'edit_tag'               => 'Upravit štítek „:tag“',
     'delete_tag'             => 'Odstranit štítek „:tag“',
     'delete_journal_link'    => 'Odstranit vazbu mezi transakcemi',
+    'telemetry_index'        => 'Telemetrie',
+    'telemetry_view'         => 'Zobrazit telemetrii',
+    'edit_object_group'      => 'Edit group ":title"',
+    'delete_object_group'    => 'Delete group ":title"',
+    'logout_others'          => 'Logout other sessions'
 ];

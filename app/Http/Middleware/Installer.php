@@ -2,22 +2,22 @@
 
 /**
  * Installer.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -27,7 +27,9 @@ namespace FireflyIII\Http\Middleware;
 use Closure;
 use DB;
 use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Support\System\OAuthKeys;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Request;
 use Log;
 
 /**
@@ -41,12 +43,12 @@ class Installer
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
-     *
-     * @return mixed
+     * @param Request $request
+     * @param Closure                  $next
      *
      * @throws FireflyException
+     *
+     * @return mixed
      *
      */
     public function handle($request, Closure $next)
@@ -59,7 +61,7 @@ class Installer
         // don't run installer when already in installer.
         $url    = $request->url();
         $strpos = stripos($url, '/install');
-        if (!(false === $strpos)) {
+        if (false !== $strpos) {
             Log::debug(sprintf('URL is %s, will NOT run installer middleware', $url));
 
             return $next($request);
@@ -71,6 +73,7 @@ class Installer
         if ($this->hasNoTables() || $this->oldDBVersion() || $this->oldVersion()) {
             return response()->redirectTo(route('installer.index'));
         }
+        OAuthKeys::verifyKeysRoutine();
         // update scheme version
         // update firefly version
 
@@ -87,7 +90,7 @@ class Installer
      */
     protected function isAccessDenied(string $message): bool
     {
-        return !(false === stripos($message, 'Access denied'));
+        return false !== stripos($message, 'Access denied');
     }
 
     /**
@@ -99,14 +102,14 @@ class Installer
      */
     protected function noTablesExist(string $message): bool
     {
-        return !(false === stripos($message, 'Base table or view not found'));
+        return false !== stripos($message, 'Base table or view not found');
     }
 
     /**
      * Check if the tables are created and accounted for.
      *
-     * @return bool
      * @throws FireflyException
+     * @return bool
      */
     private function hasNoTables(): bool
     {
@@ -125,14 +128,12 @@ class Installer
                 Log::warning('There are no Firefly III tables present. Redirect to migrate routine.');
 
                 return true;
-
             }
             throw new FireflyException(sprintf('Could not access the database: %s', $message));
         }
         Log::debug('Everything seems OK with the tables.');
 
         return false;
-
     }
 
     /**
@@ -143,12 +144,14 @@ class Installer
     private function oldDBVersion(): bool
     {
         // older version in config than database?
-        $configVersion = (int)config('firefly.db_version');
-        $dbVersion     = (int)app('fireflyconfig')->getFresh('db_version', 1)->data;
+        $configVersion = (int) config('firefly.db_version');
+        $dbVersion     = (int) app('fireflyconfig')->getFresh('db_version', 1)->data;
         if ($configVersion > $dbVersion) {
             Log::warning(
                 sprintf(
-                    'The current configured version (%d) is older than the required version (%d). Redirect to migrate routine.', $dbVersion, $configVersion
+                    'The current configured version (%d) is older than the required version (%d). Redirect to migrate routine.',
+                    $dbVersion,
+                    $configVersion
                 )
             );
 
@@ -167,12 +170,14 @@ class Installer
     private function oldVersion(): bool
     {
         // version compare thing.
-        $configVersion = (string)config('firefly.version');
-        $dbVersion     = (string)app('fireflyconfig')->getFresh('ff3_version', '1.0')->data;
+        $configVersion = (string) config('firefly.version');
+        $dbVersion     = (string) app('fireflyconfig')->getFresh('ff3_version', '1.0')->data;
         if (1 === version_compare($configVersion, $dbVersion)) {
             Log::warning(
                 sprintf(
-                    'The current configured Firefly III version (%s) is older than the required version (%s). Redirect to migrate routine.', $dbVersion, $configVersion
+                    'The current configured Firefly III version (%s) is older than the required version (%s). Redirect to migrate routine.',
+                    $dbVersion,
+                    $configVersion
                 )
             );
 

@@ -1,22 +1,22 @@
 <?php
 /**
  * LinkTypeController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -42,16 +42,17 @@ use League\Fractal\Resource\Item;
 
 /**
  * Class LinkTypeController.
- *
  */
 class LinkTypeController extends Controller
 {
     use TransactionFilter;
+
     /** @var LinkTypeRepositoryInterface The link type repository */
     private $repository;
 
     /** @var UserRepositoryInterface The user repository */
     private $userRepository;
+
 
     /**
      * LinkTypeController constructor.
@@ -86,7 +87,7 @@ class LinkTypeController extends Controller
     public function delete(LinkType $linkType): JsonResponse
     {
         if (false === $linkType->editable) {
-            throw new FireflyException(sprintf('You cannot delete this link type (#%d, "%s")', $linkType->id, $linkType->name));
+            throw new FireflyException('200020: Link type cannot be changed.');
         }
         $this->repository->destroy($linkType);
 
@@ -103,7 +104,7 @@ class LinkTypeController extends Controller
     {
         // create some objects:
         $manager  = $this->getManager();
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of accounts. Count it and split it.
         $collection = $this->repository->get();
@@ -121,7 +122,7 @@ class LinkTypeController extends Controller
         $resource = new FractalCollection($linkTypes, $transformer, 'link_types');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -142,7 +143,7 @@ class LinkTypeController extends Controller
 
         $resource = new Item($linkType, $transformer, 'link_types');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -160,7 +161,7 @@ class LinkTypeController extends Controller
         $admin = auth()->user();
 
         if (!$this->userRepository->hasRole($admin, 'owner')) {
-            throw new FireflyException('You need the "owner"-role to do this.');
+            throw new FireflyException('200005: You need the "owner" role to do this.'); // @codeCoverageIgnore
         }
         $data = $request->getAll();
         // if currency ID is 0, find the currency by the code:
@@ -172,7 +173,7 @@ class LinkTypeController extends Controller
         $transformer->setParameters($this->parameters);
         $resource = new Item($linkType, $transformer, 'link_types');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -187,7 +188,7 @@ class LinkTypeController extends Controller
      */
     public function transactions(Request $request, LinkType $linkType): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 
@@ -231,7 +232,7 @@ class LinkTypeController extends Controller
         $resource = new FractalCollection($transactions, $transformer, 'transactions');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
 
@@ -247,14 +248,14 @@ class LinkTypeController extends Controller
     public function update(LinkTypeRequest $request, LinkType $linkType): JsonResponse
     {
         if (false === $linkType->editable) {
-            throw new FireflyException(sprintf('You cannot edit this link type (#%d, "%s")', $linkType->id, $linkType->name));
+            throw new FireflyException('200020: Link type cannot be changed.');
         }
 
         /** @var User $admin */
         $admin = auth()->user();
 
         if (!$this->userRepository->hasRole($admin, 'owner')) {
-            throw new FireflyException('You need the "owner"-role to do this.');
+            throw new FireflyException('200005: You need the "owner" role to do this.'); // @codeCoverageIgnore
         }
 
         $data = $request->getAll();
@@ -266,7 +267,7 @@ class LinkTypeController extends Controller
 
         $resource = new Item($linkType, $transformer, 'link_types');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }

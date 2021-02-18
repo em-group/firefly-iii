@@ -1,40 +1,41 @@
 <?php
 /**
  * AttachmentStoreRequest.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Requests;
 
-use FireflyIII\Models\Bill;
-use FireflyIII\Models\ImportJob;
-use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Rules\IsValidAttachmentModel;
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class AttachmentStoreRequest
  *
  * @codeCoverageIgnore
  */
-class AttachmentStoreRequest extends Request
+class AttachmentStoreRequest extends FormRequest
 {
+    use ConvertsDataTypes;
+
     /**
      * Authorize logged in users.
      *
@@ -56,9 +57,9 @@ class AttachmentStoreRequest extends Request
         return [
             'filename' => $this->string('filename'),
             'title'    => $this->string('title'),
-            'notes'    => $this->string('notes'),
-            'model'    => $this->string('model'),
-            'model_id' => $this->integer('model_id'),
+            'notes'    => $this->nlString('notes'),
+            'model'    => $this->string('attachable_type'),
+            'model_id' => $this->integer('attachable_id'),
         ];
     }
 
@@ -69,22 +70,22 @@ class AttachmentStoreRequest extends Request
      */
     public function rules(): array
     {
-        $models = implode(
-            ',',
-            [
-                str_replace('FireflyIII\\Models\\', '', Bill::class),
-                str_replace('FireflyIII\\Models\\', '', ImportJob::class),
-                str_replace('FireflyIII\\Models\\', '', TransactionJournal::class),
-            ]
+        $models = config('firefly.valid_attachment_models');
+        $models = array_map(
+
+            static function (string $className) {
+                return str_replace('FireflyIII\\Models\\', '', $className);
+            }, $models
         );
-        $model  = $this->string('model');
+        $models = implode(',', $models);
+        $model  = $this->string('attachable_type');
 
         return [
-            'filename' => 'required|between:1,255',
-            'title'    => 'between:1,255',
-            'notes'    => 'between:1,65000',
-            'model'    => sprintf('required|in:%s', $models),
-            'model_id' => ['required', 'numeric', new IsValidAttachmentModel($model)],
+            'filename'        => 'required|between:1,255',
+            'title'           => 'between:1,255',
+            'notes'           => 'between:1,65000',
+            'attachable_type' => sprintf('required|in:%s', $models),
+            'attachable_id'   => ['required', 'numeric', new IsValidAttachmentModel($model)],
         ];
     }
 }

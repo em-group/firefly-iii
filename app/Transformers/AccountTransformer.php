@@ -1,22 +1,22 @@
 <?php
 /**
  * AccountTransformer.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -64,9 +64,9 @@ class AccountTransformer extends AbstractTransformer
         $this->repository->setUser($account->user);
 
         // get account type:
-        $fullType      = $this->repository->getAccountType($account);
-        $accountType   = (string)config(sprintf('firefly.shortNamesByFullName.%s', $fullType));
-        $liabilityType = (string)config(sprintf('firefly.shortLiabilityNameByFullName.%s', $fullType));
+        $fullType      = $account->accountType->type;
+        $accountType   = (string) config(sprintf('firefly.shortNamesByFullName.%s', $fullType));
+        $liabilityType = (string) config(sprintf('firefly.shortLiabilityNameByFullName.%s', $fullType));
         $liabilityType = '' === $liabilityType ? null : $liabilityType;
 
         // get account role (will only work if the type is asset.
@@ -75,24 +75,32 @@ class AccountTransformer extends AbstractTransformer
 
         [$currencyId, $currencyCode, $currencySymbol, $decimalPlaces] = $this->getCurrency($account);
         [$creditCardType, $monthlyPaymentDate] = $this->getCCInfo($account, $accountRole, $accountType);
-        [$openingBalance, $openingBalanceDate] = $this->getOpeningBalance($account, $accountType, $decimalPlaces);
+        [$openingBalance, $openingBalanceDate] = $this->getOpeningBalance($account, $accountType);
         [$interest, $interestPeriod] = $this->getInterest($account, $accountType);
 
+        $openingBalance  = number_format((float) $openingBalance, $decimalPlaces, '.', '');
         $liabilityAmount = null;
         $liabilityStart  = null;
         if (null !== $liabilityType) {
             $liabilityAmount = $openingBalance;
             $liabilityStart  = $openingBalanceDate;
         }
-
-
         $includeNetWorth = '0' !== $this->repository->getMetaValue($account, 'include_net_worth');
-
-        $data = [
-            'id'                      => (int)$account->id,
+        $longitude       = null;
+        $latitude        = null;
+        $zoomLevel       = null;
+        $location        = $this->repository->getLocation($account);
+        if (null !== $location) {
+            $longitude = $location->longitude;
+            $latitude  = $location->latitude;
+            $zoomLevel = $location->zoom_level;
+        }
+        return [
+            'id'                      => (int) $account->id,
             'created_at'              => $account->created_at->toAtomString(),
             'updated_at'              => $account->updated_at->toAtomString(),
             'active'                  => $account->active,
+            'order'                   => $account->order,
             'name'                    => $account->name,
             'type'                    => $accountType,
             'account_role'            => $accountRole,
@@ -100,7 +108,7 @@ class AccountTransformer extends AbstractTransformer
             'currency_code'           => $currencyCode,
             'currency_symbol'         => $currencySymbol,
             'currency_decimal_places' => $decimalPlaces,
-            'current_balance'         => round(app('steam')->balance($account, $date), $decimalPlaces),
+            'current_balance'         => number_format((float) app('steam')->balance($account, $date), $decimalPlaces, '.', ''),
             'current_balance_date'    => $date->format('Y-m-d'),
             'notes'                   => $this->repository->getNoteText($account),
             'monthly_payment_date'    => $monthlyPaymentDate,
@@ -108,7 +116,7 @@ class AccountTransformer extends AbstractTransformer
             'account_number'          => $this->repository->getMetaValue($account, 'account_number'),
             'iban'                    => '' === $account->iban ? null : $account->iban,
             'bic'                     => $this->repository->getMetaValue($account, 'BIC'),
-            'virtual_balance'         => round($account->virtual_balance, $decimalPlaces),
+            'virtual_balance'         => number_format((float) $account->virtual_balance, $decimalPlaces, '.', ''),
             'opening_balance'         => $openingBalance,
             'opening_balance_date'    => $openingBalanceDate,
             'liability_type'          => $liabilityType,
@@ -117,6 +125,9 @@ class AccountTransformer extends AbstractTransformer
             'interest'                => $interest,
             'interest_period'         => $interestPeriod,
             'include_net_worth'       => $includeNetWorth,
+            'longitude'               => $longitude,
+            'latitude'                => $latitude,
+            'zoom_level'              => $zoomLevel,
             'links'                   => [
                 [
                     'rel' => 'self',
@@ -124,8 +135,6 @@ class AccountTransformer extends AbstractTransformer
                 ],
             ],
         ];
-
-        return $data;
     }
 
     /**
@@ -138,7 +147,7 @@ class AccountTransformer extends AbstractTransformer
     private function getAccountRole(Account $account, string $accountType): ?string
     {
         $accountRole = $this->repository->getMetaValue($account, 'account_role');
-        if ('asset' !== $accountType || '' === (string)$accountRole) {
+        if ('asset' !== $accountType || '' === (string) $accountRole) {
             $accountRole = null;
         }
 
@@ -171,17 +180,16 @@ class AccountTransformer extends AbstractTransformer
      */
     private function getCurrency(Account $account): array
     {
-        $currency       = $this->repository->getAccountCurrency($account);
-        $currencyId     = null;
-        $currencyCode   = null;
-        $decimalPlaces  = 2;
-        $currencySymbol = null;
-        if (null !== $currency) {
-            $currencyId     = $currency->id;
-            $currencyCode   = $currency->code;
-            $decimalPlaces  = $currency->decimal_places;
-            $currencySymbol = $currency->symbol;
+        $currency = $this->repository->getAccountCurrency($account);
+
+        // only grab default when result is null:
+        if (null === $currency) {
+            $currency = app('amount')->getDefaultCurrencyByUser($account->user);
         }
+        $currencyId     = (int) $currency->id;
+        $currencyCode   = $currency->code;
+        $decimalPlaces  = $currency->decimal_places;
+        $currencySymbol = $currency->symbol;
 
         return [$currencyId, $currencyCode, $currencySymbol, $decimalPlaces];
     }
@@ -191,7 +199,7 @@ class AccountTransformer extends AbstractTransformer
      */
     private function getDate(): Carbon
     {
-        $date = new Carbon;
+        $date = today(config('app.timezone'));
         if (null !== $this->parameters->get('date')) {
             $date = $this->parameters->get('date');
         }
@@ -224,14 +232,16 @@ class AccountTransformer extends AbstractTransformer
      * @param int     $decimalPlaces
      *
      * @return array
+     *
+     * TODO refactor call to getOpeningBalanceAmount / Date because its extra queries.
      */
-    private function getOpeningBalance(Account $account, string $accountType, int $decimalPlaces): array
+    private function getOpeningBalance(Account $account, string $accountType): array
     {
         $openingBalance     = null;
         $openingBalanceDate = null;
         if (in_array($accountType, ['asset', 'liabilities'], true)) {
             $amount             = $this->repository->getOpeningBalanceAmount($account);
-            $openingBalance     = null === $amount ? null : round($amount, $decimalPlaces);
+            $openingBalance     = $amount;
             $openingBalanceDate = $this->repository->getOpeningBalanceDate($account);
         }
 

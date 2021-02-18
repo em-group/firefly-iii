@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Wijzig spaarpotje ":name"',
     'preferences'            => 'Voorkeuren',
     'profile'                => 'Profiel',
+    'accounts'               => 'Rekeningen',
     'changePassword'         => 'Verander je wachtwoord',
     'change_email'           => 'Verander je emailadres',
     'bills'                  => 'Contracten',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Wijzig transactie ":description"',
     'edit_reconciliation'    => 'Wijzig ":description"',
     'delete_journal'         => 'Verwijder transactie ":description"',
+    'delete_group'           => 'Verwijder transactie ":description"',
     'tags'                   => 'Tags',
     'createTag'              => 'Maak nieuwe tag',
     'edit_tag'               => 'Wijzig tag ":tag"',
     'delete_tag'             => 'Verwijder tag ":tag"',
     'delete_journal_link'    => 'Verwijder koppeling tussen transacties',
+    'telemetry_index'        => 'Telemetrie',
+    'telemetry_view'         => 'Bekijk telemetrie',
+    'edit_object_group'      => 'Wijzig groep ":title"',
+    'delete_object_group'    => 'Verwijder groep ":title"',
+    'logout_others'          => 'Andere sessies afmelden'
 ];

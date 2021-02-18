@@ -2,33 +2,33 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 return [
-    'iban'                           => 'Ez nem egy érvényes IBAN.',
+    'iban'                           => 'Ez nem egy érvényes IBAN számlaszám.',
     'zero_or_more'                   => 'Az érték nem lehet negatív.',
     'date_or_time'                   => 'Az értéknek érvényes dátum vagy időformátumúnak kell lennie (ISO 8601).',
     'source_equals_destination'      => 'A forrásszámla egyenlő a célszámlával.',
-    'unique_account_number_for_user' => 'Úgy néz ki, hogy ez a számlaszám már használatban van.',
-    'unique_iban_for_user'           => 'Úgy néz ki, hogy ez a számlaszám már használatban van.',
+    'unique_account_number_for_user' => 'Úgy tűnik, hogy ez a számlaszám már használatban van.',
+    'unique_iban_for_user'           => 'Úgy tűnik, hogy ez a számlaszám már használatban van.',
     'deleted_user'                   => 'Biztonsági megkötések miatt ezzel az email címmel nem lehet regisztrálni.',
     'rule_trigger_value'             => 'Ez az érték érvénytelen a kiválasztott eseményindítóhoz.',
     'rule_action_value'              => 'Ez az érték érvénytelen a kiválasztott művelethez.',
@@ -45,7 +45,8 @@ return [
     'at_least_one_repetition'        => 'Legalább egy ismétlés szükséges.',
     'require_repeat_until'           => 'Legalább egy ismétlésszám vagy egy végdátum (repeat_until) kötelező. Csak az egyik.',
     'require_currency_info'          => 'Ennek a mezőnek a tartalma érvénytelen pénznem információ nélkül.',
-    'require_currency_amount'        => 'The content of this field is invalid without foreign amount information.',
+    'not_transfer_account'           => 'Ez a fiók nem használható fel tranzakciókhoz.',
+    'require_currency_amount'        => 'Ennek a mezőnek a tartalma érvénytelen devizanem információ nélkül.',
     'equal_description'              => 'A tranzakció leírása nem egyezhet meg a globális leírással.',
     'file_invalid_mime'              => '":name" fájl ":mime" típusú ami nem lehet új feltöltés.',
     'file_too_large'                 => '":name" fájl túl nagy.',
@@ -56,7 +57,6 @@ return [
     'at_least_one_action'            => 'A szabályban legalább egy műveletnek lennie kell.',
     'base64'                         => 'Ez nem érvényes base64 kódolású adat.',
     'model_id_invalid'               => 'A megadott azonosító érvénytelennek tűnik ehhez a modellhez.',
-    'more'                           => ':attribute nagyobb kell legyen nullánál.',
     'less'                           => ':attribute kisebbnek kell lennie 10,000,000-nél',
     'active_url'                     => ':attribute nem egy érvényes URL.',
     'after'                          => ':attribute egy :date utáni dátum kell legyen.',
@@ -120,19 +120,21 @@ return [
     'string'                         => ':attribute egy karakterlánc kell legyen.',
     'url'                            => ':attribute attribútum formátuma érvénytelen.',
     'timezone'                       => ':attribute érvényes zóna kell legyen.',
-    '2fa_code'                    => ':attribute mező érvénytelen.',
-    'dimensions'                  => ':attribute attribútum képfelbontása érvénytelen.',
-    'distinct'                    => ':attribute mezőben duplikált érték van.',
-    'file'                        => ':attribute egy fájl kell legyen.',
-    'in_array'                    => ':attribute nem létezik itt: :other.',
-    'present'                     => ':attribute mezőnek jelen kell lennie.',
-    'amount_zero'                 => 'A teljes mennyiség nem lehet nulla.',
-    'current_target_amount'       => 'The current amount must be less than the target amount.',
-    'unique_piggy_bank_for_user'  => 'A malacpersely nevének egyedinek kell lennie.',
-    'secure_password'             => 'Ez nem biztonságos jelszó. Kérlek próbáld meg újra. További információért lásd: https://bit.ly/FF3-password-security',
-    'valid_recurrence_rep_type'   => 'Érvénytelen ismétléstípus az ismétlődő tranzakciókhoz.',
-    'valid_recurrence_rep_moment' => 'Érvénytelen ismétlési időpont ehhez az ismétléstípushoz.',
-    'invalid_account_info'        => 'Érvénytelen számlainformáció.',
+    '2fa_code'                       => ':attribute mező érvénytelen.',
+    'dimensions'                     => ':attribute attribútum képfelbontása érvénytelen.',
+    'distinct'                       => ':attribute mezőben duplikált érték van.',
+    'file'                           => ':attribute egy fájl kell legyen.',
+    'in_array'                       => ':attribute nem létezik itt: :other.',
+    'present'                        => ':attribute mezőnek jelen kell lennie.',
+    'amount_zero'                    => 'A teljes mennyiség nem lehet nulla.',
+    'current_target_amount'          => 'A megadott értéknek kevesebbnek kell lennie, mint a célérték.',
+    'unique_piggy_bank_for_user'     => 'A malacpersely nevének egyedinek kell lennie.',
+    'unique_object_group'            => 'Csoport neve már foglalt',
+
+    'secure_password'                => 'Ez nem biztonságos jelszó. Kérlek próbáld meg újra. További információért lásd: https://bit.ly/FF3-password-security',
+    'valid_recurrence_rep_type'      => 'Érvénytelen ismétléstípus az ismétlődő tranzakciókhoz.',
+    'valid_recurrence_rep_moment'    => 'Érvénytelen ismétlési időpont ehhez az ismétléstípushoz.',
+    'invalid_account_info'           => 'Érvénytelen számlainformáció.',
     'attributes'                     => [
         'email'                   => 'email cím',
         'description'             => 'leírás',
@@ -180,6 +182,7 @@ return [
     'deposit_source_bad_data'  => 'Nem található érvényes forrásszámla ":id" azonosító vagy ":name" név keresésekor.',
     'deposit_dest_need_data'   => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
     'deposit_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
+    'deposit_dest_wrong_type'  => 'A beküldött célfiók nem megfelelő típusú.',
 
     'transfer_source_need_data' => 'Egy érvényes forrásszámla azonosító és/vagy egy érvényes forrásszámla név kell a folytatáshoz.',
     'transfer_source_bad_data'  => 'Nem található érvényes forrásszámla ":id" azonosító vagy ":name" név keresésekor.',
@@ -191,6 +194,16 @@ return [
     'ob_dest_need_data'   => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
     'ob_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
 
-    'generic_invalid_source' => 'You can\'t use this account as the source account.',
-    'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+    'generic_invalid_source'      => 'Nem használhatod ezt a fiókot forrásfiókként.',
+    'generic_invalid_destination' => 'Nem használhatod ezt a fiókot célfiókként.',
+
+    'gte.numeric' => ':attribute attribútumnak :value értéknél nagyobbnak vagy vele egyenlőnek kell lennie.',
+    'gt.numeric'  => 'A(z) :attribute nagyobb kell, hogy legyen, mint :value.',
+    'gte.file'    => ':attribute attribútumnak :value kilobájtnál nagyobb vagy egyenlőnek kell lennie.',
+    'gte.string'  => ':attribute attribútumnak :value karakternél nagyobb vagy egyenlőnek kell lennie.',
+    'gte.array'   => 'A(z) :attribute legalább :value elemet kell, hogy tartalmazzon.',
+
+    'amount_required_for_auto_budget' => 'Az összeg kötelező.',
+    'auto_budget_amount_positive'     => 'Az értéknek nagyobbnak kell lennie nullánál.',
+    'auto_budget_period_mandatory' => 'Az auto költségvetési periódus kötelező mező.',
 ];

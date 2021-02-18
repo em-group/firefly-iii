@@ -313,12 +313,12 @@
 </footer>
 
 <!-- Scripts -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="/fpt/projection/assets/js/skel.min.js"></script>
-<script src="/fpt/projection/assets/js/util.js"></script>
-<script src="/fpt/projection/assets/js/main.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/projection/assets/js/skel.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/projection/assets/js/util.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/projection/assets/js/main.js" nonce="{{ JS_NONCE }}"></script>
 
-<script>
+<script nonce="{{ JS_NONCE }}">
     $(function(){
         window.gotoSection = function(section){
             let e = $('#terms-container');

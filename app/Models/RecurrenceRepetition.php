@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurrenceRepetition.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,41 +24,44 @@ declare(strict_types=1);
 namespace FireflyIII\Models;
 
 
+use Carbon\Carbon;
+use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
 
 /**
  * Class RecurrenceRepetition
  *
- * @property string         $repetition_type
- * @property string         $repetition_moment
- * @property int            $repetition_skip
- * @property int            $weekend
- * @property \Carbon\Carbon $created_at
- * @property \Carbon\Carbon $deleted_at
- * @property \Carbon\Carbon $updated_at
- * @property int            $id
- * @property int $recurrence_id
- * @property-read \FireflyIII\Models\Recurrence $recurrence
+ * @property string          $repetition_type
+ * @property string          $repetition_moment
+ * @property int             $repetition_skip
+ * @property int             $weekend
+ * @property Carbon  $created_at
+ * @property Carbon  $deleted_at
+ * @property Carbon  $updated_at
+ * @property int             $id
+ * @property int             $recurrence_id
+ * @property-read Recurrence $recurrence
  * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition newQuery()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceRepetition onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition newQuery()
+ * @method static Builder|RecurrenceRepetition onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition query()
  * @method static bool|null restore()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereRecurrenceId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereRepetitionMoment($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereRepetitionSkip($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereRepetitionType($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceRepetition whereWeekend($value)
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceRepetition withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceRepetition withoutTrashed()
- * @mixin \Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereRecurrenceId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereRepetitionMoment($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereRepetitionSkip($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereRepetitionType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition whereWeekend($value)
+ * @method static Builder|RecurrenceRepetition withTrashed()
+ * @method static Builder|RecurrenceRepetition withoutTrashed()
+ * @mixin Eloquent
  */
 class RecurrenceRepetition extends Model
 {

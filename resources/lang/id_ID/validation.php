@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,6 +45,7 @@ return [
     'at_least_one_repetition'        => 'Minimal harus ada satu pengulangan.',
     'require_repeat_until'           => 'Dibutuhkan hanya sebuah angka pengulangan, atau tanggal akhir (repeat_until). Bukan keduanya.',
     'require_currency_info'          => 'Isi dalam bidang ini tidak valid jika tidak disertai informasi mata uang.',
+    'not_transfer_account'           => 'This account is not an account that can be used for transfers.',
     'require_currency_amount'        => 'The content of this field is invalid without foreign amount information.',
     'equal_description'              => 'Deskripsi transaksi harus berbeda dari deskripsi umum.',
     'file_invalid_mime'              => 'File ":name" adalah tipe ":mime" yang tidak diterima sebagai upload baru.',
@@ -56,7 +57,6 @@ return [
     'at_least_one_action'            => 'Aturan harus memiliki setidaknya satu tindakan.',
     'base64'                         => 'Ini bukanlah data base64 encoded yang valid.',
     'model_id_invalid'               => 'ID yang diberikan tidaklah valid untuk model ini.',
-    'more'                           => ':attribute harus lebih besar dari nol.',
     'less'                           => ':attribute harus kurang dari 10,000,000',
     'active_url'                     => ':attribute bukan URL yang valid.',
     'after'                          => ':attribute harus tanggal setelah :date.',
@@ -120,19 +120,21 @@ return [
     'string'                         => ':attribute harus sebuah string.',
     'url'                            => 'Format atribut tidak valid.',
     'timezone'                       => ':attribute harus zona yang valid.',
-    '2fa_code'                    => 'Bidang :attribute tidak valid.',
-    'dimensions'                  => ':attribute memiliki dimensi gambar yang tidak valid.',
-    'distinct'                    => 'Bidang :attribute memiliki nilai duplikat.',
-    'file'                        => ':attribute harus berupa file.',
-    'in_array'                    => 'Bidang :attribute tidak ada in :other.',
-    'present'                     => 'Bidang :attribute harus ada.',
-    'amount_zero'                 => 'Jumlah total tidak boleh nol.',
-    'current_target_amount'       => 'The current amount must be less than the target amount.',
-    'unique_piggy_bank_for_user'  => 'Nama celengan harus unik.',
-    'secure_password'             => 'This is not a secure password. Please try again. For more information, visit https://bit.ly/FF3-password-security',
-    'valid_recurrence_rep_type'   => 'Tipe pengulangan yang tidak valid untuk transaksi berkala.',
-    'valid_recurrence_rep_moment' => 'Waktu pengulangan tidaklah valid untuk tipe pengulangan ini.',
-    'invalid_account_info'        => 'Informasi akun tidak valid.',
+    '2fa_code'                       => 'Bidang :attribute tidak valid.',
+    'dimensions'                     => ':attribute memiliki dimensi gambar yang tidak valid.',
+    'distinct'                       => 'Bidang :attribute memiliki nilai duplikat.',
+    'file'                           => ':attribute harus berupa file.',
+    'in_array'                       => 'Bidang :attribute tidak ada in :other.',
+    'present'                        => 'Bidang :attribute harus ada.',
+    'amount_zero'                    => 'Jumlah total tidak boleh nol.',
+    'current_target_amount'          => 'The current amount must be less than the target amount.',
+    'unique_piggy_bank_for_user'     => 'Nama celengan harus unik.',
+    'unique_object_group'            => 'The group name must be unique',
+
+    'secure_password'                => 'This is not a secure password. Please try again. For more information, visit https://bit.ly/FF3-password-security',
+    'valid_recurrence_rep_type'      => 'Tipe pengulangan yang tidak valid untuk transaksi berkala.',
+    'valid_recurrence_rep_moment'    => 'Waktu pengulangan tidaklah valid untuk tipe pengulangan ini.',
+    'invalid_account_info'           => 'Informasi akun tidak valid.',
     'attributes'                     => [
         'email'                   => 'alamat email',
         'description'             => 'keterangan',
@@ -180,6 +182,7 @@ return [
     'deposit_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
     'deposit_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
     'deposit_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
+    'deposit_dest_wrong_type'  => 'The submitted destination account is not of the right type.',
 
     'transfer_source_need_data' => 'Need to get a valid source account ID and/or valid source account name to continue.',
     'transfer_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
@@ -191,6 +194,16 @@ return [
     'ob_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
     'ob_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
 
-    'generic_invalid_source' => 'You can\'t use this account as the source account.',
+    'generic_invalid_source'      => 'You can\'t use this account as the source account.',
     'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+
+    'gte.numeric' => 'The :attribute must be greater than or equal to :value.',
+    'gt.numeric'  => 'The :attribute must be greater than :value.',
+    'gte.file'    => 'The :attribute must be greater than or equal to :value kilobytes.',
+    'gte.string'  => 'The :attribute must be greater than or equal to :value characters.',
+    'gte.array'   => 'The :attribute must have :value items or more.',
+
+    'amount_required_for_auto_budget' => 'The amount is required.',
+    'auto_budget_amount_positive'     => 'The amount must be more than zero.',
+    'auto_budget_period_mandatory' => 'The auto budget period is a mandatory field.',
 ];

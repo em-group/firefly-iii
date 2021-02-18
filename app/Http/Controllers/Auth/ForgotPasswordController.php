@@ -1,38 +1,43 @@
 <?php
 /**
  * ForgotPasswordController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\View\View;
 use Log;
 
 /**
  * Class ForgotPasswordController
+ *
  * @codeCoverageIgnore
  */
 class ForgotPasswordController extends Controller
@@ -46,16 +51,22 @@ class ForgotPasswordController extends Controller
     {
         parent::__construct();
         $this->middleware('guest');
+
+        $loginProvider = config('firefly.login_provider');
+        $authGuard     = config('firefly.authentication_guard');
+
+        if ('eloquent' !== $loginProvider || 'web' !== $authGuard) {
+            throw new FireflyException('Using external identity provider. Cannot continue.');
+        }
     }
 
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param Request                 $request
+     * @param UserRepositoryInterface $repository
      *
-     * @param UserRepositoryInterface   $repository
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     * @return Factory|RedirectResponse|View
      */
     public function sendResetLinkEmail(Request $request, UserRepositoryInterface $repository)
     {
@@ -77,7 +88,7 @@ class ForgotPasswordController extends Controller
         $user = User::where('email', $request->get('email'))->first();
 
         if (null !== $user && $repository->hasRole($user, 'demo')) {
-            return back()->withErrors(['email' => (string)trans('firefly.cannot_reset_demo_user')]);
+            return back()->withErrors(['email' => (string) trans('firefly.cannot_reset_demo_user')]);
         }
 
         // We will send the password reset link to this user. Once we have attempted
@@ -99,7 +110,7 @@ class ForgotPasswordController extends Controller
      *
      * @codeCoverageIgnore
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function showLinkRequestForm()
     {
@@ -114,7 +125,7 @@ class ForgotPasswordController extends Controller
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $userCount         = User::count();
         $allowRegistration = true;
-        $pageTitle         = (string)trans('firefly.forgot_pw_page_title');
+        $pageTitle         = (string) trans('firefly.forgot_pw_page_title');
         if (true === $singleUserMode && $userCount > 0) {
             $allowRegistration = false;
         }

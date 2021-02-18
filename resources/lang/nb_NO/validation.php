@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,6 +45,7 @@ return [
     'at_least_one_repetition'        => 'Trenger minst en gjentagelse.',
     'require_repeat_until'           => 'Krever enten et antall repetisjoner eller en slutt dato (gjentas til). Ikke begge.',
     'require_currency_info'          => 'Innholdet i dette feltet er ugyldig uten valutainformasjon.',
+    'not_transfer_account'           => 'This account is not an account that can be used for transfers.',
     'require_currency_amount'        => 'The content of this field is invalid without foreign amount information.',
     'equal_description'              => 'Transaksjonsbeskrivelsen bør ikke være lik global beskrivelse.',
     'file_invalid_mime'              => 'Kan ikke akseptere fil ":name" av typen ":mime" for opplasting.',
@@ -56,7 +57,6 @@ return [
     'at_least_one_action'            => 'Regel må ha minst en aksjon.',
     'base64'                         => 'Dette er ikke godkjent base64 kodet data.',
     'model_id_invalid'               => 'Den angitte ID er ugyldig for denne modellen.',
-    'more'                           => ':attribute må være større enn null.',
     'less'                           => ':attribute må være mindre enn 10,000,000',
     'active_url'                     => ':attribute er ikke en gyldig URL.',
     'after'                          => ':attribute må være en dato etter :date.',
@@ -120,19 +120,21 @@ return [
     'string'                         => ':attribute må være en streng.',
     'url'                            => ':attribute formatet er ugyldig.',
     'timezone'                       => ':attribute må være en gyldig tidssone.',
-    '2fa_code'                    => ':attribute formatet er ugyldig.',
-    'dimensions'                  => ':attribute har ugyldig bilde dimensjoner.',
-    'distinct'                    => ':attribute feltet har en duplikatverdi.',
-    'file'                        => ':attribute må være en fil.',
-    'in_array'                    => 'Feltet :attribute finnes ikke i :other.',
-    'present'                     => ':attribute feltet må være definert.',
-    'amount_zero'                 => 'Totalbeløpet kan ikke være null.',
-    'current_target_amount'       => 'The current amount must be less than the target amount.',
-    'unique_piggy_bank_for_user'  => 'Navnet på sparegris må være unik.',
-    'secure_password'             => 'Dette er ikke et sikkert passord. Vennligst prøv igjen. For mer informasjon, se https://bit.ly/FF3-password-security',
-    'valid_recurrence_rep_type'   => 'Ugyldig repetisjons type for gjentakende transaksjoner.',
-    'valid_recurrence_rep_moment' => 'Ugyldig repetisjons tid for denne type repetisjon.',
-    'invalid_account_info'        => 'Ugyldig konto informasjon.',
+    '2fa_code'                       => ':attribute formatet er ugyldig.',
+    'dimensions'                     => ':attribute har ugyldig bilde dimensjoner.',
+    'distinct'                       => ':attribute feltet har en duplikatverdi.',
+    'file'                           => ':attribute må være en fil.',
+    'in_array'                       => 'Feltet :attribute finnes ikke i :other.',
+    'present'                        => ':attribute feltet må være definert.',
+    'amount_zero'                    => 'Totalbeløpet kan ikke være null.',
+    'current_target_amount'          => 'The current amount must be less than the target amount.',
+    'unique_piggy_bank_for_user'     => 'Navnet på sparegris må være unik.',
+    'unique_object_group'            => 'The group name must be unique',
+
+    'secure_password'                => 'Dette er ikke et sikkert passord. Vennligst prøv igjen. For mer informasjon, se https://bit.ly/FF3-password-security',
+    'valid_recurrence_rep_type'      => 'Ugyldig repetisjons type for gjentakende transaksjoner.',
+    'valid_recurrence_rep_moment'    => 'Ugyldig repetisjons tid for denne type repetisjon.',
+    'invalid_account_info'           => 'Ugyldig konto informasjon.',
     'attributes'                     => [
         'email'                   => 'epostadresse',
         'description'             => 'beskrivelse',
@@ -180,6 +182,7 @@ return [
     'deposit_source_bad_data'  => 'Kunne ikke finne en gyldig kilde-konto ved å søke etter ID ":id" eller navn ":name".',
     'deposit_dest_need_data'   => 'Trenger en gyldig destinasjons konto-ID og/eller gyldig destinasjons kontonavn for å fortsette.',
     'deposit_dest_bad_data'    => 'Kunne ikke finne en gyldig destinasjons konto ved å søke etter ID ":id" eller navn ":name".',
+    'deposit_dest_wrong_type'  => 'The submitted destination account is not of the right type.',
 
     'transfer_source_need_data' => 'Trenger en gyldig kilde konto-ID og/eller gyldig kilde kontonavn for å fortsette.',
     'transfer_source_bad_data'  => 'Finner ikke en gyldig kilde-konto ved å søke etter ID ":id" eller navn ":name".',
@@ -191,6 +194,16 @@ return [
     'ob_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
     'ob_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
 
-    'generic_invalid_source' => 'You can\'t use this account as the source account.',
+    'generic_invalid_source'      => 'You can\'t use this account as the source account.',
     'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+
+    'gte.numeric' => 'The :attribute must be greater than or equal to :value.',
+    'gt.numeric'  => 'The :attribute must be greater than :value.',
+    'gte.file'    => 'The :attribute must be greater than or equal to :value kilobytes.',
+    'gte.string'  => 'The :attribute must be greater than or equal to :value characters.',
+    'gte.array'   => 'The :attribute must have :value items or more.',
+
+    'amount_required_for_auto_budget' => 'The amount is required.',
+    'auto_budget_amount_positive'     => 'The amount must be more than zero.',
+    'auto_budget_period_mandatory' => 'The auto budget period is a mandatory field.',
 ];

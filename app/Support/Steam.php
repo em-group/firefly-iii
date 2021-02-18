@@ -1,22 +1,22 @@
 <?php
 /**
  * Steam.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use DB;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Transaction;
+use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use Illuminate\Support\Collection;
 use Log;
@@ -39,46 +40,56 @@ class Steam
 {
 
     /**
+     * Gets balance at the end of current month by default
+     *
      * @param \FireflyIII\Models\Account $account
      * @param \Carbon\Carbon             $date
      *
      * @return string
      */
-    public function balance(Account $account, Carbon $date): string
+    public function balance(Account $account, Carbon $date, ?TransactionCurrency $currency = null): string
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
         $cache->addProperty('balance');
         $cache->addProperty($date);
+        $cache->addProperty($currency ? $currency->id : 0);
         if ($cache->has()) {
             return $cache->get(); // @codeCoverageIgnore
         }
         /** @var AccountRepositoryInterface $repository */
         $repository = app(AccountRepositoryInterface::class);
-        $currency = $repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrencyByUser($account->user);
-
+        if (null === $currency) {
+            $currency = $repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrencyByUser($account->user);
+        }
         // first part: get all balances in own currency:
-        $nativeBalance = (string)$account->transactions()
-                                         ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
-                                         ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
-                                         ->where('transactions.transaction_currency_id', $currency->id)
-                                         ->sum('transactions.amount');
-
+        $transactions  = $account->transactions()
+                                 ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+                                 ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
+                                 ->where('transactions.transaction_currency_id', $currency->id)
+                                 ->get(['transactions.amount'])->toArray();
+        $nativeBalance = $this->sumTransactions($transactions, 'amount');
         // get all balances in foreign currency:
-        $foreignBalance = (string)$account->transactions()
-                                          ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
-                                          ->where('transaction_journals.date', '<=', $date->format('Y-m-d'))
-                                          ->where('transactions.foreign_currency_id', $currency->id)
-                                          ->where('transactions.transaction_currency_id', '!=', $currency->id)
-                                          ->sum('transactions.foreign_amount');
+        $transactions   = $account->transactions()
+                                  ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+                                  ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
+                                  ->where('transactions.foreign_currency_id', $currency->id)
+                                  ->where('transactions.transaction_currency_id', '!=', $currency->id)
+                                  ->get(['transactions.foreign_amount'])->toArray();
+        $foreignBalance = $this->sumTransactions($transactions, 'foreign_amount');
+
+        // check:
+        Log::debug(sprintf('Steam::balance. Native balance is "%s"', $nativeBalance));
+        Log::debug(sprintf('Steam::balance. Foreign balance is "%s"', $foreignBalance));
 
         $balance = bcadd($nativeBalance, $foreignBalance);
         $virtual = null === $account->virtual_balance ? '0' : (string)$account->virtual_balance;
+
+        Log::debug(sprintf('Steam::balance. Virtual balance is "%s"', $virtual));
+
         $balance = bcadd($balance, $virtual);
+
         $cache->store($balance);
 
         return $balance;
@@ -92,9 +103,6 @@ class Steam
      */
     public function balanceIgnoreVirtual(Account $account, Carbon $date): string
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -107,25 +115,47 @@ class Steam
         $repository = app(AccountRepositoryInterface::class);
         $repository->setUser($account->user);
 
-        $currencyId    = (int)$repository->getMetaValue($account, 'currency_id');
-        $nativeBalance = (string)$account->transactions()
-                                         ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
-                                         ->where('transaction_journals.date', '<=', $date->format('Y-m-d'))
-                                         ->where('transactions.transaction_currency_id', $currencyId)
-                                         ->sum('transactions.amount');
+        $currencyId = (int)$repository->getMetaValue($account, 'currency_id');
+
+
+        $transactions  = $account->transactions()
+                                 ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+                                 ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
+                                 ->where('transactions.transaction_currency_id', $currencyId)
+                                 ->get(['transactions.amount'])->toArray();
+        $nativeBalance = $this->sumTransactions($transactions, 'amount');
 
         // get all balances in foreign currency:
-        $foreignBalance = (string)$account->transactions()
-                                          ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
-                                          ->where('transaction_journals.date', '<=', $date->format('Y-m-d'))
-                                          ->where('transactions.foreign_currency_id', $currencyId)
-                                          ->where('transactions.transaction_currency_id', '!=', $currencyId)
-                                          ->sum('transactions.foreign_amount');
+        $transactions = $account->transactions()
+                                ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'transactions.transaction_journal_id')
+                                ->where('transaction_journals.date', '<=', $date->format('Y-m-d 23:59:59'))
+                                ->where('transactions.foreign_currency_id', $currencyId)
+                                ->where('transactions.transaction_currency_id', '!=', $currencyId)
+                                ->get(['transactions.foreign_amount'])->toArray();
+
+        $foreignBalance = $this->sumTransactions($transactions, 'foreign_amount');
         $balance        = bcadd($nativeBalance, $foreignBalance);
 
         $cache->store($balance);
 
         return $balance;
+    }
+
+    /**
+     * @param array  $transactions
+     * @param string $key
+     *
+     * @return string
+     */
+    public function sumTransactions(array $transactions, string $key): string
+    {
+        $sum = '0';
+        /** @var array $transaction */
+        foreach ($transactions as $transaction) {
+            $sum = bcadd($sum, $transaction[$key] ?? '0');
+        }
+
+        return $sum;
     }
 
     /**
@@ -136,18 +166,17 @@ class Steam
      * @param \FireflyIII\Models\Account $account
      * @param \Carbon\Carbon             $start
      * @param \Carbon\Carbon             $end
+     * @param TransactionCurrency|null   $currency
      *
      * @return array
      */
-    public function balanceInRange(Account $account, Carbon $start, Carbon $end): array
+    public function balanceInRange(Account $account, Carbon $start, Carbon $end, ?TransactionCurrency $currency = null): array
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
         $cache->addProperty('balance-in-range');
+        $cache->addProperty($currency ? $currency->id : 0);
         $cache->addProperty($start);
         $cache->addProperty($end);
         if ($cache->has()) {
@@ -158,20 +187,17 @@ class Steam
         $end->addDay();
         $balances     = [];
         $formatted    = $start->format('Y-m-d');
-        $startBalance = $this->balance($account, $start);
+        $startBalance = $this->balance($account, $start, $currency);
 
         /** @var AccountRepositoryInterface $repository */
-        $repository = app(AccountRepositoryInterface::class);
-        $repository->setUser($account->user);
 
         $balances[$formatted] = $startBalance;
-        $currencyId           = (int)$repository->getMetaValue($account, 'currency_id');
-
-        // use system default currency:
-        if (0 === $currencyId) {
-            $currency   = app('amount')->getDefaultCurrencyByUser($account->user);
-            $currencyId = $currency->id;
+        if (null === $currency) {
+            $repository = app(AccountRepositoryInterface::class);
+            $repository->setUser($account->user);
+            $currency = $repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrencyByUser($account->user);
         }
+        $currencyId = (int)$currency->id;
 
         $start->addDay();
 
@@ -202,17 +228,17 @@ class Steam
             $modified        = null === $entry->modified ? '0' : (string)$entry->modified;
             $foreignModified = null === $entry->modified_foreign ? '0' : (string)$entry->modified_foreign;
             $amount          = '0';
-            if ($currencyId === (int)$entry->transaction_currency_id || 0 === $currencyId) {
+            if ($currencyId === (int) $entry->transaction_currency_id || 0 === $currencyId) {
                 // use normal amount:
                 $amount = $modified;
             }
-            if ($currencyId === (int)$entry->foreign_currency_id) {
+            if ($currencyId === (int) $entry->foreign_currency_id) {
                 // use foreign amount:
                 $amount = $foreignModified;
             }
 
             $currentBalance  = bcadd($currentBalance, $amount);
-            $carbon          = new Carbon($entry->date);
+            $carbon          = new Carbon($entry->date, config('app.timezone'));
             $date            = $carbon->format('Y-m-d');
             $balances[$date] = $currentBalance;
         }
@@ -230,9 +256,6 @@ class Steam
      */
     public function balancePerCurrency(Account $account, Carbon $date): array
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         // abuse chart properties:
         $cache = new CacheProperties;
         $cache->addProperty($account->id);
@@ -266,9 +289,6 @@ class Steam
      */
     public function balancesByAccounts(Collection $accounts, Carbon $date): array
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         $ids = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache = new CacheProperties;
@@ -301,9 +321,6 @@ class Steam
      */
     public function balancesPerCurrencyByAccounts(Collection $accounts, Carbon $date): array
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         $ids = $accounts->pluck('id')->toArray();
         // cache this property.
         $cache = new CacheProperties;
@@ -330,8 +347,10 @@ class Steam
      * Remove weird chars from strings.
      *
      * @param string $string
+     * TODO migrate to trait.
      *
      * @return string
+     * @deprecated
      */
     public function cleanString(string $string): string
     {
@@ -390,15 +409,77 @@ class Steam
     }
 
     /**
+     * Remove weird chars from strings, but keep newlines and tabs.
+     *
+     * @param string $string
+     * TODO migrate to trait.
+     *
+     * @return string
+     * @deprecated
+     */
+    public function nlCleanString(string $string): string
+    {
+        $search  = [
+            "\u{0001}", // start of heading
+            "\u{0002}", // start of text
+            "\u{0003}", // end of text
+            "\u{0004}", // end of transmission
+            "\u{0005}", // enquiry
+            "\u{0006}", // ACK
+            "\u{0007}", // BEL
+            "\u{0008}", // backspace
+            "\u{000E}", // shift out
+            "\u{000F}", // shift in
+            "\u{0010}", // data link escape
+            "\u{0011}", // DC1
+            "\u{0012}", // DC2
+            "\u{0013}", // DC3
+            "\u{0014}", // DC4
+            "\u{0015}", // NAK
+            "\u{0016}", // SYN
+            "\u{0017}", // ETB
+            "\u{0018}", // CAN
+            "\u{0019}", // EM
+            "\u{001A}", // SUB
+            "\u{001B}", // escape
+            "\u{001C}", // file separator
+            "\u{001D}", // group separator
+            "\u{001E}", // record separator
+            "\u{001F}", // unit separator
+            "\u{007F}", // DEL
+            "\u{00A0}", // non-breaking space
+            "\u{1680}", // ogham space mark
+            "\u{180E}", // mongolian vowel separator
+            "\u{2000}", // en quad
+            "\u{2001}", // em quad
+            "\u{2002}", // en space
+            "\u{2003}", // em space
+            "\u{2004}", // three-per-em space
+            "\u{2005}", // four-per-em space
+            "\u{2006}", // six-per-em space
+            "\u{2007}", // figure space
+            "\u{2008}", // punctuation space
+            "\u{2009}", // thin space
+            "\u{200A}", // hair space
+            "\u{200B}", // zero width space
+            "\u{202F}", // narrow no-break space
+            "\u{3000}", // ideographic space
+            "\u{FEFF}", // zero width no -break space
+        ];
+        $replace = "\x20"; // plain old normal space
+        $string  = str_replace($search, $replace, $string);
+        $string  = str_replace("\r", '', $string);
+
+        return trim($string);
+    }
+
+    /**
      * @param array $accounts
      *
      * @return array
      */
     public function getLastActivities(array $accounts): array
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should NOT be called in the TEST environment!', __METHOD__));
-        }
         $list = [];
 
         $set = auth()->user()->transactions()
@@ -407,7 +488,9 @@ class Steam
                      ->get(['transactions.account_id', DB::raw('MAX(transaction_journals.date) AS max_date')]);
 
         foreach ($set as $entry) {
-            $list[(int)$entry->account_id] = new Carbon($entry->max_date);
+            $date = new Carbon($entry->max_date,'UTC');
+            $date->setTimezone(config('app.timezone'));
+            $list[(int)$entry->account_id] = $date;
         }
 
         return $list;
@@ -437,9 +520,7 @@ class Steam
         if (null === $amount) {
             return null;
         }
-        $amount = bcmul($amount, '-1');
-
-        return $amount;
+        return bcmul($amount, '-1');
     }
 
     /**
@@ -451,21 +532,21 @@ class Steam
     {
         $string = strtolower($string);
 
-        if (!(false === stripos($string, 'k'))) {
+        if (false !== stripos($string, 'k')) {
             // has a K in it, remove the K and multiply by 1024.
             $bytes = bcmul(rtrim($string, 'kK'), '1024');
 
             return (int)$bytes;
         }
 
-        if (!(false === stripos($string, 'm'))) {
+        if (false !== stripos($string, 'm')) {
             // has a M in it, remove the M and multiply by 1048576.
             $bytes = bcmul(rtrim($string, 'mM'), '1048576');
 
             return (int)$bytes;
         }
 
-        if (!(false === stripos($string, 'g'))) {
+        if (false !== stripos($string, 'g')) {
             // has a G in it, remove the G and multiply by (1024)^3.
             $bytes = bcmul(rtrim($string, 'gG'), '1073741824');
 
@@ -487,6 +568,49 @@ class Steam
         }
 
         return $amount;
+    }
+
+    /**
+     * Get user's language.
+     *
+     * @return string
+     */
+    public function getLanguage(): string // get preference
+    {
+        return app('preferences')->get('language', config('firefly.default_language', 'en_US'))->data;
+    }
+
+    /**
+     * Get user's locale.
+     *
+     * @return string
+     */
+    public function getLocale(): string // get preference
+    {
+        /** @var string $language */
+        $locale = app('preferences')->get('locale', config('firefly.default_locale', 'equal'))->data;
+        if ('equal' === $locale) {
+            $locale = $this->getLanguage();
+        }
+        
+        // Check for Windows to replace the locale correctly.
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $locale = str_replace('_', '-', $locale);
+        }
+
+        return $locale;
+    }
+
+    /**
+     * @param string $locale
+     *
+     * @return array
+     */
+    public function getLocaleArray(string $locale): array {
+        return [
+            sprintf('%s.utf8', $locale),
+            sprintf('%s.UTF-8', $locale),
+        ];
     }
 
 }

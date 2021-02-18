@@ -77,7 +77,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ JS_NONCE }}">
         $('#add_config').click(function() {
             $('.configs').append(`<tr class="config">
     <td>

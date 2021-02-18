@@ -1,22 +1,22 @@
 <?php
 /**
  * RequestInformation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -99,9 +99,7 @@ trait RequestInformation
             // also check cache first:
             if ($help->inCache($route, $language)) {
                 Log::debug(sprintf('Help text %s was in cache.', $language));
-                $content = $help->getFromCache($route, $language);
-
-                return $content;
+                return $help->getFromCache($route, $language);
             }
             $baseHref   = route('index');
             $helpString = sprintf(
@@ -121,19 +119,6 @@ trait RequestInformation
     }
 
     /**
-     * Get user's language.
-     *
-     * @return string
-     */
-    protected function getLanguage(): string // get preference
-    {
-        /** @var string $language */
-        $language = app('preferences')->get('language', config('firefly.default_language', 'en_US'))->data;
-
-        return $language;
-    }
-
-    /**
      * Get a list of triggers.
      *
      * @param TestRuleFormRequest $request
@@ -145,7 +130,7 @@ trait RequestInformation
         $triggers = [];
         $data     = $request->get('triggers');
         if (is_array($data)) {
-            foreach ($data as $index => $triggerInfo) {
+            foreach ($data as $triggerInfo) {
                 $triggers[] = [
                     'type'            => $triggerInfo['type'] ?? '',
                     'value'           => $triggerInfo['value'] ?? '',
@@ -180,7 +165,6 @@ trait RequestInformation
         // both must be array and either must be > 0
         if (count($intro) > 0 || count($specialIntro) > 0) {
             $shownDemo = app('preferences')->get($key, false)->data;
-            //Log::debug(sprintf('Check if user has already seen intro with key "%s". Result is %s', $key, var_export($shownDemo, true)));
         }
         if (!is_bool($shownDemo)) {
             $shownDemo = true; // @codeCoverageIgnore

@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Σχετικοί κανόνες',
     'active'                  => 'Είναι ενεργό;',
     'percentage'              => 'pct.',
+    'recurring_transaction'   => 'Επαναλαμβανόμενη συναλλαγή',
     'next_due'                => 'Επόμενη προθεσμία',
     'transaction_type'        => 'Τύπος',
     'lastActivity'            => 'Τελευταία δραστηριότητα',
     'balanceDiff'             => 'Διαφορά υπολοίπου',
-    'matchesOn'               => 'Αντιστοιχήθηκε στις',
     'other_meta_data'         => 'Άλλα μετα-δεδομένα',
     'account_type'            => 'Τύπος λογαριασμού',
     'created_at'              => 'Δημιουργήθηκε στις',
     'account'                 => 'Λογαριασμός',
+    'external_uri'            => 'Εξωτερικό URI',
     'matchingAmount'          => 'Ποσό',
-    'split_number'            => 'Διαχωρισμός',
     'destination'             => 'Προορισμός',
     'source'                  => 'Προέλευση',
     'next_expected_match'     => 'Επόμενη αναμενόμενη αντιστοίχιση',
@@ -55,22 +55,21 @@ return [
     'repeat_freq'             => 'Επαναλήψεις',
     'description'             => 'Περιγραφή',
     'amount'                  => 'Ποσό',
-    'internal_reference'      => 'Εσωτερική αναφορά',
     'date'                    => 'Ημερομηνία',
-    'interest_date'           => 'Ημερομηνία υπολογισμού',
+    'interest_date'           => 'Ημερομηνία τοκισμού',
     'book_date'               => 'Ημερομηνία εγγραφής',
     'process_date'            => 'Ημερομηνία επεξεργασίας',
     'due_date'                => 'Ημερομηνία προθεσμίας',
     'payment_date'            => 'Ημερομηνία πληρωμής',
     'invoice_date'            => 'Ημερομηνία τιμολογίου',
-    'interal_reference'       => 'Εσωτερική αναφορά',
+    'internal_reference'      => 'Εσωτερική αναφορά',
     'notes'                   => 'Σημειώσεις',
     'from'                    => 'Από',
     'piggy_bank'              => 'Κουμπαράς',
     'to'                      => 'Προς',
     'budget'                  => 'Προϋπολογισμός',
     'category'                => 'Κατηγορία',
-    'bill'                    => 'Λογαριασμός',
+    'bill'                    => 'Πάγιο έξοδο',
     'withdrawal'              => 'Ανάληψη',
     'deposit'                 => 'Κατάθεση',
     'transfer'                => 'Μεταφορά',
@@ -89,9 +88,8 @@ return [
     'accounts_count'          => 'Αριθμός λογαριασμών',
     'journals_count'          => 'Πλήθος συναλλαγών',
     'attachments_count'       => 'Αριθμός επισυναπτόμενων',
-    'bills_count'             => 'Αριθμός λογαριασμών',
+    'bills_count'             => 'Αριθμός πάγιων εξόδων',
     'categories_count'        => 'Πλήθος κατηγοριών',
-    'import_jobs_count'       => 'Αριθμός σημαντικών εργασιών',
     'budget_count'            => 'Αριθμός προϋπολογισμών',
     'rule_and_groups_count'   => 'Αριθμός κανόνων και ομάδες κανόνων',
     'tags_count'              => 'Αριθμός ετικετών',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Σύνολο αναλήψεων',
     'sum_deposits'            => 'Σύνολο καταθέσεων',
     'sum_transfers'           => 'Σύνολο μεταφορών',
-    'reconcile'               => 'Συμβιβασμός',
-    'account_on_spectre'      => 'Λογαριασμός (Spectre)',
-    'account_on_ynab'         => 'Λογαριασμός (YNAB)',
-    'do_import'               => 'Εισαγωγή από αυτό το λογαριασμό',
+    'sum_reconciliations'     => 'Σύνολο των αντιπαραβολών',
+    'reconcile'               => 'Τακτοποίηση',
     'sepa_ct_id'              => 'SEPA End to End Αναγνωριστικό',
     'sepa_ct_op'              => 'SEPA Opposing Account Αναγνωριστικό',
     'sepa_db'                 => 'SEPA Mandate Αναγνωριστικό',

@@ -1,28 +1,30 @@
 <?php
 /**
  * JournalRepository.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Journal;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\Account;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
@@ -61,9 +63,10 @@ class JournalRepository implements JournalRepositoryInterface
      * Search in journal descriptions.
      *
      * @param string $search
+     * @param int $limit
      * @return Collection
      */
-    public function searchJournalDescriptions(string $search): Collection
+    public function searchJournalDescriptions(string $search, int $limit): Collection
     {
         $query = $this->user->transactionJournals()
                             ->orderBy('date', 'DESC');
@@ -71,7 +74,7 @@ class JournalRepository implements JournalRepositoryInterface
             $query->where('description', 'LIKE', sprintf('%%%s%%', $search));
         }
 
-        return $query->get();
+        return $query->take($limit)->get();
     }
 
     /**
@@ -94,32 +97,6 @@ class JournalRepository implements JournalRepositoryInterface
         /** @var JournalDestroyService $service */
         $service = app(JournalDestroyService::class);
         $service->destroy($journal);
-    }
-
-    /**
-     * Find a journal by its hash.
-     *
-     * @param string $hash
-     *
-     * @return TransactionJournalMeta|null
-     */
-    public function findByHash(string $hash): ?TransactionJournalMeta
-    {
-        $jsonEncode = json_encode($hash);
-        $hashOfHash = hash('sha256', $jsonEncode);
-        Log::debug(sprintf('JSON encoded hash is: %s', $jsonEncode));
-        Log::debug(sprintf('Hash of hash is: %s', $hashOfHash));
-
-        $result = TransactionJournalMeta::withTrashed()
-                                        ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id')
-                                        ->where('hash', $hashOfHash)
-                                        ->where('name', 'import_hash_v2')
-                                        ->first(['journal_meta.*']);
-        if (null === $result) {
-            Log::debug('Result is null');
-        }
-
-        return $result;
     }
 
     /**
@@ -238,7 +215,6 @@ class JournalRepository implements JournalRepositoryInterface
      */
     public function getLinkNoteText(TransactionJournalLink $link): string
     {
-        $notes = null;
         /** @var Note $note */
         $note = $link->notes()->first();
         if (null !== $note) {
@@ -376,5 +352,60 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->store($entry->data);
 
         return $value;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSourceAccount(TransactionJournal $journal): Account
+    {
+        /** @var Transaction $transaction */
+        $transaction = $journal->transactions()->with('account')->where('amount', '<', 0)->first();
+        if (null === $transaction) {
+            throw new FireflyException(sprintf('Your administration is broken. Transaction journal #%d has no source transaction.', $journal->id));
+        }
+
+        return $transaction->account;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDestinationAccount(TransactionJournal $journal): Account
+    {
+        /** @var Transaction $transaction */
+        $transaction = $journal->transactions()->with('account')->where('amount', '>', 0)->first();
+        if (null === $transaction) {
+            throw new FireflyException(sprintf('Your administration is broken. Transaction journal #%d has no destination transaction.', $journal->id));
+        }
+
+        return $transaction->account;
+    }
+
+    /**
+     * @return TransactionJournal|null
+     */
+    public function getLast(): ?TransactionJournal
+    {
+        /** @var TransactionJournal $entry */
+        $entry  = $this->user->transactionJournals()->orderBy('date', 'DESC')->first(['transaction_journals.*']);
+        $result = null;
+        if (null !== $entry) {
+            $result = $entry;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function findByType(array $types): Collection
+    {
+        return $this->user
+            ->transactionJournals()
+            ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transaction_journals.transaction_type_id')
+            ->whereIn('transaction_types.type', $types)
+            ->get(['transaction_journals.*']);
     }
 }

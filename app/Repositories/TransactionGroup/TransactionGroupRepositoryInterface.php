@@ -1,42 +1,53 @@
 <?php
 /**
  * TransactionGroupRepositoryInterface.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\TransactionGroup;
 
+use FireflyIII\Exceptions\DuplicateTransactionException;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Support\NullArrayObject;
 use FireflyIII\User;
+use Illuminate\Support\Collection;
 
 /**
  * Interface TransactionGroupRepositoryInterface
  */
 interface TransactionGroupRepositoryInterface
 {
-
     /**
      * @param TransactionGroup $group
      */
     public function destroy(TransactionGroup $group): void;
+
+    /**
+     * Return a group and expand all meta data etc.
+     *
+     * @param TransactionGroup $group
+     *
+     * @return array
+     */
+    public function expandGroup(TransactionGroup $group): array;
 
     /**
      * Find a transaction group by its ID.
@@ -113,6 +124,15 @@ interface TransactionGroupRepositoryInterface
     public function getTags(int $journalId): array;
 
     /**
+     * Get the tags for a journal (by ID) as Tag objects.
+     *
+     * @param int $journalId
+     *
+     * @return Collection
+     */
+    public function getTagObjects(int $journalId): Collection;
+
+    /**
      * Set the user.
      *
      * @param User $user
@@ -125,6 +145,8 @@ interface TransactionGroupRepositoryInterface
      * @param array $data
      *
      * @return TransactionGroup
+     * @throws DuplicateTransactionException
+     * @throws FireflyException
      */
     public function store(array $data): TransactionGroup;
 

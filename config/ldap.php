@@ -1,23 +1,23 @@
 <?php
 
 /**
- * adldap.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * ldap.php
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,8 +37,38 @@ if ('FreeIPA' === envNonEmpty('ADLDAP_CONNECTION_SCHEME', 'OpenLDAP')) {
 if ('ActiveDirectory' === envNonEmpty('ADLDAP_CONNECTION_SCHEME', 'OpenLDAP')) {
     $schema = ActiveDirectory::class;
 }
-return [
 
+/*
+ * Get SSL parameters from .env file.
+ */
+$ssl_ca_dir  = envNonEmpty('ADLDAP_SSL_CACERTDIR', null);
+$ssl_ca_file = envNonEmpty('ADLDAP_SSL_CACERTFILE', null);
+$ssl_cert    = envNonEmpty('ADLDAP_SSL_CERTFILE', null);
+$ssl_key     = envNonEmpty('ADLDAP_SSL_KEYFILE', null);
+$ssl_ciphers = envNonEmpty('ADLDAP_SSL_CIPHER_SUITE', null);
+$ssl_require = envNonEmpty('ADLDAP_SSL_REQUIRE_CERT', null);
+
+$sslOptions = [];
+if (null !== $ssl_ca_dir) {
+    $sslOptions[LDAP_OPT_X_TLS_CACERTDIR] = $ssl_ca_dir;
+}
+if (null !== $ssl_ca_file) {
+    $sslOptions[LDAP_OPT_X_TLS_CACERTFILE] = $ssl_ca_file;
+}
+if (null !== $ssl_cert) {
+    $sslOptions[LDAP_OPT_X_TLS_CERTFILE] = $ssl_cert;
+}
+if (null !== $ssl_key) {
+    $sslOptions[LDAP_OPT_X_TLS_KEYFILE] = $ssl_key;
+}
+if (null !== $ssl_ciphers) {
+    $sslOptions[LDAP_OPT_X_TLS_CIPHER_SUITE] = $ssl_ciphers;
+}
+if (null !== $ssl_require) {
+    $sslOptions[LDAP_OPT_X_TLS_REQUIRE_CERT] = $ssl_require;
+}
+
+return [
     /*
     |--------------------------------------------------------------------------
     | Connections
@@ -89,29 +119,6 @@ return [
 
             /*
             |--------------------------------------------------------------------------
-            | Schema
-            |--------------------------------------------------------------------------
-            |
-            | The schema class to use for retrieving attributes and generating models.
-            |
-            | You can also set this option to `null` to use the default schema class.
-            |
-            | For OpenLDAP, you must use the schema:
-            |
-            |   Adldap\Schemas\OpenLDAP::class
-            |
-            | For FreeIPA, you must use the schema:
-            |
-            |   Adldap\Schemas\FreeIPA::class
-            |
-            | Custom schema classes must implement Adldap\Schemas\SchemaInterface
-            |
-            */
-
-            'schema' => $schema,
-
-            /*
-            |--------------------------------------------------------------------------
             | Connection Settings
             |--------------------------------------------------------------------------
             |
@@ -122,6 +129,29 @@ return [
             */
 
             'settings' => [
+
+                /*
+                |--------------------------------------------------------------------------
+                | Schema
+                |--------------------------------------------------------------------------
+                |
+                | The schema class to use for retrieving attributes and generating models.
+                |
+                | You can also set this option to `null` to use the default schema class.
+                |
+                | For OpenLDAP, you must use the schema:
+                |
+                |   Adldap\Schemas\OpenLDAP::class
+                |
+                | For FreeIPA, you must use the schema:
+                |
+                |   Adldap\Schemas\FreeIPA::class
+                |
+                | Custom schema classes must implement Adldap\Schemas\SchemaInterface
+                |
+                */
+
+                'schema' => $schema,
 
                 /*
                 |--------------------------------------------------------------------------
@@ -254,6 +284,7 @@ return [
                 'use_ssl' => env('ADLDAP_USE_SSL', false),
                 'use_tls' => env('ADLDAP_USE_TLS', false),
 
+                'custom_options' => $sslOptions,
             ],
 
         ],

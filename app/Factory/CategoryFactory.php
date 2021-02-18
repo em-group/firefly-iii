@@ -1,22 +1,22 @@
 <?php
 /**
  * CategoryFactory.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection MultipleReturnStatementsInspection */
 declare(strict_types=1);
@@ -24,8 +24,10 @@ declare(strict_types=1);
 namespace FireflyIII\Factory;
 
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Category;
 use FireflyIII\User;
+use Illuminate\Database\QueryException;
 use Log;
 
 /**
@@ -33,19 +35,7 @@ use Log;
  */
 class CategoryFactory
 {
-    /** @var User */
-    private $user;
-
-    /**
-     * Constructor.
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
+    private User $user;
 
     /**
      * @param string $name
@@ -62,7 +52,7 @@ class CategoryFactory
      * @param null|string $categoryName
      *
      * @return Category|null
-     *
+     * @throws FireflyException
      */
     public function findOrCreate(?int $categoryId, ?string $categoryName): ?Category
     {
@@ -88,13 +78,17 @@ class CategoryFactory
             if (null !== $category) {
                 return $category;
             }
-
-            return Category::create(
-                [
-                    'user_id' => $this->user->id,
-                    'name'    => $categoryName,
-                ]
-            );
+            try {
+                return Category::create(
+                    [
+                        'user_id' => $this->user->id,
+                        'name'    => $categoryName,
+                    ]
+                );
+            } catch (QueryException $e) {
+                Log::error($e->getMessage());
+                throw new FireflyException('400003: Could not store new category.');
+            }
         }
 
         return null;

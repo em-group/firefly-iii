@@ -1,22 +1,22 @@
 <?php
 /**
  * CreateStuff.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,12 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Support\Http\Controllers;
 
 use Carbon\Carbon;
-use Exception;
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Requests\NewUserFormRequest;
-use FireflyIII\Import\JobConfiguration\JobConfigurationInterface;
-use FireflyIII\Import\Storage\ImportArrayStorage;
-use FireflyIII\Models\ImportJob;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\User;
@@ -174,46 +169,4 @@ trait CreateStuff
         );
     }
 
-    /**
-     * Make a configurator object.
-     *
-     * @param ImportJob $importJob
-     *
-     * @return JobConfigurationInterface
-     *
-     * @throws FireflyException
-     */
-    protected function makeConfigurator(ImportJob $importJob): JobConfigurationInterface // make object
-    {
-        $key       = sprintf('import.configuration.%s', $importJob->provider);
-        $className = (string)config($key);
-        if (null === $className || !class_exists($className)) {
-            throw new FireflyException(sprintf('Cannot find configurator class for job with provider "%s".', $importJob->provider)); // @codeCoverageIgnore
-        }
-        Log::debug(sprintf('Going to create class "%s"', $className));
-        /** @var JobConfigurationInterface $configurator */
-        $configurator = app($className);
-        $configurator->setImportJob($importJob);
-
-        return $configurator;
-    }
-
-    /**
-     * Store the transactions.
-     *
-     * @param ImportJob $importJob
-     *
-     * @throws FireflyException
-     */
-    protected function storeTransactions(ImportJob $importJob): void // make object + execute
-    {
-        /** @var ImportArrayStorage $storage */
-        $storage = app(ImportArrayStorage::class);
-        $storage->setImportJob($importJob);
-        try {
-            $storage->store();
-        } catch (FireflyException|Exception $e) {
-            throw new FireflyException($e->getMessage());
-        }
-    }
 }

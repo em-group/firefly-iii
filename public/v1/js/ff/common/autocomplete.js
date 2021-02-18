@@ -1,21 +1,21 @@
 /*
  * autocomplete.js
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /**
@@ -27,7 +27,7 @@ function initTagsAC() {
                                      datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                                      queryTokenizer: Bloodhound.tokenizers.whitespace,
                                      prefetch: {
-                                         url: 'json/tags?uid=' + uid,
+                                         url: 'api/v1/autocomplete/tags?uid=' + uid,
                                          filter: function (list) {
                                              return $.map(list, function (item) {
                                                  return {name: item.name};
@@ -35,7 +35,7 @@ function initTagsAC() {
                                          }
                                      },
                                      remote: {
-                                         url: 'json/tags?search=%QUERY&uid=' + uid,
+                                         url: 'api/v1/autocomplete/tags?query=%QUERY&uid=' + uid,
                                          wildcard: '%QUERY',
                                          filter: function (list) {
                                              return $.map(list, function (item) {
@@ -74,7 +74,7 @@ function initExpenseACField(fieldName) {
                                            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                                            queryTokenizer: Bloodhound.tokenizers.whitespace,
                                            prefetch: {
-                                               url: 'json/expense-accounts?uid=' + uid,
+                                               url: 'api/v1/autocomplete/accounts?types=Expense account&uid=' + uid,
                                                filter: function (list) {
                                                    return $.map(list, function (name) {
                                                        return {name: name};
@@ -82,7 +82,7 @@ function initExpenseACField(fieldName) {
                                                }
                                            },
                                            remote: {
-                                               url: 'json/expense-accounts?search=%QUERY&uid=' + uid,
+                                               url: 'api/v1/autocomplete/accounts?types=Expense account&query=%QUERY&uid=' + uid,
                                                wildcard: '%QUERY',
                                                filter: function (list) {
                                                    return $.map(list, function (name) {
@@ -113,7 +113,7 @@ function initRevenueACField(fieldName) {
                                              datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                                              queryTokenizer: Bloodhound.tokenizers.whitespace,
                                              prefetch: {
-                                                 url: 'json/revenue-accounts?uid=' + uid,
+                                                 url: 'api/v1/autocomplete/accounts?types=Revenue account&uid=' + uid,
                                                  filter: function (list) {
                                                      return $.map(list, function (name) {
                                                          return {name: name};
@@ -121,7 +121,7 @@ function initRevenueACField(fieldName) {
                                                  }
                                              },
                                              remote: {
-                                                 url: 'json/revenue-accounts?search=%QUERY&uid=' + uid,
+                                                 url: 'api/v1/autocomplete/accounts?types=Revenue account&query=%QUERY&uid=' + uid,
                                                  wildcard: '%QUERY',
                                                  filter: function (list) {
                                                      return $.map(list, function (name) {
@@ -143,7 +143,7 @@ function initCategoryAC() {
                                         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                                         queryTokenizer: Bloodhound.tokenizers.whitespace,
                                         prefetch: {
-                                            url: 'json/categories?uid=' + uid,
+                                            url: 'api/v1/autocomplete/categories?uid=' + uid,
                                             filter: function (list) {
                                                 return $.map(list, function (object) {
                                                     return {name: object.name};
@@ -151,7 +151,7 @@ function initCategoryAC() {
                                             }
                                         },
                                         remote: {
-                                            url: 'json/categories?search=%QUERY&uid=' + uid,
+                                            url: 'api/v1/autocomplete/categories?query=%QUERY&uid=' + uid,
                                             wildcard: '%QUERY',
                                             filter: function (list) {
                                                 return $.map(list, function (object) {

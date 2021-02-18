@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'A Firefly III több pénznemet támogat. Bár alapértelmezett az euró, az amerikai dollárra és számos más valutára is átállítható. Amint látható, néhány pénznem már szerepel a rendszerben, de hozzáadható bármilyen saját pénznem is. Az alapértelmezett pénznem módosítása nem változtatja meg a meglévő tranzakciók pénznemét: a Firefly III egyidejűleg több pénznem használatát is támogatja.',
     'transactions-index'     => 'Ezek a kiadások, bevételek és átvezetések nem különösebben érdekesek. Automatikusan keletkeztek.',
     'piggy-banks-index'      => 'Mint látható, három malacpersely van. A plusz és a mínusz jelekkel lehet a pénzmennyiséget állítani a malacperselyekben. A malacperselyek beállításait a nevükre kattintva lehet elvégezni.',
-    'import-index'           => 'A Firefly III-ba bármilyen CSV fájl importálható. Támogatja az adatok importálását bunq és Spectre rendszerekből. A más bankok és pénzügyi szolgáltatóktól való importálás a jövőben elérhető lesz. Bemutató felhasználóként azonban csak a "hamis"-szolgáltatókat láthatja működés közben. Ez létrehoz néhány véletlenszerű ügyletek, hogy szemléltesse, hogy hogyan működik a folyamat.',
     'profile-index'          => 'Ne feledje, hogy a bemutató oldal adatai négyóránként automatikusan visszaállnak. A hozzáférése bármikor visszavonható. Ez automatikusan történik, és nem egy hiba.',
 ];

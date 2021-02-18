@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Vonatkozó szabályok',
     'active'                  => 'Aktív?',
     'percentage'              => '%',
-    'next_due'                => 'Next due',
+    'recurring_transaction'   => 'Ismétlődő tranzakció',
+    'next_due'                => 'Következő esedékesség',
     'transaction_type'        => 'Típus',
     'lastActivity'            => 'Utolsó aktivitás',
     'balanceDiff'             => 'Egyenleg különbség',
-    'matchesOn'               => 'Találatok',
     'other_meta_data'         => 'Egyéb metaadat',
     'account_type'            => 'Bankszámla típusa',
     'created_at'              => 'Létrehozva',
     'account'                 => 'Bankszámla',
+    'external_uri'            => 'Külső hivatkozás',
     'matchingAmount'          => 'Összeg',
-    'split_number'            => 'Felosztás #',
     'destination'             => 'Cél',
     'source'                  => 'Forrás',
     'next_expected_match'     => 'Következő várható egyezés',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Ismétlődések',
     'description'             => 'Leírás',
     'amount'                  => 'Összeg',
-    'internal_reference'      => 'Belső hivatkozás',
     'date'                    => 'Dátum',
     'interest_date'           => 'Kamatfizetési időpont',
     'book_date'               => 'Könyvelés dátuma',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Lejárati időpont',
     'payment_date'            => 'Fizetés dátuma',
     'invoice_date'            => 'Számla dátuma',
-    'interal_reference'       => 'Belső hivatkozás',
+    'internal_reference'      => 'Belső hivatkozás',
     'notes'                   => 'Megjegyzések',
     'from'                    => 'Honnan',
     'piggy_bank'              => 'Malacpersely',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Mellékletek száma',
     'bills_count'             => 'Számlák száma',
     'categories_count'        => 'Kategóriák száma',
-    'import_jobs_count'       => 'Import folyamatok száma',
     'budget_count'            => 'Költségkeretek száma',
     'rule_and_groups_count'   => 'Szabályok és szabálycsoportok száma',
     'tags_count'              => 'Címkék száma',
@@ -105,20 +103,18 @@ return [
     'sum_withdrawals'         => 'Költségek összege',
     'sum_deposits'            => 'Bevételek összege',
     'sum_transfers'           => 'Átvezetések összege',
+    'sum_reconciliations'     => 'Egyeztetések összege',
     'reconcile'               => 'Egyeztetés',
-    'account_on_spectre'      => 'Fiók (Spectre)',
-    'account_on_ynab'         => 'Számla (YNAB)',
-    'do_import'               => 'Importálás ebből a fiókból:',
-    'sepa_ct_id'              => 'SEPA End to End Identifier',
+    'sepa_ct_id'              => 'SEPA végpontok közti azonosító',
     'sepa_ct_op'              => 'SEPA ellenszámla azonosító',
     'sepa_db'                 => 'SEPA megbízás azonosító',
     'sepa_country'            => 'SEPA ország',
-    'sepa_cc'                 => 'SEPA Clearing Code',
-    'sepa_ep'                 => 'SEPA External Purpose',
+    'sepa_cc'                 => 'SEPA engedélykód',
+    'sepa_ep'                 => 'SEPA üzenetformátum',
     'sepa_ci'                 => 'SEPA hitelező azonosító',
-    'sepa_batch_id'           => 'SEPA Batch ID',
+    'sepa_batch_id'           => 'SEPA Batch azonosító',
     'external_id'             => 'Külső azonosító',
-    'account_at_bunq'         => 'Account with bunq',
+    'account_at_bunq'         => 'Bunq fiók',
     'file_name'               => 'Fájlnév',
     'file_size'               => 'Fájl méret',
     'file_type'               => 'Fájltípus',

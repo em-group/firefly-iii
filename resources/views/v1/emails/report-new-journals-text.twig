@@ -1,6 +1,5 @@
 {% include 'emails.header-text' %}
-{% if transformed|length == 1 %}{{ config('app.name') }} has created a transaction for you.{% endif %}
-{% if transformed|length > 1 %}{{ config('app.name') }} has created {{ groups.count }} transactions for you.{% endif %}
+{{ trans_choice('email.new_journals_header', transformed|length )|raw }}
 
 
 {% for group in transformed %}

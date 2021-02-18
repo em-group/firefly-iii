@@ -1,21 +1,21 @@
 /*
  * reconcile.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /** global: overviewUri, transactionsUri, indexUri,accounting */
@@ -36,9 +36,9 @@ $(function () {
     Respond to changes in balance statements.
      */
     $('input[type="number"]').on('change', function () {
-        console.log('On type=number change.');
+        //console.log('On type=number change.');
         if (reconcileStarted) {
-            console.log('Reconcile has started.');
+            //console.log('Reconcile has started.');
             calculateBalanceDifference();
             difference = balanceDifference - selectedAmount;
             updateDifference();
@@ -51,9 +51,9 @@ $(function () {
     Respond to changes in the date range.
      */
     $('input[type="date"]').on('change', function () {
-        console.log('On type=date change.');
+        //console.log('On type=date change.');
         if (reconcileStarted) {
-            console.log('Reconcile has started.');
+            //console.log('Reconcile has started.');
             // hide original instructions.
             $('.select_transactions_instruction').hide();
 
@@ -71,23 +71,65 @@ $(function () {
 
 });
 
+function selectAllReconcile(e) {
+    // loop all, check.
+    var el = $(e.target);
+    var doCheck = true;
+    if (el.prop('checked') === true) {
+        $('.check_all_btn').prop('checked', true);
+    }
+    if (el.prop('checked') === false) {
+        $('.check_all_btn').prop('checked', false);
+        doCheck = false;
+    }
+
+    $('.reconcile_checkbox').each(function (i, v) {
+        var check = $(v);
+        var amount = parseFloat(check.val());
+        var journalId = parseInt(check.data('id'));
+        var identifier = 'checked_' + journalId;
+        console.log('in selectAllReconcile(' + journalId + ') with amount ' + amount + ' and selected amount ' + selectedAmount);
+
+        // do nothing if line is already in target state
+        if (check.prop('checked') === doCheck )
+            return;
+    
+        check.prop('checked', doCheck);
+        // if checked, add to selected amount
+        if (doCheck === true && check.data('younger') === false) {
+            selectedAmount = selectedAmount - amount;
+            //console.log('checked = true and younger = false so selected amount = ' + selectedAmount);
+            localStorage.setItem(identifier, 'true');
+        }
+        if (doCheck === false && check.data('younger') === false) {
+            selectedAmount = selectedAmount + amount;
+            //console.log('checked = false and younger = false so selected amount = ' + selectedAmount);
+            localStorage.setItem(identifier, 'false');
+        }
+        difference = balanceDifference - selectedAmount;
+        //console.log('Difference is now ' + difference);
+    });
+
+    updateDifference();
+}
+
 function storeReconcile() {
-    console.log('in storeReconcile()');
+    //console.log('in storeReconcile()');
     // get modal HTML:
     var ids = [];
     $.each($('.reconcile_checkbox:checked'), function (i, v) {
         var obj = $(v);
         if (obj.data('inrange') === true) {
-            console.log('Added item with amount to list of checked ' + obj.val());
+            //console.log('Added item with amount to list of checked ' + obj.val());
             ids.push(obj.data('id'));
         } else {
-            console.log('Ignored item with amount because is not in range ' + obj.val());
+            //console.log('Ignored item with amount because is not in range ' + obj.val());
         }
     });
     var cleared = [];
     $.each($('input[class="cleared"]'), function (i, v) {
         var obj = $(v);
-        console.log('Added item with amount to list of cleared ' + obj.val());
+        //console.log('Added item with amount to list of cleared ' + obj.val());
         // todo here we need to check previous transactions etc.
         cleared.push(obj.data('id'));
     });
@@ -116,18 +158,22 @@ function checkReconciledBox(e) {
 
     var el = $(e.target);
     var amount = parseFloat(el.val());
-    console.log('in checkReconciledBox() with amount ' + amount + ' and selected amount ' + selectedAmount);
+    var journalId = parseInt(el.data('id'));
+    var identifier = 'checked_' + journalId;
+    //console.log('in checkReconciledBox(' + journalId + ') with amount ' + amount + ' and selected amount ' + selectedAmount);
     // if checked, add to selected amount
     if (el.prop('checked') === true && el.data('younger') === false) {
         selectedAmount = selectedAmount - amount;
-        console.log('checked = true and younger = false so selected amount = ' + selectedAmount);
+        //console.log('checked = true and younger = false so selected amount = ' + selectedAmount);
+        localStorage.setItem(identifier, 'true');
     }
     if (el.prop('checked') === false && el.data('younger') === false) {
         selectedAmount = selectedAmount + amount;
-        console.log('checked = false and younger = false so selected amount = ' + selectedAmount);
+        //console.log('checked = false and younger = false so selected amount = ' + selectedAmount);
+        localStorage.setItem(identifier, 'false');
     }
     difference = balanceDifference - selectedAmount;
-    console.log('Difference is now ' + difference);
+    //console.log('Difference is now ' + difference);
     updateDifference();
 }
 
@@ -137,7 +183,7 @@ function checkReconciledBox(e) {
  * and put it in balanceDifference.
  */
 function calculateBalanceDifference() {
-    console.log('in calculateBalanceDifference()');
+    //console.log('in calculateBalanceDifference()');
     var startBalance = parseFloat($('input[name="start_balance"]').val());
     var endBalance = parseFloat($('input[name="end_balance"]').val());
     balanceDifference = startBalance - endBalance;
@@ -198,6 +244,10 @@ function includeClearedTransactions() {
 function placeTransactions(data) {
     console.log('in placeTransactions()');
     $('#transactions_holder').empty().html(data.html);
+
+    // add checkbox thing
+    $('.check_all_btn').click(selectAllReconcile);
+
     selectedAmount = 0;
     // update start + end balance when user has not touched them.
     if (!changedBalances) {
@@ -214,6 +264,10 @@ function placeTransactions(data) {
     difference = balanceDifference - selectedAmount;
     updateDifference();
 
+    // loop al placed checkboxes and check them if necessary.
+    restoreFromLocalStorage();
+
+
     // enable the check buttons:
     $('.reconcile_checkbox').prop('disabled', false).unbind('change').change(checkReconciledBox);
 
@@ -221,6 +275,30 @@ function placeTransactions(data) {
     $('.select_transactions_instruction').show();
 
     $('.store_reconcile').prop('disabled', false);
+}
+
+function restoreFromLocalStorage() {
+    $('.reconcile_checkbox').each(function (i, v) {
+        var el = $(v);
+        var journalId = el.data('id')
+        var identifier = 'checked_' + journalId;
+        var amount = parseFloat(el.val());
+        if (localStorage.getItem(identifier) === 'true') {
+            el.prop('checked', true);
+            // do balance thing:
+            console.log('in restoreFromLocalStorage(' + journalId + ') with amount ' + amount + ' and selected amount ' + selectedAmount);
+            // if checked, add to selected amount
+            if (el.data('younger') === false) {
+                selectedAmount = selectedAmount - amount;
+                console.log('checked = true and younger = false so selected amount = ' + selectedAmount);
+                localStorage.setItem(identifier, 'true');
+            }
+            difference = balanceDifference - selectedAmount;
+            console.log('Difference is now ' + difference);
+        }
+
+    });
+    updateDifference();
 }
 
 /**

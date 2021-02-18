@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="fpt/t-2/css/bootstrap.min.css">
     <link rel="stylesheet" href="fpt/SO/css/styles.css">
-    <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous" nonce="{{ JS_NONCE }}"></script>
 
     <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
     <style>
@@ -401,10 +401,10 @@
     </div>
 </footer>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="/fpt/t-2/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/t-2/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
 
-<script>
+<script nonce="{{ JS_NONCE }}">
     $(function(){
         window.gotoSection = function(section){
             let e = $('#terms-container');

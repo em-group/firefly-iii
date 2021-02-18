@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * FixUnevenAmount.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
@@ -26,6 +27,7 @@ use DB;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use Illuminate\Console\Command;
+use Log;
 use stdClass;
 
 /**
@@ -46,6 +48,7 @@ class FixUnevenAmount extends Command
      */
     protected $signature = 'firefly-iii:fix-uneven-amount';
 
+
     /**
      * Execute the console command.
      *
@@ -53,6 +56,7 @@ class FixUnevenAmount extends Command
      */
     public function handle(): int
     {
+        Log::debug(sprintf('Now in %s', __METHOD__));
         $start = microtime(true);
         $count = 0;
         // get invalid journals
@@ -63,6 +67,9 @@ class FixUnevenAmount extends Command
         /** @var stdClass $entry */
         foreach ($journals as $entry) {
             if (0 !== bccomp((string)$entry->the_sum, '0')) {
+                $message = sprintf('Sum of journal #%d is %s instead of zero.', $entry->transaction_journal_id, $entry->the_sum);
+                $this->warn($message);
+                Log::warning($message);
                 $this->fixJournal((int)$entry->transaction_journal_id);
                 $count++;
             }
@@ -89,11 +96,42 @@ class FixUnevenAmount extends Command
         }
         /** @var Transaction $source */
         $source = $journal->transactions()->where('amount', '<', 0)->first();
+
+        if (null === $source) {
+            $this->error(
+                sprintf(
+                    'Journal #%d ("%s") has no source transaction. It will be deleted to maintain database consistency.',
+                    $journal->id ?? 0,
+                    $journal->description ?? ''
+                )
+            );
+            Transaction::where('transaction_journal_id', $journal->id ?? 0)->forceDelete();
+            TransactionJournal::where('id', $journal->description ?? 0)->forceDelete();
+
+            return;
+        }
+
         $amount = bcmul('-1', (string)$source->amount);
 
         // fix amount of destination:
         /** @var Transaction $destination */
-        $destination         = $journal->transactions()->where('amount', '>', 0)->first();
+        $destination = $journal->transactions()->where('amount', '>', 0)->first();
+
+        if (null === $destination) {
+            $this->error(
+                sprintf(
+                    'Journal #%d ("%s") has no destination transaction. It will be deleted to maintain database consistency.',
+                    $journal->id ?? 0,
+                    $journal->description ?? ''
+                )
+            );
+
+            Transaction::where('transaction_journal_id', $journal->id ?? 0)->forceDelete();
+            TransactionJournal::where('id', $journal->description ?? 0)->forceDelete();
+
+            return;
+        }
+
         $destination->amount = $amount;
         $destination->save();
 

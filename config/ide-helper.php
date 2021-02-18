@@ -1,8 +1,27 @@
 <?php
+/**
+ * ide-helper.php
+ * Copyright (c) 2019 james@firefly-iii.org.
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 declare(strict_types=1);
 
-return array(
-
+return [
     /*
     |--------------------------------------------------------------------------
     | Filename & Format
@@ -12,9 +31,9 @@ return array(
     |
     */
 
-    'filename'  => '_ide_helper',
-    'format'    => 'php',
-    
+    'filename' => '_ide_helper',
+    'format'   => 'php',
+
     'meta_filename' => '.phpstorm.meta.php',
 
     /*
@@ -66,9 +85,9 @@ return array(
 
     'include_helpers' => false,
 
-    'helper_files' => array(
-        base_path().'/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
-    ),
+    'helper_files' => [
+        base_path() . '/vendor/laravel/framework/src/Illuminate/Support/helpers.php',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -80,10 +99,9 @@ return array(
     |
     */
 
-    'model_locations' => array(
+    'model_locations' => [
         'app',
-    ),
-
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -94,13 +112,13 @@ return array(
     |
     */
 
-    'extra' => array(
-        'Eloquent' => array('Illuminate\Database\Eloquent\Builder', 'Illuminate\Database\Query\Builder'),
-        'Session' => array('Illuminate\Session\Store'),
-    ),
+    'extra' => [
+        'Eloquent' => ['Illuminate\Database\Eloquent\Builder', 'Illuminate\Database\Query\Builder'],
+        'Session'  => ['Illuminate\Session\Store'],
+    ],
 
-    'magic' => array(
-        'Log' => array(
+    'magic' => [
+        'Log' => [
             'debug'     => 'Monolog\Logger::addDebug',
             'info'      => 'Monolog\Logger::addInfo',
             'notice'    => 'Monolog\Logger::addNotice',
@@ -109,8 +127,8 @@ return array(
             'critical'  => 'Monolog\Logger::addCritical',
             'alert'     => 'Monolog\Logger::addAlert',
             'emergency' => 'Monolog\Logger::addEmergency',
-        )
-    ),
+        ],
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -122,9 +140,9 @@ return array(
     |
     */
 
-    'interfaces' => array(
+    'interfaces'                  => [
 
-    ),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -152,9 +170,9 @@ return array(
     |  ),
     |
     */
-    'custom_db_types' => array(
+    'custom_db_types'             => [
 
-    ),
+    ],
 
     /*
      |--------------------------------------------------------------------------
@@ -190,10 +208,10 @@ return array(
     | Cast the given "real type" to the given "type".
     |
     */
-   'type_overrides' => array(
+    'type_overrides'              => [
         'integer' => 'int',
         'boolean' => 'bool',
-   ),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -204,6 +222,6 @@ return array(
     | magic methods and properties.
     |
     */
-    'include_class_docblocks' => false,
+    'include_class_docblocks'     => false,
 
-);
+];

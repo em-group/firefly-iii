@@ -1,30 +1,33 @@
 <?php
 /**
  * SearchController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Support\Search\SearchInterface;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Log;
 use Throwable;
 
@@ -43,7 +46,7 @@ class SearchController extends Controller
         $this->middleware(
             static function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-search');
-                app('view')->share('title', (string)trans('firefly.search'));
+                app('view')->share('title', (string) trans('firefly.search'));
 
                 return $next($request);
             }
@@ -56,19 +59,40 @@ class SearchController extends Controller
      * @param Request         $request
      * @param SearchInterface $searcher
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index(Request $request, SearchInterface $searcher)
     {
-        $fullQuery = (string)$request->get('search');
-        $page      = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
+        // search params:
+        $fullQuery        = (string) $request->get('search');
+        $page             = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
+        $ruleId           = (int) $request->get('rule');
+        $rule             = null;
+        $ruleChanged      = false;
+        $longQueryWarning = false;
+
+        // find rule, check if query is different, offer to update.
+        $ruleRepository = app(RuleRepositoryInterface::class);
+        $rule           = $ruleRepository->find($ruleId);
+        if (null !== $rule) {
+            $originalQuery = $ruleRepository->getSearchQuery($rule);
+            if ($originalQuery !== $fullQuery) {
+                $ruleChanged = true;
+            }
+        }
+        if (strlen($fullQuery) > 250) {
+            $longQueryWarning = true;
+        }
         // parse search terms:
         $searcher->parseQuery($fullQuery);
-        $query     = $searcher->getWordsAsString();
-        $modifiers = $searcher->getModifiers();
-        $subTitle  = (string)trans('breadcrumbs.search_result', ['query' => $query]);
 
-        return view('search.index', compact('query', 'modifiers', 'page','fullQuery', 'subTitle'));
+        // words from query and operators:
+        $query     = $searcher->getWordsAsString();
+        $operators = $searcher->getOperators();
+
+        $subTitle = (string) trans('breadcrumbs.search_result', ['query' => $fullQuery]);
+
+        return view('search.index', compact('query', 'longQueryWarning', 'operators', 'page', 'rule', 'fullQuery', 'subTitle', 'ruleId', 'ruleChanged'));
     }
 
     /**
@@ -77,22 +101,23 @@ class SearchController extends Controller
      * @param Request         $request
      * @param SearchInterface $searcher
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function search(Request $request, SearchInterface $searcher): JsonResponse
     {
-        $fullQuery = (string)$request->get('query');
-        $page      = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
+        $fullQuery = (string) $request->get('query');
+        $page      = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
 
         $searcher->parseQuery($fullQuery);
+
         $searcher->setPage($page);
-        $searcher->setLimit((int)config('firefly.search_result_limit'));
         $groups     = $searcher->searchTransactions();
         $hasPages   = $groups->hasPages();
         $searchTime = round($searcher->searchTime(), 3); // in seconds
         $parameters = ['search' => $fullQuery];
         $url        = route('search.index') . '?' . http_build_query($parameters);
         $groups->setPath($url);
+
         try {
             $html = view('search.search', compact('groups', 'hasPages', 'searchTime'))->render();
             // @codeCoverageIgnoreStart

@@ -1,22 +1,22 @@
 <?php
 /**
- * RecurringTransactionTransformer.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * RecurrenceTransformer.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -63,9 +63,6 @@ class RecurrenceTransformer extends AbstractTransformer
         $this->factory     = app(CategoryFactory::class);
         $this->budgetRepos = app(BudgetRepositoryInterface::class);
 
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
     }
 
     /**
@@ -83,12 +80,14 @@ class RecurrenceTransformer extends AbstractTransformer
         $this->piggyRepos->setUser($recurrence->user);
         $this->factory->setUser($recurrence->user);
         $this->budgetRepos->setUser($recurrence->user);
+        Log::debug('Set user.');
 
         $shortType = (string)config(sprintf('firefly.transactionTypesToShort.%s', $recurrence->transactionType->type));
         $notes     = $this->repository->getNoteText($recurrence);
         $reps      = 0 === (int)$recurrence->repetitions ? null : (int)$recurrence->repetitions;
+        Log::debug('Get basic data.');
         // basic data.
-        $return = [
+        return [
             'id'                => (int)$recurrence->id,
             'created_at'        => $recurrence->created_at->toAtomString(),
             'updated_at'        => $recurrence->updated_at->toAtomString(),
@@ -111,9 +110,6 @@ class RecurrenceTransformer extends AbstractTransformer
                 ],
             ],
         ];
-
-
-        return $return;
     }
 
     /**
@@ -124,28 +120,26 @@ class RecurrenceTransformer extends AbstractTransformer
      */
     private function getRepetitions(Recurrence $recurrence): array
     {
+        Log::debug('Now in getRepetitions().');
         $fromDate = $recurrence->latest_date ?? $recurrence->first_date;
-        // date in the past? use today:
-        $today    = new Carbon;
-        $fromDate = $fromDate->lte($today) ? $today : $fromDate;
         $return   = [];
 
         /** @var RecurrenceRepetition $repetition */
         foreach ($recurrence->recurrenceRepetitions as $repetition) {
             $repetitionArray = [
-                'id'          => $repetition->id,
+                'id'          => (int) $repetition->id,
                 'created_at'  => $repetition->created_at->toAtomString(),
                 'updated_at'  => $repetition->updated_at->toAtomString(),
                 'type'        => $repetition->repetition_type,
                 'moment'      => $repetition->repetition_moment,
-                'skip'        => (int)$repetition->repetition_skip,
-                'weekend'     => (int)$repetition->weekend,
+                'skip'        => (int) $repetition->repetition_skip,
+                'weekend'     => (int) $repetition->weekend,
                 'description' => $this->repository->repetitionDescription($repetition),
                 'occurrences' => [],
             ];
 
             // get the (future) occurrences for this specific type of repetition:
-            $occurrences = $this->repository->getXOccurrences($repetition, $fromDate, 5);
+            $occurrences = $this->repository->getXOccurrencesSince($repetition, $fromDate, new Carbon, 5);
             /** @var Carbon $carbon */
             foreach ($occurrences as $carbon) {
                 $repetitionArray['occurrences'][] = $carbon->format('Y-m-d');
@@ -166,6 +160,7 @@ class RecurrenceTransformer extends AbstractTransformer
      */
     private function getTransactionMeta(RecurrenceTransaction $transaction, array $array): array
     {
+        Log::debug(sprintf('Now in %s', __METHOD__));
         $array['tags']            = [];
         $array['category_id']     = null;
         $array['category_name']   = null;
@@ -187,21 +182,21 @@ class RecurrenceTransformer extends AbstractTransformer
                 case 'piggy_bank_id':
                     $piggy = $this->piggyRepos->findNull((int)$transactionMeta->value);
                     if (null !== $piggy) {
-                        $array['piggy_bank_id']   = $piggy->id;
+                        $array['piggy_bank_id']   = (int) $piggy->id;
                         $array['piggy_bank_name'] = $piggy->name;
                     }
                     break;
                 case 'category_name':
                     $category = $this->factory->findOrCreate(null, $transactionMeta->value);
                     if (null !== $category) {
-                        $array['category_id']   = $category->id;
+                        $array['category_id']   = (int) $category->id;
                         $array['category_name'] = $category->name;
                     }
                     break;
                 case 'budget_id':
                     $budget = $this->budgetRepos->findNull((int)$transactionMeta->value);
                     if (null !== $budget) {
-                        $array['budget_id']   = $budget->id;
+                        $array['budget_id']   = (int) $budget->id;
                         $array['budget_name'] = $budget->name;
                     }
                     break;
@@ -219,6 +214,7 @@ class RecurrenceTransformer extends AbstractTransformer
      */
     private function getTransactions(Recurrence $recurrence): array
     {
+        Log::debug(sprintf('Now in %s', __METHOD__));
         $return = [];
         // get all transactions:
         /** @var RecurrenceTransaction $transaction */
@@ -229,10 +225,12 @@ class RecurrenceTransformer extends AbstractTransformer
             $foreignCurrencyCode   = null;
             $foreignCurrencySymbol = null;
             $foreignCurrencyDp     = null;
+            $foreignCurrencyId     = null;
             if (null !== $transaction->foreign_currency_id) {
+                $foreignCurrencyId     = (int) $transaction->foreign_currency_id;
                 $foreignCurrencyCode   = $transaction->foreignCurrency->code;
                 $foreignCurrencySymbol = $transaction->foreignCurrency->symbol;
-                $foreignCurrencyDp     = $transaction->foreignCurrency->decimal_places;
+                $foreignCurrencyDp     = (int) $transaction->foreignCurrency->decimal_places;
             }
 
             // source info:
@@ -242,7 +240,7 @@ class RecurrenceTransformer extends AbstractTransformer
             $sourceIban = null;
             if (null !== $sourceAccount) {
                 $sourceName = $sourceAccount->name;
-                $sourceId   = $sourceAccount->id;
+                $sourceId   = (int) $sourceAccount->id;
                 $sourceType = $sourceAccount->accountType->type;
                 $sourceIban = $sourceAccount->iban;
             }
@@ -252,23 +250,23 @@ class RecurrenceTransformer extends AbstractTransformer
             $destinationIban = null;
             if (null !== $destinationAccount) {
                 $destinationName = $destinationAccount->name;
-                $destinationId   = $destinationAccount->id;
+                $destinationId   = (int) $destinationAccount->id;
                 $destinationType = $destinationAccount->accountType->type;
                 $destinationIban = $destinationAccount->iban;
             }
 
 
-            $amount        = round($transaction->amount, $transaction->transactionCurrency->decimal_places);
+            $amount        = number_format((float) $transaction->amount, $transaction->transactionCurrency->decimal_places, '.', '');
             $foreignAmount = null;
             if (null !== $transaction->foreign_currency_id && null !== $transaction->foreign_amount) {
-                $foreignAmount = round($transaction->foreign_amount, $foreignCurrencyDp);
+                $foreignAmount = number_format((float) $transaction->foreign_amount, $foreignCurrencyDp, '.', '');
             }
             $transactionArray = [
-                'currency_id'                     => $transaction->transaction_currency_id,
+                'currency_id'                     => (int) $transaction->transaction_currency_id,
                 'currency_code'                   => $transaction->transactionCurrency->code,
                 'currency_symbol'                 => $transaction->transactionCurrency->symbol,
-                'currency_decimal_places'         => $transaction->transactionCurrency->decimal_places,
-                'foreign_currency_id'             => $transaction->foreign_currency_id,
+                'currency_decimal_places'         => (int) $transaction->transactionCurrency->decimal_places,
+                'foreign_currency_id'             => $foreignCurrencyId,
                 'foreign_currency_code'           => $foreignCurrencyCode,
                 'foreign_currency_symbol'         => $foreignCurrencySymbol,
                 'foreign_currency_decimal_places' => $foreignCurrencyDp,

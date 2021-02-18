@@ -1,27 +1,30 @@
 <?php
 /**
  * BudgetLimitRequest.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Requests;
+
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class BudgetLimitRequest
@@ -29,8 +32,10 @@ namespace FireflyIII\Api\V1\Requests;
  * @codeCoverageIgnore
  * TODO AFTER 4.8,0: split this into two request classes.
  */
-class BudgetLimitRequest extends Request
+class BudgetLimitRequest extends FormRequest
 {
+    use ConvertsDataTypes;
+
     /**
      * Authorize logged in users.
      *
@@ -49,7 +54,7 @@ class BudgetLimitRequest extends Request
      */
     public function getAll(): array
     {
-        return [
+        $data = [
             'budget_id'     => $this->integer('budget_id'),
             'start'         => $this->date('start'),
             'end'           => $this->date('end'),
@@ -57,6 +62,12 @@ class BudgetLimitRequest extends Request
             'currency_id'   => $this->integer('currency_id'),
             'currency_code' => $this->string('currency_code'),
         ];
+        // if request has a budget already, drop the rule.
+        $budget = $this->route()->parameter('budget');
+        if (null !== $budget) {
+            $data['budget_id'] = $budget->id;
+        }
+        return $data;
     }
 
     /**
@@ -70,7 +81,7 @@ class BudgetLimitRequest extends Request
             'budget_id'     => 'required|exists:budgets,id|belongsToUser:budgets,id',
             'start'         => 'required|before:end|date',
             'end'           => 'required|after:start|date',
-            'amount'        => 'required|more:0',
+            'amount'        => 'required|gt:0',
             'currency_id'   => 'numeric|exists:transaction_currencies,id',
             'currency_code' => 'min:3|max:3|exists:transaction_currencies,code',
         ];

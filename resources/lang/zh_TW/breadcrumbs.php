@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => '編輯小豬撲滿 ":name"',
     'preferences'            => '偏好設定',
     'profile'                => '個人檔案',
+    'accounts'               => 'Accounts',
     'changePassword'         => '更改您的密碼',
     'change_email'           => '更改您的電子郵件地址',
     'bills'                  => '帳單',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => '編輯交易 ":description"',
     'edit_reconciliation'    => '編輯 ":description"',
     'delete_journal'         => '刪除交易 ":description"',
+    'delete_group'           => 'Delete transaction ":description"',
     'tags'                   => '標籤',
     'createTag'              => '建立新標籤',
     'edit_tag'               => '編輯標籤 ":tag"',
     'delete_tag'             => '刪除標籤 ":tag"',
     'delete_journal_link'    => '刪除交易記錄之間的連結',
+    'telemetry_index'        => 'Telemetry',
+    'telemetry_view'         => 'View telemetry',
+    'edit_object_group'      => 'Edit group ":title"',
+    'delete_object_group'    => 'Delete group ":title"',
+    'logout_others'          => 'Logout other sessions'
 ];

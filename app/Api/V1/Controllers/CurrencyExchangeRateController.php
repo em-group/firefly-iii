@@ -1,22 +1,22 @@
 <?php
 /**
  * CurrencyExchangeRateController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -43,9 +43,9 @@ class CurrencyExchangeRateController extends Controller
     /** @var CurrencyRepositoryInterface The currency repository */
     private $repository;
 
+
     /**
      * CurrencyExchangeRateController constructor.
-     *
      */
     public function __construct()
     {
@@ -79,10 +79,10 @@ class CurrencyExchangeRateController extends Controller
         $toCurrency   = $this->repository->findByCodeNull($request->get('to') ?? 'USD');
 
         if (null === $fromCurrency) {
-            throw new FireflyException('Unknown source currency.');
+            throw new FireflyException('200007: Unknown source currency');
         }
         if (null === $toCurrency) {
-            throw new FireflyException('Unknown destination currency.');
+            throw new FireflyException('200007: Unknown destination currency');
         }
 
         /** @var Carbon $dateObj */
@@ -107,6 +107,6 @@ class CurrencyExchangeRateController extends Controller
         $transformer->setParameters($this->parameters);
         $resource = new Item($rate, $transformer, 'currency_exchange_rates');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 }

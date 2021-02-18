@@ -2,22 +2,22 @@
 
 /**
  * User.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,7 +37,7 @@ use FireflyIII\Models\Bill;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\Category;
 use FireflyIII\Models\CurrencyExchangeRate;
-use FireflyIII\Models\ImportJob;
+use FireflyIII\Models\ObjectGroup;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\Preference;
 use FireflyIII\Models\Recurrence;
@@ -85,15 +85,14 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string|null $reset
  * @property int|null $whitelabel_id
  *
- * @property-read Collection|Account[]         $accounts
- * @property-read Collection|Attachment[]      $attachments
- * @property-read Collection|AvailableBudget[] $availableBudgets
- * @property-read Collection|Bill[]            $bills
- * @property-read Collection|Budget[]          $budgets
- * @property-read Collection|Category[]        $categories
- * @property-read Collection|Client[]                     $clients
- * @property-read Collection|CurrencyExchangeRate[]          $currencyExchangeRates
- * @property-read Collection|ImportJob[]                          $importJobs
+ * @property-read \Illuminate\Database\Eloquent\Collection|Account[]         $accounts
+ * @property-read \Illuminate\Database\Eloquent\Collection|Attachment[]      $attachments
+ * @property-read \Illuminate\Database\Eloquent\Collection|AvailableBudget[] $availableBudgets
+ * @property-read \Illuminate\Database\Eloquent\Collection|Bill[]            $bills
+ * @property-read \Illuminate\Database\Eloquent\Collection|Budget[]          $budgets
+ * @property-read \Illuminate\Database\Eloquent\Collection|Category[]        $categories
+ * @property-read \Illuminate\Database\Eloquent\Collection|Client[]                     $clients
+ * @property-read \Illuminate\Database\Eloquent\Collection|CurrencyExchangeRate[]          $currencyExchangeRates
  * @property-read DatabaseNotificationCollection|DatabaseNotification[]                         $notifications
  * @property-read Collection|PiggyBank[]                          $piggyBanks
  * @property-read Collection|Preference[]                         $preferences
@@ -121,6 +120,31 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|User whereReset($value)
  * @method static Builder|User whereUpdatedAt($value)
  * @mixin Eloquent
+ * @property string|null $objectguid
+ * @property-read int|null $accounts_count
+ * @property-read int|null $attachments_count
+ * @property-read int|null $available_budgets_count
+ * @property-read int|null $bills_count
+ * @property-read int|null $budgets_count
+ * @property-read int|null $categories_count
+ * @property-read int|null $clients_count
+ * @property-read int|null $currency_exchange_rates_count
+ * @property-read int|null $notifications_count
+ * @property-read int|null $piggy_banks_count
+ * @property-read int|null $preferences_count
+ * @property-read int|null $recurrences_count
+ * @property-read int|null $roles_count
+ * @property-read int|null $rule_groups_count
+ * @property-read int|null $rules_count
+ * @property-read int|null $tags_count
+ * @property-read int|null $tokens_count
+ * @property-read int|null $transaction_groups_count
+ * @property-read int|null $transaction_journals_count
+ * @property-read int|null $transactions_count
+ * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereMfaSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereObjectguid($value)
+ * @property string|null $provider
+ * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereProvider($value)
  */
 class User extends HubUser implements UserInterface
 {
@@ -214,6 +238,16 @@ class User extends HubUser implements UserInterface
     }
 
     /**
+     * @param string $role
+     *
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->count() === 1;
+    }
+
+    /**
      * @codeCoverageIgnore
      * Link to available budgets
      *
@@ -244,6 +278,17 @@ class User extends HubUser implements UserInterface
     public function budgets(): HasMany
     {
         return $this->hasMany(Budget::class);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * Link to object groups.
+     *
+     * @return HasMany
+     */
+    public function objectGroups(): HasMany
+    {
+        return $this->hasMany(ObjectGroup::class);
     }
 
     /**
@@ -285,17 +330,6 @@ class User extends HubUser implements UserInterface
         $bytes = random_bytes(16);
 
         return bin2hex($bytes);
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * Link to import jobs.
-     *
-     * @return HasMany
-     */
-    public function importJobs(): HasMany
-    {
-        return $this->hasMany(ImportJob::class);
     }
 
     /**

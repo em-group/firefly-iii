@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" href="fpt/t-2/css/bootstrap.min.css">
     <link rel="stylesheet" href="fpt/t-2/css/styles.css">
-    <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous" nonce="{{ JS_NONCE }}"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
 
@@ -403,10 +403,10 @@
     </div>
 </footer>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="/fpt/t-2/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/t-2/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
 
-<script>
+<script nonce="{{ JS_NONCE }}">
     $(function(){
         window.gotoSection = function(section){
             let e = $('#terms-container');

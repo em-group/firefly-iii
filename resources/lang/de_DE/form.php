@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Reagiert auf',
     'strict'                      => 'Strenger Modus',
     'repeat_freq'                 => 'Wiederholungen',
-    'journal_currency_id'         => 'Währung',
+    'object_group'                => 'Gruppe',
+    'location'                    => 'Herkunft',
+    'update_channel'              => 'Aktualisierungskanal',
     'currency_id'                 => 'Währung',
     'transaction_currency_id'     => 'Währung',
+    'auto_budget_currency_id'     => 'Währung',
     'external_ip'                 => 'Die externe IP-Adresse Ihres Servers',
     'attachments'                 => 'Anhänge',
-    'journal_amount'              => 'Betrag',
-    'journal_source_name'         => 'Erlöskonto (Herkunft)',
-    'keep_bill_id'                => 'Rechnung',
-    'journal_source_id'           => 'Anlagenkonto (Herkunft)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Passwortsicherheit überprüfen',
     'source_account'              => 'Quellkonto',
     'destination_account'         => 'Zielkonto',
-    'journal_destination_id'      => 'Anlagenkonto (Ziel)',
     'asset_destination_account'   => 'Zielkonto',
     'include_net_worth'           => 'Im Eigenkapital enthalten',
     'asset_source_account'        => 'Quellkonto',
     'journal_description'         => 'Beschreibung',
     'note'                        => 'Notizen',
-    'store_new_transaction'       => 'Neue Buchung speichern',
-    'split_journal'               => 'Diese Überweisung aufteilen',
-    'split_journal_explanation'   => 'Diese Überweisung in mehrere Teile aufteilen',
     'currency'                    => 'Währung',
     'account_id'                  => 'Bestandskonto',
     'budget_id'                   => 'Budget',
     'opening_balance'             => 'Eröffnungsbilanz',
     'tagMode'                     => 'Schlagwort-Modus',
-    'tag_position'                => 'Schlagwort-Speicherort',
     'virtual_balance'             => 'Virtueller Kontostand',
     'targetamount'                => 'Zielbetrag',
     'account_role'                => 'Kontenfunktion',
@@ -77,13 +71,10 @@ return [
     'returnHereExplanation'       => 'Nach dem Speichern hierher zurückkehren, um ein weiteres Element zu erstellen.',
     'returnHereUpdateExplanation' => 'Nach dem Update, hierher zurückkehren.',
     'description'                 => 'Beschreibung',
-    'expense_account'             => 'Debitor (Ausgabe)',
+    'expense_account'             => 'Ausgabenkonto',
     'revenue_account'             => 'Kreditor (Einnahme)',
     'decimal_places'              => 'Nachkommastellen',
-    'exchange_rate_instruction'   => 'Fremdwährungen',
-    'source_amount'               => 'Betrag (Quelle)',
     'destination_amount'          => 'Betrag (Ziel)',
-    'native_amount'               => 'Nativer Betrag',
     'new_email_address'           => 'Neue E-Mail-Adresse',
     'verification'                => 'Bestätigung',
     'api_key'                     => 'API-Schlüssel',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Zinsen',
     'interest_period'             => 'Verzinsungszeitraum',
 
-    'source_account_asset'        => 'Quellkonto (Bestandskonto)',
-    'destination_account_expense' => 'Zielkonto (Unkostenkonto)',
-    'destination_account_asset'   => 'Zielkonto (Bestandskonto)',
-    'source_account_revenue'      => 'Quellkonto (Ertragskonto)',
-    'type'                        => 'Typ',
-    'convert_Withdrawal'          => 'Ändere zu Abhebung',
-    'convert_Deposit'             => 'Ändere zu Einzahlung',
-    'convert_Transfer'            => 'In Umbuchung umwandeln',
+    'type'               => 'Typ',
+    'convert_Withdrawal' => 'Ändere zu Abhebung',
+    'convert_Deposit'    => 'Ändere zu Einzahlung',
+    'convert_Transfer'   => 'In Umbuchung umwandeln',
 
     'amount'                      => 'Betrag',
     'foreign_amount'              => 'Ausländischer Betrag',
-    'existing_attachments'        => 'Bestehende Anhänge',
     'date'                        => 'Datum',
     'interest_date'               => 'Zinstermin',
     'book_date'                   => 'Buchungsdatum',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Datumsformat',
     'specifix'                    => 'Bank- oder Dateispezifischer Korrekturen',
     'attachments[]'               => 'Anhänge',
-    'store_new_withdrawal'        => 'Speichere neue Ausgabe',
-    'store_new_deposit'           => 'Speichere neue Einnahme',
-    'store_new_transfer'          => 'Neue Umbuchung speichern',
-    'add_new_withdrawal'          => 'Fügen Sie eine neue Ausgabe hinzu',
-    'add_new_deposit'             => 'Fügen Sie eine neue Einnahme hinzu',
-    'add_new_transfer'            => 'Neue Umbuchung anlegen',
     'title'                       => 'Titel',
     'notes'                       => 'Notizen',
     'filename'                    => 'Dateiname',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Verarbeitung beenden',
     'start_date'                  => 'Anfang des Bereichs',
     'end_date'                    => 'Ende des Bereichs',
-    'include_attachments'         => 'Hochgeladene Anhänge hinzufügen',
-    'include_old_uploads'         => 'Importierte Daten hinzufügen',
+    'start'                       => 'Anfang des Bereichs',
+    'end'                         => 'Ende des Bereichs',
     'delete_account'              => 'Konto „:name” löschen',
     'delete_bill'                 => 'Rechnung „:name” löschen',
     'delete_budget'               => 'Budget „:name” löschen',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => 'Möchten Sie das Konto „:name” wirklich löschen?',
     'bill_areYouSure'             => 'Möchten Sie die Rechnung „:name” wirklich löschen?',
     'rule_areYouSure'             => 'Sind Sie sicher, dass Sie die Regel mit dem Titel ":title" löschen möchten?',
+    'object_group_areYouSure'     => 'Möchten Sie die Gruppe „:title” wirklich löschen?',
     'ruleGroup_areYouSure'        => 'Sind Sie sicher, dass sie die Regelgruppe ":title" löschen möchten?',
     'budget_areYouSure'           => 'Möchten Sie das Budget „:name” wirklich löschen?',
     'category_areYouSure'         => 'Möchten Sie die Kategorie „:name” wirklich löschen?',
@@ -178,12 +159,15 @@ return [
     'also_delete_connections'     => 'Die einzige Transaktion, die mit diesem Verknüpfungstyp verknüpft ist, verliert diese Verbindung. • Alle :count Buchungen, die mit diesem Verknüpfungstyp verknüpft sind, verlieren ihre Verbindung.',
     'also_delete_rules'           => 'Die einzige Regel, die mit diesem Konto verknüpft ist, wird ebenfalls gelöscht. | Alle :count Regeln, die mit diesem Konto verknüpft sind, werden ebenfalls gelöscht.',
     'also_delete_piggyBanks'      => 'Das einzige Sparschwein, das mit diesem Konto verknüpft ist, wird ebenfalls gelöscht. | Alle :count Sparschweine, die mit diesem Konto verknüpft sind, werden ebenfalls gelöscht.',
-    'bill_keep_transactions'      => 'Die einzige mit dieser Rechnung verbundene Buchung wird nicht gelöscht. | Alle :count Buchungen, die mit dieser Rechnung verbunden sind, werden nicht gelöscht.',
-    'budget_keep_transactions'    => 'Die einzige diesem Budget zugeordnete Buchung wird nicht gelöscht. | Alle :count Buchungen, die diesem Budget zugeordnet sind, werden nicht gelöscht.',
-    'category_keep_transactions'  => 'Die einzige Buchung, die mit dieser Kategorie verbunden ist, wird nicht gelöscht. | Alle :count Buchungen, die mit dieser Kategorie verbunden sind, werden nicht gelöscht.',
-    'recurring_keep_transactions' => 'Die einzige Buchung, die durch diesen Dauerauftrag erstellt wurde, wird nicht gelöscht. | Alle :count Buchungen, die durch diesen Dauerauftrag erstellt wurden, werden nicht gelöscht.',
-    'tag_keep_transactions'       => 'Das einzige mit dieser Rechnung verbundene Schlagwort wird nicht gelöscht. | Alle :count Schlagwörter, die mit dieser Rechnung verbunden sind, werden nicht gelöscht.',
+    'not_delete_piggy_banks'      => 'Die mit dieser Gruppe verbundene Spardose wird nicht gelöscht.| Die mit dieser Gruppe verbundenen :count Spardosen werden nicht gelöscht.',
+    'bill_keep_transactions'      => 'Die einzige mit dieser Rechnung verbundene Buchung wird nicht gelöscht. | Keine der :count Buchungen, die mit dieser Rechnung verbunden sind, wird gelöscht.',
+    'budget_keep_transactions'    => 'Die einzige diesem Budget zugeordnete Buchung wird nicht gelöscht. | Keine der :count Buchungen, die diesem Budget zugeordnet sind, wird gelöscht.',
+    'category_keep_transactions'  => 'Die einzige Buchung, die mit dieser Kategorie verbunden ist, wird nicht gelöscht. | Keine der :count Buchungen, die mit dieser Kategorie verbunden sind, wird gelöscht.',
+    'recurring_keep_transactions' => 'Die einzige Buchung, die durch diesen Dauerauftrag erstellt wurde, wird nicht gelöscht. | Keine der :count Buchungen, die durch diesen Dauerauftrag erstellt wurden, wird gelöscht.',
+    'tag_keep_transactions'       => 'Das einzige mit dieser Rechnung verbundene Schlagwort wird nicht gelöscht. | Keines der :count Schlagwörter, die mit dieser Rechnung verbunden sind, wird gelöscht.',
     'check_for_updates'           => 'Nach Updates suchen',
+
+    'delete_object_group' => 'Gruppe „:title” löschen',
 
     'email'                 => 'E-Mail Adresse',
     'password'              => 'Passwort',
@@ -191,6 +175,7 @@ return [
     'blocked'               => 'Ist blockiert?',
     'blocked_code'          => 'Grund für Block',
     'login_name'            => 'Login',
+    'is_owner'              => 'Ist Administrator?',
 
     // import
     'apply_rules'           => 'Regeln anwenden',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Ist eine Demonstrationsseite',
 
     // import
-    'import_file'           => 'Datei importieren',
     'configuration_file'    => 'Konfigurationsdatei',
-    'import_file_type'      => 'Import-Dateityp',
     'csv_comma'             => 'Ein Komma (,)',
     'csv_semicolon'         => 'Ein Semikolon (;)',
     'csv_tab'               => 'Ein Tab (unsichtbar)',
     'csv_delimiter'         => 'CSV-Trennzeichen',
-    'csv_import_account'    => 'Standard Import-Konto',
-    'csv_config'            => 'CSV-Import Einstellungen',
     'client_id'             => 'Client-ID',
-    'service_secret'        => 'Dienst-Geheimnis',
-    'app_secret'            => 'App-Secret',
     'app_id'                => 'App-ID',
     'secret'                => 'Geheimnis',
     'public_key'            => 'Öffentlicher Schlüssel',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Quellkonto',
     'expected_on'               => 'Erwartet am',
     'paid'                      => 'Bezahlt',
+
+    'auto_budget_type'   => 'Automatisches Budget',
+    'auto_budget_amount' => 'Betrag des automatischen Budget',
+    'auto_budget_period' => 'Zeitraum des automatischen Budget',
+
+    'collected' => 'Gesammelt',
+    'submitted' => 'Übermittelt',
+    'key'       => 'Schlüssel',
+    'value'     => 'Inhalt der Aufzeichnungen',
+
 
 ];

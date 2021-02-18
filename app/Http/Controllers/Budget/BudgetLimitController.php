@@ -1,28 +1,27 @@
 <?php
 /**
  * BudgetLimitController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Budget;
-
 
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
@@ -36,9 +35,13 @@ use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\DateCalculation;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
+use Illuminate\View\View;
 use Log;
 
 /**
@@ -49,14 +52,10 @@ class BudgetLimitController extends Controller
 {
     use DateCalculation;
 
-    /** @var BudgetLimitRepositoryInterface */
-    private $blRepository;
-    /** @var CurrencyRepositoryInterface */
-    private $currencyRepos;
-    /** @var OperationsRepositoryInterface */
-    private $opsRepository;
-    /** @var BudgetRepositoryInterface The budget repository */
-    private $repository;
+    private BudgetLimitRepositoryInterface $blRepository;
+    private CurrencyRepositoryInterface    $currencyRepos;
+    private OperationsRepositoryInterface  $opsRepository;
+    private BudgetRepositoryInterface      $repository;
 
     /**
      * AmountController constructor.
@@ -67,7 +66,7 @@ class BudgetLimitController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('title', (string)trans('firefly.budgets'));
-                app('view')->share('mainTitleIcon', 'fa-tasks');
+                app('view')->share('mainTitleIcon', 'fa-pie-chart');
                 $this->repository    = app(BudgetRepositoryInterface::class);
                 $this->opsRepository = app(OperationsRepositoryInterface::class);
                 $this->blRepository  = app(BudgetLimitRepositoryInterface::class);
@@ -83,11 +82,11 @@ class BudgetLimitController extends Controller
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function create(Budget $budget, Carbon $start, Carbon $end)
     {
-        $collection   = $this->currencyRepos->getEnabled();
+        $collection   = $this->currencyRepos->get();
         $budgetLimits = $this->blRepository->getBudgetLimits($budget, $start, $end);
 
         // remove already budgeted currencies:
@@ -111,7 +110,7 @@ class BudgetLimitController extends Controller
      * @param Request     $request
      * @param BudgetLimit $budgetLimit
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function delete(Request $request, BudgetLimit $budgetLimit)
     {
@@ -124,11 +123,12 @@ class BudgetLimitController extends Controller
     /**
      * @param Request $request
      *
-     * @return JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return JsonResponse|RedirectResponse|Redirector
      * @throws FireflyException
      */
     public function store(Request $request)
     {
+        Log::debug('Going to store new budget-limit.', $request->all());
         // first search for existing one and update it if necessary.
         $currency = $this->currencyRepos->find((int)$request->get('transaction_currency_id'));
         $budget   = $this->repository->findNull((int)$request->get('budget_id'));
@@ -138,10 +138,9 @@ class BudgetLimitController extends Controller
         $start = Carbon::createFromFormat('Y-m-d', $request->get('start'));
         $end   = Carbon::createFromFormat('Y-m-d', $request->get('end'));
         $start->startOfDay();
-        $end->endOfDay();
+        $end->startOfDay();
 
-
-        Log::debug(sprintf('Start: %s, end: %s', $start->format('Y-m-d H:i:s'), $end->format('Y-m-d H:i:s')));
+        Log::debug(sprintf('Start: %s, end: %s', $start->format('Y-m-d'), $end->format('Y-m-d')));
 
         $limit = $this->blRepository->find($budget, $currency, $start, $end);
         if (null !== $limit) {
@@ -151,11 +150,11 @@ class BudgetLimitController extends Controller
         if (null === $limit) {
             $limit = $this->blRepository->store(
                 [
-                    'budget_id'               => $request->get('budget_id'),
-                    'transaction_currency_id' => $request->get('transaction_currency_id'),
-                    'start_date'              => $request->get('start'),
-                    'end_date'                => $request->get('end'),
-                    'amount'                  => $request->get('amount'),
+                    'budget_id'   => $request->get('budget_id'),
+                    'currency_id' => (int)$request->get('transaction_currency_id'),
+                    'start_date'  => $start,
+                    'end_date'    => $end,
+                    'amount'      => $request->get('amount'),
                 ]
             );
         }
@@ -179,7 +178,7 @@ class BudgetLimitController extends Controller
             return response()->json($array);
         }
 
-        return redirect(route('budgets.index'));
+        return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
     }
 
     /**
@@ -196,7 +195,11 @@ class BudgetLimitController extends Controller
         $array = $limit->toArray();
 
         $spentArr                  = $this->opsRepository->sumExpenses(
-            $limit->start_date, $limit->end_date, null, new Collection([$budgetLimit->budget]), $budgetLimit->transactionCurrency
+            $limit->start_date,
+            $limit->end_date,
+            null,
+            new Collection([$budgetLimit->budget]),
+            $budgetLimit->transactionCurrency
         );
         $array['spent']            = $spentArr[$budgetLimit->transactionCurrency->id]['sum'] ?? '0';
         $array['left_formatted']   = app('amount')->formatAnything($limit->transactionCurrency, bcadd($array['spent'], $array['amount']));
@@ -206,10 +209,9 @@ class BudgetLimitController extends Controller
         $array['left_per_day'] = bcdiv(bcadd($array['spent'], $array['amount']), $array['days_left']);
 
         // left per day formatted.
+        $array['amount']                 = number_format((float)$limit['amount'], $limit->transactionCurrency->decimal_places, '.', '');
         $array['left_per_day_formatted'] = app('amount')->formatAnything($limit->transactionCurrency, $array['left_per_day']);
 
         return response()->json($array);
-
     }
-
 }

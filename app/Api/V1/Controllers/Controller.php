@@ -2,22 +2,22 @@
 
 /**
  * Controller.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -39,61 +39,32 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  * Class Controller.
  *
  * @codeCoverageIgnore
- *
  */
-class Controller extends BaseController
+abstract class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    /** @var ParameterBag Parameters from the URI are stored here. */
-    protected $parameters;
+    protected const CONTENT_TYPE = 'application/vnd.api+json';
+    protected ParameterBag $parameters;
 
     /**
      * Controller constructor.
-     *
      */
     public function __construct()
     {
         // get global parameters
         $this->parameters = $this->getParameters();
-    }
+        $this->middleware(
+            function ($request, $next) {
+                if (auth()->check()) {
+                    $language = app('steam')->getLanguage();
+                    app()->setLocale($language);
+                }
 
-    /**
-     * Method to help build URI's.
-     *
-     * @return string
-     *
-     */
-    protected function buildParams(): string
-    {
-        $return = '?';
-        $params = [];
-        foreach ($this->parameters as $key => $value) {
-            if ('page' === $key) {
-                continue;
+                return $next($request);
             }
-            if ($value instanceof Carbon) {
-                $params[$key] = $value->format('Y-m-d');
-                continue;
-            }
-            $params[$key] = $value;
-        }
-        $return .= http_build_query($params);
+        );
 
-        return $return;
-    }
-
-    /**
-     * @return Manager
-     */
-    protected function getManager(): Manager
-    {
-        // create some objects:
-        $manager = new Manager;
-        $baseUrl = request()->getSchemeAndHttpHost() . '/api/v1';
-        $manager->setSerializer(new JsonApiSerializer($baseUrl));
-
-        return $manager;
     }
 
     /**
@@ -137,5 +108,41 @@ class Controller extends BaseController
 
         return $bag;
 
+    }
+
+    /**
+     * Method to help build URI's.
+     *
+     * @return string
+     */
+    final protected function buildParams(): string
+    {
+        $return = '?';
+        $params = [];
+        foreach ($this->parameters as $key => $value) {
+            if ('page' === $key) {
+                continue;
+            }
+            if ($value instanceof Carbon) {
+                $params[$key] = $value->format('Y-m-d');
+                continue;
+            }
+            $params[$key] = $value;
+        }
+
+        return $return . http_build_query($params);
+    }
+
+    /**
+     * @return Manager
+     */
+    final protected function getManager(): Manager
+    {
+        // create some objects:
+        $manager = new Manager;
+        $baseUrl = request()->getSchemeAndHttpHost() . '/api/v1';
+        $manager->setSerializer(new JsonApiSerializer($baseUrl));
+
+        return $manager;
     }
 }

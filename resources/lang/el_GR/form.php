@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ return [
     'credit_card_limit'           => 'Όριο πιστωτικής κάρτας',
     'automatch'                   => 'Αυτόματο ταίριασμα',
     'skip'                        => 'Παράλειψη',
-    'enabled'                     => 'Ενεργό',
+    'enabled'                     => 'Ενεργοποιημένο',
     'name'                        => 'Όνομα',
     'active'                      => 'Ενεργό',
     'amount_min'                  => 'Ελάχιστο ποσό',
@@ -38,38 +38,32 @@ return [
     'match'                       => 'Αντιστοιχίες στις',
     'strict'                      => 'Αυστηρή λειτουργία',
     'repeat_freq'                 => 'Επαναλήψεις',
-    'journal_currency_id'         => 'Νόμισμα',
+    'object_group'                => 'Ομάδα',
+    'location'                    => 'Τοποθεσία',
+    'update_channel'              => 'Κανάλι ενημερώσεων',
     'currency_id'                 => 'Νόμισμα',
     'transaction_currency_id'     => 'Νόμισμα',
+    'auto_budget_currency_id'     => 'Νόμισμα',
     'external_ip'                 => 'Η εξωτερική IP του εξυπηρετητή σας',
-    'attachments'                 => 'Επισυναπτόμενα',
-    'journal_amount'              => 'Ποσό',
-    'journal_source_name'         => 'Λογαριασμός εσόδων (προέλευση)',
-    'keep_bill_id'                => 'Λογαριασμός',
-    'journal_source_id'           => 'Αποταμιευτικός λογαριασμός (προέλευση)',
+    'attachments'                 => 'Συνημμένα',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Επιβεβαίωση ασφάλειας κωδικού',
     'source_account'              => 'Λογαριασμός προέλευσης',
     'destination_account'         => 'Λογαριασμός προορισμού',
-    'journal_destination_id'      => 'Αποταμιευτικός λογαριασμός (προορισμός)',
     'asset_destination_account'   => 'Λογαριασμός προορισμού',
-    'include_net_worth'           => 'Συμπεριλαμβανόμενο στην καθαρή αξία',
+    'include_net_worth'           => 'Εντός καθαρής αξίας',
     'asset_source_account'        => 'Λογαριασμός προέλευσης',
     'journal_description'         => 'Περιγραφή',
     'note'                        => 'Σημειώσεις',
-    'store_new_transaction'       => 'Αποθήκευση νέας συναλλαγής',
-    'split_journal'               => 'Διαχωρισμός αυτής της συναλλαγής',
-    'split_journal_explanation'   => 'Διαχωρίστε αυτή τη συναλλαγή σε πολλά μέρη',
     'currency'                    => 'Νόμισμα',
-    'account_id'                  => 'Αποταμιευτικός λογαριασμός',
+    'account_id'                  => 'Λογαριασμός κεφαλαίου',
     'budget_id'                   => 'Προϋπολογισμός',
-    'opening_balance'             => 'Ισολογισμός έναρξης',
+    'opening_balance'             => 'Υπόλοιπο έναρξης',
     'tagMode'                     => 'Λειτουργία ετικέτας',
-    'tag_position'                => 'Τοποθεσία ετικέτας',
-    'virtual_balance'             => 'Εικονικό ισοζύγιο',
+    'virtual_balance'             => 'Εικονικό υπόλοιπο',
     'targetamount'                => 'Ποσό στόχου',
     'account_role'                => 'Ρόλος λογαριασμού',
-    'opening_balance_date'        => 'Ημερομηνία ισολογισμού έναρξης',
+    'opening_balance_date'        => 'Ημερομηνία υπολοίπου έναρξης',
     'cc_type'                     => 'Σχέδιο πληρωμής πιστωτικής κάρτας',
     'cc_monthly_payment_date'     => 'Ημερομηνία μηνιαίας πληρωμής κάρτας',
     'piggy_bank_id'               => 'Κουμπαράς',
@@ -77,13 +71,10 @@ return [
     'returnHereExplanation'       => 'Μετά την αποθήκευση, επιστρέψτε εδώ για νέα δημιουργία.',
     'returnHereUpdateExplanation' => 'Μετά την ανανέωση, επιστρέψτε εδώ.',
     'description'                 => 'Περιγραφή',
-    'expense_account'             => 'Λογαριασμός εξόδων',
+    'expense_account'             => 'Λογαριασμός δαπανών',
     'revenue_account'             => 'Λογαριασμός εσόδων',
     'decimal_places'              => 'Δεκαδικά ψηφία',
-    'exchange_rate_instruction'   => 'Ξένα νομίσματα',
-    'source_amount'               => 'Ποσό (προέλευση)',
     'destination_amount'          => 'Ποσό (προορισμός)',
-    'native_amount'               => 'Εγχώριο ποσό',
     'new_email_address'           => 'Νέα διεύθυνση email',
     'verification'                => 'Επαλήθευση',
     'api_key'                     => 'Κλειδί API',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Τόκος',
     'interest_period'             => 'Τοκιζόμενη περίοδος',
 
-    'source_account_asset'        => 'Λογαριασμός προέλευσης (αποταμιευτικός λογαριασμός)',
-    'destination_account_expense' => 'Λογαριασμός προορισμού (λογαριασμός εξόδων)',
-    'destination_account_asset'   => 'Λογαριασμός προορισμού (αποταμιευτικός λογαριασμός)',
-    'source_account_revenue'      => 'Λογαριασμός προέλευσης (λογαριασμός εσόδων)',
-    'type'                        => 'Τύπος',
-    'convert_Withdrawal'          => 'Μετατροπή ανάληψης',
-    'convert_Deposit'             => 'Μετατροπή κατάθεσης',
-    'convert_Transfer'            => 'Μετατροπή μεταφοράς',
+    'type'               => 'Τύπος',
+    'convert_Withdrawal' => 'Μετατροπή ανάληψης',
+    'convert_Deposit'    => 'Μετατροπή κατάθεσης',
+    'convert_Transfer'   => 'Μετατροπή μεταφοράς',
 
     'amount'                      => 'Ποσό',
-    'foreign_amount'              => 'Ετερόχθων ποσό',
-    'existing_attachments'        => 'Υπάρχοντα συννημένα',
+    'foreign_amount'              => 'Ποσό σε ξένο νόμισμα',
     'date'                        => 'Ημερομηνία',
     'interest_date'               => 'Ημερομηνία τοκισμού',
     'book_date'                   => 'Ημερομηνία εγγραφής',
@@ -113,7 +99,7 @@ return [
     'deletePermanently'           => 'Οριστική διαγραφή',
     'cancel'                      => 'Άκυρο',
     'targetdate'                  => 'Ημερομηνία στόχου',
-    'startdate'                   => 'Ήμερομηνία Έναρξης',
+    'startdate'                   => 'Ημερομηνία Έναρξης',
     'tag'                         => 'Ετικέτα',
     'under'                       => 'Κάτω από',
     'symbol'                      => 'Σύμβολο',
@@ -125,25 +111,19 @@ return [
     'date_format'                 => 'Μορφή ημερομηνίας',
     'specifix'                    => 'Συγκεκριμένες διορθώσεις τράπεζας-ή αρχείου',
     'attachments[]'               => 'Συνημμένα',
-    'store_new_withdrawal'        => 'Αποθήκευση νέας ανάληψης',
-    'store_new_deposit'           => 'Αποθήκευση νέας κατάθεσης',
-    'store_new_transfer'          => 'Αποθήκευση νέας μεταφοράς',
-    'add_new_withdrawal'          => 'Προσθήκη νέας ανάληψης',
-    'add_new_deposit'             => 'Προσθήκη νέας κατάθεσης',
-    'add_new_transfer'            => 'Προσθήκη νέας μεταφοράς',
     'title'                       => 'Τίτλος',
     'notes'                       => 'Σημειώσεις',
     'filename'                    => 'Όνομα αρχείου',
     'mime'                        => 'Τύπος Mime',
     'size'                        => 'Μέγεθος',
-    'trigger'                     => 'Σκανδάλη',
+    'trigger'                     => 'Ενεργοποίηση',
     'stop_processing'             => 'Διακοπή επεξεργασίας',
     'start_date'                  => 'Αρχή του εύρους',
-    'end_date'                    => 'Τέλος του έυρους',
-    'include_attachments'         => 'Συμπερίληψη μεταφορτομένων επισυναπτόμενων',
-    'include_old_uploads'         => 'Συμπερίληψη εισαγόμενων δεδομένων',
+    'end_date'                    => 'Τέλος του εύρους',
+    'start'                       => 'Αρχή του εύρους',
+    'end'                         => 'Τέλος του εύρους',
     'delete_account'              => 'Διαγραφή λογαριασμού ":name"',
-    'delete_bill'                 => 'Διαγραφή λογαριασμού ":name"',
+    'delete_bill'                 => 'Διαγραφή πάγιου έξοδου ":name"',
     'delete_budget'               => 'Διαγραφή προϋπολογισμού ":name"',
     'delete_category'             => 'Διαγραφή κατηγορίας ":name"',
     'delete_currency'             => 'Διαγραφή νομίσματος ":name"',
@@ -155,10 +135,11 @@ return [
     'delete_user'                 => 'Διαγραφή χρήστη ":email"',
     'delete_recurring'            => 'Διαγραφή επαναλαμβανόμενης συναλλαγής ":title"',
     'user_areYouSure'             => 'Εάν διαγράψετε το χρήστη ":email", θα χαθούν όλα. Δεν υπάρχει αναίρεση, επαναφορά ή κάτι άλλο. Εάν διαγράψετε τον εαυτό σας, θα χάσετε την πρόσβαση στο Firefly III.',
-    'attachment_areYouSure'       => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το συννημένο με όνομα ":name";',
+    'attachment_areYouSure'       => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το συνημμένο με όνομα ":name";',
     'account_areYouSure'          => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το λογαριασμό με όνομα ":name";',
-    'bill_areYouSure'             => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το λογαριασμό με όνομα ":name";',
+    'bill_areYouSure'             => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το πάγιο έξοδο με όνομα ":name";',
     'rule_areYouSure'             => 'Είστε σίγουροι ότι θέλετε να διαγράψετε τον κανόνα με τίτλο ":title";',
+    'object_group_areYouSure'     => 'Είστε σίγουροι ότι θέλετε να διαγράψετε την ομάδα με τίτλο ":title";',
     'ruleGroup_areYouSure'        => 'Είστε σίγουροι ότι θέλετε να διαγράψετε την ομάδα κανόνων με τίτλο ":title";',
     'budget_areYouSure'           => 'Είστε σίγουροι ότι θέλετε να διαγράψετε τον προϋπολογισμό με όνομα ":name";',
     'category_areYouSure'         => 'Είστε σίγουροι ότι θέλετε να διαγράψετε την κατηγορία με όνομα ":name";',
@@ -170,27 +151,31 @@ return [
     'tag_areYouSure'              => 'Είστε σίγουροι ότι θέλετε να διαγράψετε την ετικέτα ":tag";',
     'journal_link_areYouSure'     => 'Είστε σίγουροι ότι θέλετε να διαγράψετε το σύνδεσμο μεταξύ <a href=":source_link">:source</a> και <a href=":destination_link">:destination</a>;',
     'linkType_areYouSure'         => 'Είστε σίγουροι ότι θέλετε να διαγράψετε τον τύπο συνδέσμου ":name" (":inward" / ":outward");',
-    'permDeleteWarning'           => 'Η διαγραφή πραγμάτων από το Firefly III είναι μόνιμη και δεν μπορεί να αναιρεθεί.',
-    'mass_make_selection'         => 'Μπορείτε ακόμη να αποτρέψετε τη διαγραφή αντικειμένων αφαιρόντας αυτό το πλαίσιο ελέγχου.',
+    'permDeleteWarning'           => 'Η διαγραφή στοιχείων από το Firefly III είναι μόνιμη και δεν μπορεί να αναιρεθεί.',
+    'mass_make_selection'         => 'Μπορείτε ακόμη να αποτρέψετε τη διαγραφή αντικειμένων αφαιρώντας αυτό το πλαίσιο ελέγχου.',
     'delete_all_permanently'      => 'Μόνιμη διαγραφή επιλεγμένων',
     'update_all_journals'         => 'Ανανέωση αυτών των συναλλαγών',
-    'also_delete_transactions'    => 'Η μόνη συναλλαγή που συνδέεται με αυτό το λογαριασμό θα διεγραφεί επίσης.| Και οι :count συωαλλαγές που συνδέονται με αυτό το λογαριασμό θα διεγραφούν επίσης.',
-    'also_delete_connections'     => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό τον τύπο σύνδεσης θα χάσει τη σύνδεσή της.|Και οι :count συνδεδεμένες συναλλαγες με αυτό τον τύπο σύνδεσης θα χάσουν τις συνδέσεις τους.',
-    'also_delete_rules'           => 'Η μόνη συναλλαγή που συνδέεται με αυτό το λογαριασμό θα διεγραφεί επίσης.| Και οι :count συναλλαγές που συνδέονται με αυτό το λογαριασμό θα διεγραφούν επίσης.',
-    'also_delete_piggyBanks'      => 'Ο μόνος συνδεδεμένος κουμπαράς σε αυτό τον λογαριασμό θα διεγραφή επίσης.|Και οι :count συνδεδεμένοι κουμπαράδες με αυτό τον λογαριασμό θα διεγραφούν επίσης.',
-    'bill_keep_transactions'      => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό το λογαριασμό δε θα διεγραφή.|Και οι :count συνδεδεμένες συναλλαγές με αυτό τον λογαριασμό θα γλυτώσουν από τη διαγραφή.',
-    'budget_keep_transactions'    => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό τον προϋπολογισμό δε θα διεγραφή.|Και οι :count συνδεδεμένες συναλλαγές με αυτό τον προύπολογισμό θα γλυτώσουν από τη διαγραφή.',
-    'category_keep_transactions'  => 'Η μόνη συνδεδεμένη συναλλαγή με αυτή την κατηγορία δε θα διεγραφή.|Και οι :count συνδεδεμένες συναλλαγές με αυτή την κατηγορία θα γλυτώσουν από τη διαγραφή.',
-    'recurring_keep_transactions' => 'Η μόνη συναλλαγή που δημιουργήθηκε από αυτή την επαναλαμβανόμενη συναλλαγή δε θα διεγραφή.| Και οι :count συναλλαγές που δημιουργήθηκαν από αυτή την επαναλαμβανόμενη συναλλαγή θα γλυτώσουν από τη διαγραφή.',
-    'tag_keep_transactions'       => 'Η μόνη συνδεδεμένη συναλλαγή με αυτή την ετικέτα δε θα διεγραφή.|Και οι :count συνδεδεμένες συναλλαγές με αυτή την ετικέτα θα γλυτώσουν από τη διαγραφή.',
+    'also_delete_transactions'    => 'Η μόνη συναλλαγή που συνδέεται με αυτό το λογαριασμό θα διαγραφεί επίσης.| Και οι :count συναλλαγές που συνδέονται με αυτό το λογαριασμό θα διαγραφούν επίσης.',
+    'also_delete_connections'     => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό τον τύπο σύνδεσης θα αποσυνδεθεί.|Όλες οι :count συνδεδεμένες συναλλαγές με αυτό τον τύπο σύνδεσης θα αποσυνδεθούν.',
+    'also_delete_rules'           => 'Η μόνη συναλλαγή που συνδέεται με αυτό το λογαριασμό θα διαγραφεί επίσης.| Όλες οι :count συναλλαγές που συνδέονται με αυτό το λογαριασμό θα διαγραφούν επίσης.',
+    'also_delete_piggyBanks'      => 'Ο μόνος συνδεδεμένος κουμπαράς σε αυτό τον λογαριασμό θα διαγραφή επίσης.|Όλες οι :count συνδεδεμένοι κουμπαράδες με αυτό τον λογαριασμό θα διαγραφούν επίσης.',
+    'not_delete_piggy_banks'      => 'Ο κουμπαράς που είναι συνδεδεμένος σε αυτή την ομάδα δε θα διαγραφεί.| Οι :count κουμπαράδες που είναι συνδεδεμένοι σε αυτή την ομάδα δε θα διαγραφούν.',
+    'bill_keep_transactions'      => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό το λογαριασμό δε θα διαγραφεί.|\'Ολες οι :count συνδεδεμένες συναλλαγές με αυτό τον λογαριασμό θα γλυτώσουν από τη διαγραφή.',
+    'budget_keep_transactions'    => 'Η μόνη συνδεδεμένη συναλλαγή με αυτό τον προϋπολογισμό δε θα διαγραφεί.|Όλες οι :count συνδεδεμένες συναλλαγές με αυτό τον προϋπολογισμό θα γλυτώσουν από τη διαγραφή.',
+    'category_keep_transactions'  => 'Η μόνη συνδεδεμένη συναλλαγή με αυτή την κατηγορία δε θα διαγραφεί.|Όλες οι :count συνδεδεμένες συναλλαγές με αυτή την κατηγορία θα γλυτώσουν από τη διαγραφή.',
+    'recurring_keep_transactions' => 'Η μόνη συναλλαγή που δημιουργήθηκε από αυτή την επαναλαμβανόμενη συναλλαγή δε θα διαγραφεί.| \'Ολες οι :count συναλλαγές που δημιουργήθηκαν από αυτή την επαναλαμβανόμενη συναλλαγή θα γλυτώσουν από τη διαγραφή.',
+    'tag_keep_transactions'       => 'Η μόνη συνδεδεμένη συναλλαγή με αυτή την ετικέτα δε θα διαγραφεί.|Όλες οι :count συνδεδεμένες συναλλαγές με αυτή την ετικέτα θα γλυτώσουν από τη διαγραφή.',
     'check_for_updates'           => 'Έλεγχος ενημερώσεων',
+
+    'delete_object_group' => 'Διαγραφή ομάδας ":title"',
 
     'email'                 => 'Διεύθυνση E-mail',
     'password'              => 'Συνθηματικό',
     'password_confirmation' => 'Συνθηματικό (επανάληψη)',
     'blocked'               => 'Έχει αποκλειστεί;',
-    'blocked_code'          => 'Αιτία μπλοκαρίσματος',
+    'blocked_code'          => 'Αιτία αποκλεισμού',
     'login_name'            => 'Είσοδος',
+    'is_owner'              => 'Είναι διαχειριστής;',
 
     // import
     'apply_rules'           => 'Εφαρμογή κανόνων',
@@ -202,21 +187,15 @@ return [
     // admin
     'domain'                => 'Τομέας (Domain)',
     'single_user_mode'      => 'Απενεργοποίηση εγγραφής χρήστη',
-    'is_demo_site'          => 'Είναι δοκιμαστικός ιστότοπος',
+    'is_demo_site'          => 'Είναι ιστότοπος επίδειξης',
 
     // import
-    'import_file'           => 'Εισαγωγή αρχείου',
     'configuration_file'    => 'Αρχείο παραμετροποίησης',
-    'import_file_type'      => 'Εισαγωγή τύπου αρχείου',
     'csv_comma'             => 'Ένα κόμμα (,)',
     'csv_semicolon'         => 'Ένα ερωτηματικό (;)',
     'csv_tab'               => 'Ένα κενό (tab - αόρατο)',
     'csv_delimiter'         => 'Διαχωριστικό πεδίου CSV',
-    'csv_import_account'    => 'Προεπιλεγμένος λογαριασμός εισαγωγής',
-    'csv_config'            => 'Παραμετροποίηση εισαγωγής CSV',
     'client_id'             => 'Αναγνωριστικό πελάτη',
-    'service_secret'        => 'Μυστικό υπηρεσίας',
-    'app_secret'            => 'Μυστικό εφαρμογής',
     'app_id'                => 'Αναγνωριστικό εφαρμογής',
     'secret'                => 'Μυστικό',
     'public_key'            => 'Δημόσιο κλειδί',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Λογαριασμός προέλευσης',
     'expected_on'               => 'Αναμένεται στις',
     'paid'                      => 'Πληρώθηκε',
+
+    'auto_budget_type'   => 'Αυτόματος προϋπολογισμός',
+    'auto_budget_amount' => 'Ποσό αυτόματου προϋπολογισμού',
+    'auto_budget_period' => 'Περίοδος αυτόματου προϋπολογισμού',
+
+    'collected' => 'Συλλέχθηκε',
+    'submitted' => 'Υποβλήθηκε',
+    'key'       => 'Κλειδί',
+    'value'     => 'Περιεχόμενο της εγγραφής',
+
 
 ];

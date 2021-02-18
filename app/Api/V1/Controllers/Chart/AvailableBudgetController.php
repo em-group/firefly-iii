@@ -2,22 +2,22 @@
 
 /**
  * AvailableBudgetController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -31,17 +31,14 @@ use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
 
 /**
  * Class AvailableBudgetController
  */
 class AvailableBudgetController extends Controller
 {
-    /** @var OperationsRepositoryInterface */
-    private $opsRepository;
-    /** @var BudgetRepositoryInterface */
-    private $repository;
+    private OperationsRepositoryInterface $opsRepository;
+    private BudgetRepositoryInterface     $repository;
 
     /**
      * AvailableBudgetController constructor.
@@ -72,20 +69,20 @@ class AvailableBudgetController extends Controller
      */
     public function overview(AvailableBudget $availableBudget): JsonResponse
     {
-        $currency          = $availableBudget->transactionCurrency;
-        $budgets           = $this->repository->getActiveBudgets();
-        $budgetInformation = $this->opsRepository->spentInPeriodMc($budgets, new Collection, $availableBudget->start_date, $availableBudget->end_date);
-        $spent             = 0.0;
+        $currency             = $availableBudget->transactionCurrency;
+        $budgets              = $this->repository->getActiveBudgets();
+        $newBudgetInformation = $this->opsRepository->sumExpenses($availableBudget->start_date, $availableBudget->end_date, null, $budgets);
+        $spent                = '0';
 
-        // get for current currency
-        foreach ($budgetInformation as $spentInfo) {
-            if ($spentInfo['currency_id'] === $availableBudget->transaction_currency_id) {
-                $spent = $spentInfo['amount'];
+        foreach ($newBudgetInformation as $currencyId => $info) {
+            if ($currencyId === (int) $availableBudget->transaction_currency_id) {
+                $spent = $info['sum'];
             }
         }
-        $left = bcadd($availableBudget->amount, (string)$spent);
+
+        $left = bcadd($availableBudget->amount, $spent);
         // left less than zero? Set to zero.
-        if (bccomp($left, '0') === -1) {
+        if (-1 === bccomp($left, '0')) {
             $left = '0';
         }
 

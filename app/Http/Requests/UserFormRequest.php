@@ -1,44 +1,39 @@
 <?php
 /**
  * UserFormRequest.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Requests;
+
+use FireflyIII\Support\Request\ChecksLogin;
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class UserFormRequest.
  *
  * @codeCoverageIgnore
  */
-class UserFormRequest extends Request
+class UserFormRequest extends FormRequest
 {
-    /**
-     * Verify the request.
-     *
-     * @return bool
-     */
-    public function authorize(): bool
-    {
-        // Only allow logged in users
-        return auth()->check();
-    }
+    use ConvertsDataTypes, ChecksLogin;
 
     /**
      * Get data for controller.
@@ -52,6 +47,7 @@ class UserFormRequest extends Request
             'blocked'      => 1 === $this->integer('blocked'),
             'blocked_code' => $this->string('blocked_code'),
             'password'     => $this->string('password'),
+            'is_owner'     => 1 === $this->integer('is_owner'),
         ];
     }
 
@@ -68,6 +64,7 @@ class UserFormRequest extends Request
             'password'     => 'confirmed|secure_password',
             'blocked_code' => 'between:0,30|nullable',
             'blocked'      => 'between:0,1|numeric',
+            'is_owner'     => 'between:0,1|numeric',
         ];
     }
 }

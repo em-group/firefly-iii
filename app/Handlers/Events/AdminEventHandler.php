@@ -1,22 +1,22 @@
 <?php
 /**
  * AdminEventHandler.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -51,6 +51,17 @@ class AdminEventHandler
         if ($repository->hasRole($event->user, 'owner')) {
             $email     = $event->user->email;
             $ipAddress = $event->ipAddress;
+
+            // if user is demo user, send to owner:
+            if($event->user->hasRole('demo')) {
+                $email = config('firefly.site_owner');
+            }
+
+            // see if user has alternative email address:
+            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email', null);
+            if (null !== $pref) {
+                $email = $pref->data;
+            }
 
             Log::debug(sprintf('Now in sendTestMessage event handler. Email is %s, IP is %s', $email, $ipAddress));
             try {

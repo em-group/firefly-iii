@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * PiggyBankForm.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Support\Form;
 
@@ -46,17 +47,43 @@ class PiggyBankForm
      */
     public function piggyBankList(string $name, $value = null, array $options = null): string
     {
-
         // make repositories
         /** @var PiggyBankRepositoryInterface $repository */
         $repository = app(PiggyBankRepositoryInterface::class);
         $piggyBanks = $repository->getPiggyBanksWithAmount();
-        $array      = [
-            0 => (string)trans('firefly.none_in_select_list'),
+        $title      = (string) trans('firefly.default_group_title_name');
+        $array      = [];
+        $subList    = [
+            0 => [
+                'group'   => [
+                    'title' => $title,
+                ],
+                'piggies' => [
+                    (string) trans('firefly.none_in_select_list'),
+                ],
+            ],
         ];
         /** @var PiggyBank $piggy */
         foreach ($piggyBanks as $piggy) {
-            $array[$piggy->id] = $piggy->name;
+            $group      = $piggy->objectGroups->first();
+            $groupTitle = null;
+            $groupOrder = 0;
+            if (null !== $group) {
+                $groupTitle = $group->title;
+                $groupOrder = $group->order;
+            }
+            $subList[$groupOrder]                        = $subList[$groupOrder] ?? [
+                    'group'   => [
+                        'title' => $groupTitle,
+                    ],
+                    'piggies' => [],
+                ];
+            $subList[$groupOrder]['piggies'][$piggy->id] = $piggy->name;
+        }
+        ksort($subList);
+        foreach ($subList as $info) {
+            $groupTitle         = $info['group']['title'];
+            $array[$groupTitle] = $info['piggies'];
         }
 
         return $this->select($name, $array, $value, $options);

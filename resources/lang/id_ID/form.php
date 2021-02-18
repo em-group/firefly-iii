@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Cocok di',
     'strict'                      => 'Strict mode',
     'repeat_freq'                 => 'Berulang',
-    'journal_currency_id'         => 'Mata uang',
+    'object_group'                => 'Group',
+    'location'                    => 'Location',
+    'update_channel'              => 'Update channel',
     'currency_id'                 => 'Mata uang',
     'transaction_currency_id'     => 'Currency',
+    'auto_budget_currency_id'     => 'Currency',
     'external_ip'                 => 'Your server\'s external IP',
     'attachments'                 => 'Lampiran',
-    'journal_amount'              => 'Jumlah',
-    'journal_source_name'         => 'Revenue account (source)',
-    'keep_bill_id'                => 'Bill',
-    'journal_source_id'           => 'Asset account (source)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Verifikasi keamanan kata sandi',
     'source_account'              => 'Akun sumber',
     'destination_account'         => 'Akun tujuan',
-    'journal_destination_id'      => 'Asset account (destination)',
     'asset_destination_account'   => 'Destination account',
     'include_net_worth'           => 'Include in net worth',
     'asset_source_account'        => 'Source account',
     'journal_description'         => 'Deskripsi',
     'note'                        => 'Catatan',
-    'store_new_transaction'       => 'Store new transaction',
-    'split_journal'               => 'Pisahkan transaksi ini',
-    'split_journal_explanation'   => 'Split transaksi ini di banyak bagian',
     'currency'                    => 'Mata uang',
     'account_id'                  => 'Akun aset',
     'budget_id'                   => 'Anggaran',
     'opening_balance'             => 'Opening balance',
     'tagMode'                     => 'Mode Tag',
-    'tag_position'                => 'Lokasi tag',
     'virtual_balance'             => 'Virtual balance',
     'targetamount'                => 'Jumlah target',
     'account_role'                => 'Account role',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Rekening pengeluaran',
     'revenue_account'             => 'Akun pendapatan',
     'decimal_places'              => 'Tempat desimal',
-    'exchange_rate_instruction'   => 'Mata uang asing',
-    'source_amount'               => 'Jumlah (sumber)',
     'destination_amount'          => 'Jumlah (tujuan)',
-    'native_amount'               => 'Jumlah asli',
     'new_email_address'           => 'Alamat email baru',
     'verification'                => 'Verifikasi',
     'api_key'                     => 'Kunci API',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Interest',
     'interest_period'             => 'Interest period',
 
-    'source_account_asset'        => 'Akun sumber (akun aset)',
-    'destination_account_expense' => 'Akun tujuan (akun pengeluaran)',
-    'destination_account_asset'   => 'Akun tujuan (akun aset)',
-    'source_account_revenue'      => 'Akun sumber (akun pendapatan)',
-    'type'                        => 'Mengetik',
-    'convert_Withdrawal'          => 'Mengkonversi penarikan',
-    'convert_Deposit'             => 'Convert deposit',
-    'convert_Transfer'            => 'Mengkonversi transfer',
+    'type'               => 'Mengetik',
+    'convert_Withdrawal' => 'Mengkonversi penarikan',
+    'convert_Deposit'    => 'Convert deposit',
+    'convert_Transfer'   => 'Mengkonversi transfer',
 
     'amount'                      => 'Jumlah',
     'foreign_amount'              => 'Foreign amount',
-    'existing_attachments'        => 'Existing attachments',
     'date'                        => 'Tanggal',
     'interest_date'               => 'Tanggal bunga',
     'book_date'                   => 'Tanggal buku',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Format tanggal',
     'specifix'                    => 'Perbaikan spesifik bank atau berkas',
     'attachments[]'               => 'Lampiran',
-    'store_new_withdrawal'        => 'Simpan penarikan baru',
-    'store_new_deposit'           => 'Simpan deposit baru',
-    'store_new_transfer'          => 'Simpan transfer baru',
-    'add_new_withdrawal'          => 'Tambahkan penarikan baru',
-    'add_new_deposit'             => 'Tambahkan deposit baru',
-    'add_new_transfer'            => 'Tambahkan transfer baru',
     'title'                       => 'Judul',
     'notes'                       => 'Catatan',
     'filename'                    => 'Nama file',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Berhenti memproses',
     'start_date'                  => 'Mulai dari jangkauan',
     'end_date'                    => 'Akhir rentang',
-    'include_attachments'         => 'Sertakan lampiran yang diunggah',
-    'include_old_uploads'         => 'Sertakan data yang diimpor',
+    'start'                       => 'Start of range',
+    'end'                         => 'End of range',
     'delete_account'              => 'Delete account ":name"',
     'delete_bill'                 => 'Hapus tagihan ":name"',
     'delete_budget'               => 'Hapus anggaran ":name"',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => 'Yakin ingin menghapus akun dengan nama ":name"?',
     'bill_areYouSure'             => 'Yakin ingin menghapus tagihan yang bernama ":name"?',
     'rule_areYouSure'             => 'Yakin ingin menghapus aturan yang berjudul ":title"?',
+    'object_group_areYouSure'     => 'Are you sure you want to delete the group titled ":title"?',
     'ruleGroup_areYouSure'        => 'Yakin ingin menghapus grup aturan yang berjudul ":title"?',
     'budget_areYouSure'           => 'Yakin ingin menghapus anggaran dengan nama ":name"?',
     'category_areYouSure'         => 'Yakin ingin menghapus kategori yang bernama ":name"?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'Satu-satunya transaksi yang terkait dengan jenis link ini akan kehilangan koneksi ini. Semua :count transaksi yang terkait dengan jenis link ini akan kehilangan koneksi mereka.',
     'also_delete_rules'           => 'Aturan satu-satunya yang terhubung ke grup aturan ini akan dihapus juga. Aturan All :count yang terhubung ke grup aturan ini akan dihapus juga.',
     'also_delete_piggyBanks'      => 'Satu-satunya piggy bank yang terhubung ke akun ini akan dihapus juga. Semua :count piggy bank yang terhubung ke akun ini akan dihapus juga.',
+    'not_delete_piggy_banks'      => 'The piggy bank connected to this group will not be deleted.|The :count piggy banks connected to this group will not be deleted.',
     'bill_keep_transactions'      => 'The only transaction connected to this bill will not be deleted.|All :count transactions connected to this bill will be spared deletion.',
     'budget_keep_transactions'    => 'The only transaction connected to this budget will not be deleted.|All :count transactions connected to this budget will be spared deletion.',
     'category_keep_transactions'  => 'The only transaction connected to this category will not be deleted.|All :count transactions connected to this category will be spared deletion.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'The only transaction connected to this tag will not be deleted.|All :count transactions connected to this tag will be spared deletion.',
     'check_for_updates'           => 'Check for updates',
 
+    'delete_object_group' => 'Delete group ":title"',
+
     'email'                 => 'Alamat email',
     'password'              => 'Kata sandi',
     'password_confirmation' => 'Password (lagi)',
     'blocked'               => 'Apakah diblokir?',
     'blocked_code'          => 'Alasan untuk blok',
     'login_name'            => 'Login',
+    'is_owner'              => 'Is admin?',
 
     // import
     'apply_rules'           => 'Apply rules',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Apakah situs demo',
 
     // import
-    'import_file'           => 'Impor file',
     'configuration_file'    => 'File konfigurasi',
-    'import_file_type'      => 'Impor jenis file',
     'csv_comma'             => 'Koma (,)',
     'csv_semicolon'         => 'Titik koma (;)',
     'csv_tab'               => 'Tab (tak terlihat)',
     'csv_delimiter'         => 'Pembatas lapangan CSV',
-    'csv_import_account'    => 'Akun impor default',
-    'csv_config'            => 'Konfigurasi impor CSV',
     'client_id'             => 'ID klien',
-    'service_secret'        => 'Rahasia layanan',
-    'app_secret'            => 'Rahasia app',
     'app_id'                => 'App ID',
     'secret'                => 'Secret',
     'public_key'            => 'Kunci publik',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Source account',
     'expected_on'               => 'Expected on',
     'paid'                      => 'Paid',
+
+    'auto_budget_type'   => 'Auto-budget',
+    'auto_budget_amount' => 'Auto-budget amount',
+    'auto_budget_period' => 'Auto-budget period',
+
+    'collected' => 'Collected',
+    'submitted' => 'Submitted',
+    'key'       => 'Key',
+    'value'     => 'Content of record',
+
 
 ];

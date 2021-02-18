@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurringTransactionTrait.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -98,13 +98,15 @@ trait RecurringTransactionTrait
             $validator = app(AccountValidator::class);
             $validator->setUser($recurrence->user);
             $validator->setTransactionType($recurrence->transactionType->type);
-            if (!$validator->validateSource($source->id, null)) {
+            if (!$validator->validateSource($source->id, null, null)) {
                 throw new FireflyException(sprintf('Source invalid: %s', $validator->sourceError)); // @codeCoverageIgnore
             }
 
-            if (!$validator->validateDestination($destination->id, null)) {
+            if (!$validator->validateDestination($destination->id, null, null)) {
                 throw new FireflyException(sprintf('Destination invalid: %s', $validator->destError)); // @codeCoverageIgnore
             }
+
+            // TODO typeOverrule: the account validator may have another opinion on the transaction type.
 
             $transaction = new RecurrenceTransaction(
                 [
@@ -241,24 +243,6 @@ trait RecurringTransactionTrait
         return $result ?? $repository->getCashAccount();
     }
 
-    //    /**
-    //     * Update meta data for recurring transaction.
-    //     *
-    //     * @param Recurrence $recurrence
-    //     * @param array $data
-    //     */
-    //    protected function updateMetaData(Recurrence $recurrence, array $data): void
-    //    {
-    //        // only two special meta fields right now. Let's just hard code them.
-    //        $piggyId   = (int)($data['meta']['piggy_bank_id'] ?? 0.0);
-    //        $piggyName = $data['meta']['piggy_bank_name'] ?? '';
-    //        $this->updatePiggyBank($recurrence, $piggyId, $piggyName);
-    //
-    //        $tags = $data['meta']['tags'] ?? [];
-    //        $this->updateTags($recurrence, $tags);
-    //
-    //    }
-
     /**
      * @param RecurrenceTransaction $transaction
      * @param int                   $piggyId
@@ -291,7 +275,7 @@ trait RecurringTransactionTrait
      */
     protected function updateTags(RecurrenceTransaction $transaction, array $tags): void
     {
-        if (count($tags) > 0) {
+        if (!empty($tags)) {
             /** @var RecurrenceMeta $entry */
             $entry = $transaction->recurrenceTransactionMeta()->where('name', 'tags')->first();
             if (null === $entry) {
@@ -300,7 +284,7 @@ trait RecurringTransactionTrait
             $entry->value = json_encode($tags);
             $entry->save();
         }
-        if (0 === count($tags)) {
+        if (empty($tags)) {
             // delete if present
             $transaction->recurrenceTransactionMeta()->where('name', 'tags')->delete();
         }

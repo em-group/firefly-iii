@@ -1,33 +1,36 @@
 <?php
 /**
  * UserEventHandler.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection NullPointerExceptionInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Handlers\Events;
 
+use Carbon\Carbon;
 use Exception;
+use FireflyIII\Events\DetectedNewIPAddress;
 use FireflyIII\Events\RegisteredUser;
 use FireflyIII\Events\RequestedNewPassword;
 use FireflyIII\Events\UserChangedEmail;
 use FireflyIII\Mail\ConfirmEmailChangeMail;
+use FireflyIII\Mail\NewIPAddressWarningMail;
 use FireflyIII\Mail\RegisteredUser as RegisteredUserMail;
 use FireflyIII\Mail\RequestedNewPassword as RequestedNewPasswordMail;
 use FireflyIII\Mail\UndoEmailChangeMail;
@@ -118,10 +121,94 @@ class UserEventHandler
         if ($repository->hasRole($user, 'demo')) {
             // set user back to English.
             app('preferences')->setForUser($user, 'language', 'en_US');
+            app('preferences')->setForUser($user, 'locale', 'equal');
             app('preferences')->mark();
         }
 
         return true;
+    }
+
+    /**
+     * @param Login $event
+     */
+    public function storeUserIPAddress(Login $event): void
+    {
+        /** @var User $user */
+        $user = $event->user;
+        /** @var array $preference */
+        $preference = app('preferences')->getForUser($user, 'login_ip_history', [])->data;
+        $inArray    = false;
+        $ip         = request()->ip();
+        Log::debug(sprintf('User logging in from IP address %s', $ip));
+
+        // update array if in array
+        foreach ($preference as $index => $row) {
+            if ($row['ip'] === $ip) {
+                Log::debug('Found IP in array, refresh time.');
+                $preference[$index]['time'] = now(config('app.timezone'))->format('Y-m-d H:i:s');
+                $inArray                    = true;
+            }
+            // clean up old entries (6 months)
+            $carbon = Carbon::createFromFormat('Y-m-d H:i:s', $preference[$index]['time']);
+            if ($carbon->diffInMonths(today()) > 6) {
+                Log::debug(sprintf('Entry for %s is very old, remove it.', $row['ip']));
+                unset($preference[$index]);
+            }
+        }
+        // add to array if not the case:
+        if (false === $inArray) {
+            $preference[] = [
+                'ip'       => $ip,
+                'time'     => now(config('app.timezone'))->format('Y-m-d H:i:s'),
+                'notified' => false,
+            ];
+
+
+        }
+        $preference = array_values($preference);
+        app('preferences')->setForUser($user, 'login_ip_history', $preference);
+
+        if (false === $inArray && true === config('firefly.warn_new_ip')) {
+            event(new DetectedNewIPAddress($user, $ip));
+        }
+
+    }
+
+    /**
+     * @param DetectedNewIPAddress $event
+     */
+    public function notifyNewIPAddress(DetectedNewIPAddress $event): void
+    {
+        $user      = $event->user;
+        $email     = $user->email;
+        $ipAddress = $event->ipAddress;
+
+        if($user->hasRole('demo')) {
+            return; // do not email demo user.
+        }
+
+        $list      = app('preferences')->getForUser($user, 'login_ip_history', [])->data;
+
+        // see if user has alternative email address:
+        $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+        if (null !== $pref) {
+            $email = $pref->data;
+        }
+
+        /** @var array $entry */
+        foreach ($list as $index => $entry) {
+            if (false === $entry['notified']) {
+                try {
+                    Mail::to($email)->send(new NewIPAddressWarningMail($ipAddress));
+                    // @codeCoverageIgnoreStart
+                } catch (Exception $e) {
+                    Log::error($e->getMessage());
+                }
+            }
+            $list[$index]['notified'] = true;
+        }
+
+        app('preferences')->setForUser($user, 'login_ip_history', $list);
     }
 
     /**
@@ -165,7 +252,8 @@ class UserEventHandler
         $user      = $event->user;
         $ipAddress = $event->ipAddress;
         $token     = app('preferences')->getForUser($user, 'email_change_undo_token', 'invalid');
-        $uri       = route('profile.undo-email-change', [$token->data, hash('sha256', $oldEmail)]);
+        $hashed    = hash('sha256', sprintf('%s%s', (string) config('app.key'), $oldEmail));
+        $uri       = route('profile.undo-email-change', [$token->data, $hashed]);
         try {
             Mail::to($oldEmail)->send(new UndoEmailChangeMail($newEmail, $oldEmail, $uri, $ipAddress));
             // @codeCoverageIgnoreStart
@@ -222,6 +310,12 @@ class UserEventHandler
             $email     = $event->user->email;
             $uri       = route('index');
             $ipAddress = $event->ipAddress;
+
+            // see if user has alternative email address:
+            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email', null);
+            if (null !== $pref) {
+                $email = $pref->data;
+            }
 
             // send email.
             try {

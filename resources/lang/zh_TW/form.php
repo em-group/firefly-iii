@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => '配對於',
     'strict'                      => '嚴謹模式',
     'repeat_freq'                 => '重複',
-    'journal_currency_id'         => '貨幣',
+    'object_group'                => 'Group',
+    'location'                    => 'Location',
+    'update_channel'              => 'Update channel',
     'currency_id'                 => '貨幣',
     'transaction_currency_id'     => '貨幣',
+    'auto_budget_currency_id'     => 'Currency',
     'external_ip'                 => '您的伺服器外部IP',
     'attachments'                 => '附加檔案',
-    'journal_amount'              => '金額',
-    'journal_source_name'         => '收入帳戶 (來源)',
-    'keep_bill_id'                => '帳單',
-    'journal_source_id'           => '資產帳戶 (來源)',
     'BIC'                         => 'BIC',
     'verify_password'             => '驗證密碼安全性',
     'source_account'              => '來源帳戶',
     'destination_account'         => '目標帳戶',
-    'journal_destination_id'      => '資產帳戶 (目標)',
     'asset_destination_account'   => '目標帳戶',
     'include_net_worth'           => '包括淨值',
     'asset_source_account'        => '來源帳戶',
     'journal_description'         => '說明',
     'note'                        => '備註',
-    'store_new_transaction'       => '儲存新交易',
-    'split_journal'               => '分割此交易',
-    'split_journal_explanation'   => '分割這個交易為幾個部分',
     'currency'                    => '貨幣',
     'account_id'                  => '資產帳戶',
     'budget_id'                   => '預算',
     'opening_balance'             => '初始餘額',
     'tagMode'                     => '標籤模式',
-    'tag_position'                => '標籤位置',
     'virtual_balance'             => '虛擬餘額',
     'targetamount'                => '目標金額',
     'account_role'                => '帳戶角色',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => '支出帳戶',
     'revenue_account'             => '收入帳戶',
     'decimal_places'              => '小數位數',
-    'exchange_rate_instruction'   => '外幣',
-    'source_amount'               => '金額 (來源)',
     'destination_amount'          => '金額 (目標)',
-    'native_amount'               => '原生金額',
     'new_email_address'           => '新電子郵件地址',
     'verification'                => '驗證',
     'api_key'                     => 'API 金鑰',
@@ -92,18 +83,13 @@ return [
     'interest'                    => '利率',
     'interest_period'             => '利率期',
 
-    'source_account_asset'        => '來源帳戶 (資產帳戶)',
-    'destination_account_expense' => '目標帳戶 (支出帳戶)',
-    'destination_account_asset'   => '目標帳戶 (資產帳戶)',
-    'source_account_revenue'      => '來源帳戶 (收入帳戶)',
-    'type'                        => '類型',
-    'convert_Withdrawal'          => '轉換提款',
-    'convert_Deposit'             => '轉換存款',
-    'convert_Transfer'            => '轉換轉帳',
+    'type'               => '類型',
+    'convert_Withdrawal' => '轉換提款',
+    'convert_Deposit'    => '轉換存款',
+    'convert_Transfer'   => '轉換轉帳',
 
     'amount'                      => '金額',
     'foreign_amount'              => '外幣金額',
-    'existing_attachments'        => '既有附加檔案',
     'date'                        => '日期',
     'interest_date'               => '利率日期',
     'book_date'                   => '登記日期',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => '日期格式',
     'specifix'                    => '特定的銀行或檔案修正',
     'attachments[]'               => '附加檔案',
-    'store_new_withdrawal'        => '儲存新提款',
-    'store_new_deposit'           => '儲存新存款',
-    'store_new_transfer'          => '儲存新轉帳',
-    'add_new_withdrawal'          => '新增新提款',
-    'add_new_deposit'             => '新增新存款',
-    'add_new_transfer'            => '新增新轉帳',
     'title'                       => '標題',
     'notes'                       => '備註',
     'filename'                    => '檔案名稱',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => '停止處理',
     'start_date'                  => '範圍起點',
     'end_date'                    => '範圍終點',
-    'include_attachments'         => '包括上傳的附件',
-    'include_old_uploads'         => '包含匯入的資料',
+    'start'                       => 'Start of range',
+    'end'                         => 'End of range',
     'delete_account'              => '刪除帳戶 ":name"',
     'delete_bill'                 => '刪除帳單 ":name"',
     'delete_budget'               => '刪除預算 ":name"',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => '你確定你想要刪除名為 ":name" 的帳戶?',
     'bill_areYouSure'             => '你確定你想要刪除名為 ":name" 的帳單?',
     'rule_areYouSure'             => '你確定你想要刪除名為 ":title" 的規則?',
+    'object_group_areYouSure'     => 'Are you sure you want to delete the group titled ":title"?',
     'ruleGroup_areYouSure'        => '你確定你想要刪除名為 ":title" 的規則群組?',
     'budget_areYouSure'           => '你確定你想要刪除名為 ":name" 的預算?',
     'category_areYouSure'         => '你確定你想要刪除名為 ":name" 的分類?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => '與此連結類型連接的唯一一筆交易會遺失連接。|與此連結類型連接的 :count 筆交易會遺失連接。',
     'also_delete_rules'           => '與此規則群組連接的唯一一則規則也會被刪除。|與此規則群組連接的 :count 則規則也會被刪除。',
     'also_delete_piggyBanks'      => '與此帳戶連接的唯一一個小豬撲滿也會被刪除。|與此帳戶連接的 :count 個小豬撲滿也會被刪除。',
+    'not_delete_piggy_banks'      => 'The piggy bank connected to this group will not be deleted.|The :count piggy banks connected to this group will not be deleted.',
     'bill_keep_transactions'      => '與此帳單連接的唯一一筆交易不會被刪除。|與此帳單連接的 :count 筆交易不會被刪除。',
     'budget_keep_transactions'    => '與此預算連接的唯一一筆交易不會被刪除。|與此預算連接的 :count 筆交易不會被刪除。',
     'category_keep_transactions'  => '與此分類連接的唯一一筆交易不會被刪除。|與此分類連接的 :count 筆交易不會被刪除。',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => '與此標籤連接的唯一一筆交易不會被刪除。|與此標籤連接的 :count 筆交易不會被刪除。',
     'check_for_updates'           => '檢查更新',
 
+    'delete_object_group' => 'Delete group ":title"',
+
     'email'                 => '電子郵件地址',
     'password'              => '密碼',
     'password_confirmation' => '密碼 (再輸入一次)',
     'blocked'               => '被封鎖了？',
     'blocked_code'          => '封鎖的原因',
     'login_name'            => '登入',
+    'is_owner'              => 'Is admin?',
 
     // import
     'apply_rules'           => '套用規則',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => '這是演示網站',
 
     // import
-    'import_file'           => '匯入檔案',
     'configuration_file'    => '組態檔案',
-    'import_file_type'      => '匯入檔案類型',
     'csv_comma'             => '逗號 (,)',
     'csv_semicolon'         => '分號 (;)',
     'csv_tab'               => 'TAB鍵 (不可見)',
     'csv_delimiter'         => 'CSV 欄位分隔符號',
-    'csv_import_account'    => '預設匯入帳戶',
-    'csv_config'            => 'CSV 匯入組態',
     'client_id'             => '客戶端 ID',
-    'service_secret'        => 'Service secret',
-    'app_secret'            => 'App Secret',
     'app_id'                => 'App ID',
     'secret'                => '金鑰',
     'public_key'            => '公共金鑰',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Source account',
     'expected_on'               => 'Expected on',
     'paid'                      => 'Paid',
+
+    'auto_budget_type'   => 'Auto-budget',
+    'auto_budget_amount' => 'Auto-budget amount',
+    'auto_budget_period' => 'Auto-budget period',
+
+    'collected' => 'Collected',
+    'submitted' => 'Submitted',
+    'key'       => 'Key',
+    'value'     => 'Content of record',
+
 
 ];

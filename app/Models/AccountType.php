@@ -1,46 +1,51 @@
 <?php
 /**
  * AccountType.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * Class AccountType.
  *
- * @property string $type
+ * @property string                    $type
  * @method whereType(string $type)
- * @property int    $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Account[] $accounts
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType query()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\AccountType whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @property int                       $id
+ * @property Carbon|null               $created_at
+ * @property Carbon|null               $updated_at
+ * @property-read Collection|Account[] $accounts
+ * @method static Builder|AccountType newModelQuery()
+ * @method static Builder|AccountType newQuery()
+ * @method static Builder|AccountType query()
+ * @method static Builder|AccountType whereCreatedAt($value)
+ * @method static Builder|AccountType whereId($value)
+ * @method static Builder|AccountType whereUpdatedAt($value)
+ * @mixin Eloquent
+ * @property-read int|null             $accounts_count
  */
 class AccountType extends Model
 {

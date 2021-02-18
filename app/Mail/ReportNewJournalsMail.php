@@ -1,22 +1,22 @@
 <?php
 /**
  * ReportNewJournalsMail.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -42,12 +42,10 @@ class ReportNewJournalsMail extends Mailable
 
     /** @var string Email address of the user */
     public $email;
-    /** @var string IP address of user (if known) */
-    public $ipAddress;
-
     /** @var Collection A collection of groups */
     public $groups;
-
+    /** @var string IP address of user (if known) */
+    public $ipAddress;
     /** @var array All groups, transformed to array. */
     public $transformed;
 
@@ -72,15 +70,10 @@ class ReportNewJournalsMail extends Mailable
      */
     public function build(): self
     {
-        $subject           = 1 === $this->groups->count()
-            ? config('app.name').' has created a new transaction'
-            : sprintf(
-                config('app.name').' has created new %d transactions', $this->groups->count()
-            );
         $this->transform();
 
         return $this->view('emails.report-new-journals-html')->text('emails.report-new-journals-text')
-                    ->subject($subject);
+                    ->subject((string) trans_choice('email.new_journals_subject', $this->groups->count()));
     }
 
     private function transform(): void

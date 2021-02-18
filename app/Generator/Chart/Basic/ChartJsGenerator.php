@@ -1,22 +1,22 @@
 <?php
 /**
  * ChartJsGenerator.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -32,6 +32,7 @@ class ChartJsGenerator implements GeneratorInterface
 {
     /**
      * Constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -62,7 +63,7 @@ class ChartJsGenerator implements GeneratorInterface
         $amounts  = array_column($data, 'amount');
         $next     = next($amounts);
         $sortFlag = SORT_ASC;
-        if (!is_bool($next) && 1 === bccomp((string)$next, '0')) {
+        if (!is_bool($next) && 1 === bccomp((string) $next, '0')) {
             $sortFlag = SORT_DESC;
         }
         array_multisort($amounts, $sortFlag, $data);
@@ -71,7 +72,7 @@ class ChartJsGenerator implements GeneratorInterface
         $index = 0;
         foreach ($data as $key => $valueArray) {
             // make larger than 0
-            $chartData['datasets'][0]['data'][]            = (float)app('steam')->positive((string)$valueArray['amount']);
+            $chartData['datasets'][0]['data'][]            = (float) app('steam')->positive((string) $valueArray['amount']);
             $chartData['datasets'][0]['backgroundColor'][] = ChartColour::getColour($index);
             $chartData['datasets'][0]['currency_symbol'][] = $valueArray['currency_symbol'];
             $chartData['labels'][]                         = $key;
@@ -118,12 +119,11 @@ class ChartJsGenerator implements GeneratorInterface
     public function multiSet(array $data): array
     {
         reset($data);
-        $first  = current($data);
-        if ($first === false) {
-            $labels = [];
-        } else {
-            $labels = is_array($first['entries']) ? array_keys($first['entries']) : [];
+        $first = current($data);
+        if (!is_array($first)) {
+            return [];
         }
+        $labels = is_array($first['entries']) ? array_keys($first['entries']) : [];
 
         $chartData = [
             'count'    => count($data),
@@ -138,16 +138,16 @@ class ChartJsGenerator implements GeneratorInterface
                 'type'  => $set['type'] ?? 'line',
                 'data'  => array_values($set['entries']),
             ];
-            if (isset($set['yAxisID'])) {
+            if (array_key_exists('yAxisID', $set)) {
                 $currentSet['yAxisID'] = $set['yAxisID'];
             }
-            if (isset($set['fill'])) {
+            if (array_key_exists('fill', $set)) {
                 $currentSet['fill'] = $set['fill'];
             }
-            if (isset($set['currency_symbol'])) {
+            if (array_key_exists('currency_symbol', $set)) {
                 $currentSet['currency_symbol'] = $set['currency_symbol'];
             }
-            if (isset($set['backgroundColor'])) {
+            if (array_key_exists('backgroundColor', $set)) {
                 $currentSet['backgroundColor'] = $set['backgroundColor'];
             }
             $chartData['datasets'][] = $currentSet;
@@ -178,7 +178,7 @@ class ChartJsGenerator implements GeneratorInterface
         // different sort when values are positive and when they're negative.
         asort($data);
         $next = next($data);
-        if (!is_bool($next) && 1 === bccomp((string)$next, '0')) {
+        if (!is_bool($next) && 1 === bccomp((string) $next, '0')) {
             // next is positive, sort other way around.
             arsort($data);
         }
@@ -187,10 +187,10 @@ class ChartJsGenerator implements GeneratorInterface
         $index = 0;
         foreach ($data as $key => $value) {
             // make larger than 0
-            $chartData['datasets'][0]['data'][]            = (float)app('steam')->positive((string)$value);
+            $chartData['datasets'][0]['data'][]            = (float) app('steam')->positive((string) $value);
             $chartData['datasets'][0]['backgroundColor'][] = ChartColour::getColour($index);
 
-            $chartData['labels'][]                         = $key;
+            $chartData['labels'][] = $key;
             ++$index;
         }
 
@@ -209,7 +209,7 @@ class ChartJsGenerator implements GeneratorInterface
      */
     public function singleSet(string $setLabel, array $data): array
     {
-        $chartData = [
+        return [
             'count'    => 1,
             'labels'   => array_keys($data), // take ALL labels from the first set.
             'datasets' => [
@@ -219,7 +219,5 @@ class ChartJsGenerator implements GeneratorInterface
                 ],
             ],
         ];
-
-        return $chartData;
     }
 }

@@ -1,24 +1,24 @@
 /*
  * index.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** global: token */
-var fixHelper = function (e, tr) {
+var fixPiggyHelper = function (e, tr) {
     "use strict";
     var $originals = tr.children();
     var $helper = tr.clone();
@@ -34,11 +34,13 @@ $(function () {
     $('.addMoney').on('click', addMoney);
     $('.removeMoney').on('click', removeMoney);
 
-    $('#sortable-piggy').find('tbody').sortable(
+    $('#piggy-sortable').find('tbody').sortable(
         {
-            helper: fixHelper,
+            helper: fixPiggyHelper,
             stop: stopSorting,
-            handle: '.handle',
+            connectWith: '.piggy-connected-list',
+            items: 'tr.piggy-sortable',
+            handle: '.piggy-handle',
             start: function (event, ui) {
                 // Build a placeholder cell that spans all the cells in the row
                 var cellCount = 0;
@@ -84,8 +86,10 @@ function stopSorting() {
     "use strict";
     $('.loadSpin').addClass('fa fa-refresh fa-spin');
 
-    $.each($('#sortable-piggy>tbody>tr'), function (i, v) {
+    $.each($('#piggy-sortable>tbody>tr.piggy-sortable'), function (i, v) {
         var holder = $(v);
+        var parentBody = holder.parent();
+        var objectGroupTitle = parentBody.data('title');
         var position = parseInt(holder.data('position'));
         var originalOrder = parseInt(holder.data('order'));
         var name = holder.data('name');
@@ -97,16 +101,16 @@ function stopSorting() {
         }
         if (position < i) {
             // position is less.
-            console.log('"' + name + '" has moved up from position ' + originalOrder + ' to ' + (i+1));
+            console.log('"' + name + '" ("' + objectGroupTitle + '") has moved down from position ' + originalOrder + ' to ' + (i + 1));
         }
         if (position > i) {
-            console.log('"' + name + '" has moved up from position ' + originalOrder + ' to ' + (i+1));
+            console.log('"' + name + '" ("' + objectGroupTitle + '") has moved up from position ' + originalOrder + ' to ' + (i + 1));
         }
         // update position:
         holder.data('position', i);
         newOrder = i+1;
 
-        $.post('piggy-banks/set-order/' + id, {order: newOrder, _token: token})
+        $.post('piggy-banks/set-order/' + id, {order: newOrder, objectGroupTitle: objectGroupTitle, _token: token})
     });
     $('.loadSpin').removeClass('fa fa-refresh fa-spin');
 

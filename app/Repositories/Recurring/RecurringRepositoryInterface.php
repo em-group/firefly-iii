@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurringRepositoryInterface.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -25,7 +25,6 @@ namespace FireflyIII\Repositories\Recurring;
 
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
-use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\RecurrenceRepetition;
 use FireflyIII\Models\RecurrenceTransaction;
@@ -40,6 +39,20 @@ use Illuminate\Support\Collection;
  */
 interface RecurringRepositoryInterface
 {
+    /**
+     * Destroy all recurring transactions.
+     */
+    public function destroyAll(): void;
+
+    /**
+     * Calculate how many transactions are to be expected from this recurrence.
+     *
+     * @param Recurrence $recurrence
+     * @param RecurrenceRepetition $repetition
+     * @return int
+     */
+    public function totalTransactions(Recurrence $recurrence, RecurrenceRepetition $repetition): int;
+
     /**
      * Destroy a recurring transaction.
      *
@@ -120,19 +133,19 @@ interface RecurringRepositoryInterface
     public function getOccurrencesInRange(RecurrenceRepetition $repetition, Carbon $start, Carbon $end): array;
 
     /**
-     * @param Recurrence $recurrence
-     * @return PiggyBank|null
+     * @param RecurrenceTransaction $transaction
+     * @return int|null
      */
-    public function getPiggyBank(Recurrence $recurrence): ?PiggyBank;
+    public function getPiggyBank(RecurrenceTransaction $transaction): ?int;
 
     /**
      * Get the tags from the recurring transaction.
      *
-     * @param Recurrence $recurrence
+     * @param RecurrenceTransaction $transaction
      *
      * @return array
      */
-    public function getTags(Recurrence $recurrence): array;
+    public function getTags(RecurrenceTransaction $transaction): array;
 
     /**
      * @param Recurrence $recurrence
@@ -162,6 +175,22 @@ interface RecurringRepositoryInterface
      * @return array
      */
     public function getXOccurrences(RecurrenceRepetition $repetition, Carbon $date, int $count): array;
+
+    /**
+     * Calculate the next X iterations starting on the date given in $date.
+     * Returns an array of Carbon objects.
+     *
+     * Only returns them of they are after $afterDate
+     *
+     * @param RecurrenceRepetition $repetition
+     * @param Carbon               $date
+     * @param Carbon $afterDate
+     * @param int                  $count
+     *
+     * @throws FireflyException
+     * @return array
+     */
+    public function getXOccurrencesSince(RecurrenceRepetition $repetition, Carbon $date,Carbon $afterDate, int $count): array;
 
     /**
      * Parse the repetition in a string that is user readable.

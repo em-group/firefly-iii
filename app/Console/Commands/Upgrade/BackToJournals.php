@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * BackToJournals.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -49,6 +50,7 @@ class BackToJournals extends Command
      * @var string
      */
     protected $signature = 'firefly-iii:back-to-journals {--F|force : Force the execution of this command.}';
+
 
     /**
      * Execute the console command.
@@ -110,9 +112,9 @@ class BackToJournals extends Command
         $chunks       = array_chunk($transactions, 500);
 
         foreach ($chunks as $chunk) {
-            $set   = DB::table('transactions')
-                       ->whereIn('transactions.id', $chunk)
-                       ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            $set = DB::table('transactions')
+                     ->whereIn('transactions.id', $chunk)
+                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
             /** @noinspection SlowArrayOperationsInLoopInspection */
             $array = array_merge($array, $set);
         }
@@ -127,7 +129,7 @@ class BackToJournals extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false; // @codeCoverageIgnore
@@ -140,7 +142,7 @@ class BackToJournals extends Command
     {
         $configVar = app('fireflyconfig')->get(MigrateToGroups::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false; // @codeCoverageIgnore
@@ -211,7 +213,7 @@ class BackToJournals extends Command
         // both have a budget, but they don't match.
         if (null !== $budget && null !== $journalBudget && $budget->id !== $journalBudget->id) {
             // sync to journal:
-            $journal->budgets()->sync([(int)$budget->id]);
+            $journal->budgets()->sync([(int) $budget->id]);
 
             return;
         }
@@ -219,7 +221,7 @@ class BackToJournals extends Command
         // transaction has a budget, but the journal doesn't.
         if (null !== $budget && null === $journalBudget) {
             // sync to journal:
-            $journal->budgets()->sync([(int)$budget->id]);
+            $journal->budgets()->sync([(int) $budget->id]);
         }
     }
 
@@ -270,12 +272,12 @@ class BackToJournals extends Command
         // both have a category, but they don't match.
         if (null !== $category && null !== $journalCategory && $category->id !== $journalCategory->id) {
             // sync to journal:
-            $journal->categories()->sync([(int)$category->id]);
+            $journal->categories()->sync([(int) $category->id]);
         }
 
         // transaction has a category, but the journal doesn't.
         if (null !== $category && null === $journalCategory) {
-            $journal->categories()->sync([(int)$category->id]);
+            $journal->categories()->sync([(int) $category->id]);
         }
     }
 }

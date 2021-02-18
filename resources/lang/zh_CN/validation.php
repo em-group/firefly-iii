@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,7 +45,8 @@ return [
     'at_least_one_repetition'        => '至少需要一次重复。',
     'require_repeat_until'           => '仅需重复次数或结束日期 (repeat_until) 即可，不需两者均备。',
     'require_currency_info'          => '无货币资讯，此栏位内容无效。',
-    'require_currency_amount'        => 'The content of this field is invalid without foreign amount information.',
+    'not_transfer_account'           => '此帐户不是一个可以用于转账的帐户。',
+    'require_currency_amount'        => '此字段需要外币信息。',
     'equal_description'              => '交易描述不应等同全域描述。',
     'file_invalid_mime'              => '档案 ":name" 的类型为 ":mime"，系不被允许上载的类型。',
     'file_too_large'                 => '档案 ":name" 过大。',
@@ -56,7 +57,6 @@ return [
     'at_least_one_action'            => '规则必须至少有一个动作。',
     'base64'                         => '这不是有效的 base64 编码资料。',
     'model_id_invalid'               => '指定的 ID 对于此模型似乎无效。',
-    'more'                           => ':attribute 必须大于零。',
     'less'                           => ':attribute 必须小于 10,000,000。',
     'active_url'                     => ':attribute 不是有效的URL。',
     'after'                          => ':attribute 必须是一个在 :date 之后的日期。',
@@ -120,19 +120,21 @@ return [
     'string'                         => ':attribute 必须是字串。',
     'url'                            => ':attribute 格式无效。',
     'timezone'                       => ':attribute 必须是有效的区域。',
-    '2fa_code'                    => ':attribute 栏位是无效的。',
-    'dimensions'                  => ':attribute 具有无效图片尺寸。',
-    'distinct'                    => ':attribute 栏位有重复值。',
-    'file'                        => ':attribute 必须是档案。',
-    'in_array'                    => ':attribute 栏位不存在于 :other。',
-    'present'                     => ':attribute 栏位必须存在。',
-    'amount_zero'                 => '总金额不能为零。',
-    'current_target_amount'       => 'The current amount must be less than the target amount.',
-    'unique_piggy_bank_for_user'  => '存钱罐的名称必须是独一无二的。',
-    'secure_password'             => '这不是一个安全的密码，请重试一次。如需更多讯息，请访问 https://bit.ly/FF3-password-security',
-    'valid_recurrence_rep_type'   => '对定期重复交易是无效的重复类型。',
-    'valid_recurrence_rep_moment' => '对此重复类型是无效的重复时刻。',
-    'invalid_account_info'        => '无效的帐户资讯。',
+    '2fa_code'                       => ':attribute 栏位是无效的。',
+    'dimensions'                     => ':attribute 具有无效图片尺寸。',
+    'distinct'                       => ':attribute 栏位有重复值。',
+    'file'                           => ':attribute 必须是档案。',
+    'in_array'                       => ':attribute 栏位不存在于 :other。',
+    'present'                        => ':attribute 栏位必须存在。',
+    'amount_zero'                    => '总金额不能为零。',
+    'current_target_amount'          => '当前金额必须小于目标金额。',
+    'unique_piggy_bank_for_user'     => '存钱罐的名称必须是独一无二的。',
+    'unique_object_group'            => '组名必须是唯一的',
+
+    'secure_password'                => '这不是一个安全的密码，请重试一次。如需更多讯息，请访问 https://bit.ly/FF3-password-security',
+    'valid_recurrence_rep_type'      => '对定期重复交易是无效的重复类型。',
+    'valid_recurrence_rep_moment'    => '对此重复类型是无效的重复时刻。',
+    'invalid_account_info'           => '无效的帐户资讯。',
     'attributes'                     => [
         'email'                   => '电子邮件地址',
         'description'             => '描述',
@@ -140,8 +142,8 @@ return [
         'name'                    => '名称',
         'piggy_bank_id'           => '存钱罐 ID',
         'targetamount'            => '目标金额',
-        'opening_balance_date'    => 'opening balance date',
-        'opening_balance'         => 'opening balance',
+        'opening_balance_date'    => '开户日期',
+        'opening_balance'         => '初始余额',
         'match'                   => '符合',
         'amount_min'              => '最小金额',
         'amount_max'              => '最大金额',
@@ -174,23 +176,34 @@ return [
     'withdrawal_source_need_data'    => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
     'withdrawal_source_bad_data'     => '搜索 ID":id"或名称":name"时找不到有效的来源帐户。',
     'withdrawal_dest_need_data'      => '需要一个有效的目标账户ID和/或目标账户名称才能继续。',
-    'withdrawal_dest_bad_data'       => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
+    'withdrawal_dest_bad_data'       => '搜索 ID":id"或名称":name"时找不到有效的目标帐户。',
 
     'deposit_source_need_data' => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
     'deposit_source_bad_data'  => '搜索 ID":id"或名称":name"时找不到有效的来源帐户。',
     'deposit_dest_need_data'   => '需要一个有效的目标账户ID和/或目标账户名称才能继续。',
     'deposit_dest_bad_data'    => '搜索 ID":id"或名称":name"时找不到有效的目标帐户。',
+    'deposit_dest_wrong_type'  => '提交的目标帐户不是正确的类型。',
 
     'transfer_source_need_data' => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
     'transfer_source_bad_data'  => '搜索 ID":id"或名称":name"时找不到有效的来源帐户。',
     'transfer_dest_need_data'   => '需要一个有效的目标账户ID和/或目标账户名称才能继续。',
     'transfer_dest_bad_data'    => '搜索 ID":id"或名称":name"时找不到有效的目标帐户。',
-    'need_id_in_edit'           => 'Each split must have transaction_journal_id (either valid ID or 0).',
+    'need_id_in_edit'           => '每笔拆分必须有 transaction_journal_id (有效的 ID 或 0)。',
 
-    'ob_source_need_data' => 'Need to get a valid source account ID and/or valid source account name to continue.',
-    'ob_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
-    'ob_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
+    'ob_source_need_data' => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
+    'ob_dest_need_data'   => '需要一个有效的目标账户ID和/或目标账户名称才能继续。',
+    'ob_dest_bad_data'    => '搜索 ID":id"或名称":name"时找不到有效的目标帐户。',
 
-    'generic_invalid_source' => 'You can\'t use this account as the source account.',
-    'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+    'generic_invalid_source'      => '您不能使用此帐户作为源帐户。',
+    'generic_invalid_destination' => '您不能使用此帐户作为目标帐户。',
+
+    'gte.numeric' => ':attribute 必须大于或等于 :value.',
+    'gt.numeric'  => ':attribute 必须大于 :value。',
+    'gte.file'    => ':attribute 必须大于或等于 :value Kb',
+    'gte.string'  => ':attribute 必须大于或等于 :value 字符。',
+    'gte.array'   => ':attribute 必须具有 :value 项或更多',
+
+    'amount_required_for_auto_budget' => '请填写金额。',
+    'auto_budget_amount_positive'     => '金额必须大于零。',
+    'auto_budget_period_mandatory' => '自动预算周期是必填的。',
 ];

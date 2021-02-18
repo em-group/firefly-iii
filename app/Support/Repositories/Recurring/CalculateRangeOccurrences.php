@@ -2,22 +2,22 @@
 
 /**
  * CalculateRangeOccurrences.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -46,11 +46,8 @@ trait CalculateRangeOccurrences
     {
         $return   = [];
         $attempts = 0;
-        Log::debug('Rep is daily. Start of loop.');
         while ($start <= $end) {
-            Log::debug(sprintf('Mutator is now: %s', $start->format('Y-m-d')));
             if (0 === $attempts % $skipMod) {
-                Log::debug(sprintf('Attempts modulo skipmod is zero, include %s', $start->format('Y-m-d')));
                 $return[] = clone $start;
             }
             $start->addDay();
@@ -77,27 +74,14 @@ trait CalculateRangeOccurrences
         $return     = [];
         $attempts   = 0;
         $dayOfMonth = (int)$moment;
-        Log::debug(sprintf('Day of month in repetition is %d', $dayOfMonth));
-        Log::debug(sprintf('Start is %s.', $start->format('Y-m-d')));
-        Log::debug(sprintf('End is %s.', $end->format('Y-m-d')));
         if ($start->day > $dayOfMonth) {
-            Log::debug('Add a month.');
             // day has passed already, add a month.
             $start->addMonth();
         }
-        Log::debug(sprintf('Start is now %s.', $start->format('Y-m-d')));
-        Log::debug('Start loop.');
         while ($start < $end) {
-            Log::debug(sprintf('Mutator is now %s.', $start->format('Y-m-d')));
             $domCorrected = min($dayOfMonth, $start->daysInMonth);
-            Log::debug(sprintf('DoM corrected is %d', $domCorrected));
             $start->day = $domCorrected;
-            Log::debug(sprintf('Mutator is now %s.', $start->format('Y-m-d')));
-            Log::debug(sprintf('$attempts %% $skipMod === 0 is %s', var_export(0 === $attempts % $skipMod, true)));
-            Log::debug(sprintf('$start->lte($mutator) is %s', var_export($start->lte($start), true)));
-            Log::debug(sprintf('$end->gte($mutator) is %s', var_export($end->gte($start), true)));
             if (0 === $attempts % $skipMod && $start->lte($start) && $end->gte($start)) {
-                Log::debug(sprintf('ADD %s to return!', $start->format('Y-m-d')));
                 $return[] = clone $start;
             }
             $attempts++;

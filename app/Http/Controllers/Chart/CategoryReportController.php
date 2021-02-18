@@ -1,22 +1,22 @@
 <?php
 /**
  * CategoryReportController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -64,61 +64,6 @@ class CategoryReportController extends Controller
         );
     }
 
-    //
-    //    /**
-    //     * Chart for expenses grouped by expense account.
-    //     *
-    //     * TODO this chart is not multi-currency aware.
-    //     *
-    //     * @param Collection $accounts
-    //     * @param Collection $categories
-    //     * @param Carbon     $start
-    //     * @param Carbon     $end
-    //     * @param string     $others
-    //     *
-    //     * @return JsonResponse
-    //     */
-    //    public function accountExpense(Collection $accounts, Collection $categories, Carbon $start, Carbon $end, string $others): JsonResponse
-    //    {
-    //        /** @var MetaPieChartInterface $helper */
-    //        $helper = app(MetaPieChartInterface::class);
-    //        $helper->setAccounts($accounts)->setCategories($categories)->setStart($start)->setEnd($end)->setCollectOtherObjects(1 === (int)$others);
-    //
-    //        $chartData = $helper->generate('expense', 'account');
-    //        $data      = $this->generator->pieChart($chartData);
-    //
-    //        return response()->json($data);
-    //    }
-
-    //
-    //    /**
-    //     * Chart for income grouped by revenue account.
-    //     *
-    //     * TODO this chart is not multi-currency aware.
-    //     *
-    //     * @param Collection $accounts
-    //     * @param Collection $categories
-    //     * @param Carbon     $start
-    //     * @param Carbon     $end
-    //     * @param string     $others
-    //     *
-    //     * @return JsonResponse
-    //     */
-    //    public function accountIncome(Collection $accounts, Collection $categories, Carbon $start, Carbon $end, string $others): JsonResponse
-    //    {
-    //        /** @var MetaPieChartInterface $helper */
-    //        $helper = app(MetaPieChartInterface::class);
-    //        $helper->setAccounts($accounts);
-    //        $helper->setCategories($categories);
-    //        $helper->setStart($start);
-    //        $helper->setEnd($end);
-    //        $helper->setCollectOtherObjects(1 === (int)$others);
-    //        $chartData = $helper->generate('income', 'account');
-    //        $data      = $this->generator->pieChart($chartData);
-    //
-    //        return response()->json($data);
-    //    }
-
     /**
      * @param Collection $accounts
      * @param Collection $categories
@@ -142,6 +87,7 @@ class CategoryReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -175,6 +121,7 @@ class CategoryReportController extends Controller
                 $result[$title] = $result[$title] ?? [
                         'amount'          => '0',
                         'currency_symbol' => $currency['currency_symbol'],
+                        'currency_code'   => $currency['currency_code'],
                     ];
                 foreach ($category['transaction_journals'] as $journal) {
                     $amount                   = app('steam')->positive($journal['amount']);
@@ -211,6 +158,7 @@ class CategoryReportController extends Controller
                 $result[$title] = $result[$title] ?? [
                         'amount'          => '0',
                         'currency_symbol' => $currency['currency_symbol'],
+                        'currency_code'   => $currency['currency_code'],
                     ];
                 foreach ($category['transaction_journals'] as $journal) {
                     $amount                   = app('steam')->positive($journal['amount']);
@@ -247,6 +195,7 @@ class CategoryReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -282,6 +231,7 @@ class CategoryReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -316,10 +266,13 @@ class CategoryReportController extends Controller
             $spentKey             = sprintf('%d-spent', $currency['currency_id']);
             $chartData[$spentKey] = $chartData[$spentKey] ?? [
                     'label'           => sprintf(
-                        '%s (%s)', (string)trans('firefly.spent_in_specific_category', ['category' => $category->name]), $currency['currency_name']
+                        '%s (%s)',
+                        (string) trans('firefly.spent_in_specific_category', ['category' => $category->name]),
+                        $currency['currency_name']
                     ),
                     'type'            => 'bar',
                     'currency_symbol' => $currency['currency_symbol'],
+                    'currency_code'   => $currency['currency_code'],
                     'currency_id'     => $currency['currency_id'],
                     'entries'         => $this->makeEntries($start, $end),
                 ];
@@ -340,10 +293,13 @@ class CategoryReportController extends Controller
             $spentKey             = sprintf('%d-earned', $currency['currency_id']);
             $chartData[$spentKey] = $chartData[$spentKey] ?? [
                     'label'           => sprintf(
-                        '%s (%s)', (string)trans('firefly.earned_in_specific_category', ['category' => $category->name]), $currency['currency_name']
+                        '%s (%s)',
+                        (string) trans('firefly.earned_in_specific_category', ['category' => $category->name]),
+                        $currency['currency_name']
                     ),
                     'type'            => 'bar',
                     'currency_symbol' => $currency['currency_symbol'],
+                    'currency_code'   => $currency['currency_code'],
                     'currency_id'     => $currency['currency_id'],
                     'entries'         => $this->makeEntries($start, $end),
                 ];
@@ -386,6 +342,7 @@ class CategoryReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -421,6 +378,7 @@ class CategoryReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -457,5 +415,4 @@ class CategoryReportController extends Controller
 
         return $return;
     }
-
 }

@@ -1,33 +1,33 @@
 <?php
-declare(strict_types=1);
-
-
 /**
  * 2019_02_11_170529_changes_for_v4712.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Class ChangesForV4712
+ * Class ChangesForV4712.
+ * @codeCoverageIgnore
  */
 class ChangesForV4712 extends Migration
 {
@@ -58,9 +58,9 @@ class ChangesForV4712 extends Migration
          * nice.
          */
         Schema::table(
-            'transaction_journals', function (Blueprint $table) {
-            $table->dateTime('date')->change();
-        }
+            'transaction_journals', static function (Blueprint $table) {
+                $table->dateTime('date')->change();
+            }
         );
     }
 }

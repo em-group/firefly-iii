@@ -1,22 +1,22 @@
 <?php
 /**
  * NetWorth.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -99,7 +99,7 @@ class NetWorth implements NetWorthInterface
         /** @var Account $account */
         foreach ($accounts as $account) {
             Log::debug(sprintf('Now at account #%d: "%s"', $account->id, $account->name));
-            $currencyId = (int)$this->accountRepository->getMetaValue($account, 'currency_id');
+            $currencyId = (int) $this->accountRepository->getMetaValue($account, 'currency_id');
             $currencyId = 0 === $currencyId ? $default->id : $currencyId;
 
             Log::debug(sprintf('Currency ID is #%d', $currencyId));
@@ -109,17 +109,15 @@ class NetWorth implements NetWorthInterface
 
             Log::debug(sprintf('Balance is %s', $balance));
 
-            // if the account is a credit card, subtract the virtual balance from the balance,
-            // to better reflect that this is not money that is actually "yours".
-            $role           = (string)$this->accountRepository->getMetaValue($account, 'account_role');
-            $virtualBalance = (string)$account->virtual_balance;
-            if ('ccAsset' === $role && '' !== $virtualBalance && (float)$virtualBalance > 0) {
+            // always subtract virtual balance.
+            $virtualBalance = (string) $account->virtual_balance;
+            if ('' !== $virtualBalance) {
                 $balance = bcsub($balance, $virtualBalance);
             }
 
-            Log::debug(sprintf('Balance corrected to %s', $balance));
+            Log::debug(sprintf('Balance corrected to %s because of virtual balance (%s)', $balance, $virtualBalance));
 
-            if (!isset($netWorth[$currencyId])) {
+            if (!array_key_exists($currencyId, $netWorth)) {
                 $netWorth[$currencyId] = '0';
             }
             $netWorth[$currencyId] = bcadd($balance, $netWorth[$currencyId]);

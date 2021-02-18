@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Corresponde em',
     'strict'                      => 'Modo estrito',
     'repeat_freq'                 => 'Repetições',
-    'journal_currency_id'         => 'Moeda',
+    'object_group'                => 'Grupo',
+    'location'                    => 'Localização',
+    'update_channel'              => 'Atualizar canal',
     'currency_id'                 => 'Moeda',
     'transaction_currency_id'     => 'Moeda',
+    'auto_budget_currency_id'     => 'Moeda',
     'external_ip'                 => 'O IP externo do seu servidor',
     'attachments'                 => 'Anexos',
-    'journal_amount'              => 'Quantia',
-    'journal_source_name'         => 'Conta de receita (origem)',
-    'keep_bill_id'                => 'Fatura',
-    'journal_source_id'           => 'Conta de ativo (origem)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Verificação da segurança da senha',
     'source_account'              => 'Conta de origem',
     'destination_account'         => 'Conta de destino',
-    'journal_destination_id'      => 'Conta de ativo (destino)',
     'asset_destination_account'   => 'Conta de destino',
     'include_net_worth'           => 'Incluir no patrimonio liquido',
     'asset_source_account'        => 'Conta de origem',
     'journal_description'         => 'Descrição',
     'note'                        => 'Notas',
-    'store_new_transaction'       => 'Armazenar uma nova transação',
-    'split_journal'               => 'Dividir essa transação',
-    'split_journal_explanation'   => 'Dividir essa transação em várias partes',
     'currency'                    => 'Moeda',
     'account_id'                  => 'Conta de ativo',
     'budget_id'                   => 'Orçamento',
     'opening_balance'             => 'Saldo inicial',
     'tagMode'                     => 'Modo de tag',
-    'tag_position'                => 'Localização do indexador',
     'virtual_balance'             => 'Saldo virtual',
     'targetamount'                => 'Valor alvo',
     'account_role'                => 'Função de conta',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Conta de Despesa',
     'revenue_account'             => 'Conta de Receita',
     'decimal_places'              => 'Casas décimais',
-    'exchange_rate_instruction'   => 'Moedas estrangeiras',
-    'source_amount'               => 'Quantidade (fonte)',
     'destination_amount'          => 'Quantidade (destino)',
-    'native_amount'               => 'Montante original',
     'new_email_address'           => 'Novo endereço de e-mail',
     'verification'                => 'Verificação',
     'api_key'                     => 'Chave da API',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Juros',
     'interest_period'             => 'Período de juros',
 
-    'source_account_asset'        => 'Conta de origem (conta de ativo)',
-    'destination_account_expense' => 'Conta de destino (conta de despesa)',
-    'destination_account_asset'   => 'Conta de destino (conta de ativo)',
-    'source_account_revenue'      => 'Conta de origem (conta de receita)',
-    'type'                        => 'Tipo',
-    'convert_Withdrawal'          => 'Converter a retirada',
-    'convert_Deposit'             => 'Converter o depósito',
-    'convert_Transfer'            => 'Converter a transferência',
+    'type'               => 'Tipo',
+    'convert_Withdrawal' => 'Converter a retirada',
+    'convert_Deposit'    => 'Converter o depósito',
+    'convert_Transfer'   => 'Converter a transferência',
 
     'amount'                      => 'Valor',
     'foreign_amount'              => 'Montante em moeda estrangeira',
-    'existing_attachments'        => 'Anexos existentes',
     'date'                        => 'Data',
     'interest_date'               => 'Data de interesse',
     'book_date'                   => 'Data reserva',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Formato da Data',
     'specifix'                    => 'Banco- ou arquivo específico corrigídos',
     'attachments[]'               => 'Anexos',
-    'store_new_withdrawal'        => 'Armazenar nova retirada',
-    'store_new_deposit'           => 'Armazenar novo depósito',
-    'store_new_transfer'          => 'Armazenar nova transferência',
-    'add_new_withdrawal'          => 'Adicionar uma nova retirada',
-    'add_new_deposit'             => 'Adicionar um novo depósito',
-    'add_new_transfer'            => 'Adicionar uma nova transferência',
     'title'                       => 'Título',
     'notes'                       => 'Notas',
     'filename'                    => 'Nome do arquivo',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Parar processamento',
     'start_date'                  => 'Início do intervalo',
     'end_date'                    => 'Final do intervalo',
-    'include_attachments'         => 'Incluir anexos enviados',
-    'include_old_uploads'         => 'Incluir dados importados',
+    'start'                       => 'Start of range',
+    'end'                         => 'End of range',
     'delete_account'              => 'Apagar conta ":name"',
     'delete_bill'                 => 'Apagar fatura ":name"',
     'delete_budget'               => 'Excluir o orçamento ":name"',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => 'Tem certeza que deseja excluir a conta denominada ":name"?',
     'bill_areYouSure'             => 'Você tem certeza que quer apagar a fatura ":name"?',
     'rule_areYouSure'             => 'Tem certeza que deseja excluir a regra intitulada ":title"?',
+    'object_group_areYouSure'     => 'Você tem certeza que deseja excluir a regra intitulada ":title"?',
     'ruleGroup_areYouSure'        => 'Tem certeza que deseja excluir o grupo de regras intitulado ":title"?',
     'budget_areYouSure'           => 'Tem certeza que deseja excluir o orçamento chamado ":name"?',
     'category_areYouSure'         => 'Tem certeza que deseja excluir a categoria com o nome ":name"?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'A única transação relacionada com este tipo de link vai perder a conexão. | Todas as transações de :count ligadas com este tipo de link vão perder sua conexão.',
     'also_delete_rules'           => 'A única regra que ligado a este grupo de regras será excluída também.|Todos as :count regras ligadas a este grupo de regras serão excluídas também.',
     'also_delete_piggyBanks'      => 'O único cofrinho conectado a essa conta será excluído também.|Todos os :count cofrinhos conectados a esta conta serão excluídos também.',
+    'not_delete_piggy_banks'      => 'O cofrinho conectado a este grupo não será excluído.|Os :count cofrinhos conectados a este grupo não serão excluídos.',
     'bill_keep_transactions'      => 'A única transação conectada a esta fatura não será excluída.|Todas as :count transações conectadas a esta fatura não serão excluídas.',
     'budget_keep_transactions'    => 'A única transação conectada a este orçamento não será excluída.|Todas as :count transações conectadas a este orçamento não serão excluídas.',
     'category_keep_transactions'  => 'A única transação conectada a esta categoria não será excluída.|Todas as :count transações conectadas a esta categoria não serão excluídas.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'A única transação conectada a esta tag não será excluída.|Todas as :count transações conectadas a esta tag não serão excluídas.',
     'check_for_updates'           => 'Buscar atualizações',
 
+    'delete_object_group' => 'Excluir grupo ":title"',
+
     'email'                 => 'E-mail',
     'password'              => 'Senha',
     'password_confirmation' => 'Senha(Confirmar)',
     'blocked'               => 'Está bloqueado?',
     'blocked_code'          => 'Razão para ser reportado',
     'login_name'            => 'Login',
+    'is_owner'              => 'É administrador(a)?',
 
     // import
     'apply_rules'           => 'Aplicar Regras',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'É o site de demonstração',
 
     // import
-    'import_file'           => 'Importar arquivo',
     'configuration_file'    => 'Arquivo de configuração',
-    'import_file_type'      => 'Tipo de arquivo de importação',
     'csv_comma'             => 'Uma vírgula (,)',
     'csv_semicolon'         => 'Um ponto e vírgula (;)',
     'csv_tab'               => 'Um Tab (invisível)',
     'csv_delimiter'         => 'Delimitador de campo CSV',
-    'csv_import_account'    => 'Conta de importação padrão',
-    'csv_config'            => 'Importar CSV de configuração',
     'client_id'             => 'Id do Cliente',
-    'service_secret'        => 'Service secret',
-    'app_secret'            => 'App secret',
     'app_id'                => 'App ID',
     'secret'                => 'Segredo',
     'public_key'            => 'Chave pública',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Conta de origem',
     'expected_on'               => 'Esperado em',
     'paid'                      => 'Pago',
+
+    'auto_budget_type'   => 'Orçamento automático',
+    'auto_budget_amount' => 'Valor do orçamento automático',
+    'auto_budget_period' => 'Período de orçamento automático',
+
+    'collected' => 'Coletado',
+    'submitted' => 'Enviado',
+    'key'       => 'Chave',
+    'value'     => 'Conteúdo do registro',
+
 
 ];

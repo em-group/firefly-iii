@@ -1,28 +1,30 @@
 <?php
 /**
  * PiggyBankEvent.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
 use Carbon\Carbon;
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -38,17 +40,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string             $amount
  * @property Carbon             created_at
  * @property Carbon             updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent query()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent wherePiggyBankId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereTransactionJournalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\PiggyBankEvent whereUpdatedAt($value)
- * @mixin \Eloquent
+ * @method static Builder|PiggyBankEvent newModelQuery()
+ * @method static Builder|PiggyBankEvent newQuery()
+ * @method static Builder|PiggyBankEvent query()
+ * @method static Builder|PiggyBankEvent whereAmount($value)
+ * @method static Builder|PiggyBankEvent whereCreatedAt($value)
+ * @method static Builder|PiggyBankEvent whereDate($value)
+ * @method static Builder|PiggyBankEvent whereId($value)
+ * @method static Builder|PiggyBankEvent wherePiggyBankId($value)
+ * @method static Builder|PiggyBankEvent whereTransactionJournalId($value)
+ * @method static Builder|PiggyBankEvent whereUpdatedAt($value)
+ * @mixin Eloquent
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon $date
+ * @property-read \FireflyIII\Models\TransactionJournal|null $transactionJournal
  */
 class PiggyBankEvent extends Model
 {
@@ -84,7 +90,7 @@ class PiggyBankEvent extends Model
      */
     public function setAmountAttribute($value): void
     {
-        $this->attributes['amount'] = (string)$value;
+        $this->attributes['amount'] = (string) $value;
     }
 
     /**

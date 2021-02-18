@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -26,10 +26,11 @@ return [
     'home'                   => '首页',
     'edit_currency'          => '编辑货币 ":name"',
     'delete_currency'        => '删除货币 ":name"',
-    'newPiggyBank'           => '创建一个新的存钱罐',
+    'newPiggyBank'           => '创建一个新的小猪存钱罐',
     'edit_piggyBank'         => '编辑存钱罐 ":name"',
-    'preferences'            => '偏好设定',
+    'preferences'            => '设置',
     'profile'                => '个人档案',
+    'accounts'               => 'Accounts',
     'changePassword'         => '更改您的密码',
     'change_email'           => '更改您的电子邮件地址',
     'bills'                  => '帐单',
@@ -39,7 +40,7 @@ return [
     'reports'                => '报表',
     'search_result'          => '":query" 的搜寻结果',
     'withdrawal_list'        => '支出',
-    'Withdrawal_list'        => 'Expenses',
+    'Withdrawal_list'        => '支出',
     'deposit_list'           => '收入、所得与存款',
     'transfer_list'          => '转帐',
     'transfers_list'         => '转帐',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => '编辑交易 ":description"',
     'edit_reconciliation'    => '编辑 ":description"',
     'delete_journal'         => '删除交易 ":description"',
+    'delete_group'           => '删除交易":description"',
     'tags'                   => '标签',
     'createTag'              => '建立新标签',
     'edit_tag'               => '编辑标签 ":tag"',
     'delete_tag'             => '删除标签 ":tag"',
     'delete_journal_link'    => '删除交易记录之间的连结',
+    'telemetry_index'        => '遥测',
+    'telemetry_view'         => '查看遥测',
+    'edit_object_group'      => '编辑组 ":title"',
+    'delete_object_group'    => '删除组 ":title"',
+    'logout_others'          => '注销其他会话'
 ];

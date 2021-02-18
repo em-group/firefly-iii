@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Verlinkte Regeln',
     'active'                  => 'Aktiv?',
     'percentage'              => '%',
+    'recurring_transaction'   => 'Dauerauftrag',
     'next_due'                => 'Nächste Fälligkeit',
     'transaction_type'        => 'Typ',
     'lastActivity'            => 'Letzte Aktivität',
     'balanceDiff'             => 'Saldendifferenz',
-    'matchesOn'               => 'Zusammengeführt am',
     'other_meta_data'         => 'Weitere Metadaten',
     'account_type'            => 'Kontotyp',
     'created_at'              => 'Erstellt am',
     'account'                 => 'Konto',
+    'external_uri'            => 'Externe URI',
     'matchingAmount'          => 'Betrag',
-    'split_number'            => 'Geteilt #',
     'destination'             => 'Empfänger',
     'source'                  => 'Quelle',
     'next_expected_match'     => 'Nächste erwartete Übereinstimmung',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Wiederholungen',
     'description'             => 'Beschreibung',
     'amount'                  => 'Betrag',
-    'internal_reference'      => 'Interne Referenz',
     'date'                    => 'Datum',
     'interest_date'           => 'Zinstermin',
     'book_date'               => 'Buchungsdatum',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Fälligkeitstermin',
     'payment_date'            => 'Zahlungsdatum',
     'invoice_date'            => 'Rechnungsdatum',
-    'interal_reference'       => 'Interner Verweis',
+    'internal_reference'      => 'Interner Verweis',
     'notes'                   => 'Notizen',
     'from'                    => 'Von',
     'piggy_bank'              => 'Sparschwein',
@@ -77,7 +76,7 @@ return [
     'type'                    => 'Typ',
     'completed'               => 'Abgeschlossen',
     'iban'                    => 'IBAN',
-    'paid_current_period'     => 'Diese Periode bezahlt',
+    'paid_current_period'     => 'Diesen Zeitraum bezahlt',
     'email'                   => 'E-Mail',
     'registered_at'           => 'Registriert am',
     'is_blocked'              => 'Ist blockiert',
@@ -91,11 +90,10 @@ return [
     'attachments_count'       => 'Anzahl Anhänge',
     'bills_count'             => 'Anzahl Rechnungen',
     'categories_count'        => 'Anzahl Kategorien',
-    'import_jobs_count'       => 'Anzahl importierter Jobs',
     'budget_count'            => 'Anzahl Kostenpläne',
     'rule_and_groups_count'   => 'Anzahl Regeln und Regelgruppen',
-    'tags_count'              => 'Anzahl Schlagwörter',
-    'tags'                    => 'Schlagwörter',
+    'tags_count'              => 'Anzahl Tags',
+    'tags'                    => 'Tags',
     'inward'                  => 'Beschreibung der Eingänge',
     'outward'                 => 'Beschreibung der Ausgänge',
     'number_of_transactions'  => 'Anzahl der Zahlungsvorgänge',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Summe der Ausgaben',
     'sum_deposits'            => 'Summe der Einzahlungen',
     'sum_transfers'           => 'Summe der Umbuchungen',
+    'sum_reconciliations'     => 'Summe der Kontenabgleiche',
     'reconcile'               => 'Abgleichen',
-    'account_on_spectre'      => 'Konto (Spectre)',
-    'account_on_ynab'         => 'Konto (YNAB)',
-    'do_import'               => 'Von diesem Konto importieren',
     'sepa_ct_id'              => 'SEPA • Ende-zu-Ende-Identifikationsnummer',
     'sepa_ct_op'              => 'SEPA-Gläubiger-Identifikationsnummer',
     'sepa_db'                 => 'SEPA • Mandatskennung',

@@ -1,22 +1,22 @@
 <?php
 /**
  * VerifiesAccessToken.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,12 +38,12 @@ use Log;
 trait VerifiesAccessToken
 {
     /**
-     * @return User
      * @throws FireflyException
+     * @return User
      */
     public function getUser(): User
     {
-        $userId = (int)$this->option('user');
+        $userId = (int) $this->option('user');
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
         $user       = $repository->findNull($userId);
@@ -70,8 +70,8 @@ trait VerifiesAccessToken
      */
     protected function verifyAccessToken(): bool
     {
-        $userId = (int)$this->option('user');
-        $token  = (string)$this->option('token');
+        $userId = (int) $this->option('user');
+        $token  = (string) $this->option('token');
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
         $user       = $repository->findNull($userId);
@@ -87,7 +87,7 @@ trait VerifiesAccessToken
 
             return false;
         }
-        if (!($accessToken->data === $token)) {
+        if ($accessToken->data !== $token) {
             Log::error(sprintf('Invalid access token for user #%d.', $userId));
             Log::error(sprintf('Token given is "%s", expected something else.', $token));
 

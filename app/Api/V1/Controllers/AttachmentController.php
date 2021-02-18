@@ -1,28 +1,29 @@
 <?php
 /**
  * AttachmentController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers;
 
+use FireflyIII\Api\V1\Middleware\ApiDemoUser;
 use FireflyIII\Api\V1\Requests\AttachmentStoreRequest;
 use FireflyIII\Api\V1\Requests\AttachmentUpdateRequest;
 use FireflyIII\Exceptions\FireflyException;
@@ -38,16 +39,17 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Resource\Item;
+use Log;
 use function strlen;
 
 /**
  * Class AttachmentController.
- *
  */
 class AttachmentController extends Controller
 {
     /** @var AttachmentRepositoryInterface The attachment repository */
     private $repository;
+
 
     /**
      * AccountController constructor.
@@ -57,12 +59,14 @@ class AttachmentController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->middleware(ApiDemoUser::class)->except(['delete', 'download', 'show', 'index']);
         $this->middleware(
             function ($request, $next) {
                 /** @var User $user */
                 $user             = auth()->user();
                 $this->repository = app(AttachmentRepositoryInterface::class);
                 $this->repository->setUser($user);
+
 
                 return $next($request);
             }
@@ -97,11 +101,17 @@ class AttachmentController extends Controller
     public function download(Attachment $attachment): LaravelResponse
     {
         if (false === $attachment->uploaded) {
-            throw new FireflyException('No file has been uploaded for this attachment (yet).');
+            throw new FireflyException('200000: File has not been uploaded (yet).');
+        }
+        if (0 === $attachment->size) {
+            throw new FireflyException('200000: File has not been uploaded (yet).');
         }
         if ($this->repository->exists($attachment)) {
             $content = $this->repository->getContent($attachment);
-            $quoted  = sprintf('"%s"', addcslashes(basename($attachment->filename), '"\\'));
+            if ('' === $content) {
+                throw new FireflyException('200002: File is empty (zero bytes).');
+            }
+            $quoted = sprintf('"%s"', addcslashes(basename($attachment->filename), '"\\'));
 
             /** @var LaravelResponse $response */
             $response = response($content);
@@ -118,7 +128,7 @@ class AttachmentController extends Controller
 
             return $response;
         }
-        throw new FireflyException('Could not find the indicated attachment. The file is no longer there.');
+        throw new FireflyException('200003: File does not exist.');
     }
 
     /**
@@ -132,7 +142,7 @@ class AttachmentController extends Controller
         $manager = $this->getManager();
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of accounts. Count it and split it.
         $collection  = $this->repository->get();
@@ -150,7 +160,7 @@ class AttachmentController extends Controller
         $resource = new FractalCollection($attachments, $transformer, 'attachments');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -169,7 +179,7 @@ class AttachmentController extends Controller
 
         $resource = new Item($attachment, $transformer, 'attachments');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -192,7 +202,7 @@ class AttachmentController extends Controller
 
         $resource = new Item($attachment, $transformer, 'attachments');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -215,7 +225,7 @@ class AttachmentController extends Controller
 
         $resource = new Item($attachment, $transformer, 'attachments');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -233,6 +243,11 @@ class AttachmentController extends Controller
         /** @var AttachmentHelperInterface $helper */
         $helper = app(AttachmentHelperInterface::class);
         $body   = $request->getContent();
+        if ('' === $body) {
+            Log::error('Body of attachment is empty.');
+
+            return response()->json([], 422);
+        }
         $helper->saveAttachmentFromApi($attachment, $body);
 
         return response()->json([], 204);

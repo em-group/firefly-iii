@@ -1,22 +1,22 @@
 <?php
 /**
  * GroupUpdateService.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ class GroupUpdateService
      * Update a transaction group.
      *
      * @param TransactionGroup $transactionGroup
-     * @param array $data
+     * @param array            $data
      *
      * @return TransactionGroup
      * @throws FireflyException
@@ -48,6 +48,7 @@ class GroupUpdateService
     public function update(TransactionGroup $transactionGroup, array $data): TransactionGroup
     {
         Log::debug('Now in group update service', $data);
+        /** @var array $transactions */
         $transactions = $data['transactions'] ?? [];
         // update group name.
         if (array_key_exists('group_title', $data)) {
@@ -69,10 +70,85 @@ class GroupUpdateService
         Log::debug('Going to update split group.');
 
         $existing = $transactionGroup->transactionJournals->pluck('id')->toArray();
-        $updated  = [];
+        $updated  = $this->updateTransactions($transactionGroup, $transactions);
+        $result   = array_diff($existing, $updated);
+        if (count($result) > 0) {
+            /** @var string $deletedId */
+            foreach ($result as $deletedId) {
+                /** @var TransactionJournal $journal */
+                $journal = $transactionGroup->transactionJournals()->find((int)$deletedId);
+                /** @var JournalDestroyService $service */
+                $service = app(JournalDestroyService::class);
+                $service->destroy($journal);
+            }
+        }
 
+        app('preferences')->mark();
+        $transactionGroup->refresh();
+
+        return $transactionGroup;
+    }
+
+    /**
+     * @param TransactionGroup $transactionGroup
+     * @param array            $data
+     *
+     * @throws FireflyException
+     */
+    private function createTransactionJournal(TransactionGroup $transactionGroup, array $data): void
+    {
+
+        $submission = [
+            'transactions' => [
+                $data,
+            ],
+        ];
+        /** @var TransactionJournalFactory $factory */
+        $factory = app(TransactionJournalFactory::class);
+        $factory->setUser($transactionGroup->user);
+        try {
+            $collection = $factory->create($submission);
+        } catch (FireflyException $e) {
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+            throw new FireflyException(sprintf('Could not create new transaction journal: %s', $e->getMessage()));
+        }
+        $collection->each(
+            function (TransactionJournal $journal) use ($transactionGroup) {
+                $transactionGroup->transactionJournals()->save($journal);
+            }
+        );
+    }
+
+    /**
+     * Update single journal.
+     *
+     * @param TransactionGroup   $transactionGroup
+     * @param TransactionJournal $journal
+     * @param array              $data
+     */
+    private function updateTransactionJournal(TransactionGroup $transactionGroup, TransactionJournal $journal, array $data): void
+    {
+        /** @var JournalUpdateService $updateService */
+        $updateService = app(JournalUpdateService::class);
+        $updateService->setTransactionGroup($transactionGroup);
+        $updateService->setTransactionJournal($journal);
+        $updateService->setData($data);
+        $updateService->update();
+    }
+
+    /**
+     * @param TransactionGroup $transactionGroup
+     * @param array            $transactions
+     *
+     * @return array
+     * @throws FireflyException
+     */
+    private function updateTransactions(TransactionGroup $transactionGroup, array $transactions): array
+    {
+        $updated = [];
         /**
-         * @var int $index
+         * @var int   $index
          * @var array $transaction
          */
         foreach ($transactions as $index => $transaction) {
@@ -104,65 +180,8 @@ class GroupUpdateService
                 Log::debug('Done calling updateTransactionJournal');
             }
         }
-        $result = array_diff($existing, $updated);
-        if (count($result) > 0) {
-            /** @var string $deletedId */
-            foreach ($result as $deletedId) {
-                $journal = $transactionGroup->transactionJournals()->find((int)$deletedId);
-                /** @var JournalDestroyService $service */
-                $service = app(JournalDestroyService::class);
-                $service->destroy($journal);
-            }
-        }
 
-        app('preferences')->mark();
-
-        return $transactionGroup;
-    }
-
-    /**
-     * @param TransactionGroup $transactionGroup
-     * @param array $data
-     * @throws FireflyException
-     */
-    private function createTransactionJournal(TransactionGroup $transactionGroup, array $data): void
-    {
-
-        $submission = [
-            'transactions' => [
-                $data,
-            ],
-        ];
-        /** @var TransactionJournalFactory $factory */
-        $factory = app(TransactionJournalFactory::class);
-        $factory->setUser($transactionGroup->user);
-        try {
-            $collection = $factory->create($submission);
-        } catch (FireflyException $e) {
-            Log::error($e->getMessage());
-            Log::error($e->getTraceAsString());
-            throw new FireflyException(sprintf('Could not create new transaction journal: %s', $e->getMessage()));
-        }
-        $collection->each(function (TransactionJournal $journal) use ($transactionGroup) {
-            $transactionGroup->transactionJournals()->save($journal);
-        });
-    }
-
-    /**
-     * Update single journal.
-     *
-     * @param TransactionGroup $transactionGroup
-     * @param TransactionJournal $journal
-     * @param array $data
-     */
-    private function updateTransactionJournal(TransactionGroup $transactionGroup, TransactionJournal $journal, array $data): void
-    {
-        /** @var JournalUpdateService $updateService */
-        $updateService = app(JournalUpdateService::class);
-        $updateService->setTransactionGroup($transactionGroup);
-        $updateService->setTransactionJournal($journal);
-        $updateService->setData($data);
-        $updateService->update();
+        return $updated;
     }
 
 }

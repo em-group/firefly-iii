@@ -1,21 +1,21 @@
 /*
  * index.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** global: token */
 var fixHelper = function (e, tr) {
@@ -29,24 +29,80 @@ var fixHelper = function (e, tr) {
     return $helper;
 };
 
+function createCookie(name, value, days) {
+    "use strict";
+    var expires;
+
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toGMTString();
+    } else {
+        expires = "";
+    }
+    document.cookie = encodeURIComponent(name) + "=" + encodeURIComponent(value) + expires + "; path=/";
+}
+
+function readCookie(name) {
+    "use strict";
+    var nameEQ = encodeURIComponent(name) + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1, c.length);
+        }
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+    }
+    return null;
+}
+
+
 $(function () {
       "use strict";
-      $('.rule-triggers').sortable(
+      $('.group-rules').find('tbody').sortable(
           {
               helper: fixHelper,
               stop: sortStop,
+              handle: '.rule-handle',
               cursor: "move"
           }
       );
 
-      $('.rule-actions').sortable(
-          {
-              helper: fixHelper,
-              stop: sortStop,
-              cursor: "move"
-
+      $('.rules-box').each(function (i, v) {
+          var box = $(v);
+          var groupId = box.data('group');
+          var cookieName = 'rule-box-collapse-' + groupId;
+          if ('collapsed' === readCookie(cookieName)) {
+              box.addClass('collapsed-box');
+              console.log('Box ' + groupId + ' is collapsed');
+              return;
           }
-      );
+          console.log('Box ' + groupId + ' is not collapsed');
+      });
+
+      $('.rules-box').on('expanded.boxwidget', function (e) {
+          var box = $(e.currentTarget);
+          var groupId = box.data('group');
+          var cookieName = 'rule-box-collapse-' + groupId;
+          createCookie(cookieName, 'expanded', 90);
+          //console.log('Box ' + box.data('group') + ' is now expanded.');
+          //alert('hi!')
+      });
+
+      $('.rules-box').on('collapsed.boxwidget', function (e) {
+          var box = $(e.currentTarget);
+          var groupId = box.data('group');
+          var cookieName = 'rule-box-collapse-' + groupId;
+          createCookie(cookieName, 'collapsed', 90);
+          //console.log('Box ' + box.data('group') + ' is now collapsed.');
+          //alert('ho!')
+      });
+
+      //collapsed-box
+
 
       // test rule triggers button:
       $('.test_rule_triggers').click(testRuleTriggers);
@@ -66,7 +122,7 @@ function testRuleTriggers(e) {
 
     var modal = $("#testTriggerModal");
     // respond to modal:
-    modal.on('hide.bs.modal', function (e) {
+    modal.on('hide.bs.modal', function () {
         disableRuleSpinners();
     });
 
@@ -102,27 +158,35 @@ function disableRuleSpinners() {
 
 function sortStop(event, ui) {
     "use strict";
-    var current = $(ui.item);
-    var parent = current.parent();
-    var ruleId = current.parent().data('id');
-    var entries = [];
-    // who am i?
 
-    $.each(parent.children(), function (i, v) {
-        var trigger = $(v);
-        var id = trigger.data('id');
-        entries.push(id);
+    // resort / move rule
+    $.each($('.group-rules'), function (i, v) {
+        $.each($('tr.single-rule', $(v)), function (counter, value) {
+            var holder = $(value);
+            var position = parseInt(holder.data('position'));
+            var ruleGroupId = holder.data('group-id');
+            var ruleId = holder.data('id');
+            var originalOrder = parseInt(holder.data('order'));
+            var newOrder;
 
+            if (position === counter) {
+                // not changed, position is what it should be.
+                return;
+            }
+            if (position < counter) {
+                // position is less.
+                console.log('Rule #' + ruleId + ' moved down from position ' + originalOrder + ' to ' + (counter + 1));
+            }
+            if (position > counter) {
+                console.log('Rule #' + ruleId + ' moved up from position ' + originalOrder + ' to ' + (counter + 1));
+            }
+            // update position:
+            holder.data('position', counter);
+            newOrder = counter + 1;
+
+            $.post('rules/move-rule/' + ruleId + '/' + ruleGroupId, {order: newOrder, _token: token});
+        });
     });
-    if (parent.hasClass('rule-triggers')) {
-        $.post('rules/trigger/order/' + ruleId, {triggers: entries, _token: token}).fail(function () {
-            alert('Could not re-order rule triggers. Please refresh the page.');
-        });
-    } else {
-        $.post('rules/action/order/' + ruleId, {actions: entries, _token: token}).fail(function () {
-            alert('Could not re-order rule actions. Please refresh the page.');
-        });
 
-    }
 
 }

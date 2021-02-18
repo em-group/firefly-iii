@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Találatok',
     'strict'                      => 'Szigorú mód',
     'repeat_freq'                 => 'Ismétlődések',
-    'journal_currency_id'         => 'Pénznem',
+    'object_group'                => 'Csoport',
+    'location'                    => 'Hely',
+    'update_channel'              => 'Frissítési csatorna',
     'currency_id'                 => 'Pénznem',
     'transaction_currency_id'     => 'Pénznem',
+    'auto_budget_currency_id'     => 'Pénznem',
     'external_ip'                 => 'A szervered külső IP címe',
     'attachments'                 => 'Mellékletek',
-    'journal_amount'              => 'Összeg',
-    'journal_source_name'         => 'Jövedelemszámla (forrás)',
-    'keep_bill_id'                => 'Számla',
-    'journal_source_id'           => 'Költségszámla (forrás)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Jelszóbiztonság ellenőrzése',
     'source_account'              => 'Forrás bankszámla',
     'destination_account'         => 'Cél bankszámla',
-    'journal_destination_id'      => 'Költségszámla (cél)',
     'asset_destination_account'   => 'Célszámla',
     'include_net_worth'           => 'Befoglalva a nettó értékbe',
     'asset_source_account'        => 'Forrás számla',
     'journal_description'         => 'Leírás',
     'note'                        => 'Megjegyzések',
-    'store_new_transaction'       => 'Új tranzakció letárolása',
-    'split_journal'               => 'Tranzakció felosztása',
-    'split_journal_explanation'   => 'A tranzakció több részre osztása',
     'currency'                    => 'Pénznem',
     'account_id'                  => 'Eszközszámla',
     'budget_id'                   => 'Költségkeret',
     'opening_balance'             => 'Nyitó egyenleg',
     'tagMode'                     => 'Címke mód',
-    'tag_position'                => 'Címke helye',
     'virtual_balance'             => 'Virtuális egyenleg',
     'targetamount'                => 'Cél összeg',
     'account_role'                => 'Bankszámla szerepköre',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Költségszámla',
     'revenue_account'             => 'Jövedelemszámla',
     'decimal_places'              => 'Tizedes jel helye',
-    'exchange_rate_instruction'   => 'Külföldi pénznemek',
-    'source_amount'               => 'Összeg (forrás)',
     'destination_amount'          => 'Összeg (cél)',
-    'native_amount'               => 'Natív összeg',
     'new_email_address'           => 'Új email cím',
     'verification'                => 'Ellenőrzés',
     'api_key'                     => 'API-kulcs',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Kamat',
     'interest_period'             => 'Kamatperiódus',
 
-    'source_account_asset'        => 'Forrásszámla (eszközszámla)',
-    'destination_account_expense' => 'Célszámla (költségszámla)',
-    'destination_account_asset'   => 'Célszámla (eszközszámla)',
-    'source_account_revenue'      => 'Forrásszámla (jövedelemszámla)',
-    'type'                        => 'Típus',
-    'convert_Withdrawal'          => 'Költség konvertálása',
-    'convert_Deposit'             => 'Bevétel konvertálása',
-    'convert_Transfer'            => 'Átvezetés konvertálása',
+    'type'               => 'Típus',
+    'convert_Withdrawal' => 'Költség konvertálása',
+    'convert_Deposit'    => 'Bevétel konvertálása',
+    'convert_Transfer'   => 'Átvezetés konvertálása',
 
     'amount'                      => 'Összeg',
-    'foreign_amount'              => 'Foreign amount',
-    'existing_attachments'        => 'Meglévő mellékletek',
+    'foreign_amount'              => 'Külföldi összeg',
     'date'                        => 'Dátum',
     'interest_date'               => 'Kamatfizetési időpont',
     'book_date'                   => 'Könyvelés dátuma',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Dátumformátum',
     'specifix'                    => 'Bank- vagy fájlspecifikus javítások',
     'attachments[]'               => 'Mellékletek',
-    'store_new_withdrawal'        => 'Új költség tárolása',
-    'store_new_deposit'           => 'Új bevétel eltárolása',
-    'store_new_transfer'          => 'Új átvezetés létrehozása',
-    'add_new_withdrawal'          => 'Új költség hozzáadása',
-    'add_new_deposit'             => 'Új bevétel hozzáadása',
-    'add_new_transfer'            => 'Egy új átvezetés létrehozása',
     'title'                       => 'Cím',
     'notes'                       => 'Megjegyzések',
     'filename'                    => 'Fájlnév',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Feldolgozás leállítása',
     'start_date'                  => 'Tartomány kezdete',
     'end_date'                    => 'Tartomány vége',
-    'include_attachments'         => 'Tartalmazza a feltöltött mellékleteket',
-    'include_old_uploads'         => 'Tartalmazza az importált adatot',
+    'start'                       => 'Tartomány kezdete',
+    'end'                         => 'Tartomány vége',
     'delete_account'              => '":name" bankszámla törlése',
     'delete_bill'                 => '":name" számla törlése',
     'delete_budget'               => '":name" költségkeret törlése',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => '":name" bankszámla biztosan törölhető?',
     'bill_areYouSure'             => '":name" számla biztosan törölhető?',
     'rule_areYouSure'             => '":title" szabály biztosan törölhető?',
+    'object_group_areYouSure'     => 'Biztosan törölni szeretné a ":title" csoportot?',
     'ruleGroup_areYouSure'        => '":title" szabálycsoportot biztosan törölhető?',
     'budget_areYouSure'           => '":name" költségkeretet biztosan törölhető?',
     'category_areYouSure'         => '":name" kategória biztosan törölhető?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'A csak ezzel a kapcsolattípussal rendelkező tranzakciók elveszítik az összerendelésüket. | Mind a :count tranzakció, amely ezzel a hivatkozástípussal kapcsolódik elveszíti az összrendelését.',
     'also_delete_rules'           => 'A szabálycsoporthoz tartozó egyetlen szabály is törölve lesz. | Az ezen szabálycsoporthoz tartozó :count szabály is törölve lesz.',
     'also_delete_piggyBanks'      => 'A bankszámlához tartozó egyetlen malacpersely is törölve lesz. | Az ehhez a bankszámlához tartozó :count malacpersely is törölve lesz.',
+    'not_delete_piggy_banks'      => 'A csoporthoz tartozó malacpersely nem lesz törölve. | Az ehhez a csoporthoz tartozó :count malacpersely nem lesz törölve.',
     'bill_keep_transactions'      => 'A számlához tartozó egyetlen tranzakció nem lesz törölve.|Az ehhez a számlához tartozó :count tranzakció nem lesz törölve.',
     'budget_keep_transactions'    => 'A költségkerethez tartozó egyetlen tranzakció nem lesz törölve.|Az ehhez a költségkerethez tartozó :count tranzakció nem lesz törölve.',
     'category_keep_transactions'  => 'A kategóriához tartozó egyetlen tranzakció nem lesz törölve.|Az ehhez a kategóriához tartozó :count tranzakció nem lesz törölve.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'A címkéhez tartozó egyetlen tranzakció nem lesz törölve.|Az ehhez a címkéhez tartozó :count tranzakció nem lesz törölve.',
     'check_for_updates'           => 'Frissítések ellenőrzése',
 
+    'delete_object_group' => '":title" csoport törlése',
+
     'email'                 => 'Email cím',
     'password'              => 'Jelszó',
     'password_confirmation' => 'Jelszó (ismét)',
     'blocked'               => 'Letiltott?',
     'blocked_code'          => 'Letiltás oka',
     'login_name'            => 'Bejelentkezés',
+    'is_owner'              => 'Adminisztrátor',
 
     // import
     'apply_rules'           => 'Szabályok alkalmazása',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Bemutatóoldal',
 
     // import
-    'import_file'           => 'Import fájl',
     'configuration_file'    => 'Beállítás fájl',
-    'import_file_type'      => 'Import fájl típusa',
     'csv_comma'             => 'Egy vessző (,)',
     'csv_semicolon'         => 'Egy pontosvessző (;)',
     'csv_tab'               => 'Egy fül (láthatatlan)',
     'csv_delimiter'         => 'CSV mezőhatároló',
-    'csv_import_account'    => 'Alapértelmezés szerinti importálási bankszámla',
-    'csv_config'            => 'CSV importálás beállítása',
     'client_id'             => 'Ügyfélazonosító',
-    'service_secret'        => 'Service secret',
-    'app_secret'            => 'App secret',
     'app_id'                => 'Alkalmazás azonosító',
     'secret'                => 'Titkos kód',
     'public_key'            => 'Nyilvános kulcs',
@@ -246,16 +225,26 @@ return [
     'repeat_until'            => 'Ismétlés eddig:',
     'recurring_description'   => 'Ismétlődő tranzakció leírása',
     'repetition_type'         => 'Ismétlődés típusa',
-    'foreign_currency_id'     => 'Foreign currency',
+    'foreign_currency_id'     => 'Külföldi pénznem',
     'repetition_end'          => 'Ismétlés vége',
     'repetitions'             => 'Ismétlések',
     'calendar'                => 'Naptár',
     'weekend'                 => 'Hétvége',
     'client_secret'           => 'Ügyfél titkos kódja',
 
-    'withdrawal_destination_id' => 'Destination account',
-    'deposit_source_id'         => 'Source account',
-    'expected_on'               => 'Expected on',
-    'paid'                      => 'Paid',
+    'withdrawal_destination_id' => 'Célszámla',
+    'deposit_source_id'         => 'Forrásszámla',
+    'expected_on'               => 'Várható dátum:',
+    'paid'                      => 'Fizetve',
+
+    'auto_budget_type'   => 'Auto-költségkeret',
+    'auto_budget_amount' => 'Auto-költségkeret összege',
+    'auto_budget_period' => 'Auto-költségkeret időszaka',
+
+    'collected' => 'Begyűjtött',
+    'submitted' => 'Elküldött',
+    'key'       => 'Kulcs',
+    'value'     => 'Bejegyzés tartalma',
+
 
 ];

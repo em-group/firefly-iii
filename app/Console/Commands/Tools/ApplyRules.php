@@ -1,26 +1,25 @@
 <?php
-declare(strict_types=1);
-
-
 /**
  * ApplyRules.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Tools;
 
@@ -28,7 +27,6 @@ namespace FireflyIII\Console\Commands\Tools;
 use Carbon\Carbon;
 use FireflyIII\Console\Commands\VerifiesAccessToken;
 use FireflyIII\Exceptions\FireflyException;
-use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Rule;
 use FireflyIII\Models\RuleGroup;
@@ -36,7 +34,7 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
-use FireflyIII\TransactionRules\Engine\RuleEngine;
+use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Log;
@@ -59,9 +57,9 @@ class ApplyRules extends Command
      *
      * @var string
      */
-    protected $signature
+    protected                            $signature
         = 'firefly-iii:apply-rules
-                            {--user=1 : The user ID that the import should import for.}
+                            {--user=1 : The user ID.}
                             {--token= : The user\'s access token.}
                             {--accounts= : A comma-separated list of asset accounts or liabilities to apply your rules to.}
                             {--rule_groups= : A comma-separated list of rule groups to apply. Take the ID\'s of these rule groups from the Firefly III interface.}
@@ -69,29 +67,17 @@ class ApplyRules extends Command
                             {--all_rules : If set, will overrule both settings and simply apply ALL of your rules.}
                             {--start_date= : The date of the earliest transaction to be included (inclusive). If omitted, will be your very first transaction ever. Format: YYYY-MM-DD}
                             {--end_date= : The date of the latest transaction to be included (inclusive). If omitted, will be your latest transaction ever. Format: YYYY-MM-DD}';
+    private array                        $acceptedAccounts;
+    private Collection                   $accounts;
+    private bool                         $allRules;
+    private Carbon                       $endDate;
+    private Collection                   $groups;
+    private RuleGroupRepositoryInterface $ruleGroupRepository;
+    private array                        $ruleGroupSelection;
+    private RuleRepositoryInterface      $ruleRepository;
+    private array                        $ruleSelection;
+    private Carbon                       $startDate;
 
-    /** @var Collection */
-    private $accounts;
-    /** @var array */
-    private $acceptedAccounts;
-    /** @var Carbon */
-    private $endDate;
-    /** @var array */
-    private $ruleGroupSelection;
-    /** @var array */
-    private $ruleSelection;
-    /** @var Carbon */
-    private $startDate;
-    /** @var Collection */
-    private $groups;
-    /** @var bool */
-    private $allRules;
-
-    /** @var RuleRepositoryInterface */
-    private $ruleRepository;
-
-    /** @var RuleGroupRepositoryInterface */
-    private $ruleGroupRepository;
 
     /**
      * Execute the console command.
@@ -101,14 +87,13 @@ class ApplyRules extends Command
      */
     public function handle(): int
     {
+        $start = microtime(true);
         $this->stupidLaravel();
-        // @codeCoverageIgnoreStart
         if (!$this->verifyAccessToken()) {
             $this->error('Invalid access token.');
 
             return 1;
         }
-        // @codeCoverageIgnoreEnd
 
         // set user:
         $this->ruleRepository->setUser($this->getUser());
@@ -116,6 +101,7 @@ class ApplyRules extends Command
 
         $result = $this->verifyInput();
         if (false === $result) {
+            app('telemetry')->feature('system.command.errored', $this->signature);
             return 1;
         }
 
@@ -126,48 +112,92 @@ class ApplyRules extends Command
 
         // loop all groups and rules and indicate if they're included:
         $rulesToApply = $this->getRulesToApply();
-        $count        = count($rulesToApply);
+        $count        = $rulesToApply->count();
         if (0 === $count) {
             $this->error('No rules or rule groups have been included.');
             $this->warn('Make a selection using:');
             $this->warn('    --rules=1,2,...');
             $this->warn('    --rule_groups=1,2,...');
             $this->warn('    --all_rules');
+
+            app('telemetry')->feature('system.command.errored', $this->signature);
+            return 1;
         }
 
-        /** @var GroupCollectorInterface $collector */
-        $collector = app(GroupCollectorInterface::class);
-        $collector->setUser($this->getUser());
-        $collector->setAccounts($this->accounts);
-        $collector->setRange($this->startDate, $this->endDate);
-        $journals = $collector->getExtractedJournals();
+        // create new rule engine:
+        /** @var RuleEngineInterface $ruleEngine */
+        $ruleEngine = app(RuleEngineInterface::class);
+        $ruleEngine->setRules($rulesToApply);
+        $ruleEngine->setUser($this->getUser());
+
+        // add the accounts as filter:
+        $filterAccountList = [];
+        foreach($this->accounts as $account) {
+            $filterAccountList[] = $account->id;
+        }
+        $list = implode(',', $filterAccountList);
+        $ruleEngine->addOperator(['type' => 'account_id', 'value' => $list]);
+
+        // add the date as a filter:
+        $ruleEngine->addOperator(['type' => 'date_after', 'value' => $this->startDate->format('Y-m-d')]);
+        $ruleEngine->addOperator(['type' => 'date_before', 'value' => $this->endDate->format('Y-m-d')]);
 
         // start running rules.
-        $this->line(sprintf('Will apply %d rule(s) to %d transaction(s).', $count, count($journals)));
+        $this->line(sprintf('Will apply %d rule(s) to your transaction(s).', $count));
 
-        // start looping.
-        /** @var RuleEngine $ruleEngine */
-        $ruleEngine = app(RuleEngine::class);
-        $ruleEngine->setUser($this->getUser());
-        $ruleEngine->setRulesToApply($rulesToApply);
+        // file the rule(s)
+        $ruleEngine->fire();
 
-        // for this call, the rule engine only includes "store" rules:
-        $ruleEngine->setTriggerMode(RuleEngine::TRIGGER_STORE);
+        app('telemetry')->feature('system.command.executed', $this->signature);
 
-        $bar = $this->output->createProgressBar(count($journals));
-        Log::debug(sprintf('Now looping %d transactions.', count($journals)));
-        /** @var array $journal */
-        foreach ($journals as $journal) {
-            Log::debug('Start of new journal.');
-            $ruleEngine->processJournalArray($journal);
-            Log::debug('Done with all rules for this group + done with journal.');
-            /** @noinspection DisconnectedForeachInstructionInspection */
-            $bar->advance();
-        }
         $this->line('');
-        $this->line('Done!');
+        $end = round(microtime(true) - $start, 2);
+        $this->line(sprintf('Done in %s seconds!', $end));
 
         return 0;
+    }
+
+    /**
+     * @return Collection
+     */
+    private function getRulesToApply(): Collection
+    {
+        $rulesToApply = new Collection;
+        /** @var RuleGroup $group */
+        foreach ($this->groups as $group) {
+            $rules = $this->ruleGroupRepository->getActiveStoreRules($group);
+            /** @var Rule $rule */
+            foreach ($rules as $rule) {
+                // if in rule selection, or group in selection or all rules, it's included.
+                $test = $this->includeRule($rule, $group);
+                if (true === $test) {
+                    Log::debug(sprintf('Will include rule #%d "%s"', $rule->id, $rule->title));
+                    $rulesToApply->push($rule);
+                }
+            }
+        }
+
+        return $rulesToApply;
+    }
+
+    /**
+     */
+    private function grabAllRules(): void
+    {
+        $this->groups = $this->ruleGroupRepository->getActiveGroups();
+    }
+
+    /**
+     * @param Rule      $rule
+     * @param RuleGroup $group
+     *
+     * @return bool
+     */
+    private function includeRule(Rule $rule, RuleGroup $group): bool
+    {
+        return in_array($group->id, $this->ruleGroupSelection, true)
+               || in_array($rule->id, $this->ruleSelection, true)
+               || $this->allRules;
     }
 
     /**
@@ -241,7 +271,7 @@ class ApplyRules extends Command
 
 
         foreach ($accountList as $accountId) {
-            $accountId = (int)$accountId;
+            $accountId = (int) $accountId;
             $account   = $accountRepository->findNull($accountId);
             if (null !== $account && in_array($account->accountType->type, $this->acceptedAccounts, true)) {
                 $finalList->push($account);
@@ -257,6 +287,42 @@ class ApplyRules extends Command
 
         return true;
 
+    }
+
+    /**
+     * @throws FireflyException
+     */
+    private function verifyInputDates(): void
+    {
+        // parse start date.
+        $inputStart   = Carbon::now()->startOfMonth();
+        $startString = $this->option('start_date');
+        if (null === $startString) {
+            /** @var JournalRepositoryInterface $repository */
+            $repository = app(JournalRepositoryInterface::class);
+            $repository->setUser($this->getUser());
+            $first = $repository->firstNull();
+            if (null !== $first) {
+                $inputStart = $first->date;
+            }
+        }
+        if (null !== $startString && '' !== $startString) {
+            $inputStart = Carbon::createFromFormat('Y-m-d', $startString);
+        }
+
+        // parse end date
+        $inputEnd   = Carbon::now();
+        $endString = $this->option('end_date');
+        if (null !== $endString && '' !== $endString) {
+            $inputEnd = Carbon::createFromFormat('Y-m-d', $endString);
+        }
+
+        if ($inputStart > $inputEnd) {
+            [$inputEnd, $inputStart] = [$inputStart, $inputEnd];
+        }
+
+        $this->startDate = $inputStart;
+        $this->endDate   = $inputEnd;
     }
 
     /**
@@ -277,7 +343,7 @@ class ApplyRules extends Command
         }
         // @codeCoverageIgnoreEnd
         foreach ($ruleGroupList as $ruleGroupId) {
-            $ruleGroup = $this->ruleGroupRepository->find((int)$ruleGroupId);
+            $ruleGroup = $this->ruleGroupRepository->find((int) $ruleGroupId);
             if ($ruleGroup->active) {
                 $this->ruleGroupSelection[] = $ruleGroup->id;
             }
@@ -310,90 +376,12 @@ class ApplyRules extends Command
         // @codeCoverageIgnoreEnd
 
         foreach ($ruleList as $ruleId) {
-            $rule = $this->ruleRepository->find((int)$ruleId);
+            $rule = $this->ruleRepository->find((int) $ruleId);
             if (null !== $rule && $rule->active) {
                 $this->ruleSelection[] = $rule->id;
             }
         }
 
         return true;
-    }
-
-    /**
-     * @throws FireflyException
-     */
-    private function verifyInputDates(): void
-    {
-        // parse start date.
-        $startDate   = Carbon::now()->startOfMonth();
-        $startString = $this->option('start_date');
-        if (null === $startString) {
-            /** @var JournalRepositoryInterface $repository */
-            $repository = app(JournalRepositoryInterface::class);
-            $repository->setUser($this->getUser());
-            $first = $repository->firstNull();
-            if (null !== $first) {
-                $startDate = $first->date;
-            }
-        }
-        if (null !== $startString && '' !== $startString) {
-            $startDate = Carbon::createFromFormat('Y-m-d', $startString);
-        }
-
-        // parse end date
-        $endDate   = Carbon::now();
-        $endString = $this->option('end_date');
-        if (null !== $endString && '' !== $endString) {
-            $endDate = Carbon::createFromFormat('Y-m-d', $endString);
-        }
-
-        if ($startDate > $endDate) {
-            [$endDate, $startDate] = [$startDate, $endDate];
-        }
-
-        $this->startDate = $startDate;
-        $this->endDate   = $endDate;
-    }
-
-    /**
-     */
-    private function grabAllRules(): void
-    {
-        $this->groups = $this->ruleGroupRepository->getActiveGroups();
-    }
-
-    /**
-     * @param Rule $rule
-     * @param RuleGroup $group
-     * @return bool
-     */
-    private function includeRule(Rule $rule, RuleGroup $group): bool
-    {
-        return in_array($group->id, $this->ruleGroupSelection, true) ||
-               in_array($rule->id, $this->ruleSelection, true) ||
-               $this->allRules;
-    }
-
-    /**
-     * @return array
-     */
-    private function getRulesToApply(): array
-    {
-        $rulesToApply = [];
-        /** @var RuleGroup $group */
-        foreach ($this->groups as $group) {
-            $rules = $this->ruleGroupRepository->getActiveStoreRules($group);
-            /** @var Rule $rule */
-            foreach ($rules as $rule) {
-                // if in rule selection, or group in selection or all rules, it's included.
-                $test = $this->includeRule($rule, $group);
-                if (true === $test) {
-                    Log::debug(sprintf('Will include rule #%d "%s"', $rule->id, $rule->title));
-                    $rulesToApply[] = $rule->id;
-                }
-            }
-        }
-
-        return $rulesToApply;
     }
 }

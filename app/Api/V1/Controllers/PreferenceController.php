@@ -1,22 +1,22 @@
 <?php
 /**
- * PreferencesController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * PreferenceController.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -35,7 +35,6 @@ use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Resource\Item;
 
 /**
- *
  * Class PreferenceController
  */
 class PreferenceController extends Controller
@@ -102,7 +101,7 @@ class PreferenceController extends Controller
 
         $resource = new FractalCollection($preferences, $transformer, 'preferences');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -123,7 +122,7 @@ class PreferenceController extends Controller
 
         $resource = new Item($preference, $transformer, 'preferences');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -147,10 +146,10 @@ class PreferenceController extends Controller
                 $newValue = explode(',', $data['data']);
                 break;
             case 'listPageSize':
-                $newValue = (int)$data['data'];
+                $newValue = (int) $data['data'];
                 break;
             case 'customFiscalYear':
-                $newValue = 1 === (int)$data['data'];
+                $newValue = 1 === (int) $data['data'];
                 break;
         }
         $result = app('preferences')->set($preference->name, $newValue);
@@ -162,7 +161,7 @@ class PreferenceController extends Controller
 
         $resource = new Item($result, $transformer, 'preferences');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }

@@ -1,35 +1,41 @@
 <?php
 /**
  * RegisterController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
+use FireflyIII\Events\RegisteredUser;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Support\Http\Controllers\CreateStuff;
 use FireflyIII\Support\Http\Controllers\RequestInformation;
 use FireflyIII\User;
-use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
+use Log;
 
 /**
  * Class RegisterController
@@ -58,6 +64,13 @@ class RegisterController extends Controller
     {
         parent::__construct();
         $this->middleware('guest');
+
+        $loginProvider = config('firefly.login_provider');
+        $authGuard     = config('firefly.authentication_guard');
+
+        if ('eloquent' !== $loginProvider || 'web' !== $authGuard) {
+            throw new FireflyException('Using external identity provider. Cannot continue.');
+        }
     }
 
     /**
@@ -65,7 +78,7 @@ class RegisterController extends Controller
      *
      * @param Request $request
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @return Factory|RedirectResponse|Redirector|View
      */
     public function register(Request $request)
     {
@@ -88,16 +101,19 @@ class RegisterController extends Controller
             return view('error', compact('message'));
         }
 
-        /** @noinspection PhpUndefinedMethodInspection */
         $this->validator($request->all())->validate();
-
-        event(new Registered($user = $this->createUser($request->all())));
+        $user = $this->createUser($request->all());
+        Log::info(sprintf('Registered new user %s', $user->email));
+        event(new RegisteredUser($user, $request->ip()));
 
         $this->guard()->login($user);
 
-        session()->flash('success', (string)trans('firefly.registered'));
+        session()->flash('success', (string) trans('firefly.registered'));
 
         $this->registered($request, $user);
+
+        // telemetry
+        app('telemetry')->feature('system.users.count', (string)User::count());
 
         return redirect($this->redirectPath());
     }
@@ -107,7 +123,7 @@ class RegisterController extends Controller
      *
      * @param Request $request
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function showRegistrationForm(Request $request)
     {
@@ -116,7 +132,7 @@ class RegisterController extends Controller
         $isDemoSite        = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $userCount         = User::count();
-        $pageTitle         = (string)trans('firefly.register_page_title');
+        $pageTitle         = (string) trans('firefly.register_page_title');
 
         if (true === $isDemoSite) {
             $allowRegistration = false;

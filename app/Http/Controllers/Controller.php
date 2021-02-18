@@ -1,22 +1,22 @@
 <?php
 /**
  * Controller.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -35,18 +35,18 @@ use Route;
  * Class Controller.
  *
  */
-class Controller extends BaseController
+abstract class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests, UserNavigation, RequestInformation;
 
     /** @var string Format for date and time. */
-    protected $dateTimeFormat;
+    protected string $dateTimeFormat;
     /** @var string Format for "23 Feb, 2016". */
-    protected $monthAndDayFormat;
+    protected string $monthAndDayFormat;
     /** @var string Format for "March 2018" */
-    protected $monthFormat;
+    protected string $monthFormat;
     /** @var string Redirect user */
-    protected $redirectUri = '/';
+    protected string $redirectUri = '/';
 
     /**
      * Controller constructor.
@@ -56,25 +56,58 @@ class Controller extends BaseController
     public function __construct()
     {
         // is site a demo site?
-        $isDemoSite = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site', ), )->data;
-        app('view')->share('IS_DEMO_SITE', $isDemoSite, );
+        $isDemoSiteConfig = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site', false,),);
+        $isDemoSite = $isDemoSiteConfig ? $isDemoSiteConfig->data : false;
+        app('view')->share('IS_DEMO_SITE', $isDemoSite,);
         app('view')->share('DEMO_USERNAME', config('firefly.demo_username'));
         app('view')->share('DEMO_PASSWORD', config('firefly.demo_password'));
         app('view')->share('FF_VERSION', config('firefly.version'));
 
+        // share custom auth guard info.
+        $authGuard = config('firefly.authentication_guard');
+        $logoutUri = config('firefly.custom_logout_uri');
+
+        app('view')->share('authGuard', $authGuard);
+        app('view')->share('logoutUri', $logoutUri);
+
+        // upload size
+        $maxFileSize = app('steam')->phpBytes(ini_get('upload_max_filesize'));
+        $maxPostSize = app('steam')->phpBytes(ini_get('post_max_size'));
+        $uploadSize  = min($maxFileSize, $maxPostSize);
+
+
+        app('view')->share('uploadSize', $uploadSize);
+
+        // share is alpha, is beta
+        $isAlpha = false;
+        if (false !== strpos(config('firefly.version'), 'alpha')) {
+            $isAlpha = true;
+        }
+
+        $isBeta = false;
+        if (false !== strpos(config('firefly.version'), 'beta')) {
+            $isBeta = true;
+        }
+
+        app('view')->share('FF_IS_ALPHA', $isAlpha);
+        app('view')->share('FF_IS_BETA', $isBeta);
+
         $this->middleware(
             function ($request, $next) {
+                $locale = app('steam')->getLocale();
                 // translations for specific strings:
-                $this->monthFormat       = (string)trans('config.month');
-                $this->monthAndDayFormat = (string)trans('config.month_and_day');
-                $this->dateTimeFormat    = (string)trans('config.date_time');
+                $this->monthFormat       = (string) trans('config.month', [], $locale);
+                $this->monthAndDayFormat = (string) trans('config.month_and_day', [], $locale);
+                $this->dateTimeFormat    = (string) trans('config.date_time', [], $locale);
 
                 // get shown-intro-preference:
                 if (auth()->check()) {
-                    $language  = $this->getLanguage();
+                    $language  = app('steam')->getLanguage();
+                    $locale    = app('steam')->getLocale();
                     $page      = $this->getPageName();
                     $shownDemo = $this->hasSeenDemo();
                     app('view')->share('language', $language);
+                    app('view')->share('locale', $locale);
                     app('view')->share('shownDemo', $shownDemo);
                     app('view')->share('current_route_name', $page);
                     app('view')->share('original_route_name', Route::currentRouteName());
@@ -88,5 +121,4 @@ class Controller extends BaseController
         // configs within the constructor, which is run before the middleware.
         Whitelabel::handleStatic();
     }
-
 }

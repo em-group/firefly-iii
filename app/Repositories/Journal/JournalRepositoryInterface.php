@@ -1,32 +1,33 @@
 <?php
 /**
  * JournalRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Journal;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\Account;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionJournalLink;
-use FireflyIII\Models\TransactionJournalMeta;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 
@@ -35,16 +36,27 @@ use Illuminate\Support\Collection;
  */
 interface JournalRepositoryInterface
 {
+    /**
+     * @return TransactionJournal|null
+     */
+    public function getLast(): ?TransactionJournal;
 
     /**
-     * TODO maybe create JSON repository?
+     * @param array $types
      *
+     * @return Collection
+     */
+    public function findByType(array $types): Collection;
+
+    /**
      * Search in journal descriptions.
      *
      * @param string $search
+     * @param int $limit
+     *
      * @return Collection
      */
-    public function searchJournalDescriptions(string $search): Collection;
+    public function searchJournalDescriptions(string $search, int $limit): Collection;
 
     /**
      * Deletes a transaction group.
@@ -59,18 +71,6 @@ interface JournalRepositoryInterface
      * @param TransactionJournal $journal
      */
     public function destroyJournal(TransactionJournal $journal): void;
-
-
-    /**
-     * TODO move to import repository.
-     *
-     * Find a journal by its hash.
-     *
-     * @param string $hash
-     *
-     * @return TransactionJournalMeta|null
-     */
-    public function findByHash(string $hash): ?TransactionJournalMeta;
 
     /**
      * TODO Refactor to "find".
@@ -108,6 +108,25 @@ interface JournalRepositoryInterface
      * @return Collection
      */
     public function getJournalSourceAccounts(TransactionJournal $journal): Collection;
+
+    /**
+     * Returns the source account of the journal.
+     *
+     * @param TransactionJournal $journal
+     *
+     * @return Account
+     * @throws FireflyException
+     */
+    public function getSourceAccount(TransactionJournal $journal): Account;
+
+    /**
+     * Returns the destination account of the journal.
+     *
+     * @param TransactionJournal $journal
+     * @return Account
+     * @throws FireflyException
+     */
+    public function getDestinationAccount(TransactionJournal $journal): Account;
 
     /**
      * Return total amount of journal. Is always positive.

@@ -1,22 +1,22 @@
 <?php
 /**
  * BudgetLimitController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -44,15 +44,17 @@ use League\Fractal\Resource\Item;
 
 /**
  * Class BudgetLimitController.
- *
  */
 class BudgetLimitController extends Controller
 {
     use TransactionFilter;
+
     /** @var BudgetLimitRepositoryInterface */
     private $blRepository;
+
     /** @var BudgetRepositoryInterface The budget repository */
     private $repository;
+
 
     /**
      * BudgetLimitController constructor.
@@ -102,9 +104,9 @@ class BudgetLimitController extends Controller
     public function index(Request $request): JsonResponse
     {
         $manager  = $this->getManager();
-        $budgetId = (int)($request->get('budget_id') ?? 0);
+        $budgetId = (int) ($request->get('budget_id') ?? 0);
         $budget   = $this->repository->findNull($budgetId);
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $this->parameters->set('budget_id', $budgetId);
 
         $collection = new Collection;
@@ -127,7 +129,7 @@ class BudgetLimitController extends Controller
         $resource = new FractalCollection($budgetLimits, $transformer, 'budget_limits');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -148,7 +150,7 @@ class BudgetLimitController extends Controller
 
         $resource = new Item($budgetLimit, $transformer, 'budget_limits');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -162,14 +164,13 @@ class BudgetLimitController extends Controller
      */
     public function store(BudgetLimitRequest $request): JsonResponse
     {
-        $data   = $request->getAll();
-        $budget = $this->repository->findNull($data['budget_id']);
-        if (null === $budget) {
-            throw new FireflyException('Unknown budget.');
-        }
-        $data['budget'] = $budget;
-        $budgetLimit    = $this->blRepository->storeBudgetLimit($data);
-        $manager        = $this->getManager();
+        $data               = $request->getAll();
+        $data['start_date'] = $data['start'];
+        $data['end_date']   = $data['end'];
+
+        $budgetLimit = $this->blRepository->store($data);
+        $manager     = $this->getManager();
+
 
         /** @var BudgetLimitTransformer $transformer */
         $transformer = app(BudgetLimitTransformer::class);
@@ -177,7 +178,7 @@ class BudgetLimitController extends Controller
 
         $resource = new Item($budgetLimit, $transformer, 'budget_limits');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -191,7 +192,7 @@ class BudgetLimitController extends Controller
      */
     public function transactions(Request $request, BudgetLimit $budgetLimit): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 
@@ -230,7 +231,7 @@ class BudgetLimitController extends Controller
         $resource = new FractalCollection($transactions, $transformer, 'transactions');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -243,10 +244,9 @@ class BudgetLimitController extends Controller
      */
     public function update(BudgetLimitRequest $request, BudgetLimit $budgetLimit): JsonResponse
     {
-        $data           = $request->getAll();
-        $data['budget'] = $budgetLimit->budget;
-        $budgetLimit    = $this->blRepository->updateBudgetLimit($budgetLimit, $data);
-        $manager        = $this->getManager();
+        $data        = $request->getAll();
+        $budgetLimit = $this->blRepository->update($budgetLimit, $data);
+        $manager     = $this->getManager();
 
         /** @var BudgetLimitTransformer $transformer */
         $transformer = app(BudgetLimitTransformer::class);
@@ -254,7 +254,7 @@ class BudgetLimitController extends Controller
 
         $resource = new Item($budgetLimit, $transformer, 'budget_limits');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }

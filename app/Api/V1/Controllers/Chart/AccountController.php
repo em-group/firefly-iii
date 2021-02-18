@@ -2,22 +2,22 @@
 
 /**
  * AccountController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -42,10 +42,11 @@ use Illuminate\Http\JsonResponse;
 class AccountController extends Controller
 {
     use ApiSupport;
-    /** @var CurrencyRepositoryInterface */
-    private $currencyRepository;
-    /** @var AccountRepositoryInterface */
-    private $repository;
+
+    private CurrencyRepositoryInterface $currencyRepository;
+
+    private AccountRepositoryInterface $repository;
+
 
     /**
      * AccountController constructor.
@@ -99,10 +100,10 @@ class AccountController extends Controller
 
         // loop the end balances. This is an array for each account ($expenses)
         foreach ($endBalances as $accountId => $expenses) {
-            $accountId = (int)$accountId;
+            $accountId = (int) $accountId;
             // loop each expense entry (each entry can be a different currency).
             foreach ($expenses as $currencyId => $endAmount) {
-                $currencyId = (int)$currencyId;
+                $currencyId = (int) $currencyId;
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
@@ -114,7 +115,7 @@ class AccountController extends Controller
                     $tempData[] = [
                         'name'        => $accountNames[$accountId],
                         'difference'  => $diff,
-                        'diff_float'  => (float)$diff,
+                        'diff_float'  => (float) $diff,
                         'currency_id' => $currencyId,
                     ];
                 }
@@ -196,6 +197,8 @@ class AccountController extends Controller
                 'currency_code'           => $currency->code,
                 'currency_symbol'         => $currency->symbol,
                 'currency_decimal_places' => $currency->decimal_places,
+                'start_date'              => $start->format('Y-m-d'),
+                'end_date'                => $end->format('Y-m-d'),
                 'type'                    => 'line', // line, area or bar
                 'yAxisID'                 => 0, // 0, 1, 2
                 'entries'                 => [],
@@ -207,7 +210,7 @@ class AccountController extends Controller
             while ($currentStart <= $end) {
                 $format   = $currentStart->format('Y-m-d');
                 $label    = $currentStart->format('Y-m-d');
-                $balance  = isset($range[$format]) ? round($range[$format], 12) : $previous;
+                $balance  = array_key_exists($format, $range) ? round($range[$format], 12) : $previous;
                 $previous = $balance;
                 $currentStart->addDay();
                 $currentSet['entries'][$label] = $balance;
@@ -247,10 +250,10 @@ class AccountController extends Controller
 
         // loop the end balances. This is an array for each account ($expenses)
         foreach ($endBalances as $accountId => $expenses) {
-            $accountId = (int)$accountId;
+            $accountId = (int) $accountId;
             // loop each expense entry (each entry can be a different currency).
             foreach ($expenses as $currencyId => $endAmount) {
-                $currencyId = (int)$currencyId;
+                $currencyId = (int) $currencyId;
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
@@ -263,7 +266,7 @@ class AccountController extends Controller
                         'name'        => $accountNames[$accountId],
                         'difference'  => bcmul($diff, '-1'),
                         //  For some reason this line is never covered in code coverage:
-                        'diff_float'  => ((float)$diff) * -1, // @codeCoverageIgnore
+                        'diff_float'  => ((float) $diff) * -1, // @codeCoverageIgnore
                         'currency_id' => $currencyId,
                     ];
                 }

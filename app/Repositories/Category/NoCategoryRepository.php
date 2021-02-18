@@ -1,22 +1,22 @@
 <?php
 /**
  * NoCategoryRepository.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -76,17 +76,25 @@ class NoCategoryRepository implements NoCategoryRepositoryInterface
         foreach ($journals as $journal) {
             $currencyId         = (int)$journal['currency_id'];
             $array[$currencyId] = $array[$currencyId] ?? [
-                    'transaction_journals'    => [],
+                    'categories'              => [],
                     'currency_id'             => $currencyId,
                     'currency_name'           => $journal['currency_name'],
                     'currency_symbol'         => $journal['currency_symbol'],
                     'currency_code'           => $journal['currency_code'],
                     'currency_decimal_places' => $journal['currency_decimal_places'],
                 ];
+            // info about the non-existent category:
+            $array[$currencyId]['categories'][0] = $array[$currencyId]['categories'][0] ?? [
+                    'id'                   => 0,
+                    'name'                 => (string)trans('firefly.noCategory'),
+                    'transaction_journals' => [],
+                ];
+
             // add journal to array:
             // only a subset of the fields.
-            $journalId                                              = (int)$journal['transaction_journal_id'];
-            $array[$currencyId]['transaction_journals'][$journalId] = [
+            $journalId = (int)$journal['transaction_journal_id'];
+            $array[$currencyId]['categories'][0]['transaction_journals'][$journalId]
+                       = [
                 'amount' => app('steam')->negative($journal['amount']),
                 'date'   => $journal['date'],
             ];
@@ -121,17 +129,27 @@ class NoCategoryRepository implements NoCategoryRepositoryInterface
         foreach ($journals as $journal) {
             $currencyId         = (int)$journal['currency_id'];
             $array[$currencyId] = $array[$currencyId] ?? [
-                    'transaction_journals'    => [],
+                    'categories'              => [],
                     'currency_id'             => $currencyId,
                     'currency_name'           => $journal['currency_name'],
                     'currency_symbol'         => $journal['currency_symbol'],
                     'currency_code'           => $journal['currency_code'],
                     'currency_decimal_places' => $journal['currency_decimal_places'],
                 ];
+
+            // info about the non-existent category:
+            $array[$currencyId]['categories'][0] = $array[$currencyId]['categories'][0] ?? [
+                    'id'                   => 0,
+                    'name'                 => (string)trans('firefly.noCategory'),
+                    'transaction_journals' => [],
+                ];
+
+
             // add journal to array:
             // only a subset of the fields.
-            $journalId                                              = (int)$journal['transaction_journal_id'];
-            $array[$currencyId]['transaction_journals'][$journalId] = [
+            $journalId = (int)$journal['transaction_journal_id'];
+            $array[$currencyId]['categories'][0]['transaction_journals'][$journalId]
+                       = [
                 'amount' => app('steam')->positive($journal['amount']),
                 'date'   => $journal['date'],
             ];
@@ -180,7 +198,7 @@ class NoCategoryRepository implements NoCategoryRepositoryInterface
                     'currency_code'           => $journal['currency_code'],
                     'currency_decimal_places' => $journal['currency_decimal_places'],
                 ];
-            $array[$currencyId]['sum'] = bcadd($array[$currencyId]['sum'], app('steam')->negative($journal['amount']));
+            $array[$currencyId]['sum'] = bcadd($array[$currencyId]['sum'], app('steam')->negative($journal['amount'] ?? '0'));
         }
 
         return $array;

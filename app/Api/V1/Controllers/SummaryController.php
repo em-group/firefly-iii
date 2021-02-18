@@ -2,28 +2,27 @@
 
 /**
  * SummaryController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers;
-
 
 use Carbon\Carbon;
 use Exception;
@@ -42,7 +41,6 @@ use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
 
 /**
  * Class SummaryController
@@ -51,17 +49,22 @@ class SummaryController extends Controller
 {
     /** @var AvailableBudgetRepositoryInterface */
     private $abRepository;
+
     /** @var AccountRepositoryInterface */
     private $accountRepository;
+
     /** @var BillRepositoryInterface */
     private $billRepository;
+
     /** @var BudgetRepositoryInterface */
     private $budgetRepository;
+
     /** @var CurrencyRepositoryInterface */
     private $currencyRepos;
 
     /** @var OperationsRepositoryInterface */
     private $opsRepository;
+
 
     /**
      * SummaryController constructor.
@@ -125,50 +128,6 @@ class SummaryController extends Controller
         }
 
         return response()->json($return);
-
-    }
-
-    /**
-     * Check if date is outside session range.
-     *
-     * @param Carbon $date
-     *
-     * @param Carbon $start
-     * @param Carbon $end
-     *
-     * @return bool
-     */
-    protected function notInDateRange(Carbon $date, Carbon $start, Carbon $end): bool // Validate a preference
-    {
-        $result = false;
-        if ($start->greaterThanOrEqualTo($date) && $end->greaterThanOrEqualTo($date)) {
-            $result = true;
-        }
-        // start and end in the past? use $end
-        if ($start->lessThanOrEqualTo($date) && $end->lessThanOrEqualTo($date)) {
-            $result = true;
-        }
-
-        return $result;
-    }
-
-    /**
-     * This method will scroll through the results of the spentInPeriodMc() array and return the correct info.
-     *
-     * @param array               $spentInfo
-     * @param TransactionCurrency $currency
-     *
-     * @return string
-     */
-    private function findInSpentArray(array $spentInfo, TransactionCurrency $currency): string
-    {
-        foreach ($spentInfo as $array) {
-            if ($array['currency_id'] === $currency->id) {
-                return (string)$array['amount'];
-            }
-        }
-
-        return '0'; // @codeCoverageIgnore
     }
 
     /**
@@ -198,8 +157,7 @@ class SummaryController extends Controller
         $set = $collector->getExtractedJournals();
         /** @var array $transactionJournal */
         foreach ($set as $transactionJournal) {
-
-            $currencyId           = (int)$transactionJournal['currency_id'];
+            $currencyId           = (int) $transactionJournal['currency_id'];
             $incomes[$currencyId] = $incomes[$currencyId] ?? '0';
             $incomes[$currencyId] = bcadd($incomes[$currencyId], bcmul($transactionJournal['amount'], '-1'));
             $sums[$currencyId]    = $sums[$currencyId] ?? '0';
@@ -221,7 +179,7 @@ class SummaryController extends Controller
 
         /** @var array $transactionJournal */
         foreach ($set as $transactionJournal) {
-            $currencyId            = (int)$transactionJournal['currency_id'];
+            $currencyId            = (int) $transactionJournal['currency_id'];
             $expenses[$currencyId] = $expenses[$currencyId] ?? '0';
             $expenses[$currencyId] = bcadd($expenses[$currencyId], $transactionJournal['amount']);
             $sums[$currencyId]     = $sums[$currencyId] ?? '0';
@@ -295,7 +253,7 @@ class SummaryController extends Controller
         $return       = [];
         foreach ($paidAmount as $currencyId => $amount) {
             $amount   = bcmul($amount, '-1');
-            $currency = $this->currencyRepos->findNull((int)$currencyId);
+            $currency = $this->currencyRepos->findNull((int) $currencyId);
             if (null === $currency) {
                 continue;
             }
@@ -315,7 +273,7 @@ class SummaryController extends Controller
 
         foreach ($unpaidAmount as $currencyId => $amount) {
             $amount   = bcmul($amount, '-1');
-            $currency = $this->currencyRepos->findNull((int)$currencyId);
+            $currency = $this->currencyRepos->findNull((int) $currencyId);
             if (null === $currency) {
                 continue;
             }
@@ -346,35 +304,42 @@ class SummaryController extends Controller
     private function getLeftToSpendInfo(Carbon $start, Carbon $end): array
     {
         $return    = [];
-        $today     = new Carbon;
+        $today     = today(config('app.timezone'));
         $available = $this->abRepository->getAvailableBudgetWithCurrency($start, $end);
         $budgets   = $this->budgetRepository->getActiveBudgets();
-        $spentInfo = $this->opsRepository->spentInPeriodMc($budgets, new Collection, $start, $end);
-        foreach ($available as $currencyId => $amount) {
-            $currency = $this->currencyRepos->findNull($currencyId);
-            if (null === $currency) {
-                continue;
-            }
-            $spentInCurrency = (string)$this->findInSpentArray($spentInfo, $currency);
+        $spent     = $this->opsRepository->sumExpenses($start, $end, null, $budgets);
+
+        foreach ($spent as $row) {
+            // either an amount was budgeted or 0 is available.
+            $amount          = $available[$row['currency_id']] ?? '0';
+            $spentInCurrency = $row['sum'];
             $leftToSpend     = bcadd($amount, $spentInCurrency);
 
             $days   = $today->diffInDays($end) + 1;
             $perDay = '0';
             if (0 !== $days && bccomp($leftToSpend, '0') > -1) {
-                $perDay = bcdiv($leftToSpend, (string)$days);
+                $perDay = bcdiv($leftToSpend, (string) $days);
             }
 
             $return[] = [
-                'key'                     => sprintf('left-to-spend-in-%s', $currency->code),
-                'title'                   => trans('firefly.box_left_to_spend_in_currency', ['currency' => $currency->symbol]),
-                'monetary_value'          => round($leftToSpend, $currency->decimal_places),
-                'currency_id'             => $currency->id,
-                'currency_code'           => $currency->code,
-                'currency_symbol'         => $currency->symbol,
-                'currency_decimal_places' => $currency->decimal_places,
-                'value_parsed'            => app('amount')->formatAnything($currency, $leftToSpend, false),
+                'key'                     => sprintf('left-to-spend-in-%s', $row['currency_code']),
+                'title'                   => trans('firefly.box_left_to_spend_in_currency', ['currency' => $row['currency_symbol']]),
+                'monetary_value'          => round($leftToSpend, $row['currency_decimal_places']),
+                'currency_id'             => $row['currency_id'],
+                'currency_code'           => $row['currency_code'],
+                'currency_symbol'         => $row['currency_symbol'],
+                'currency_decimal_places' => $row['currency_decimal_places'],
+                'value_parsed'            => app('amount')->formatFlat($row['currency_symbol'], $row['currency_decimal_places'], $leftToSpend, false),
                 'local_icon'              => 'money',
-                'sub_title'               => (string)trans('firefly.box_spend_per_day', ['amount' => app('amount')->formatAnything($currency, $perDay, false)]),
+                'sub_title'               => (string) trans(
+                    'firefly.box_spend_per_day',
+                    ['amount' => app('amount')->formatFlat(
+                        $row['currency_symbol'],
+                        $row['currency_decimal_places'],
+                        $perDay,
+                        false
+                    )]
+                ),
             ];
         }
 
@@ -441,4 +406,27 @@ class SummaryController extends Controller
         return $return;
     }
 
+    /**
+     * Check if date is outside session range.
+     *
+     * @param Carbon $date
+     *
+     * @param Carbon $start
+     * @param Carbon $end
+     *
+     * @return bool
+     */
+    protected function notInDateRange(Carbon $date, Carbon $start, Carbon $end): bool // Validate a preference
+    {
+        $result = false;
+        if ($start->greaterThanOrEqualTo($date) && $end->greaterThanOrEqualTo($date)) {
+            $result = true;
+        }
+        // start and end in the past? use $end
+        if ($start->lessThanOrEqualTo($date) && $end->lessThanOrEqualTo($date)) {
+            $result = true;
+        }
+
+        return $result;
+    }
 }

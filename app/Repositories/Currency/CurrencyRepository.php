@@ -1,28 +1,29 @@
 <?php
 /**
  * CurrencyRepository.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Currency;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\TransactionCurrencyFactory;
 use FireflyIII\Models\AccountMeta;
 use FireflyIII\Models\AvailableBudget;
@@ -31,6 +32,7 @@ use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\CurrencyExchangeRate;
 use FireflyIII\Models\Preference;
 use FireflyIII\Models\RecurrenceTransaction;
+use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\Services\Internal\Destroy\CurrencyDestroyService;
@@ -45,18 +47,7 @@ use Log;
  */
 class CurrencyRepository implements CurrencyRepositoryInterface
 {
-    /** @var User */
-    private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
+    private User $user;
 
     /**
      * @param TransactionCurrency $currency
@@ -65,8 +56,9 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      */
     public function countJournals(TransactionCurrency $currency): int
     {
-        return $currency->transactions()->whereNull('deleted_at')->count() + $currency->transactionJournals()->whereNull('deleted_at')->count();
-
+        $count = $currency->transactions()->whereNull('deleted_at')->count() + $currency->transactionJournals()->whereNull('deleted_at')->count();
+        // also count foreign:
+        return $count + Transaction::where('foreign_currency_id', $currency->id)->count();
     }
 
     /**
@@ -164,14 +156,6 @@ class CurrencyRepository implements CurrencyRepositoryInterface
             return 'current_default';
         }
 
-//        // is the default currency for the system
-//        $defaultSystemCode = config('firefly.default_currency', 'EUR');
-//        $result            = $currency->code === $defaultSystemCode;
-//        if (true === $result) {
-//            Log::info('Is the default currency of the SYSTEM, return true.');
-//
-//            return 'system_fallback';
-//        }
         Log::debug('Currency is not used, return false.');
 
         return null;
@@ -311,10 +295,10 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     /**
      * Find by object, ID or code. Returns user default or system default.
      *
-     * @param int|null $currencyId
+     * @param int|null    $currencyId
      * @param string|null $currencyCode
      *
-     * @return TransactionCurrency|null
+     * @return TransactionCurrency
      */
     public function findCurrency(?int $currencyId, ?string $currencyCode): TransactionCurrency
     {
@@ -341,7 +325,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     /**
      * Find by object, ID or code. Returns NULL if nothing found.
      *
-     * @param int|null $currencyId
+     * @param int|null    $currencyId
      * @param string|null $currencyCode
      *
      * @return TransactionCurrency|null
@@ -392,16 +376,6 @@ class CurrencyRepository implements CurrencyRepositoryInterface
         return TransactionCurrency::orderBy('code', 'ASC')->get();
     }
 
-
-    /**
-     * @return Collection
-     */
-    public function getEnabled(): Collection
-    {
-        return TransactionCurrency::where('enabled',true)->orderBy('code', 'ASC')->get();
-    }
-
-
     /**
      * @param array $ids
      *
@@ -432,7 +406,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
      *
      * @param TransactionCurrency $fromCurrency
      * @param TransactionCurrency $toCurrency
-     * @param Carbon $date
+     * @param Carbon              $date
      *
      * @return CurrencyExchangeRate|null
      */
@@ -479,6 +453,22 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     }
 
     /**
+     * @param string $search
+     * @param int $limit
+     *
+     * @return Collection
+     */
+    public function searchCurrency(string $search, int $limit): Collection
+    {
+        $query = TransactionCurrency::where('enabled', 1);
+        if ('' !== $search) {
+            $query->where('name', 'LIKE', sprintf('%%%s%%', $search));
+        }
+
+        return $query->take($limit)->get();
+    }
+
+    /**
      * @param User $user
      */
     public function setUser(User $user): void
@@ -489,19 +479,25 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     /**
      * @param array $data
      *
-     * @return TransactionCurrency|null
+     * @return TransactionCurrency
+     * @throws FireflyException
      */
-    public function store(array $data): ?TransactionCurrency
+    public function store(array $data): TransactionCurrency
     {
         /** @var TransactionCurrencyFactory $factory */
         $factory = app(TransactionCurrencyFactory::class);
+        $result  = $factory->create($data);
 
-        return $factory->create($data);
+        if (null === $result) {
+            throw new FireflyException('400004: Could not store new currency.');
+        }
+
+        return $result;
     }
 
     /**
      * @param TransactionCurrency $currency
-     * @param array $data
+     * @param array               $data
      *
      * @return TransactionCurrency
      */
@@ -514,16 +510,10 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     }
 
     /**
-     * @param string $search
-     * @return Collection
+     * @inheritDoc
      */
-    public function searchCurrency(string $search): Collection
+    public function isFallbackCurrency(TransactionCurrency $currency): bool
     {
-        $query = TransactionCurrency::where('enabled', 1);
-        if ('' !== $search) {
-            $query->where('name', 'LIKE', sprintf('%%%s%%', $search));
-        }
-
-        return $query->get();
+        return $currency->code === config('firefly.default_currency', 'EUR');
     }
 }

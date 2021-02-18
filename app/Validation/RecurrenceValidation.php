@@ -1,22 +1,22 @@
 <?php
 /**
- * ApiValidation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * RecurrenceValidation.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace FireflyIII\Validation;
 
 use Carbon\Carbon;
-use Exception;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
 use Log;
@@ -48,7 +47,6 @@ trait RecurrenceValidation
      */
     public function valUpdateAccountInfo(Validator $validator): void
     {
-        //Log::debug('Now in validateAccountInformation()');
         $data = $validator->getData();
 
         $transactionType = $data['type'] ?? 'invalid';
@@ -65,7 +63,7 @@ trait RecurrenceValidation
             // validate source account.
             $sourceId    = isset($transaction['source_id']) ? (int)$transaction['source_id'] : null;
             $sourceName  = $transaction['source_name'] ?? null;
-            $validSource = $accountValidator->validateSource($sourceId, $sourceName);
+            $validSource = $accountValidator->validateSource($sourceId, $sourceName, null);
 
             // do something with result:
             if (false === $validSource) {
@@ -77,7 +75,7 @@ trait RecurrenceValidation
             // validate destination account
             $destinationId    = isset($transaction['destination_id']) ? (int)$transaction['destination_id'] : null;
             $destinationName  = $transaction['destination_name'] ?? null;
-            $validDestination = $accountValidator->validateDestination($destinationId, $destinationName);
+            $validDestination = $accountValidator->validateDestination($destinationId, $destinationName, null);
             // do something with result:
             if (false === $validDestination) {
                 $validator->errors()->add(sprintf('transactions.%d.destination_id', $index), $accountValidator->destError);
@@ -256,7 +254,7 @@ trait RecurrenceValidation
     {
         try {
             Carbon::createFromFormat('Y-m-d', $moment);
-        } catch (InvalidArgumentException|Exception $e) {
+        } catch (InvalidArgumentException $e) {
             Log::debug(sprintf('Invalid argument for Carbon: %s', $e->getMessage()));
             $validator->errors()->add(sprintf('repetitions.%d.moment', $index), (string)trans('validation.valid_recurrence_rep_moment'));
         }

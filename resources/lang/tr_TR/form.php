@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Eşleşti',
     'strict'                      => 'Sıkı mod',
     'repeat_freq'                 => 'Tekrarlar',
-    'journal_currency_id'         => 'Para birimi',
+    'object_group'                => 'Group',
+    'location'                    => 'Location',
+    'update_channel'              => 'Update channel',
     'currency_id'                 => 'Para birimi',
     'transaction_currency_id'     => 'Para birimi',
+    'auto_budget_currency_id'     => 'Currency',
     'external_ip'                 => 'Sunucunuzun dış IP adresi',
     'attachments'                 => 'Ekler',
-    'journal_amount'              => 'Tutar',
-    'journal_source_name'         => 'Gelir hesabı (kaynak)',
-    'keep_bill_id'                => 'Bill',
-    'journal_source_id'           => 'Varlık Hesabı (kaynak)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Parola güvenliğini doğrula',
     'source_account'              => 'Kaynak hesap',
     'destination_account'         => 'Hedef Hesap',
-    'journal_destination_id'      => 'Asset account (destination)',
     'asset_destination_account'   => 'Destination account',
     'include_net_worth'           => 'Include in net worth',
     'asset_source_account'        => 'Source account',
     'journal_description'         => 'Tanımlama',
     'note'                        => 'Notlar',
-    'store_new_transaction'       => 'Store new transaction',
-    'split_journal'               => 'Bu işlemi böl / Taksitlendir',
-    'split_journal_explanation'   => 'Bu işlemi taksitlendirin',
     'currency'                    => 'Para birimi',
     'account_id'                  => 'Varlık hesabı',
     'budget_id'                   => 'Bütçe',
     'opening_balance'             => 'Opening balance',
     'tagMode'                     => 'Etiket modu',
-    'tag_position'                => 'Etiket konumu',
     'virtual_balance'             => 'Virtual balance',
     'targetamount'                => 'Hedef tutar',
     'account_role'                => 'Account role',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Gider Hesabı',
     'revenue_account'             => 'Gelir hesabı',
     'decimal_places'              => 'Ondalık basamak',
-    'exchange_rate_instruction'   => 'Yabancı para birimleri',
-    'source_amount'               => 'Miktar (kaynak)',
     'destination_amount'          => 'Miktar (Hedef)',
-    'native_amount'               => 'Yerli Miktar',
     'new_email_address'           => 'Yeni e-posta adresi',
     'verification'                => 'Doğrulama',
     'api_key'                     => 'API anahtarı',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Interest',
     'interest_period'             => 'Interest period',
 
-    'source_account_asset'        => 'Kaynak Hesabı (varlık hesabı)',
-    'destination_account_expense' => 'Hedef Hesap (gider hesabı)',
-    'destination_account_asset'   => 'Hedef hesabı (gider hesabı)',
-    'source_account_revenue'      => 'Kaynak hesap (gelir hesabı)',
-    'type'                        => 'Tür',
-    'convert_Withdrawal'          => 'Para çekmeyi değiştir',
-    'convert_Deposit'             => 'Mevduata dönüştürün',
-    'convert_Transfer'            => 'Aktarımı dönüştür',
+    'type'               => 'Tür',
+    'convert_Withdrawal' => 'Para çekmeyi değiştir',
+    'convert_Deposit'    => 'Mevduata dönüştürün',
+    'convert_Transfer'   => 'Aktarımı dönüştür',
 
     'amount'                      => 'Tutar',
     'foreign_amount'              => 'Foreign amount',
-    'existing_attachments'        => 'Existing attachments',
     'date'                        => 'Tarih',
     'interest_date'               => 'Faiz tarihi',
     'book_date'                   => 'Kitap Tarihi',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Tarih formatı',
     'specifix'                    => 'Banka veya dosyalara özel düzeltmeler',
     'attachments[]'               => 'Ekler',
-    'store_new_withdrawal'        => 'Yeni para çekme oluştur',
-    'store_new_deposit'           => 'Yeni depozito oluştur',
-    'store_new_transfer'          => 'Yeni transfer oluştur',
-    'add_new_withdrawal'          => 'Yeni para çekme ekle',
-    'add_new_deposit'             => 'Yeni depozito ekle',
-    'add_new_transfer'            => 'Yeni bir transfer ekle',
     'title'                       => 'Başlık',
     'notes'                       => 'Notlar',
     'filename'                    => 'Dosya adı',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'İşlemeyi durdur',
     'start_date'                  => 'Sayfa başlangıcı',
     'end_date'                    => 'Kapsama alanı dışında',
-    'include_attachments'         => 'Yüklenen ekleri dahil et',
-    'include_old_uploads'         => 'İçe aktarılan verileri dahil et',
+    'start'                       => 'Start of range',
+    'end'                         => 'End of range',
     'delete_account'              => '":name" adlı hesabı sil',
     'delete_bill'                 => 'Faturayı sil ":name"',
     'delete_budget'               => '":name" bütçesini sil',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => '":name" isimli hesabı silmek istediğinizden emin misiniz?',
     'bill_areYouSure'             => '":name" isimli faturayı silmek istediğinizden emin misiniz?',
     'rule_areYouSure'             => '":title" başlıklı kuralı silmek istediğinizden emin misiniz?',
+    'object_group_areYouSure'     => 'Are you sure you want to delete the group titled ":title"?',
     'ruleGroup_areYouSure'        => '":title" başlıklı kural grubunu silmek istediğinizden emin misiniz?',
     'budget_areYouSure'           => '":name" isimli bütçeyi silmek istediğinizden emin misiniz?',
     'category_areYouSure'         => '":name" isimli kategoriyi silmek istediğinizden emin misiniz?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'Bu bağlantıya bağlı tek işlem bağlantısını kaybedecek.| Bu bağlantı türüne bağlı tüm :count işlemleri bağlantılarını kaybedecek.',
     'also_delete_rules'           => 'Bu hesaba bağlı olan tek kural grubu da silinecektir. |Bu hesaba bağlı tüm :count kuralları da silinecektir.',
     'also_delete_piggyBanks'      => 'Bu hesaba bağlı olan tek kumbara da silinecektir. |Bu hesaba bağlı olan tüm :count kumbaraları da silinecektir.',
+    'not_delete_piggy_banks'      => 'The piggy bank connected to this group will not be deleted.|The :count piggy banks connected to this group will not be deleted.',
     'bill_keep_transactions'      => 'The only transaction connected to this bill will not be deleted.|All :count transactions connected to this bill will be spared deletion.',
     'budget_keep_transactions'    => 'The only transaction connected to this budget will not be deleted.|All :count transactions connected to this budget will be spared deletion.',
     'category_keep_transactions'  => 'The only transaction connected to this category will not be deleted.|All :count transactions connected to this category will be spared deletion.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'The only transaction connected to this tag will not be deleted.|All :count transactions connected to this tag will be spared deletion.',
     'check_for_updates'           => 'Check for updates',
 
+    'delete_object_group' => 'Delete group ":title"',
+
     'email'                 => 'E-posta adresi',
     'password'              => 'Şifre',
     'password_confirmation' => 'Şifre (Tekrar)',
     'blocked'               => 'Engellendi mi?',
     'blocked_code'          => 'Blok nedeni',
     'login_name'            => 'Login',
+    'is_owner'              => 'Is admin?',
 
     // import
     'apply_rules'           => 'Apply rules',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Demo sitesi var mı',
 
     // import
-    'import_file'           => 'Önemli dosya',
     'configuration_file'    => 'Yapılandırma dosyası',
-    'import_file_type'      => 'Dosya türünü içe aktar',
     'csv_comma'             => 'Bir virgül (,)',
     'csv_semicolon'         => 'Noktalı virgül (;)',
     'csv_tab'               => 'Bir sekme (görünmez)',
     'csv_delimiter'         => 'CSV alan ayırıcısı',
-    'csv_import_account'    => 'Varsayılan ithalat hesabı',
-    'csv_config'            => 'CSV içe aktarım yapılandırılması',
     'client_id'             => 'Müşteri Kimliği',
-    'service_secret'        => 'Hizmet Sırrı',
-    'app_secret'            => 'Uygulama Sırrı',
     'app_id'                => 'App ID',
     'secret'                => 'Secret',
     'public_key'            => 'Genel anahtar',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Source account',
     'expected_on'               => 'Expected on',
     'paid'                      => 'Paid',
+
+    'auto_budget_type'   => 'Auto-budget',
+    'auto_budget_amount' => 'Auto-budget amount',
+    'auto_budget_period' => 'Auto-budget period',
+
+    'collected' => 'Collected',
+    'submitted' => 'Submitted',
+    'key'       => 'Key',
+    'value'     => 'Content of record',
+
 
 ];

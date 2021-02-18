@@ -51,7 +51,7 @@
                 </em>
             </div>
             {% else %}
-            <div class="box-body table-responsive no-padding">
+            <div class="box-body no-padding">
                 <p style="padding:10px;">
                     {{ trans('firefly.audit_end_balance',
                         {
@@ -84,9 +84,9 @@
 {% block styles %}
 {% endblock %}
 {% block scripts %}
-    <script type="text/javascript">
+    <script type="text/javascript" nonce="{{ JS_NONCE }}">
         var hideable = {{ hideable|json_encode|raw }};
     </script>
-    <script type="text/javascript" src="v1/js/ff/reports/all.js?v={{ FF_VERSION }}"></script>
-    <script type="text/javascript" src="v1/js/ff/reports/audit/all.js?v={{ FF_VERSION }}"></script>
+    <script type="text/javascript" src="v1/js/ff/reports/all.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script type="text/javascript" src="v1/js/ff/reports/audit/all.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% endblock %}

@@ -1,42 +1,41 @@
 <?php
 /**
  * TagController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers;
 
-use Carbon\Carbon;
-use FireflyIII\Api\V1\Requests\DateRequest;
-use FireflyIII\Api\V1\Requests\TagRequest;
+use FireflyIII\Api\V1\Requests\TagStoreRequest;
+use FireflyIII\Api\V1\Requests\TagUpdateRequest;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Tag;
 use FireflyIII\Repositories\Tag\TagRepositoryInterface;
 use FireflyIII\Support\Http\Api\TransactionFilter;
+use FireflyIII\Transformers\AttachmentTransformer;
 use FireflyIII\Transformers\TagTransformer;
 use FireflyIII\Transformers\TransactionGroupTransformer;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Resource\Item;
@@ -50,6 +49,7 @@ class TagController extends Controller
 
     /** @var TagRepositoryInterface The tag repository */
     private $repository;
+
 
     /**
      * TagController constructor.
@@ -70,25 +70,6 @@ class TagController extends Controller
                 return $next($request);
             }
         );
-    }
-
-    /**
-     * @param DateRequest $request
-     *
-     * @return JsonResponse
-     */
-    public function cloud(DateRequest $request): JsonResponse
-    {
-        // parameters for boxes:
-        $dates = $request->getAll();
-        $start = $dates['start'];
-        $end   = $dates['end'];
-
-        // get all tags:
-        $tags  = $this->repository->get();
-        $cloud = $this->getTagCloud($tags, $start, $end);
-
-        return response()->json($cloud);
     }
 
     /**
@@ -116,7 +97,7 @@ class TagController extends Controller
     {
         $manager = $this->getManager();
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
         $collection = $this->repository->get();
@@ -134,7 +115,37 @@ class TagController extends Controller
         $resource = new FractalCollection($rules, $transformer, 'tags');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
+    }
+
+
+    /**
+     * @param Tag $tag
+     *
+     * @return JsonResponse
+     * @codeCoverageIgnore
+     */
+    public function attachments(Tag $tag): JsonResponse
+    {
+        $manager    = $this->getManager();
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $collection = $this->repository->getAttachments($tag);
+
+        $count       = $collection->count();
+        $attachments = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
+
+        // make paginator:
+        $paginator = new LengthAwarePaginator($attachments, $count, $pageSize, $this->parameters->get('page'));
+        $paginator->setPath(route('api.v1.tags.attachments', [$tag->id]) . $this->buildParams());
+
+        /** @var AttachmentTransformer $transformer */
+        $transformer = app(AttachmentTransformer::class);
+        $transformer->setParameters($this->parameters);
+
+        $resource = new FractalCollection($attachments, $transformer, 'attachments');
+        $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
+
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -154,18 +165,18 @@ class TagController extends Controller
 
         $resource = new Item($tag, $transformer, 'tags');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
     /**
      * Store new object.
      *
-     * @param TagRequest $request
+     * @param TagStoreRequest $request
      *
      * @return JsonResponse
      */
-    public function store(TagRequest $request): JsonResponse
+    public function store(TagStoreRequest $request): JsonResponse
     {
         $rule    = $this->repository->store($request->getAll());
         $manager = $this->getManager();
@@ -175,7 +186,7 @@ class TagController extends Controller
 
         $resource = new Item($rule, $transformer, 'tags');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -189,7 +200,7 @@ class TagController extends Controller
      */
     public function transactions(Request $request, Tag $tag): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 
@@ -228,18 +239,18 @@ class TagController extends Controller
         $resource = new FractalCollection($transactions, $transformer, 'transactions');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
      * Update a rule.
      *
-     * @param TagRequest $request
-     * @param Tag        $tag
+     * @param TagUpdateRequest $request
+     * @param Tag              $tag
      *
      * @return JsonResponse
      */
-    public function update(TagRequest $request, Tag $tag): JsonResponse
+    public function update(TagUpdateRequest $request, Tag $tag): JsonResponse
     {
         $rule    = $this->repository->update($tag, $request->getAll());
         $manager = $this->getManager();
@@ -249,59 +260,7 @@ class TagController extends Controller
 
         $resource = new Item($rule, $transformer, 'tags');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
-    }
-
-    /**
-     * @param array $cloud
-     * @param float $min
-     * @param float $max
-     *
-     * @return array
-     */
-    private function analyseTagCloud(array $cloud, float $min, float $max): array
-    {
-        foreach (array_keys($cloud['tags']) as $index) {
-            $cloud['tags'][$index]['relative'] = round($cloud['tags'][$index]['size'] / $max, 4);
-        }
-        $cloud['min'] = $min;
-        $cloud['max'] = $max;
-
-        return $cloud;
-    }
-
-    /**
-     * @param Collection $tags
-     * @param Carbon     $start
-     * @param Carbon     $end
-     *
-     * @return array
-     */
-    private function getTagCloud(Collection $tags, Carbon $start, Carbon $end): array
-    {
-        $min   = null;
-        $max   = 0;
-        $cloud = [
-            'tags' => [],
-        ];
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $earned = (float)$this->repository->earnedInPeriod($tag, $start, $end);
-            $spent  = (float)$this->repository->spentInPeriod($tag, $start, $end);
-            $size   = ($spent * -1) + $earned;
-            $min    = $min ?? $size;
-            if ($size > 0) {
-                $max             = $size > $max ? $size : $max;
-                $cloud['tags'][] = [
-                    'tag'  => $tag->tag,
-                    'id'   => $tag->id,
-                    'size' => $size,
-                ];
-            }
-        }
-        $cloud = $this->analyseTagCloud($cloud, $min, $max);
-
-        return $cloud;
     }
 }

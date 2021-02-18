@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * InterestingMessage.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Http\Middleware;
 
@@ -37,15 +38,14 @@ class InterestingMessage
     /**
      * Flashes the user an interesting message if the URL parameters warrant it.
      *
-     * @param Request  $request
-     * @param \Closure $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      *
      */
     public function handle(Request $request, Closure $next)
     {
-        //Log::debug(sprintf('Interesting Message middleware for URI %s', $request->url()));
         if ($this->testing()) {
             return $next($request);
         }
@@ -84,7 +84,7 @@ class InterestingMessage
 
         // send message about newly created transaction group.
         /** @var TransactionGroup $group */
-        $group = auth()->user()->transactionGroups()->with(['transactionJournals', 'transactionJournals.transactionType'])->find((int)$transactionGroupId);
+        $group = auth()->user()->transactionGroups()->with(['transactionJournals', 'transactionJournals.transactionType'])->find((int) $transactionGroupId);
 
         if (null === $group) {
             return;
@@ -100,12 +100,12 @@ class InterestingMessage
         $title = $count > 1 ? $group->title : $journal->description;
         if ('created' === $message) {
             session()->flash('success_uri', route('transactions.show', [$transactionGroupId]));
-            session()->flash('success', (string)trans('firefly.stored_journal', ['description' => $title]));
+            session()->flash('success', (string) trans('firefly.stored_journal', ['description' => $title]));
         }
         if ('updated' === $message) {
             $type = strtolower($journal->transactionType->type);
             session()->flash('success_uri', route('transactions.show', [$transactionGroupId]));
-            session()->flash('success', (string)trans(sprintf('firefly.updated_%s', $type), ['description' => $title]));
+            session()->flash('success', (string) trans(sprintf('firefly.updated_%s', $type), ['description' => $title]));
         }
     }
 

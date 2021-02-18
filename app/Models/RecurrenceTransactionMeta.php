@@ -1,22 +1,22 @@
 <?php
 /**
- * RecurrenceMeta.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * RecurrenceTransactionMeta.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,37 +24,40 @@ declare(strict_types=1);
 namespace FireflyIII\Models;
 
 
+use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 
 /**
  * Class RecurrenceTransactionMeta
  *
- * @property string $name
- * @property string $value
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $rt_id
- * @property-read \FireflyIII\Models\RecurrenceTransaction $recurrenceTransaction
+ * @property string                          $name
+ * @property string                          $value
+ * @property int                             $id
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property Carbon|null $deleted_at
+ * @property int                             $rt_id
+ * @property-read RecurrenceTransaction      $recurrenceTransaction
  * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta newQuery()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceTransactionMeta onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta query()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta newQuery()
+ * @method static Builder|RecurrenceTransactionMeta onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta query()
  * @method static bool|null restore()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereRtId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\RecurrenceTransactionMeta whereValue($value)
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceTransactionMeta withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\RecurrenceTransactionMeta withoutTrashed()
- * @mixin \Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereRtId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta whereValue($value)
+ * @method static Builder|RecurrenceTransactionMeta withTrashed()
+ * @method static Builder|RecurrenceTransactionMeta withoutTrashed()
+ * @mixin Eloquent
  */
 class RecurrenceTransactionMeta extends Model
 {

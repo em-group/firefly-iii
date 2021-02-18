@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurrenceUpdateService.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -27,7 +27,6 @@ use Exception;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\Recurrence;
-use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Services\Internal\Support\RecurringTransactionTrait;
 use FireflyIII\Services\Internal\Support\TransactionTypeTrait;
 use FireflyIII\User;
@@ -42,8 +41,7 @@ class RecurrenceUpdateService
 {
     use TransactionTypeTrait, RecurringTransactionTrait;
 
-    /** @var User */
-    private $user;
+    private User $user;
 
     /**
      * Updates a recurrence.
@@ -89,7 +87,6 @@ class RecurrenceUpdateService
         $recurrence->save();
 
         // update all meta data:
-        //$this->updateMetaData($recurrence, $data);
 
         if (isset($data['recurrence']['notes']) && null !== $data['recurrence']['notes']) {
             $this->setNoteText($recurrence, $data['recurrence']['notes']);
@@ -101,7 +98,7 @@ class RecurrenceUpdateService
             $this->createRepetitions($recurrence, $data['repetitions'] ?? []);
         }
 
-        // update all transactions (and associated meta-data);
+        // update all transactions (and associated meta-data)
         if (null !== $data['transactions']) {
             $this->deleteTransactions($recurrence);
             $this->createTransactions($recurrence, $data['transactions'] ?? []);

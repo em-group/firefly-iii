@@ -1,22 +1,22 @@
 <?php
 /**
  * BoxController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -28,12 +28,11 @@ use FireflyIII\Helpers\Report\NetWorthInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
+use FireflyIII\Models\AvailableBudget;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\Budget\AvailableBudgetRepositoryInterface;
-use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Budget\OperationsRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\CacheProperties;
@@ -49,17 +48,17 @@ class BoxController extends Controller
     use RequestInformation;
 
     /**
-     * How much money user has available.
+     * This box has three types of info to display:
+     * 0) If the user has available amount this period and has overspent: overspent box.
+     * 1) If the user has available amount this period and has NOT overspent: left to spend box.
+     * 2) if the user has no available amount set this period: spent per day
      *
      * @return JsonResponse
      */
     public function available(): JsonResponse
     {
-        /** @var BudgetRepositoryInterface $repository */
-        $repository = app(BudgetRepositoryInterface::class);
         /** @var OperationsRepositoryInterface $opsRepository */
         $opsRepository = app(OperationsRepositoryInterface::class);
-
         /** @var AvailableBudgetRepositoryInterface $abRepository */
         $abRepository = app(AvailableBudgetRepositoryInterface::class);
 
@@ -67,8 +66,11 @@ class BoxController extends Controller
         /** @var Carbon $start */
         $start = session('start', Carbon::now()->startOfMonth());
         /** @var Carbon $end */
-        $end   = session('end', Carbon::now()->endOfMonth());
-        $today = new Carbon;
+        $end      = session('end', Carbon::now()->endOfMonth());
+        $today    = today(config('app.timezone'));
+        $display  = 2; // see method docs.
+        $boxTitle = (string) trans('firefly.spent');
+
         $cache = new CacheProperties;
         $cache->addProperty($start);
         $cache->addProperty($end);
@@ -77,32 +79,46 @@ class BoxController extends Controller
         if ($cache->has()) {
             return response()->json($cache->get()); // @codeCoverageIgnore
         }
-        // get available amount
-        $currency  = app('amount')->getDefaultCurrency();
-        $available = $abRepository->getAvailableBudget($currency, $start, $end);
+        $leftPerDayAmount  = '0';
+        $leftToSpendAmount = '0';
 
-        // get spent amount:
-        $budgets           = $repository->getActiveBudgets();
-        $budgetInformation = $opsRepository->collectBudgetInformation($budgets, $start, $end);
-        $spent             = (string)array_sum(array_column($budgetInformation, 'spent'));
-        $left              = bcadd($available, $spent);
-        $days              = $today->diffInDays($end) + 1;
-        $perDay            = '0';
-        $text              = (string)trans('firefly.left_to_spend');
-        $overspent         = false;
-        if (bccomp($left, '0') === -1) {
-            $text      = (string)trans('firefly.overspent');
-            $overspent = true;
-        }
-        if (0 !== $days && bccomp($left, '0') > -1) {
-            $perDay = bcdiv($left, (string)$days);
+        $currency         = app('amount')->getDefaultCurrency();
+        $availableBudgets = $abRepository->getAvailableBudgetsByDate($start, $end);
+        $availableBudgets = $availableBudgets->filter(
+            static function (AvailableBudget $availableBudget) use ($currency) {
+                if ($availableBudget->transaction_currency_id === $currency->id) {
+                    return $availableBudget;
+                }
+
+                return null;
+            }
+        );
+        // spent in this period, in budgets, for default currency.
+        // also calculate spent per day.
+        $spent       = $opsRepository->sumExpenses($start, $end, null, null, $currency);
+        $spentAmount = $spent[(int) $currency->id]['sum'] ?? '0';
+        $spentPerDay = '-1';
+        if ($availableBudgets->count() > 0) {
+            $display           = 0; // assume user overspent
+            $boxTitle          = (string) trans('firefly.overspent');
+            $totalAvailableSum = (string) $availableBudgets->sum('amount');
+            // calculate with available budget.
+            $leftToSpendAmount = bcadd($totalAvailableSum, $spentAmount);
+            if (1 === bccomp($leftToSpendAmount, '0')) {
+                $boxTitle         = (string) trans('firefly.left_to_spend');
+                $days             = $today->diffInDays($end) + 1;
+                $display          = 1; // not overspent
+                $leftPerDayAmount = bcdiv($leftToSpendAmount, (string) $days);
+            }
         }
 
         $return = [
-            'perDay'    => app('amount')->formatAnything($currency, $perDay, false),
-            'left'      => app('amount')->formatAnything($currency, $left, false),
-            'text'      => $text,
-            'overspent' => $overspent,
+            'display'       => $display,
+            'spent_total'   => app('amount')->formatAnything($currency, $spentAmount, false),
+            'spent_per_day' => app('amount')->formatAnything($currency, $spentPerDay, false),
+            'left_to_spend' => app('amount')->formatAnything($currency, $leftToSpendAmount, false),
+            'left_per_day'  => app('amount')->formatAnything($currency, $leftPerDayAmount, false),
+            'title'         => $boxTitle,
         ];
 
         $cache->store($return);
@@ -146,11 +162,12 @@ class BoxController extends Controller
         $set = $collector->getExtractedJournals();
         /** @var array $journal */
         foreach ($set as $journal) {
-            $currencyId           = (int)$journal['currency_id'];
+            $currencyId           = (int) $journal['currency_id'];
+            $amount               = $journal['amount'] ?? '0';
             $incomes[$currencyId] = $incomes[$currencyId] ?? '0';
-            $incomes[$currencyId] = bcadd($incomes[$currencyId], app('steam')->positive($journal['amount']));
+            $incomes[$currencyId] = bcadd($incomes[$currencyId], app('steam')->positive($amount));
             $sums[$currencyId]    = $sums[$currencyId] ?? '0';
-            $sums[$currencyId]    = bcadd($sums[$currencyId], app('steam')->positive($journal['amount']));
+            $sums[$currencyId]    = bcadd($sums[$currencyId], app('steam')->positive($amount));
         }
 
         // collect expenses
@@ -161,9 +178,9 @@ class BoxController extends Controller
         $set = $collector->getExtractedJournals();
         /** @var array $journal */
         foreach ($set as $journal) {
-            $currencyId            = (int)$journal['currency_id'];
+            $currencyId            = (int) $journal['currency_id'];
             $expenses[$currencyId] = $expenses[$currencyId] ?? '0';
-            $expenses[$currencyId] = bcadd($expenses[$currencyId], $journal['amount']);
+            $expenses[$currencyId] = bcadd($expenses[$currencyId], $journal['amount'] ?? '0');
             $sums[$currencyId]     = $sums[$currencyId] ?? '0';
             $sums[$currencyId]     = bcadd($sums[$currencyId], $journal['amount']);
         }
@@ -176,7 +193,7 @@ class BoxController extends Controller
             $incomes[$currencyId]  = app('amount')->formatAnything($currency, $incomes[$currencyId] ?? '0', false);
             $expenses[$currencyId] = app('amount')->formatAnything($currency, $expenses[$currencyId] ?? '0', false);
         }
-        if (0 === count($sums)) {
+        if (empty($sums)) {
             $currency                = app('amount')->getDefaultCurrency();
             $sums[$currency->id]     = app('amount')->formatAnything($currency, '0', false);
             $incomes[$currency->id]  = app('amount')->formatAnything($currency, '0', false);
@@ -197,47 +214,6 @@ class BoxController extends Controller
         return response()->json($response);
     }
 
-
-    /**
-     * Bills to pay and paid.
-     *
-     * @param BillRepositoryInterface $repository
-     *
-     * @return JsonResponse
-     */
-    public function bills(BillRepositoryInterface $repository): JsonResponse
-    {
-        /** @var Carbon $start */
-        $start = session('start', Carbon::now()->startOfMonth());
-        /** @var Carbon $end */
-        $end = session('end', Carbon::now()->endOfMonth());
-
-        $cache = new CacheProperties;
-        $cache->addProperty($start);
-        $cache->addProperty($end);
-        $cache->addProperty('box-bills');
-        if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
-        }
-
-        /*
-         * Since both this method and the chart use the exact same data, we can suffice
-         * with calling the one method in the bill repository that will get this amount.
-         */
-        $paidAmount   = bcmul($repository->getBillsPaidInRange($start, $end), '-1');
-        $unpaidAmount = $repository->getBillsUnpaidInRange($start, $end); // will be a positive amount.
-        $currency     = app('amount')->getDefaultCurrency();
-
-        $return = [
-            'paid'   => app('amount')->formatAnything($currency, $paidAmount, false),
-            'unpaid' => app('amount')->formatAnything($currency, $unpaidAmount, false),
-        ];
-        $cache->store($return);
-
-        return response()->json($return);
-    }
-
-
     /**
      * Total user net worth.
      *
@@ -245,7 +221,7 @@ class BoxController extends Controller
      */
     public function netWorth(): JsonResponse
     {
-        $date = Carbon::now()->startOfDay();
+        $date = Carbon::now()->endOfDay();
 
         // start and end in the future? use $end
         if ($this->notInSessionRange($date)) {
@@ -281,7 +257,7 @@ class BoxController extends Controller
 
 
         $return = [];
-        foreach ($netWorthSet as $index => $data) {
+        foreach ($netWorthSet as $data) {
             /** @var TransactionCurrency $currency */
             $currency              = $data['currency'];
             $return[$currency->id] = app('amount')->formatAnything($currency, $data['balance'], false);

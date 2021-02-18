@@ -1,29 +1,32 @@
 <?php
 /**
  * Transaction.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
 use Carbon\Carbon;
+use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -32,106 +35,108 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Transaction.
  *
- * @property int                 $journal_id
- * @property Carbon              $date
- * @property string              $transaction_description
- * @property string              $transaction_amount
- * @property string              $transaction_foreign_amount
- * @property string              $transaction_type_type
- * @property string              $foreign_currency_symbol
- * @property int                 $foreign_currency_dp
- * @property int                 $account_id
- * @property string              $account_name
- * @property string              $account_iban
- * @property string              $account_number
- * @property string              $account_bic
- * @property string              $account_type
- * @property string              $account_currency_code
- * @property int                 $opposing_account_id
- * @property string              $opposing_account_name
- * @property string              $opposing_account_iban
- * @property string              $opposing_account_number
- * @property string              $opposing_account_bic
- * @property string              $opposing_account_type
- * @property string              $opposing_currency_code
- * @property int                 $transaction_budget_id
- * @property string              $transaction_budget_name
- * @property int                 $transaction_journal_budget_id
- * @property string              $transaction_journal_budget_name
- * @property int                 $transaction_category_id
- * @property string              $transaction_category_name
- * @property int                 $transaction_journal_category_id
- * @property string              $transaction_journal_category_name
- * @property int                 $bill_id
- * @property string              $bill_name
- * @property string              $bill_name_encrypted
- * @property string              $notes
- * @property string              $tags
- * @property string              $transaction_currency_name
- * @property string              $transaction_currency_symbol
- * @property int                 $transaction_currency_dp
- * @property string              $transaction_currency_code
- * @property string              $description
- * @property bool                $is_split
- * @property int                 $attachmentCount
- * @property int                 $transaction_currency_id
- * @property int                 $foreign_currency_id
- * @property string              $amount
- * @property string              $foreign_amount
- * @property TransactionJournal  $transactionJournal
- * @property Account             $account
- * @property int                 $identifier
- * @property int                 $id
- * @property TransactionCurrency $transactionCurrency
- * @property int                 $transaction_journal_id
- * @property TransactionCurrency $foreignCurrency
- * @property string              $before      // used in audit reports.
- * @property string              $after       // used in audit reports.
- * @property int                 $opposing_id // ID of the opposing transaction, used in collector
- * @property bool                $encrypted   // is the journal encrypted
- * @property bool                reconciled
- * @property string              transaction_category_encrypted
- * @property string              transaction_journal_category_encrypted
- * @property string              transaction_budget_encrypted
- * @property string              transaction_journal_budget_encrypted
- * @property string              type
- * @property string              name
- * @property Carbon              created_at
- * @property Carbon              updated_at
- * @property string              foreign_currency_code
+ * @property int                                                                         $journal_id
+ * @property Carbon                                                                      $date
+ * @property string                                                                      $transaction_description
+ * @property string                                                                      $transaction_amount
+ * @property string                                                                      $transaction_foreign_amount
+ * @property string                                                                      $transaction_type_type
+ * @property string                                                                      $foreign_currency_symbol
+ * @property int                                                                         $foreign_currency_dp
+ * @property int                                                                         $account_id
+ * @property string                                                                      $account_name
+ * @property string                                                                      $account_iban
+ * @property string                                                                      $account_number
+ * @property string                                                                      $account_bic
+ * @property string                                                                      $account_type
+ * @property string                                                                      $account_currency_code
+ * @property int                                                                         $opposing_account_id
+ * @property string                                                                      $opposing_account_name
+ * @property string                                                                      $opposing_account_iban
+ * @property string                                                                      $opposing_account_number
+ * @property string                                                                      $opposing_account_bic
+ * @property string                                                                      $opposing_account_type
+ * @property string                                                                      $opposing_currency_code
+ * @property int                                                                         $transaction_budget_id
+ * @property string                                                                      $transaction_budget_name
+ * @property int                                                                         $transaction_journal_budget_id
+ * @property string                                                                      $transaction_journal_budget_name
+ * @property int                                                                         $transaction_category_id
+ * @property string                                                                      $transaction_category_name
+ * @property int                                                                         $transaction_journal_category_id
+ * @property string                                                                      $transaction_journal_category_name
+ * @property int                                                                         $bill_id
+ * @property string                                                                      $bill_name
+ * @property string                                                                      $bill_name_encrypted
+ * @property string                                                                      $notes
+ * @property string                                                                      $tags
+ * @property string                                                                      $transaction_currency_name
+ * @property string                                                                      $transaction_currency_symbol
+ * @property int                                                                         $transaction_currency_dp
+ * @property string                                                                      $transaction_currency_code
+ * @property string                                                                      $description
+ * @property bool                                                                        $is_split
+ * @property int                                                                         $attachmentCount
+ * @property int                                                                         $transaction_currency_id
+ * @property int                                                                         $foreign_currency_id
+ * @property string                                                                      $amount
+ * @property string                                                                      $foreign_amount
+ * @property TransactionJournal                                                          $transactionJournal
+ * @property Account                                                                     $account
+ * @property int                                                                         $identifier
+ * @property int                                                                         $id
+ * @property TransactionCurrency                                                         $transactionCurrency
+ * @property int                                                                         $transaction_journal_id
+ * @property TransactionCurrency                                                         $foreignCurrency
+ * @property string                                                                      $before      // used in audit reports.
+ * @property string                                                                      $after       // used in audit reports.
+ * @property int                                                                         $opposing_id // ID of the opposing transaction, used in collector
+ * @property bool                                                                        $encrypted   // is the journal encrypted
+ * @property bool                                                                        reconciled
+ * @property string                                                                      transaction_category_encrypted
+ * @property string                          transaction_journal_category_encrypted
+ * @property string                          transaction_budget_encrypted
+ * @property string                          transaction_journal_budget_encrypted
+ * @property string                          type
+ * @property string                          name
+ * @property Carbon                          created_at
+ * @property Carbon                          updated_at
+ * @property string                          foreign_currency_code
  * @SuppressWarnings (PHPMD.TooManyPublicMethods)
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Budget[] $budgets
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Category[] $categories
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction after(\Carbon\Carbon $date)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction before(\Carbon\Carbon $date)
+ * @property-read Collection|Budget[]        $budgets
+ * @property-read Collection|Category[]      $categories
+ * @method static Builder|Transaction after(Carbon $date)
+ * @method static Builder|Transaction before(Carbon $date)
  * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction newQuery()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Transaction onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction query()
+ * @method static Builder|Transaction newModelQuery()
+ * @method static Builder|Transaction newQuery()
+ * @method static \Illuminate\Database\Query\Builder|Transaction onlyTrashed()
+ * @method static Builder|Transaction query()
  * @method static bool|null restore()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction transactionTypes($types)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereAccountId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereForeignAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereForeignCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereIdentifier($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereReconciled($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereTransactionCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereTransactionJournalId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Transaction whereUpdatedAt($value)
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Transaction withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\Transaction withoutTrashed()
- * @mixin \Eloquent
+ * @method static Builder|Transaction transactionTypes($types)
+ * @method static Builder|Transaction whereAccountId($value)
+ * @method static Builder|Transaction whereAmount($value)
+ * @method static Builder|Transaction whereCreatedAt($value)
+ * @method static Builder|Transaction whereDeletedAt($value)
+ * @method static Builder|Transaction whereDescription($value)
+ * @method static Builder|Transaction whereForeignAmount($value)
+ * @method static Builder|Transaction whereForeignCurrencyId($value)
+ * @method static Builder|Transaction whereId($value)
+ * @method static Builder|Transaction whereIdentifier($value)
+ * @method static Builder|Transaction whereReconciled($value)
+ * @method static Builder|Transaction whereTransactionCurrencyId($value)
+ * @method static Builder|Transaction whereTransactionJournalId($value)
+ * @method static Builder|Transaction whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Query\Builder|Transaction withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|Transaction withoutTrashed()
+ * @mixin Eloquent
+ * @property-read int|null $budgets_count
+ * @property-read int|null $categories_count
  */
 class Transaction extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
     /**
      * The attributes that should be casted to native types.
      *
@@ -177,7 +182,6 @@ class Transaction extends Model
 
         return false;
     }
-
 
     /**
      * Get the account this object belongs to.
@@ -280,7 +284,7 @@ class Transaction extends Model
      */
     public function setAmountAttribute($value): void
     {
-        $this->attributes['amount'] = (string)$value;
+        $this->attributes['amount'] = (string) $value;
     }
 
     /**

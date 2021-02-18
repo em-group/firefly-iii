@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Modifica salvadanaio ":name"',
     'preferences'            => 'Preferenze',
     'profile'                => 'Profilo',
+    'accounts'               => 'Conti',
     'changePassword'         => 'Cambia la tua password',
     'change_email'           => 'Cambia il tuo indirizzo email',
     'bills'                  => 'Bollette',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Modifica transazione ":description"',
     'edit_reconciliation'    => 'Modifica ":description"',
     'delete_journal'         => 'Elimina transazione ":description"',
+    'delete_group'           => 'Elimina transazione ":description"',
     'tags'                   => 'Etichette',
     'createTag'              => 'Crea nuova etichetta',
     'edit_tag'               => 'Modifica etichetta ":tag"',
     'delete_tag'             => 'Elimina etichetta ":tag"',
     'delete_journal_link'    => 'Elimina il collegamento tra le transazioni',
+    'telemetry_index'        => 'Telemetria',
+    'telemetry_view'         => 'Visualizza telemetria',
+    'edit_object_group'      => 'Modifica gruppo ":title"',
+    'delete_object_group'    => 'Elimina gruppo ":title"',
+    'logout_others'          => 'Esci dalle altre sessioni'
 ];

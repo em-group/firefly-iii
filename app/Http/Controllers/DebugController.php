@@ -1,22 +1,22 @@
 <?php
 /**
  * DebugController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,7 +30,9 @@ use Exception;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Support\Http\Controllers\GetConfigurationData;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Routing\Route;
 use Log;
 use Monolog\Handler\RotatingFileHandler;
@@ -46,12 +48,13 @@ class DebugController extends Controller
 
     /**
      * DebugController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(IsDemoUser::class);
+        $this->middleware(IsDemoUser::class)->except(['displayError']);
     }
 
     /**
@@ -77,7 +80,7 @@ class DebugController extends Controller
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function flush(Request $request)
     {
@@ -118,34 +121,46 @@ class DebugController extends Controller
         $search  = ['~', '#'];
         $replace = ['\~', '# '];
 
-        $phpVersion     = str_replace($search, $replace, PHP_VERSION);
-        $phpOs          = str_replace($search, $replace, PHP_OS);
-        $interface      = PHP_SAPI;
-        $now            = Carbon::now()->format('Y-m-d H:i:s e');
-        $extensions     = implode(', ', get_loaded_extensions());
-        $drivers        = implode(', ', DB::availableDrivers());
-        $currentDriver  = DB::getDriverName();
-        $userAgent      = $request->header('user-agent');
-        $isSandstorm    = var_export(config('firefly.is_sandstorm'), true);
-        $isDocker       = var_export(config('firefly.is_docker'), true);
-        $toSandbox      = var_export(config('firefly.bunq_use_sandbox'), true);
-        $trustedProxies = config('firefly.trusted_proxies');
-        $displayErrors  = ini_get('display_errors');
-        $storageDisks   = implode(', ', config('filesystems.disks.upload.disks'));
-        $errorReporting = $this->errorReporting((int)ini_get('error_reporting'));
-        $appEnv         = config('app.env');
-        $appDebug       = var_export(config('app.debug'), true);
-        $logChannel     = config('logging.default');
-        $appLogLevel    = config('logging.level');
-        $cacheDriver    = config('cache.default');
-        $loginProvider  = config('auth.driver');
+        $now                  = Carbon::now()->format('Y-m-d H:i:s e');
+        $installationIdConfig = app('fireflyconfig')->get('installation_id', '');
+        $installationId       = $installationIdConfig ? $installationIdConfig->data : '';
+        $phpVersion           = str_replace($search, $replace, PHP_VERSION);
+        $phpOs                = str_replace($search, $replace, PHP_OS);
+        $interface            = PHP_SAPI;
+        $drivers              = implode(', ', DB::availableDrivers());
+        $currentDriver        = DB::getDriverName();
+        $userAgent            = $request->header('user-agent');
+        $trustedProxies       = config('firefly.trusted_proxies');
+        $displayErrors        = ini_get('display_errors');
+        $errorReporting       = $this->errorReporting((int) ini_get('error_reporting'));
+        $appEnv               = config('app.env');
+        $appDebug             = var_export(config('app.debug'), true);
+        $logChannel           = config('logging.default');
+        $appLogLevel          = config('logging.level');
+        $cacheDriver          = config('cache.default');
+        $loginProvider        = config('auth.providers.users.driver');
+        $bcscale              = bcscale();
+        $layout               = env('FIREFLY_III_LAYOUT');
+
+        // expected + found DB version:
+        $expectedDBversion = config('firefly.db_version');
+        $foundDBversion = \FireflyConfig::get('db_version',1)->data;
+
+        // some new vars.
+        $telemetry       = true === config('firefly.send_telemetry') && true === config('firefly.feature_flags.telemetry');
+        $defaultLanguage = (string) config('firefly.default_language');
+        $defaultLocale   = (string) config('firefly.default_locale');
+        $userLanguage    = app('steam')->getLanguage();
+        $userLocale      = app('steam')->getLocale();
+        $isDocker        = env('IS_DOCKER', false);
 
         // set languages, see what happens:
         $original       = setlocale(LC_ALL, 0);
         $localeAttempts = [];
-        $parts          = explode(',', (string)trans('config.locale'));
+        $parts          = app('steam')->getLocaleArray(app('steam')->getLocale());
         foreach ($parts as $code) {
-            $code                  = trim($code);
+            $code = trim($code);
+            Log::debug(sprintf('Trying to set %s', $code));
             $localeAttempts[$code] = var_export(setlocale(LC_ALL, $code), true);
         }
         setlocale(LC_ALL, $original);
@@ -175,13 +190,39 @@ class DebugController extends Controller
         }
 
         return view(
-            'debug', compact(
-                       'phpVersion', 'extensions', 'localeAttempts', 'appEnv', 'appDebug', 'logChannel', 'appLogLevel', 'now', 'drivers',
-                       'currentDriver', 'loginProvider', 'storageDisks',
-                       'userAgent', 'displayErrors', 'errorReporting', 'phpOs', 'interface', 'logContent', 'cacheDriver', 'isDocker', 'isSandstorm',
-                       'trustedProxies',
-                       'toSandbox'
-                   )
+            'debug',
+            compact(
+                'phpVersion',
+                'localeAttempts',
+                'expectedDBversion',
+                'foundDBversion',
+                'appEnv',
+                'appDebug',
+                'logChannel',
+                'appLogLevel',
+                'now',
+                'drivers',
+                'currentDriver',
+                'loginProvider',
+                'bcscale',
+                'layout',
+                'userAgent',
+                'displayErrors',
+                'installationId',
+                'errorReporting',
+                'phpOs',
+                'interface',
+                'logContent',
+                'cacheDriver',
+                'trustedProxies',
+                'telemetry',
+                'userLanguage',
+                'userLocale',
+                'defaultLanguage',
+                'defaultLocale',
+                'isDocker'
+
+            )
         );
     }
 
@@ -194,25 +235,24 @@ class DebugController extends Controller
     {
         $set    = RouteFacade::getRoutes();
         $ignore = ['chart.', 'javascript.', 'json.', 'report-data.', 'popup.', 'debugbar.', 'attachments.download', 'attachments.preview',
-                   'bills.rescan', 'budgets.income', 'currencies.def', 'error', 'flush', 'help.show', 'import.file',
+                   'bills.rescan', 'budgets.income', 'currencies.def', 'error', 'flush', 'help.show',
                    'login', 'logout', 'password.reset', 'profile.confirm-email-change', 'profile.undo-email-change',
                    'register', 'report.options', 'routes', 'rule-groups.down', 'rule-groups.up', 'rules.up', 'rules.down',
                    'rules.select', 'search.search', 'test-flash', 'transactions.link.delete', 'transactions.link.switch',
-                   'two-factor.lost', 'reports.options', 'debug', 'import.create-job', 'import.download', 'import.start', 'import.status.json',
+                   'two-factor.lost', 'reports.options', 'debug',
                    'preferences.delete-code', 'rules.test-triggers', 'piggy-banks.remove-money', 'piggy-banks.add-money',
                    'accounts.reconcile.transactions', 'accounts.reconcile.overview',
-                   'transactions.clone', 'two-factor.index', 'api.v1', 'installer.', 'attachments.view', 'import.create',
-                   'import.job.download', 'import.job.start', 'import.job.status.json', 'import.job.store', 'recurring.events',
+                   'transactions.clone', 'two-factor.index', 'api.v1', 'installer.', 'attachments.view', 'recurring.events',
                    'recurring.suggest',
         ];
         $return = '&nbsp;';
         /** @var Route $route */
         foreach ($set as $route) {
-            $name = (string)$route->getName();
+            $name = (string) $route->getName();
             if (in_array('GET', $route->methods(), true)) {
                 $found = false;
                 foreach ($ignore as $string) {
-                    if (!(false === stripos($name, $string))) {
+                    if (false !== stripos($name, $string)) {
                         $found = true;
                         break;
                     }
@@ -231,7 +271,7 @@ class DebugController extends Controller
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function testFlash(Request $request)
     {
@@ -242,6 +282,4 @@ class DebugController extends Controller
 
         return redirect(route('home'));
     }
-
-
 }

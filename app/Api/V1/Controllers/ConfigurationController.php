@@ -1,22 +1,22 @@
 <?php
 /**
  * ConfigurationController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,27 +37,24 @@ use Illuminate\Http\JsonResponse;
  */
 class ConfigurationController extends Controller
 {
-
-
     /** @var UserRepositoryInterface The user repository */
     private $repository;
 
+
     /**
      * ConfigurationController constructor.
-     *
      */
     public function __construct()
     {
         parent::__construct();
         $this->middleware(
             function ($request, $next) {
-                /** @noinspection UnusedConstructorDependenciesInspection */
                 $this->repository = app(UserRepositoryInterface::class);
                 /** @var User $admin */
                 $admin = auth()->user();
 
                 if (!$this->repository->hasRole($admin, 'owner')) {
-                    throw new FireflyException('No access to method.'); // @codeCoverageIgnore
+                    throw new FireflyException('200005: You need the "owner" role to do this.'); // @codeCoverageIgnore
                 }
 
                 return $next($request);
@@ -74,24 +71,7 @@ class ConfigurationController extends Controller
     {
         $configData = $this->getConfigData();
 
-        return response()->json(['data' => $configData])->header('Content-Type', 'application/vnd.api+json');
-    }
-
-    /**
-     * Update the configuration.
-     *
-     * @param ConfigurationRequest $request
-     * @param string               $name
-     *
-     * @return JsonResponse
-     */
-    public function update(ConfigurationRequest $request, string $name): JsonResponse
-    {
-        $data = $request->getAll();
-        app('fireflyconfig')->set($name, $data['value']);
-        $configData = $this->getConfigData();
-
-        return response()->json(['data' => $configData])->header('Content-Type', 'application/vnd.api+json');
+        return response()->json(['data' => $configData])->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -109,13 +89,29 @@ class ConfigurationController extends Controller
         $lastCheck = app('fireflyconfig')->get('last_update_check');
         /** @var Configuration $singleUser */
         $singleUser = app('fireflyconfig')->get('single_user_mode');
-        $data       = [
+
+        return [
             'is_demo_site'            => null === $isDemoSite ? null : $isDemoSite->data,
-            'permission_update_check' => null === $updateCheck ? null : (int)$updateCheck->data,
-            'last_update_check'       => null === $lastCheck ? null : (int)$lastCheck->data,
+            'permission_update_check' => null === $updateCheck ? null : (int) $updateCheck->data,
+            'last_update_check'       => null === $lastCheck ? null : (int) $lastCheck->data,
             'single_user_mode'        => null === $singleUser ? null : $singleUser->data,
         ];
+    }
 
-        return $data;
+    /**
+     * Update the configuration.
+     *
+     * @param ConfigurationRequest $request
+     * @param string               $name
+     *
+     * @return JsonResponse
+     */
+    public function update(ConfigurationRequest $request, string $name): JsonResponse
+    {
+        $data = $request->getAll();
+        app('fireflyconfig')->set($name, $data['value']);
+        $configData = $this->getConfigData();
+
+        return response()->json(['data' => $configData])->header('Content-Type', self::CONTENT_TYPE);
     }
 }

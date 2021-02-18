@@ -1,28 +1,29 @@
 <?php
 /**
  * BillRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Bill;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Bill;
 use FireflyIII\User;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -33,6 +34,45 @@ use Illuminate\Support\Collection;
  */
 interface BillRepositoryInterface
 {
+
+    /**
+     * @param Bill   $bill
+     * @param string $objectGroupTitle
+     *
+     * @return Bill
+     */
+    public function setObjectGroup(Bill $bill, string $objectGroupTitle): Bill;
+
+    /**
+     *
+     */
+    public function destroyAll(): void;
+
+    /**
+     * @param Bill $bill
+     *
+     * @return Bill
+     */
+    public function removeObjectGroup(Bill $bill): Bill;
+
+    /**
+     * @param Bill $bill
+     */
+    public function unlinkAll(Bill $bill): void;
+
+    /**
+     * Add correct order to bills.
+     */
+    public function correctOrder(): void;
+
+    /**
+     * Set specific piggy bank to specific order.
+     *
+     * @param Bill $bill
+     * @param int  $order
+     */
+    public function setOrder(Bill $bill, int $order): void;
+
     /**
      * @param Bill $bill
      *
@@ -158,9 +198,9 @@ interface BillRepositoryInterface
     /**
      * @param Bill $bill
      *
-     * @return string
+     * @return array
      */
-    public function getOverallAverage(Bill $bill): string;
+    public function getOverallAverage(Bill $bill): array;
 
     /**
      * @param int $size
@@ -214,14 +254,14 @@ interface BillRepositoryInterface
      * @param Bill   $bill
      * @param Carbon $date
      *
-     * @return string
+     * @return array
      */
-    public function getYearAverage(Bill $bill, Carbon $date): string;
+    public function getYearAverage(Bill $bill, Carbon $date): array;
 
     /**
      * Link a set of journals to a bill.
      *
-     * @param Bill       $bill
+     * @param Bill  $bill
      * @param array $transactions
      */
     public function linkCollectionToBill(Bill $bill, array $transactions): void;
@@ -247,10 +287,11 @@ interface BillRepositoryInterface
 
     /**
      * @param string $query
+     * @param int    $limit
      *
      * @return Collection
      */
-    public function searchBill(string $query): Collection;
+    public function searchBill(string $query, int $limit): Collection;
 
     /**
      * @param User $user
@@ -260,9 +301,10 @@ interface BillRepositoryInterface
     /**
      * @param array $data
      *
-     * @return Bill|null
+     * @return Bill
+     * @throws FireflyException
      */
-    public function store(array $data): ?Bill;
+    public function store(array $data): Bill;
 
     /**
      * @param Bill  $bill

@@ -1,22 +1,22 @@
 <?php
 /**
  * GroupCollectorInterface.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -122,15 +122,6 @@ interface GroupCollectorInterface
     public function setAccounts(Collection $accounts): GroupCollectorInterface;
 
     /**
-     * Either account can be set, but NOT both. This effectively excludes internal transfers.
-     *
-     * @param Collection $accounts
-     *
-     * @return GroupCollectorInterface
-     */
-    public function setXorAccounts(Collection $accounts): GroupCollectorInterface;
-
-    /**
      * Collect transactions after a specific date.
      *
      * @param Carbon $date
@@ -211,6 +202,14 @@ interface GroupCollectorInterface
      */
     public function setCategory(Category $category): GroupCollectorInterface;
 
+    /**
+     * Collect transactions created on a specific date.
+     *
+     * @param Carbon $date
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setCreatedAt(Carbon $date): GroupCollectorInterface;
 
     /**
      * Limit results to a specific currency, either foreign or normal one.
@@ -222,6 +221,15 @@ interface GroupCollectorInterface
     public function setCurrency(TransactionCurrency $currency): GroupCollectorInterface;
 
     /**
+     * Limit results to a specific foreign currency.
+     *
+     * @param TransactionCurrency $currency
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setForeignCurrency(TransactionCurrency $currency): GroupCollectorInterface;
+
+    /**
      * Set destination accounts.
      *
      * @param Collection $accounts
@@ -229,15 +237,6 @@ interface GroupCollectorInterface
      * @return GroupCollectorInterface
      */
     public function setDestinationAccounts(Collection $accounts): GroupCollectorInterface;
-
-    /**
-     * Limit the result to a specific transaction group.
-     *
-     * @param TransactionGroup $transactionGroup
-     *
-     * @return GroupCollectorInterface
-     */
-    public function setGroup(TransactionGroup $transactionGroup): GroupCollectorInterface;
 
     /**
      * Limit the result to a set of specific transaction journals.
@@ -286,6 +285,33 @@ interface GroupCollectorInterface
     public function setSearchWords(array $array): GroupCollectorInterface;
 
     /**
+     * Beginning of the description must match:
+     *
+     * @param array $array
+     *
+     * @return GroupCollectorInterface
+     */
+    public function descriptionStarts(array $array): GroupCollectorInterface;
+
+    /**
+     * End of the description must match:
+     *
+     * @param array $array
+     *
+     * @return GroupCollectorInterface
+     */
+    public function descriptionEnds(array $array): GroupCollectorInterface;
+
+    /**
+     * Description must be:
+     *
+     * @param string $value
+     *
+     * @return GroupCollectorInterface
+     */
+    public function descriptionIs(string $value): GroupCollectorInterface;
+
+    /**
      * Set source accounts.
      *
      * @param Collection $accounts
@@ -313,6 +339,16 @@ interface GroupCollectorInterface
     public function setTags(Collection $tags): GroupCollectorInterface;
 
     /**
+     * @return GroupCollectorInterface
+     */
+    public function withoutTags(): GroupCollectorInterface;
+
+    /**
+     * @return GroupCollectorInterface
+     */
+    public function hasAnyTag(): GroupCollectorInterface;
+
+    /**
      * Limit the search to one specific transaction group.
      *
      * @param TransactionGroup $transactionGroup
@@ -331,6 +367,15 @@ interface GroupCollectorInterface
     public function setTypes(array $types): GroupCollectorInterface;
 
     /**
+     * Collect transactions updated on a specific date.
+     *
+     * @param Carbon $date
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setUpdatedAt(Carbon $date): GroupCollectorInterface;
+
+    /**
      * Set the user object and start the query.
      *
      * @param User $user
@@ -338,6 +383,15 @@ interface GroupCollectorInterface
      * @return GroupCollectorInterface
      */
     public function setUser(User $user): GroupCollectorInterface;
+
+    /**
+     * Either account can be set, but NOT both. This effectively excludes internal transfers.
+     *
+     * @param Collection $accounts
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setXorAccounts(Collection $accounts): GroupCollectorInterface;
 
     /**
      * Automatically include all stuff required to make API calls work.
@@ -352,6 +406,20 @@ interface GroupCollectorInterface
      * @return GroupCollectorInterface
      */
     public function withAccountInformation(): GroupCollectorInterface;
+
+    /**
+     * Add basic info on attachments of transactions.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withAttachmentInformation(): GroupCollectorInterface;
+
+    /**
+     * Has attachments
+     *
+     * @return GroupCollectorInterface
+     */
+    public function hasAttachments(): GroupCollectorInterface;
 
     /**
      * Include bill name + ID.
@@ -375,6 +443,49 @@ interface GroupCollectorInterface
     public function withCategoryInformation(): GroupCollectorInterface;
 
     /**
+     * Will include notes.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withNotes(): GroupCollectorInterface;
+
+    /**
+     * Any notes, no matter what.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withAnyNotes(): GroupCollectorInterface;
+
+    /**
+     * @param string $value
+     * @return GroupCollectorInterface
+     */
+    public function notesContain(string $value): GroupCollectorInterface;
+    /**
+     * @param string $value
+     * @return GroupCollectorInterface
+     */
+    public function withoutNotes(): GroupCollectorInterface;
+
+    /**
+     * @param string $value
+     * @return GroupCollectorInterface
+     */
+    public function notesStartWith(string $value): GroupCollectorInterface;
+
+    /**
+     * @param string $value
+     * @return GroupCollectorInterface
+     */
+    public function notesEndWith(string $value): GroupCollectorInterface;
+
+    /**
+     * @param string $value
+     * @return GroupCollectorInterface
+     */
+    public function notesExactly(string $value): GroupCollectorInterface;
+
+    /**
      * Add tag info.
      *
      * @return GroupCollectorInterface
@@ -394,5 +505,37 @@ interface GroupCollectorInterface
      * @return GroupCollectorInterface
      */
     public function withoutCategory(): GroupCollectorInterface;
+
+    /**
+     * Limit results to a transactions with a category.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withCategory(): GroupCollectorInterface;
+
+    /**
+     * Limit results to a transactions with a budget.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withBudget(): GroupCollectorInterface;
+
+    /**
+     * Look for specific external ID's.
+     *
+     * @param string $externalId
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setExternalId(string $externalId): GroupCollectorInterface;
+
+    /**
+     * Look for specific external ID's.
+     *
+     * @param string $externalId
+     *
+     * @return GroupCollectorInterface
+     */
+    public function setInternalReference(string $externalId): GroupCollectorInterface;
 
 }

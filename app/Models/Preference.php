@@ -1,29 +1,31 @@
 <?php
 /**
  * Preference.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
 use Carbon\Carbon;
+use Eloquent;
 use FireflyIII\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -37,17 +39,18 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property Carbon $created_at
  * @property int    $id
  * @property User   user
- * @property int $user_id
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference query()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereData($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereName($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\Preference whereUserId($value)
- * @mixin \Eloquent
+ * @property int    $user_id
+ * @method static Builder|Preference newModelQuery()
+ * @method static Builder|Preference newQuery()
+ * @method static Builder|Preference query()
+ * @method static Builder|Preference whereCreatedAt($value)
+ * @method static Builder|Preference whereData($value)
+ * @method static Builder|Preference whereId($value)
+ * @method static Builder|Preference whereName($value)
+ * @method static Builder|Preference whereUpdatedAt($value)
+ * @method static Builder|Preference whereUserId($value)
+ * @mixin Eloquent
+ * @property-read \FireflyIII\User $user
  */
 class Preference extends Model
 {
@@ -71,8 +74,8 @@ class Preference extends Model
      *
      * @param string $value
      *
-     * @return Preference
      * @throws NotFoundHttpException
+     * @return Preference
      */
     public static function routeBinder(string $value): Preference
     {

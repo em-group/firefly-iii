@@ -1,22 +1,22 @@
 <?php
 /**
  * JournalUpdateService.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -76,10 +76,6 @@ class JournalUpdateService
     private $transactionGroup;
     /** @var TransactionJournal The journal to update. */
     private $transactionJournal;
-    /** @var Account If new account info is submitted, this array will hold the valid destination. */
-    private $validDestination;
-    /** @var Account If new account info is submitted, this array will hold the valid source. */
-    private $validSource;
 
     /**
      * JournalUpdateService constructor.
@@ -93,7 +89,7 @@ class JournalUpdateService
         $this->accountRepository  = app(AccountRepositoryInterface::class);
         $this->currencyRepository = app(CurrencyRepositoryInterface::class);
         $this->metaString         = ['sepa_cc', 'sepa_ct_op', 'sepa_ct_id', 'sepa_db', 'sepa_country', 'sepa_ep', 'sepa_ci', 'sepa_batch_id', 'recurrence_id',
-                                     'internal_reference', 'bunq_payment_id', 'external_id',];
+                                     'internal_reference', 'bunq_payment_id', 'external_id', 'external_uri'];
         $this->metaDate           = ['interest_date', 'book_date', 'process_date', 'due_date', 'payment_date', 'invoice_date',];
     }
 
@@ -153,56 +149,14 @@ class JournalUpdateService
         $this->transactionJournal->save();
         $this->transactionJournal->refresh();
 
-        // update category
-        if ($this->hasFields(['category_id', 'category_name'])) {
-            Log::debug('Will update category.');
-
-            $this->storeCategory($this->transactionJournal, new NullArrayObject($this->data));
-        }
-        // update budget
-        if ($this->hasFields(['budget_id', 'budget_name'])) {
-            Log::debug('Will update budget.');
-            $this->storeBudget($this->transactionJournal, new NullArrayObject($this->data));
-        }
-        // update tags
-
-        if ($this->hasFields(['tags'])) {
-            Log::debug('Will update tags.');
-            $tags = $this->data['tags'] ?? null;
-            $this->storeTags($this->transactionJournal, $tags);
-        }
-
-        // update notes.
-        if ($this->hasFields(['notes'])) {
-            $notes = '' === (string)$this->data['notes'] ? null : $this->data['notes'];
-            $this->storeNotes($this->transactionJournal, $notes);
-        }
-        // update meta fields.
-        // first string
-        if ($this->hasFields($this->metaString)) {
-            Log::debug('Meta string fields are present.');
-            $this->updateMetaFields();
-        }
-
-        // then date fields.
-        if ($this->hasFields($this->metaDate)) {
-            Log::debug('Meta date fields are present.');
-            $this->updateMetaDateFields();
-        }
-
-
-        // update transactions.
-        if ($this->hasFields(['currency_id', 'currency_code'])) {
-            $this->updateCurrency();
-        }
-        if ($this->hasFields(['amount'])) {
-            $this->updateAmount();
-        }
-
-        // amount, foreign currency.
-        if ($this->hasFields(['foreign_currency_id', 'foreign_currency_code', 'foreign_amount'])) {
-            $this->updateForeignAmount();
-        }
+        $this->updateCategory();
+        $this->updateBudget();
+        $this->updateTags();
+        $this->updateNotes();
+        $this->updateMeta();
+        $this->updateCurrency();
+        $this->updateAmount();
+        $this->updateForeignAmount();
 
         // TODO update hash
 
@@ -294,14 +248,19 @@ class JournalUpdateService
             return $this->getOriginalDestinationAccount();
         }
 
-        $destId   = $this->data['destination_id'] ?? null;
-        $destName = $this->data['destination_name'] ?? null;
+        $destInfo = [
+            'id'     => (int)($this->data['destination_id'] ?? null),
+            'name'   => $this->data['destination_name'] ?? null,
+            'iban'   => $this->data['destination_iban'] ?? null,
+            'number' => $this->data['destination_number'] ?? null,
+            'bic'    => $this->data['destination_bic'] ?? null,
+        ];
 
         // make new account validator.
         $expectedType = $this->getExpectedType();
         Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
         try {
-            $result = $this->getAccount($expectedType, 'destination', $destId, $destName);
+            $result = $this->getAccount($expectedType, 'destination', $destInfo);
         } catch (FireflyException $e) {
             Log::error(sprintf('getValidDestinationAccount() threw unexpected error: %s', $e->getMessage()));
             $result = $this->getOriginalDestinationAccount();
@@ -318,16 +277,22 @@ class JournalUpdateService
     private function getValidSourceAccount(): Account
     {
         Log::debug('Now in getValidSourceAccount().');
-        $sourceId   = $this->data['source_id'] ?? null;
-        $sourceName = $this->data['source_name'] ?? null;
 
         if (!$this->hasFields(['source_id', 'source_name'])) {
             return $this->getOriginalSourceAccount();
         }
 
+        $sourceInfo = [
+            'id'     => (int)($this->data['source_id'] ?? null),
+            'name'   => $this->data['source_name'] ?? null,
+            'iban'   => $this->data['source_iban'] ?? null,
+            'number' => $this->data['source_number'] ?? null,
+            'bic'    => $this->data['source_bic'] ?? null,
+        ];
+
         $expectedType = $this->getExpectedType();
         try {
-            $result = $this->getAccount($expectedType, 'source', $sourceId, $sourceName);
+            $result = $this->getAccount($expectedType, 'source', $sourceInfo);
         } catch (FireflyException $e) {
             Log::error(sprintf('Cant get the valid source account: %s', $e->getMessage()));
 
@@ -390,8 +355,10 @@ class JournalUpdateService
         $validator->source = $this->getValidSourceAccount();
 
 
-        $result = $validator->validateDestination($destId, $destName);
+        $result = $validator->validateDestination($destId, $destName, null);
         Log::debug(sprintf('hasValidDestinationAccount(%d, "%s") will return %s', $destId, $destName, var_export($result, true)));
+
+        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
 
         // validate submitted info:
         return $result;
@@ -407,9 +374,9 @@ class JournalUpdateService
         $sourceName = $this->data['source_name'] ?? null;
 
         if (!$this->hasFields(['source_id', 'source_name'])) {
-            $sourceAccount = $this->getOriginalSourceAccount();
-            $sourceId      = $sourceAccount->id;
-            $sourceName    = $sourceAccount->name;
+            $origSourceAccount = $this->getOriginalSourceAccount();
+            $sourceId          = $origSourceAccount->id;
+            $sourceName        = $origSourceAccount->name;
         }
 
         // make new account validator.
@@ -422,8 +389,10 @@ class JournalUpdateService
         $validator->setTransactionType($expectedType);
         $validator->setUser($this->transactionJournal->user);
 
-        $result = $validator->validateSource($sourceId, $sourceName);
+        $result = $validator->validateSource($sourceId, $sourceName, null);
         Log::debug(sprintf('hasValidSourceAccount(%d, "%s") will return %s', $sourceId, $sourceName, var_export($result, true)));
+
+        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
 
         // validate submitted info:
         return $result;
@@ -444,9 +413,9 @@ class JournalUpdateService
             return;
         }
 
-        $sourceTransaction = $this->getSourceTransaction();
-        $sourceTransaction->account()->associate($source);
-        $sourceTransaction->save();
+        $origSourceTransaction = $this->getSourceTransaction();
+        $origSourceTransaction->account()->associate($source);
+        $origSourceTransaction->save();
 
         $destTransaction = $this->getDestinationTransaction();
         $destTransaction->account()->associate($destination);
@@ -466,6 +435,10 @@ class JournalUpdateService
      */
     private function updateAmount(): void
     {
+        if (!$this->hasFields(['amount'])) {
+            return;
+        }
+
         $value = $this->data['amount'] ?? '';
         try {
             $amount = $this->getAmount($value);
@@ -474,9 +447,9 @@ class JournalUpdateService
 
             return;
         }
-        $sourceTransaction         = $this->getSourceTransaction();
-        $sourceTransaction->amount = app('steam')->negative($amount);
-        $sourceTransaction->save();
+        $origSourceTransaction         = $this->getSourceTransaction();
+        $origSourceTransaction->amount = app('steam')->negative($amount);
+        $origSourceTransaction->save();
 
 
         $destTransaction         = $this->getDestinationTransaction();
@@ -513,8 +486,37 @@ class JournalUpdateService
     /**
      *
      */
+    private function updateBudget(): void
+    {
+        // update budget
+        if ($this->hasFields(['budget_id', 'budget_name'])) {
+            Log::debug('Will update budget.');
+            $this->storeBudget($this->transactionJournal, new NullArrayObject($this->data));
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateCategory(): void
+    {
+        // update category
+        if ($this->hasFields(['category_id', 'category_name'])) {
+            Log::debug('Will update category.');
+
+            $this->storeCategory($this->transactionJournal, new NullArrayObject($this->data));
+        }
+    }
+
+    /**
+     *
+     */
     private function updateCurrency(): void
     {
+        // update transactions.
+        if (!$this->hasFields(['currency_id', 'currency_code'])) {
+            return;
+        }
         $currencyId   = $this->data['currency_id'] ?? null;
         $currencyCode = $this->data['currency_code'] ?? null;
         $currency     = $this->currencyRepository->findCurrency($currencyId, $currencyCode);
@@ -541,12 +543,27 @@ class JournalUpdateService
     /**
      * Update journal generic field. Cannot be set to NULL.
      *
-     * @param $fieldName
+     * @param string $fieldName
      */
-    private function updateField($fieldName): void
+    private function updateField(string $fieldName): void
     {
         if (array_key_exists($fieldName, $this->data) && '' !== (string)$this->data[$fieldName]) {
-            $this->transactionJournal->$fieldName = $this->data[$fieldName];
+            $value = $this->data[$fieldName];
+
+            if ('date' === $fieldName) {
+                if ($value instanceof Carbon) {
+                    // update timezone.
+                    $value->setTimezone(config('app.timezone'));
+                }
+                if (!($value instanceof Carbon)) {
+                    $value = new Carbon($value);
+                }
+                // do some parsing.
+                Log::debug(sprintf('Create date value from string "%s".', $value));
+            }
+
+
+            $this->transactionJournal->$fieldName = $value;
             Log::debug(sprintf('Updated %s', $fieldName));
         }
     }
@@ -557,6 +574,11 @@ class JournalUpdateService
      */
     private function updateForeignAmount(): void
     {
+        // amount, foreign currency.
+        if (!$this->hasFields(['foreign_currency_id', 'foreign_currency_code', 'foreign_amount'])) {
+            return;
+        }
+
         $amount          = $this->data['foreign_amount'] ?? null;
         $foreignAmount   = $this->getForeignAmount($amount);
         $source          = $this->getSourceTransaction();
@@ -614,6 +636,25 @@ class JournalUpdateService
     /**
      *
      */
+    private function updateMeta(): void
+    {
+        // update meta fields.
+        // first string
+        if ($this->hasFields($this->metaString)) {
+            Log::debug('Meta string fields are present.');
+            $this->updateMetaFields();
+        }
+
+        // then date fields.
+        if ($this->hasFields($this->metaDate)) {
+            Log::debug('Meta date fields are present.');
+            $this->updateMetaDateFields();
+        }
+    }
+
+    /**
+     *
+     */
     private function updateMetaDateFields(): void
     {
         /** @var TransactionJournalMetaFactory $factory */
@@ -658,6 +699,30 @@ class JournalUpdateService
                 ];
                 $factory->updateOrCreate($set);
             }
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateNotes(): void
+    {
+        // update notes.
+        if ($this->hasFields(['notes'])) {
+            $notes = '' === (string)$this->data['notes'] ? null : $this->data['notes'];
+            $this->storeNotes($this->transactionJournal, $notes);
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateTags(): void
+    {
+        if ($this->hasFields(['tags'])) {
+            Log::debug('Will update tags.');
+            $tags = $this->data['tags'] ?? null;
+            $this->storeTags($this->transactionJournal, $tags);
         }
     }
 

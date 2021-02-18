@@ -2,22 +2,22 @@
 
 /**
  * AccountFactory.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -29,6 +29,7 @@ use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Services\Internal\Support\AccountServiceTrait;
+use FireflyIII\Services\Internal\Support\LocationServiceTrait;
 use FireflyIII\User;
 use Log;
 
@@ -39,22 +40,14 @@ use Log;
  */
 class AccountFactory
 {
-    use AccountServiceTrait;
+    use AccountServiceTrait, LocationServiceTrait;
 
-    /** @var AccountRepositoryInterface */
-    protected $accountRepository;
-    /** @var User */
-    private $user;
-
-    /** @var array */
-    private $canHaveVirtual;
-
-    /** @var array */
-    protected $validAssetFields = ['account_role', 'account_number', 'currency_id', 'BIC', 'include_net_worth'];
-    /** @var array */
-    protected $validCCFields = ['account_role', 'cc_monthly_payment_date', 'cc_type', 'account_number', 'currency_id', 'BIC', 'include_net_worth'];
-    /** @var array */
-    protected $validFields = ['account_number', 'currency_id', 'BIC', 'interest', 'interest_period', 'include_net_worth'];
+    protected AccountRepositoryInterface      $accountRepository;
+    protected array                           $validAssetFields;
+    protected array                           $validCCFields;
+    protected array                           $validFields;
+    private array                             $canHaveVirtual;
+    private User                              $user;
 
     /**
      * AccountFactory constructor.
@@ -63,11 +56,12 @@ class AccountFactory
      */
     public function __construct()
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
         $this->canHaveVirtual    = [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE, AccountType::CREDITCARD];
         $this->accountRepository = app(AccountRepositoryInterface::class);
+        $this->validAssetFields  = ['account_role', 'account_number', 'currency_id', 'BIC', 'include_net_worth'];
+        $this->validCCFields     = ['account_role', 'cc_monthly_payment_date', 'cc_type', 'account_number', 'currency_id', 'BIC', 'include_net_worth'];
+        $this->validFields       = ['account_number', 'currency_id', 'BIC', 'interest', 'interest_period', 'include_net_worth'];
+
     }
 
     /**
@@ -78,12 +72,10 @@ class AccountFactory
      */
     public function create(array $data): Account
     {
-        $type = $this->getAccountType($data['account_type_id'], $data['account_type']);
+        $type = $this->getAccountType($data['account_type_id'] ?? null, $data['account_type'] ?? null);
 
         if (null === $type) {
-            throw new FireflyException(
-                sprintf('AccountFactory::create() was unable to find account type #%d ("%s").', $data['account_type_id'], $data['account_type'])
-            );
+            throw new FireflyException(sprintf('AccountFactory::create() was unable to find account type #%d ("%s").', $data['account_type_id'] ?? null, $data['account_type'] ?? null));
         }
 
         $data['iban'] = $this->filterIban($data['iban'] ?? null);
@@ -94,15 +86,7 @@ class AccountFactory
 
         if (null === $return) {
             // create it:
-            $databaseData
-                = [
-                'user_id'         => $this->user->id,
-                'account_type_id' => $type->id,
-                'name'            => $data['name'],
-                'virtual_balance' => $data['virtual_balance'] ?? '0',
-                'active'          => true === $data['active'],
-                'iban'            => $data['iban'],
-            ];
+            $databaseData = ['user_id' => $this->user->id, 'account_type_id' => $type->id, 'name' => $data['name'], 'order' => $data['order'] ?? 0, 'virtual_balance' => $data['virtual_balance'] ?? null, 'active' => true === $data['active'], 'iban' => $data['iban'],];
 
             $currency = $this->getCurrency((int)($data['currency_id'] ?? null), (string)($data['currency_code'] ?? null));
             unset($data['currency_code']);
@@ -110,12 +94,12 @@ class AccountFactory
 
             // remove virtual balance when not an asset account or a liability
             if (!in_array($type->type, $this->canHaveVirtual, true)) {
-                $databaseData['virtual_balance'] = '0';
+                $databaseData['virtual_balance'] = null;
             }
 
             // fix virtual balance when it's empty
-            if ('' === $databaseData['virtual_balance']) {
-                $databaseData['virtual_balance'] = '0';
+            if ('' === (string)$databaseData['virtual_balance']) {
+                $databaseData['virtual_balance'] = null;
             }
 
             $return = Account::create($databaseData);
@@ -131,6 +115,9 @@ class AccountFactory
                 }
             }
             $this->updateNote($return, $data['notes'] ?? '');
+
+            // store location
+            $this->storeNewLocation($return, $data);
         }
 
         return $return;
@@ -150,7 +137,6 @@ class AccountFactory
     }
 
     /**
-     *
      * @param string $accountName
      * @param string $accountType
      *
@@ -162,22 +148,11 @@ class AccountFactory
         Log::debug(sprintf('Searching for "%s" of type "%s"', $accountName, $accountType));
         /** @var AccountType $type */
         $type   = AccountType::whereType($accountType)->first();
-        $return = $this->user->accounts->where('account_type_id', $type->id)
-                                       ->where('name', $accountName)->first();
+        $return = $this->user->accounts->where('account_type_id', $type->id)->where('name', $accountName)->first();
 
         if (null === $return) {
             Log::debug('Found nothing. Will create a new one.');
-            $return = $this->create(
-                [
-                    'user_id'         => $this->user->id,
-                    'name'            => $accountName,
-                    'account_type_id' => $type->id,
-                    'account_type'    => null,
-                    'virtual_balance' => '0',
-                    'iban'            => null,
-                    'active'          => true,
-                ]
-            );
+            $return = $this->create(['user_id' => $this->user->id, 'name' => $accountName, 'account_type_id' => $type->id, 'account_type' => null, 'virtual_balance' => '0', 'iban' => null, 'active' => true,]);
         }
 
         return $return;
@@ -192,11 +167,10 @@ class AccountFactory
     }
 
     /**
-     * @param int|null $accountTypeId
+     * @param int|null    $accountTypeId
      * @param null|string $accountType
      *
      * @return AccountType|null
-     *
      */
     protected function getAccountType(?int $accountTypeId, ?string $accountType): ?AccountType
     {

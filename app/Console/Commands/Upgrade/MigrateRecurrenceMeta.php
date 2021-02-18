@@ -1,23 +1,26 @@
 <?php
+
 /**
  * MigrateRecurrenceMeta.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -43,6 +46,7 @@ class MigrateRecurrenceMeta extends Command
      * @var string
      */
     protected $signature = 'firefly-iii:migrate-recurrence-meta {--F|force : Force the execution of this command.}';
+
 
     /**
      * Execute the console command.
@@ -81,7 +85,7 @@ class MigrateRecurrenceMeta extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false; // @codeCoverageIgnore
@@ -103,7 +107,7 @@ class MigrateRecurrenceMeta extends Command
      */
     private function migrateEntry(RecurrenceMeta $meta): int
     {
-        $recurrence       = $meta->recurrence;
+        $recurrence = $meta->recurrence;
         if (null === $recurrence) {
             return 0;
         }
@@ -115,7 +119,7 @@ class MigrateRecurrenceMeta extends Command
 
         if ('tags' === $meta->name) {
             $array = explode(',', $meta->value);
-            $value = json_encode($array);
+            $value = json_encode($array, JSON_THROW_ON_ERROR, 512);
         }
 
         RecurrenceTransactionMeta::create(

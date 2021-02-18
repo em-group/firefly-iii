@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * DeleteOrphanedTransactions.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
@@ -47,11 +48,12 @@ class DeleteOrphanedTransactions extends Command
      */
     protected $signature = 'firefly-iii:delete-orphaned-transactions';
 
+
     /**
      * Execute the console command.
      *
-     * @return int
      * @throws Exception
+     * @return int
      */
     public function handle(): int
     {
@@ -78,7 +80,7 @@ class DeleteOrphanedTransactions extends Command
         /** @var Transaction $transaction */
         foreach ($set as $transaction) {
             // delete journals
-            $journal = TransactionJournal::find((int)$transaction->transaction_journal_id);
+            $journal = TransactionJournal::find((int) $transaction->transaction_journal_id);
             if ($journal) {
                 try {
                     $journal->delete();
@@ -88,10 +90,13 @@ class DeleteOrphanedTransactions extends Command
                 }
                 // @codeCoverageIgnoreEnd
             }
-            Transaction::where('transaction_journal_id', (int)$transaction->transaction_journal_id)->delete();
+            Transaction::where('transaction_journal_id', (int) $transaction->transaction_journal_id)->delete();
             $this->line(
-                sprintf('Deleted transaction journal #%d because account #%d was already deleted.',
-                        $transaction->transaction_journal_id, $transaction->account_id)
+                sprintf(
+                    'Deleted transaction journal #%d because account #%d was already deleted.',
+                    $transaction->transaction_journal_id,
+                    $transaction->account_id
+                )
             );
             $count++;
         }
@@ -119,7 +124,7 @@ class DeleteOrphanedTransactions extends Command
             );
         /** @var stdClass $entry */
         foreach ($set as $entry) {
-            $transaction = Transaction::find((int)$entry->transaction_id);
+            $transaction = Transaction::find((int) $entry->transaction_id);
             $transaction->delete();
             $this->info(
                 sprintf(
@@ -133,6 +138,5 @@ class DeleteOrphanedTransactions extends Command
         if (0 === $count) {
             $this->info('No orphaned transactions.');
         }
-
     }
 }

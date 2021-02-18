@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III admite múltiples monedas. A pesar de que la moneda por defecto es el Euro, se puede seleccionar el Dólar de EE. UU, y muchas otras monedas. Como se puede ver se ha incluido una pequeña selección de monedas, pero puede agregar su propia moneda si lo desea. Sin embargo, cambiar la moneda predeterminada no cambiará la moneda de las transacciones existentes: Firefly III admite el uso de varias monedas al mismo tiempo.',
     'transactions-index'     => 'Estos gastos, depósitos y transferencias no son particularmente imaginativos. Se han generado automáticamente.',
     'piggy-banks-index'      => 'Como puede ver, hay tres huchas. Utilice los botones más y menos para influir en la cantidad de dinero en cada hucha. Haga clic en el nombre de la hucha para ver la administración de cada una.',
-    'import-index'           => 'Cualquier archivo CSV se puede importar en Firefly III. También soporta la importación de datos desde bunq y Spectre. Otros bancos y agregadores financieros se implementarán en el futuro. Sin embargo, como usuario de la demo, solo puede ver el "falso"-proveedor en acción. Generará algunas transacciones aleatorias para mostrarle cómo funciona el proceso.',
     'profile-index'          => 'Tenga en cuenta que el sitio de demostración se restablece cada cuatro horas. Su acceso puede ser revocado en cualquier momento. Esto ocurre automáticamente y no es un error.',
 ];

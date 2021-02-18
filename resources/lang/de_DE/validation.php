@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,6 +45,7 @@ return [
     'at_least_one_repetition'        => 'Mindestens eine Wiederholung erforderlich.',
     'require_repeat_until'           => 'Erfordert entweder eine Anzahl von Wiederholungen oder ein Enddatum (repeat_until). Nicht beides.',
     'require_currency_info'          => 'Der Inhalt dieses Feldes ist ohne Währungsinformationen ungültig.',
+    'not_transfer_account'           => 'Dieses Konto ist kein Konto, welches für Buchungen genutzt werden kann.',
     'require_currency_amount'        => 'Der Inhalt dieses Feldes ist ohne Fremdbetragsangaben ungültig.',
     'equal_description'              => 'Die Transaktionsbeschreibung darf nicht der globalen Beschreibung entsprechen.',
     'file_invalid_mime'              => 'Die Datei „:name” ist vom Typ „:mime”, welcher nicht zum Hochladen zugelassen ist.',
@@ -56,7 +57,6 @@ return [
     'at_least_one_action'            => 'Regel muss mindestens eine Aktion enthalten',
     'base64'                         => 'Dies sind keine gültigen base64-kodierten Daten.',
     'model_id_invalid'               => 'Die angegebene ID scheint für dieses Modell ungültig zu sein.',
-    'more'                           => ':attribute muss größer als Null sein.',
     'less'                           => ':attribute muss kleiner als 10.000.000 sein',
     'active_url'                     => ':attribute ist keine gültige URL.',
     'after'                          => ':attribute muss ein Datum nach :date sein.',
@@ -120,19 +120,21 @@ return [
     'string'                         => ':attribute muss eine Zeichenfolge sein.',
     'url'                            => ':attribute Format ist ungültig.',
     'timezone'                       => ':attribute muss in einem gültigen Bereich liegen.',
-    '2fa_code'                    => ':attribute Feld ist ungültig.',
-    'dimensions'                  => 'Das :attribute hat eine ungültige Auflösung.',
-    'distinct'                    => 'Der Wert von :attribute existiert bereits.',
-    'file'                        => 'Das :attribute muss eine Datei sein.',
-    'in_array'                    => ':attribute existiert nicht in :other.',
-    'present'                     => 'Das :attribute Feld muss vorhanden sein.',
-    'amount_zero'                 => 'Der Gesamtbetrag darf nicht Null sein.',
-    'current_target_amount'       => 'Der aktuelle Betrag muss niedriger als der Zielbetrag sein.',
-    'unique_piggy_bank_for_user'  => 'Der Name des Sparschweins muss eindeutig sein.',
-    'secure_password'             => 'Dies ist ein unsicheres Passwort. Bitte versuchen Sie es erneut. Weitere Informationen finden Sie unter https://github.com/firefly-iii/help/wiki/Secure-password',
-    'valid_recurrence_rep_type'   => 'Ungültige Wiederholungsart für Daueraufträge.',
-    'valid_recurrence_rep_moment' => 'Ungültiges Wiederholungsmoment für diese Art der Wiederholung.',
-    'invalid_account_info'        => 'Ungültige Kontodaten.',
+    '2fa_code'                       => ':attribute Feld ist ungültig.',
+    'dimensions'                     => 'Das :attribute hat eine ungültige Auflösung.',
+    'distinct'                       => 'Der Wert von :attribute existiert bereits.',
+    'file'                           => 'Das :attribute muss eine Datei sein.',
+    'in_array'                       => ':attribute existiert nicht in :other.',
+    'present'                        => 'Das :attribute Feld muss vorhanden sein.',
+    'amount_zero'                    => 'Der Gesamtbetrag darf nicht Null sein.',
+    'current_target_amount'          => 'Der aktuelle Betrag muss niedriger als der Zielbetrag sein.',
+    'unique_piggy_bank_for_user'     => 'Der Name des Sparschweins muss eindeutig sein.',
+    'unique_object_group'            => 'Der Gruppenname muss eindeutig sein',
+
+    'secure_password'                => 'Dies ist ein unsicheres Passwort. Bitte versuchen Sie es erneut. Weitere Informationen finden Sie unter https://github.com/firefly-iii/help/wiki/Secure-password',
+    'valid_recurrence_rep_type'      => 'Ungültige Wiederholungsart für Daueraufträge.',
+    'valid_recurrence_rep_moment'    => 'Ungültiges Wiederholungsmoment für diese Art der Wiederholung.',
+    'invalid_account_info'           => 'Ungültige Kontodaten.',
     'attributes'                     => [
         'email'                   => 'E-Mail Adresse',
         'description'             => 'Beschreibung',
@@ -180,6 +182,7 @@ return [
     'deposit_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
     'deposit_dest_need_data'   => 'Um fortzufahren, benötigen Sie eine gültige Zielkontenkennung und/oder einen gültigen Zielkontonamen.',
     'deposit_dest_bad_data'    => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Zielkonto gefunden werden.',
+    'deposit_dest_wrong_type'  => 'Das übermittelte Zielkonto entspricht nicht dem geforderten Typ.',
 
     'transfer_source_need_data' => 'Um fortzufahren, benötigen Sie eine gültige Quellkontenkennung und/oder einen gültigen Quellkontonamen.',
     'transfer_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
@@ -191,6 +194,16 @@ return [
     'ob_dest_need_data'   => 'Sie benötigen eine gültige Zielkontennummer und/oder einen gültigen Zielkontonamen, um fortzufahren.',
     'ob_dest_bad_data'    => 'Bei der Suche nach der ID ":id" oder dem Namen ":name" konnte kein gültiges Zielkonto gefunden werden.',
 
-    'generic_invalid_source' => 'Sie können dieses Konto nicht als Quellkonto verwenden.',
+    'generic_invalid_source'      => 'Sie können dieses Konto nicht als Quellkonto verwenden.',
     'generic_invalid_destination' => 'Sie können dieses Konto nicht als Zielkonto verwenden.',
+
+    'gte.numeric' => ':attribute muss größer oder gleich :value sein.',
+    'gt.numeric'  => ':attribute muss größer als :value sein.',
+    'gte.file'    => ':attribute muss größer oder gleich :value Kilobytes sein.',
+    'gte.string'  => ':attribute muss mindestens :value Zeichen enthalten.',
+    'gte.array'   => ':attribute muss mindestens :value Elemente enthalten.',
+
+    'amount_required_for_auto_budget' => 'Betrag ist erforderlich.',
+    'auto_budget_amount_positive'     => 'Der Betrag muss größer als Null sein.',
+    'auto_budget_period_mandatory' => 'Der Zeitraum für das automatische Budget ist ein Pflichtfeld.',
 ];

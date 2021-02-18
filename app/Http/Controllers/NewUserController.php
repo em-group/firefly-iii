@@ -1,32 +1,34 @@
 <?php
 /**
  * NewUserController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
 use FireflyIII\Http\Requests\NewUserFormRequest;
+use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\CreateStuff;
-use View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 
 /**
  * Class NewUserController.
@@ -56,11 +58,11 @@ class NewUserController extends Controller
     /**
      * Form the user gets when he has no data in the system.
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
+     * @return RedirectResponse|Redirector|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function index()
     {
-        app('view')->share('title', (string)trans('firefly.welcome'));
+        app('view')->share('title', (string) trans('firefly.welcome'));
         app('view')->share('mainTitleIcon', 'fa-fire');
 
         $types = config('firefly.accountTypesByIdentifier.asset');
@@ -81,7 +83,7 @@ class NewUserController extends Controller
      * @param NewUserFormRequest          $request
      * @param CurrencyRepositoryInterface $currencyRepository
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function submit(NewUserFormRequest $request, CurrencyRepositoryInterface $currencyRepository)
     {
@@ -94,7 +96,7 @@ class NewUserController extends Controller
         // set language preference:
         app('preferences')->set('language', $language);
         // Store currency preference from input:
-        $currency = $currencyRepository->findNull((int)$request->input('amount_currency_id_bank_balance'));
+        $currency = $currencyRepository->findNull((int) $request->input('amount_currency_id_bank_balance'));
 
         // if is null, set to EUR:
         if (null === $currency) {
@@ -108,6 +110,12 @@ class NewUserController extends Controller
 
         // store currency preference:
         app('preferences')->set('currencyPreference', $currency->code);
+
+        // store frontpage preferences:
+        $accounts = $this->repository->getAccountsByType([AccountType::ASSET])->pluck('id')->toArray();
+        app('preferences')->set('frontPageAccounts', $accounts);
+
+        // mark.
         app('preferences')->mark();
 
         // set default optional fields:
@@ -115,7 +123,12 @@ class NewUserController extends Controller
                           'invoice_date'  => false, 'internal_reference' => false, 'notes' => true, 'attachments' => true,];
         app('preferences')->set('transaction_journal_optional_fields', $visibleFields);
 
-        session()->flash('success', (string)trans('firefly.stored_new_accounts_new_user'));
+        // telemetry: user language preference + default language.
+        app('telemetry')->feature('config.firefly.default_language', config('firefly.default_language', 'en_US'));
+        app('telemetry')->feature('user.preferences.language', app('steam')->getLanguage());
+        app('telemetry')->feature('user.preferences.locale', app('steam')->getLocale());
+
+        session()->flash('success', (string) trans('firefly.stored_new_accounts_new_user'));
         app('preferences')->mark();
 
         return redirect(route('dashboard'));

@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => 'Редактирование копилки ":name"',
     'preferences'            => 'Настройки',
     'profile'                => 'Профиль',
+    'accounts'               => 'Счета',
     'changePassword'         => 'Изменение вашего пароля',
     'change_email'           => 'Изменить адрес электронной почты',
     'bills'                  => 'Счета к оплате',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => 'Редактирование транзакции ":description"',
     'edit_reconciliation'    => 'Редактировать ":description"',
     'delete_journal'         => 'Удаление транзакции ":description"',
+    'delete_group'           => 'Удаление транзакции ":description"',
     'tags'                   => 'Метки',
     'createTag'              => 'Создать новую метку',
     'edit_tag'               => 'Редактирование метки ":tag"',
     'delete_tag'             => 'Удаление метки ":tag"',
     'delete_journal_link'    => 'Удалить связь между транзакциями',
+    'telemetry_index'        => 'Телеметрия',
+    'telemetry_view'         => 'Просмотр телеметрии',
+    'edit_object_group'      => 'Изменить группу ":title"',
+    'delete_object_group'    => 'Удалить группу ":title"',
+    'logout_others'          => 'Завершить другие сессии'
 ];

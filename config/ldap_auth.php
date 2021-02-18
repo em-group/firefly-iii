@@ -1,47 +1,72 @@
 <?php
 
 /**
- * adldap_auth.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * ldap_auth.php
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
+use FireflyIII\Scopes\LdapFilterScope;
+
+use Adldap\Laravel\Events\Authenticated;
+use Adldap\Laravel\Events\AuthenticatedModelTrashed;
+use Adldap\Laravel\Events\AuthenticatedWithWindows;
+use Adldap\Laravel\Events\Authenticating;
+use Adldap\Laravel\Events\AuthenticationFailed;
+use Adldap\Laravel\Events\AuthenticationRejected;
+use Adldap\Laravel\Events\AuthenticationSuccessful;
+use Adldap\Laravel\Events\DiscoveredWithCredentials;
+use Adldap\Laravel\Events\Importing;
+use Adldap\Laravel\Events\Synchronized;
+use Adldap\Laravel\Events\Synchronizing;
+use Adldap\Laravel\Listeners\LogAuthenticated;
+use Adldap\Laravel\Listeners\LogAuthentication;
+use Adldap\Laravel\Listeners\LogAuthenticationFailure;
+use Adldap\Laravel\Listeners\LogAuthenticationRejection;
+use Adldap\Laravel\Listeners\LogAuthenticationSuccess;
+use Adldap\Laravel\Listeners\LogDiscovery;
+use Adldap\Laravel\Listeners\LogImport;
+use Adldap\Laravel\Listeners\LogSynchronized;
+use Adldap\Laravel\Listeners\LogSynchronizing;
+use Adldap\Laravel\Listeners\LogTrashedModel;
+use Adldap\Laravel\Listeners\LogWindowsAuth;
 use Adldap\Laravel\Scopes\UidScope;
 use Adldap\Laravel\Scopes\UpnScope;
 
-
 // default OpenLDAP scopes.
 $scopes = [
+    LdapFilterScope::class,
     UidScope::class,
 ];
 if ('FreeIPA' === env('ADLDAP_CONNECTION_SCHEME')) {
-    $scopes = [];
+    $scopes = [
+        LdapFilterScope::class,
+    ];
 }
 if ('ActiveDirectory' === env('ADLDAP_CONNECTION_SCHEME')) {
     $scopes = [
+        LdapFilterScope::class,
         UpnScope::class,
     ];
 }
 
-
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Connection
@@ -77,7 +102,6 @@ return [
 
     'provider' => Adldap\Laravel\Auth\DatabaseUserProvider::class,
     //'provider' => Adldap\Laravel\Auth\NoDatabaseUserProvider::class,
-
 
     /*
     |--------------------------------------------------------------------------
@@ -173,8 +197,8 @@ return [
 
         'ldap' => [
 
-            'locate_users_by'     => envNonEmpty('ADLDAP_DISCOVER_FIELD', 'userprincipalname'),
-            'bind_users_by' => envNonEmpty('ADLDAP_AUTH_FIELD', 'distinguishedname'),
+            'locate_users_by' => envNonEmpty('ADLDAP_DISCOVER_FIELD', 'userprincipalname'),
+            'bind_users_by'   => envNonEmpty('ADLDAP_AUTH_FIELD', 'distinguishedname'),
 
         ],
 
@@ -199,10 +223,16 @@ return [
         | Windows Authentication Middleware (SSO)
         |--------------------------------------------------------------------------
         |
-        | Discover:
+        | Enabled:
         |
-        |   The 'discover' value is the users attribute you would
-        |   like to locate LDAP users by in your directory.
+        |   The middleware will be registered only if enabled is set to true.
+        |   If you update this file, beware, this is not a standard
+        |   AdLdap2-Laravel configuration key.
+        |
+        | Locate Users By:
+        |
+        |   This value is the users attribute you would like to locate LDAP
+        |   users by in your directory.
         |
         |   For example, if 'samaccountname' is the value, then your LDAP server is
         |   queried for a user with the 'samaccountname' equal to the value of
@@ -211,9 +241,9 @@ return [
         |   If a user is found, they are imported (if using the DatabaseUserProvider)
         |   into your local database, then logged in.
         |
-        | Key:
+        | Server Key:
         |
-        |    The 'key' value represents the 'key' of the $_SERVER
+        |    This value represents the 'key' of the $_SERVER
         |    array to pull the users account name from.
         |
         |    For example, $_SERVER['AUTH_USER'].
@@ -221,8 +251,9 @@ return [
         */
 
         'windows' => [
-            'discover' => envNonEmpty('WINDOWS_SSO_DISCOVER', 'samaccountname'),
-            'key'      => envNonEmpty('WINDOWS_SSO_KEY', 'AUTH_USER'),
+            'enabled'         => false,
+            'locate_users_by' => 'samaccountname',
+            'server_key'      => 'AUTH_USER',
         ],
     ],
 
@@ -334,19 +365,31 @@ return [
         'enabled' => true,
         'events'  => [
 
-            \Adldap\Laravel\Events\Importing::class                 => \Adldap\Laravel\Listeners\LogImport::class,
-            \Adldap\Laravel\Events\Synchronized::class              => \Adldap\Laravel\Listeners\LogSynchronized::class,
-            \Adldap\Laravel\Events\Synchronizing::class             => \Adldap\Laravel\Listeners\LogSynchronizing::class,
-            \Adldap\Laravel\Events\Authenticated::class             => \Adldap\Laravel\Listeners\LogAuthenticated::class,
-            \Adldap\Laravel\Events\Authenticating::class            => \Adldap\Laravel\Listeners\LogAuthentication::class,
-            \Adldap\Laravel\Events\AuthenticationFailed::class      => \Adldap\Laravel\Listeners\LogAuthenticationFailure::class,
-            \Adldap\Laravel\Events\AuthenticationRejected::class    => \Adldap\Laravel\Listeners\LogAuthenticationRejection::class,
-            \Adldap\Laravel\Events\AuthenticationSuccessful::class  => \Adldap\Laravel\Listeners\LogAuthenticationSuccess::class,
-            \Adldap\Laravel\Events\DiscoveredWithCredentials::class => \Adldap\Laravel\Listeners\LogDiscovery::class,
-            \Adldap\Laravel\Events\AuthenticatedWithWindows::class  => \Adldap\Laravel\Listeners\LogWindowsAuth::class,
-            \Adldap\Laravel\Events\AuthenticatedModelTrashed::class => \Adldap\Laravel\Listeners\LogTrashedModel::class,
+            Importing::class                 => LogImport::class,
+            Synchronized::class              => LogSynchronized::class,
+            Synchronizing::class             => LogSynchronizing::class,
+            Authenticated::class             => LogAuthenticated::class,
+            Authenticating::class            => LogAuthentication::class,
+            AuthenticationFailed::class      => LogAuthenticationFailure::class,
+            AuthenticationRejected::class    => LogAuthenticationRejection::class,
+            AuthenticationSuccessful::class  => LogAuthenticationSuccess::class,
+            DiscoveredWithCredentials::class => LogDiscovery::class,
+            AuthenticatedWithWindows::class  => LogWindowsAuth::class,
+            AuthenticatedModelTrashed::class => LogTrashedModel::class,
 
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Custom LDAP Filter
+    |--------------------------------------------------------------------------
+    |
+    | This value can be optionally provided to restrict LDAP queries to the
+    | given filter. It should be in LDAP filter format, and will be
+    | applied in the LdapFilterScope.
+    |
+    */
+    'custom_filter' => env('ADLDAP_AUTH_FILTER', ''),
 
 ];

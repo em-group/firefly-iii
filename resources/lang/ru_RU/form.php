@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Ключи для связи',
     'strict'                      => 'Строгий режим',
     'repeat_freq'                 => 'Повторы',
-    'journal_currency_id'         => 'Валюта',
+    'object_group'                => 'Группа',
+    'location'                    => 'Местоположение',
+    'update_channel'              => 'Канал обновлений',
     'currency_id'                 => 'Валюта',
     'transaction_currency_id'     => 'Валюта',
+    'auto_budget_currency_id'     => 'Валюта',
     'external_ip'                 => 'Внешний IP-адрес вашего сервера',
     'attachments'                 => 'Вложения',
-    'journal_amount'              => 'Сумма',
-    'journal_source_name'         => 'Доходный счет (источник)',
-    'keep_bill_id'                => 'Счёт к оплате',
-    'journal_source_id'           => 'Основной счёт (источник)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Проверка безопасности паролей',
     'source_account'              => 'Исходный счёт',
     'destination_account'         => 'Счёт назначения',
-    'journal_destination_id'      => 'Основной счёт (назначение)',
     'asset_destination_account'   => 'Счёт назначения',
     'include_net_worth'           => 'Включать в "Мои сбережения"',
     'asset_source_account'        => 'Исходный счёт',
     'journal_description'         => 'Описание',
     'note'                        => 'Заметки',
-    'store_new_transaction'       => 'Сохранить новую транзакцию',
-    'split_journal'               => 'Разделить эту транзакцию',
-    'split_journal_explanation'   => 'Разделить эту транзакцию на несколько частей',
     'currency'                    => 'Валюта',
     'account_id'                  => 'Основной счёт',
     'budget_id'                   => 'Бюджет',
     'opening_balance'             => 'Начальный баланс',
     'tagMode'                     => 'Режим метки',
-    'tag_position'                => 'Расположение метки',
     'virtual_balance'             => 'Виртуальный баланс',
     'targetamount'                => 'Целевая сумма',
     'account_role'                => 'Роль учётной записи',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Счет расходов',
     'revenue_account'             => 'Доходный счет',
     'decimal_places'              => 'Количество цифр после точки',
-    'exchange_rate_instruction'   => 'Иностранные валюты',
-    'source_amount'               => 'Сумма (источник)',
     'destination_amount'          => 'Сумма (назначение)',
-    'native_amount'               => 'Собственная сумма',
     'new_email_address'           => 'Новый адрес электронной почты',
     'verification'                => 'Проверка',
     'api_key'                     => 'API-ключ',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Процентная ставка',
     'interest_period'             => 'Период начисления процентов',
 
-    'source_account_asset'        => 'Исходный счёт (основной счёт)',
-    'destination_account_expense' => 'Счёт назначения (счёт расхода)',
-    'destination_account_asset'   => 'Счёт назначения (основной счёт)',
-    'source_account_revenue'      => 'Исходный счёт (счёт доходов)',
-    'type'                        => 'Тип',
-    'convert_Withdrawal'          => 'Конвертировать расход',
-    'convert_Deposit'             => 'Конвертировать доход',
-    'convert_Transfer'            => 'Конвертировать перевод',
+    'type'               => 'Тип',
+    'convert_Withdrawal' => 'Конвертировать расход',
+    'convert_Deposit'    => 'Конвертировать доход',
+    'convert_Transfer'   => 'Конвертировать перевод',
 
     'amount'                      => 'Сумма',
-    'foreign_amount'              => 'Сумму в иностранной валюте',
-    'existing_attachments'        => 'Существующие вложения',
+    'foreign_amount'              => 'Сумма в иностранной валюте',
     'date'                        => 'Дата',
     'interest_date'               => 'Дата выплаты',
     'book_date'                   => 'Дата бронирования',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Формат даты',
     'specifix'                    => 'Исправления, специфичные для банка или файла',
     'attachments[]'               => 'Вложения',
-    'store_new_withdrawal'        => 'Сохранить новый расход',
-    'store_new_deposit'           => 'Сохранить новый доход',
-    'store_new_transfer'          => 'Сохранить новый перевод',
-    'add_new_withdrawal'          => 'Добавить новый расход',
-    'add_new_deposit'             => 'Добавить новый доход',
-    'add_new_transfer'            => 'Добавить новый перевод',
     'title'                       => 'Заголовок',
     'notes'                       => 'Заметки',
     'filename'                    => 'Имя файла',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Остановить обработку',
     'start_date'                  => 'Начало диапазона',
     'end_date'                    => 'Конец диапазона',
-    'include_attachments'         => 'Включить загруженные вложения',
-    'include_old_uploads'         => 'Включить импортированные данные',
+    'start'                       => 'Начало диапазона',
+    'end'                         => 'Конец диапазона',
     'delete_account'              => 'Удалить счёт ":name"',
     'delete_bill'                 => 'Удаление счёта к оплате ":name"',
     'delete_budget'               => 'Удалить бюджет ":name"',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => 'Вы действительно хотите удалить счёт с именем ":name"?',
     'bill_areYouSure'             => 'Вы действительно хотите удалить счёт на оплату с именем ":name"?',
     'rule_areYouSure'             => 'Вы действительно хотите удалить правило с названием ":title"?',
+    'object_group_areYouSure'     => 'Вы действительно хотите удалить группу с названием ":title"?',
     'ruleGroup_areYouSure'        => 'Вы действительно хотите удалить группу правил с названием ":title"?',
     'budget_areYouSure'           => 'Вы действительно хотите удалить бюджет с именем ":name"?',
     'category_areYouSure'         => 'Вы действительно хотите удалить категорию с именем ":name"?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'Единственная транзакция, связанная с данным типом ссылки, потеряет это соединение. |Все :count транзакций, связанные с данным типом ссылки, потеряют свои соединения.',
     'also_delete_rules'           => 'Единственное правило, связанное с данной группой правил, будет удалено. |Все :count правила, связанные с данной группой правил, будут удалены.',
     'also_delete_piggyBanks'      => 'Единственная копилка, связанная с данным счётом, будет удалена.|Все :count копилки, связанные с данным счётом, будут удалены.',
+    'not_delete_piggy_banks'      => 'Копилка, подключенная к этой группе, не будет удалена.|Копилки (:count), подключенные к этой группе, не будет удалены.',
     'bill_keep_transactions'      => 'Единственная транзакция, связанная с данным счётом, не будет удалена. |Все :count транзакции, связанные с данным счётом, будут сохранены.',
     'budget_keep_transactions'    => 'Единственная транзакция, связанная с данным бюджетом, не будет удалена.|Все :count транзакции, связанные с этим бюджетом, будут сохранены.',
     'category_keep_transactions'  => 'Единственная транзакция, связанная с данной категорией, не будет удалена.|Все :count транзакции, связанные с этой категорией, будут сохранены.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'Только транзакция, связанная с этой меткой, будет удалена.|Все :count транзакций, связанные с этой меткой, будут сохранены.',
     'check_for_updates'           => 'Проверить обновления',
 
+    'delete_object_group' => 'Удалить группу ":title"',
+
     'email'                 => 'Адрес электронной почты',
     'password'              => 'Пароль',
     'password_confirmation' => 'Пароль (ещё раз)',
     'blocked'               => 'Заблокирован?',
     'blocked_code'          => 'Причина блокировки',
     'login_name'            => 'Логин',
+    'is_owner'              => 'Администратор?',
 
     // import
     'apply_rules'           => 'Применить правила',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Это демо-сайт',
 
     // import
-    'import_file'           => 'Файл импорта',
     'configuration_file'    => 'Файл конфигурации',
-    'import_file_type'      => 'Тип файла для импорта',
     'csv_comma'             => 'Запятая (,)',
     'csv_semicolon'         => 'Точка с запятой (;)',
     'csv_tab'               => 'Табулятор (невидимый)',
     'csv_delimiter'         => 'Разделитель полей CSV',
-    'csv_import_account'    => 'Профиль для импорта по умолчанию',
-    'csv_config'            => 'Параметры импорта CSV',
     'client_id'             => 'ID клиента',
-    'service_secret'        => 'Service secret',
-    'app_secret'            => 'App secret',
     'app_id'                => 'ID приложения',
     'secret'                => 'Секретный ключ',
     'public_key'            => 'Открытый ключ',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Исходный счёт',
     'expected_on'               => 'Ожидаем',
     'paid'                      => 'Оплачено',
+
+    'auto_budget_type'   => 'Авто-бюджет',
+    'auto_budget_amount' => 'Сумма авто-бюджета',
+    'auto_budget_period' => 'Период авто-бюджета',
+
+    'collected' => 'Получено',
+    'submitted' => 'Отправлено',
+    'key'       => 'Ключ',
+    'value'     => 'Содержание записи',
+
 
 ];

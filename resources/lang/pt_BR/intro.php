@@ -2,22 +2,22 @@
 
 /**
  * intro.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -32,26 +32,11 @@ return [
     'index_sidebar-toggle'                            => 'Para criar novas transações, contas ou outras coisas, use o menu abaixo deste ícone.',
     'index_cash_account'                              => 'Estas são as contas criadas até agora. Você pode usar a conta de caixa para rastrear as despesas de caixa, mas não é obrigatório, claro.',
 
-    // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Selecione sua conta favorita ou passivo deste dropdown.',
-    'transactions_create_withdrawal_destination'      => 'Selecione uma conta de despesas aqui. Deixe em branco se você quiser fazer uma despesa em dinheiro.',
-    'transactions_create_withdrawal_foreign_currency' => 'Use este campo para definir uma moeda estrangeira e quantia.',
-    'transactions_create_withdrawal_more_meta'        => 'Muitos outros metadados que você definiu nesses campos.',
-    'transactions_create_withdrawal_split_add'        => 'Se você quiser dividir uma transação, adicione mais divisões com este botão',
-
-    // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Selecione ou digite o beneficiário neste/a dropdown/caixa de texto de preenchimento automático. Deixe em branco se você quiser fazer um depósito em dinheiro.',
-    'transactions_create_deposit_destination'         => 'Selecione uma conta de ativo ou passivo aqui.',
-    'transactions_create_deposit_foreign_currency'    => 'Use este campo para definir uma moeda estrangeira e quantia.',
-    'transactions_create_deposit_more_meta'           => 'Muitos outros metadados que você definiu nesses campos.',
-    'transactions_create_deposit_split_add'           => 'Se você quiser dividir uma transação, adicione mais divisões com este botão',
-
-    // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Selecione a conta do ativo de origem aqui.',
-    'transactions_create_transfer_destination'        => 'Selecione a conta do ativo de destino aqui.',
-    'transactions_create_transfer_foreign_currency'   => 'Use este campo para definir uma moeda estrangeira e quantia.',
-    'transactions_create_transfer_more_meta'          => 'Muitos outros metadados que você definiu nesses campos.',
-    'transactions_create_transfer_split_add'          => 'Se você quiser dividir uma transação, adicione mais divisões com este botão',
+    // transactions
+    'transactions_create_basic_info'                  => 'Insira as informações básicas de sua transação. Origem, destino, data e descrição.',
+    'transactions_create_amount_info'                 => 'Insira o valor da transação. Caso necessário, os campos serão atualizados automaticamente para informações de valor estrangeiro.',
+    'transactions_create_optional_info'               => 'Todos estes campos são opcionais. Adicionar meta-dados aqui fará suas transações melhor organizadas.',
+    'transactions_create_split'                       => 'Caso você queira dividir uma transação, adicione mais divisões com este botão',
 
     // create account:
     'accounts_create_iban'                            => 'Dê a suas contas um IBAN válido. Isso poderá tornar a importação de dados muito fácil no futuro.',
@@ -130,7 +115,7 @@ return [
     //'bills_create_match'                                      => 'To match transactions, use terms from those transactions or the expense account involved. All words must match.',
     'bills_create_amount_min_holder'                          => 'Selecione um valor mínimo e máximo para esta conta.',
     'bills_create_repeat_freq_holder'                         => 'A maioria das contas são repetidas mensalmente, como no caso de pagamentos fixos mensais. Mas você pode definir outra frequência neste menu aqui.',
-    'bills_create_skip_holder'                                => 'Se uma fatura se repete a cada 2 semanas, o campo "ignorar" deve ser definido como "1" para a repetição quinzenal.',
+    'bills_create_skip_holder'                                => 'Se uma fatura se repete a cada 2 semanas, o campo "pular" deve ser definido como "1" para a repetição quinzenal.',
 
     // rules index
     'rules_index_intro'                                       => 'O Firefly III permite que você gerencie as regras, que serão automaticamente aplicadas a qualquer transação que você crie ou edite.',

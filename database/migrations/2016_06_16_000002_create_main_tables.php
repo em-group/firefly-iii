@@ -1,22 +1,22 @@
 <?php
 /**
  * 2016_06_16_000002_create_main_tables.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,7 +24,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
 /**
- * Class CreateMainTables
+ * Class CreateMainTables.
+ * @codeCoverageIgnore
  */
 class CreateMainTables extends Migration
 {
@@ -84,15 +85,12 @@ class CreateMainTables extends Migration
         $this->createTransactionTables();
     }
 
-    /**
-     *
-     */
     private function createAccountTables(): void
     {
         if (!Schema::hasTable('accounts')) {
             Schema::create(
                 'accounts',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -112,7 +110,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('account_meta')) {
             Schema::create(
                 'account_meta',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('account_id', false, true);
@@ -124,22 +122,19 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createAttachmentsTable(): void
     {
         if (!Schema::hasTable('attachments')) {
             Schema::create(
                 'attachments',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
                     $table->integer('user_id', false, true);
                     $table->integer('attachable_id', false, true);
                     $table->string('attachable_type', 255);
-                    $table->string('md5', 32);
+                    $table->string('md5', 128);
                     $table->string('filename', 1024);
                     $table->string('title', 1024)->nullable();
                     $table->text('description')->nullable();
@@ -155,15 +150,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createBillsTable(): void
     {
         if (!Schema::hasTable('bills')) {
             Schema::create(
                 'bills',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -195,7 +187,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budgets')) {
             Schema::create(
                 'budgets',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -210,7 +202,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_limits')) {
             Schema::create(
                 'budget_limits',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('budget_id', false, true);
@@ -225,7 +217,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('limit_repetitions')) {
             Schema::create(
                 'limit_repetitions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('budget_limit_id', false, true);
@@ -238,15 +230,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createCategoriesTable(): void
     {
         if (!Schema::hasTable('categories')) {
             Schema::create(
                 'categories',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -261,15 +250,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createExportJobsTable(): void
     {
         if (!Schema::hasTable('export_jobs')) {
             Schema::create(
                 'export_jobs',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id', false, true);
@@ -283,7 +269,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('import_jobs')) {
             Schema::create(
                 'import_jobs',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id')->unsigned();
@@ -297,15 +283,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createPiggyBanksTable(): void
     {
         if (!Schema::hasTable('piggy_banks')) {
             Schema::create(
                 'piggy_banks',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -325,7 +308,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('piggy_bank_repetitions')) {
             Schema::create(
                 'piggy_bank_repetitions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('piggy_bank_id', false, true);
@@ -338,15 +321,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createPreferencesTable(): void
     {
         if (!Schema::hasTable('preferences')) {
             Schema::create(
                 'preferences',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id', false, true);
@@ -359,15 +339,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createRoleTable(): void
     {
         if (!Schema::hasTable('role_user')) {
             Schema::create(
                 'role_user',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->integer('user_id', false, true);
                     $table->integer('role_id', false, true);
 
@@ -389,7 +366,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_groups')) {
             Schema::create(
                 'rule_groups',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -407,7 +384,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rules')) {
             Schema::create(
                 'rules',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -430,7 +407,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_actions')) {
             Schema::create(
                 'rule_actions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('rule_id', false, true);
@@ -450,7 +427,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_triggers')) {
             Schema::create(
                 'rule_triggers',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('rule_id', false, true);
@@ -469,15 +446,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createTagsTable(): void
     {
         if (!Schema::hasTable('tags')) {
             Schema::create(
                 'tags',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -508,7 +482,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('transaction_journals')) {
             Schema::create(
                 'transaction_journals',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -536,7 +510,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('journal_meta')) {
             Schema::create(
                 'journal_meta',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('transaction_journal_id', false, true);
@@ -551,7 +525,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('tag_transaction_journal')) {
             Schema::create(
                 'tag_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('tag_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -567,7 +541,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_transaction_journal')) {
             Schema::create(
                 'budget_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('budget_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -580,7 +554,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('category_transaction_journal')) {
             Schema::create(
                 'category_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('category_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -593,7 +567,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('piggy_bank_events')) {
             Schema::create(
                 'piggy_bank_events',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('piggy_bank_id', false, true);
@@ -610,7 +584,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('transactions')) {
             Schema::create(
                 'transactions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -628,7 +602,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_transaction')) {
             Schema::create(
                 'budget_transaction',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('budget_id', false, true);
                     $table->integer('transaction_id', false, true);
@@ -642,7 +616,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('category_transaction')) {
             Schema::create(
                 'category_transaction',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('category_id', false, true);
                     $table->integer('transaction_id', false, true);

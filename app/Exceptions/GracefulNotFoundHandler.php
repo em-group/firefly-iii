@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * GracefulNotFoundHandler.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Exceptions;
 
@@ -29,10 +30,15 @@ use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Bill;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
+use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Log;
+use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 /**
  * Class GracefulNotFoundHandler
@@ -46,8 +52,9 @@ class GracefulNotFoundHandler extends ExceptionHandler
      * @param Exception $exception
      *
      * @return mixed
+     * @throws Exception
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         $route = $request->route();
         if (null === $route) {
@@ -60,16 +67,18 @@ class GracefulNotFoundHandler extends ExceptionHandler
 
         switch ($name) {
             default:
-                Log::debug(sprintf('GracefulNotFoundHandler cannot handle route with name "%s"', $name));
+                Log::warning(sprintf('GracefulNotFoundHandler cannot handle route with name "%s"', $name));
 
                 return parent::render($request, $exception);
             case 'accounts.show':
+            case 'accounts.show.all':
                 return $this->handleAccount($request, $exception);
             case 'transactions.show':
                 return $this->handleGroup($request, $exception);
-                break;
             case 'attachments.show':
             case 'attachments.edit':
+            case 'attachments.download':
+            case 'attachments.view':
                 // redirect to original attachment holder.
                 return $this->handleAttachment($request, $exception);
                 break;
@@ -84,6 +93,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
                 return redirect(route('currencies.index'));
                 break;
             case 'budgets.show':
+            case 'budgets.edit':
                 $request->session()->reflash();
 
                 return redirect(route('budgets.index'));
@@ -100,6 +110,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
                 break;
             case 'tags.show.all':
             case 'tags.show':
+            case 'tags.edit':
                 $request->session()->reflash();
 
                 return redirect(route('tags.index'));
@@ -108,35 +119,37 @@ class GracefulNotFoundHandler extends ExceptionHandler
                 $request->session()->reflash();
 
                 return redirect(route('categories.index'));
-                break;
             case 'rules.edit':
                 $request->session()->reflash();
 
                 return redirect(route('rules.index'));
-                break;
+            case 'transactions.edit':
             case 'transactions.mass.edit':
             case 'transactions.mass.delete':
             case 'transactions.bulk.edit':
-                $request->session()->reflash();
-
-                return redirect(route('index'));
-                break;
+                if ('POST' === $request->method()) {
+                    $request->session()->reflash();
+                    return redirect(route('index'));
+                }
+                return parent::render($request, $exception);
         }
+
     }
 
     /**
      * @param Request   $request
-     * @param Exception $exception
+     * @param Throwable $exception
      *
-     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
+     * @return Redirector|Response
+     * @throws Exception
      */
-    private function handleAccount($request, Exception $exception)
+    private function handleAccount(Request $request, Throwable $exception)
     {
         Log::debug('404 page is probably a deleted account. Redirect to overview of account types.');
         /** @var User $user */
         $user      = auth()->user();
         $route     = $request->route();
-        $accountId = (int)$route->parameter('account');
+        $accountId = (int) $route->parameter('account');
         /** @var Account $account */
         $account = $user->accounts()->with(['accountType'])->withTrashed()->find($accountId);
         if (null === $account) {
@@ -151,13 +164,20 @@ class GracefulNotFoundHandler extends ExceptionHandler
         return redirect(route('accounts.index', [$shortType]));
     }
 
-    private function handleAttachment(Request $request, Exception $exception)
+    /**
+     * @param Request   $request
+     * @param Throwable $exception
+     *
+     * @return RedirectResponse|Redirector|Response
+     * @throws Exception
+     */
+    private function handleAttachment(Request $request, Throwable $exception)
     {
         Log::debug('404 page is probably a deleted attachment. Redirect to parent object.');
         /** @var User $user */
         $user         = auth()->user();
         $route        = $request->route();
-        $attachmentId = (int)$route->parameter('attachment');
+        $attachmentId = (int) $route->parameter('attachment');
         /** @var Attachment $attachment */
         $attachment = $user->attachments()->withTrashed()->find($attachmentId);
         if (null === $attachment) {
@@ -190,18 +210,19 @@ class GracefulNotFoundHandler extends ExceptionHandler
     }
 
     /**
-     * @param           $request
+     * @param Throwable $request
      * @param Exception $exception
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
+     * @return RedirectResponse|\Illuminate\Http\Response|Redirector|Response
+     * @throws Exception
      */
-    private function handleGroup($request, Exception $exception)
+    private function handleGroup(Request $request, Throwable $exception)
     {
         Log::debug('404 page is probably a deleted group. Redirect to overview of group types.');
         /** @var User $user */
         $user    = auth()->user();
         $route   = $request->route();
-        $groupId = (int)$route->parameter('transactionGroup');
+        $groupId = (int) $route->parameter('transactionGroup');
 
         /** @var TransactionGroup $group */
         $group = $user->transactionGroups()->withTrashed()->find($groupId);
@@ -219,6 +240,10 @@ class GracefulNotFoundHandler extends ExceptionHandler
         }
         $type = $journal->transactionType->type;
         $request->session()->reflash();
+
+        if (TransactionType::RECONCILIATION === $type) {
+            return redirect(route('accounts.index', ['asset']));
+        }
 
         return redirect(route('transactions.index', [strtolower($type)]));
 

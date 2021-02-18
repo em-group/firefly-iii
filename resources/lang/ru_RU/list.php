@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -36,18 +36,18 @@ return [
     'currentBalance'          => 'Текущий баланс',
     'linked_to_rules'         => 'Подходящие правила',
     'active'                  => 'Активен?',
-    'percentage'              => 'pct.',
+    'percentage'              => 'процентов',
+    'recurring_transaction'   => 'Повторяющаяся транзакция',
     'next_due'                => 'Следующий срок',
     'transaction_type'        => 'Тип',
     'lastActivity'            => 'Последняя активность',
     'balanceDiff'             => 'Разность баланса',
-    'matchesOn'               => 'Совпадает на',
     'other_meta_data'         => 'Другие метаданные',
     'account_type'            => 'Тип профиля',
     'created_at'              => 'Создан',
     'account'                 => 'Счёт',
+    'external_uri'            => 'Внешний URI',
     'matchingAmount'          => 'Сумма',
-    'split_number'            => 'Часть №',
     'destination'             => 'Получатель',
     'source'                  => 'Источник',
     'next_expected_match'     => 'Следующий ожидаемый результат',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Повторы',
     'description'             => 'Описание',
     'amount'                  => 'Сумма',
-    'internal_reference'      => 'Внутренняя ссылка',
     'date'                    => 'Дата',
     'interest_date'           => 'Проценты',
     'book_date'               => 'Забронировать',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Срок',
     'payment_date'            => 'Дата платежа',
     'invoice_date'            => 'Дата выставления счёта',
-    'interal_reference'       => 'Внутренняя ссылка',
+    'internal_reference'      => 'Внутренняя ссылка',
     'notes'                   => 'Заметки',
     'from'                    => 'Откуда',
     'piggy_bank'              => 'Копилка',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Всего вложений',
     'bills_count'             => 'Всего счетов к оплате',
     'categories_count'        => 'Всего категорий',
-    'import_jobs_count'       => 'Задачи по импорту',
     'budget_count'            => 'Всего категорий бюджета',
     'rule_and_groups_count'   => 'Всего правил и групп правил',
     'tags_count'              => 'Всего меток',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Сумма расходов',
     'sum_deposits'            => 'Сумма доходов',
     'sum_transfers'           => 'Сумма переводов',
+    'sum_reconciliations'     => 'Сумма сверки',
     'reconcile'               => 'Сверка',
-    'account_on_spectre'      => 'Счёт (Spectre)',
-    'account_on_ynab'         => 'Счёт (YNAB)',
-    'do_import'               => 'Импортировать с этого счёта',
     'sepa_ct_id'              => 'Идентификатор SEPA end-to-end',
     'sepa_ct_op'              => 'Идентификатор учетной записи SEPA',
     'sepa_db'                 => 'Идентификатор SEPA Mandate',

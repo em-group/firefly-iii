@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * UpgradeDatabase.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -29,6 +30,7 @@ use Illuminate\Console\Command;
 
 /**
  * Class UpgradeDatabase
+ *
  * @codeCoverageIgnore
  */
 class UpgradeDatabase extends Command
@@ -46,6 +48,7 @@ class UpgradeDatabase extends Command
      */
     protected $signature = 'firefly-iii:upgrade-database {--F|force : Force all upgrades.}';
 
+
     /**
      * Execute the console command.
      *
@@ -58,7 +61,7 @@ class UpgradeDatabase extends Command
 
 
         $commands = [
-            // there are 13 upgrade commands.
+            // there are 14 upgrade commands.
             'firefly-iii:transaction-identifiers',
             'firefly-iii:migrate-to-groups',
             'firefly-iii:account-currencies',
@@ -72,8 +75,9 @@ class UpgradeDatabase extends Command
             'firefly-iii:back-to-journals',
             'firefly-iii:rename-account-meta',
             'firefly-iii:migrate-recurrence-meta',
+            'firefly-iii:migrate-tag-locations',
 
-            // there are 14 verify commands.
+            // there are 16 verify commands.
             'firefly-iii:fix-piggies',
             'firefly-iii:create-link-types',
             'firefly-iii:create-access-tokens',
@@ -86,12 +90,18 @@ class UpgradeDatabase extends Command
             'firefly-iii:delete-empty-journals',
             'firefly-iii:delete-empty-groups',
             'firefly-iii:fix-account-types',
+            'firefly-iii:fix-account-order',
             'firefly-iii:rename-meta-fields',
             'firefly-iii:fix-ob-currencies',
+            'firefly-iii:fix-long-descriptions',
+            'firefly-iii:fix-recurring-transactions',
+            'firefly-iii:unify-group-accounts',
+            'firefly-iii:fix-transaction-types',
 
             // two report commands
             'firefly-iii:report-empty-objects',
             'firefly-iii:report-sum',
+            'firefly-iii:restore-oauth-keys',
 
             // instructions
             'firefly:instructions update',
@@ -107,9 +117,9 @@ class UpgradeDatabase extends Command
             echo $result;
         }
         // set new DB version.
-        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
+        app('fireflyconfig')->set('db_version', (int) config('firefly.db_version'));
         // index will set FF3 version.
-        app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
+        app('fireflyconfig')->set('ff3_version', (string) config('firefly.version'));
 
         return 0;
     }

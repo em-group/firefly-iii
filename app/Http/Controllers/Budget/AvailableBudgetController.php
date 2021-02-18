@@ -1,28 +1,27 @@
 <?php
 /**
  * AvailableBudgetController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Budget;
-
 
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
@@ -31,7 +30,11 @@ use FireflyIII\Models\AvailableBudget;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Budget\AvailableBudgetRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 use Log;
 
 /**
@@ -55,8 +58,8 @@ class AvailableBudgetController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.budgets'));
-                app('view')->share('mainTitleIcon', 'fa-tasks');
+                app('view')->share('title', (string) trans('firefly.budgets'));
+                app('view')->share('mainTitleIcon', 'fa-pie-chart');
                 $this->abRepository  = app(AvailableBudgetRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
 
@@ -75,7 +78,7 @@ class AvailableBudgetController extends Controller
      * @param Carbon                   $end
      * @param TransactionCurrency|null $currency
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @return Factory|RedirectResponse|Redirector|View
      */
     public function create(Request $request, Carbon $start, Carbon $end, ?TransactionCurrency $currency = null)
     {
@@ -92,7 +95,7 @@ class AvailableBudgetController extends Controller
 
             return redirect(route('available-budgets.edit', [$first->id]));
         }
-        $page = (int)($request->get('page') ?? 1);
+        $page = (int) ($request->get('page') ?? 1);
 
         return view('budgets.available-budgets.create', compact('start', 'end', 'page', 'currency'));
     }
@@ -104,11 +107,11 @@ class AvailableBudgetController extends Controller
      * @param Carbon  $start
      * @param Carbon  $end
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function createAlternative(Request $request, Carbon $start, Carbon $end)
     {
-        $currencies       = $this->currencyRepos->getEnabled();
+        $currencies       = $this->currencyRepos->get();
         $availableBudgets = $this->abRepository->get($start, $end);
 
         // remove already budgeted currencies:
@@ -126,7 +129,7 @@ class AvailableBudgetController extends Controller
         );
 
 
-        $page = (int)($request->get('page') ?? 1);
+        $page = (int) ($request->get('page') ?? 1);
 
         return view('budgets.available-budgets.create-alternative', compact('start', 'end', 'page', 'currencies'));
     }
@@ -134,7 +137,7 @@ class AvailableBudgetController extends Controller
     /**
      * @param AvailableBudget $availableBudget
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function delete(AvailableBudget $availableBudget)
     {
@@ -147,17 +150,21 @@ class AvailableBudgetController extends Controller
     /**
      * @param AvailableBudget $availableBudget
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @param Carbon          $start
+     * @param Carbon          $end
+     *
+     * @return Factory|View
      */
-    public function edit(AvailableBudget $availableBudget)
+    public function edit(AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
-        return view('budgets.available-budgets.edit', compact('availableBudget'));
+        $availableBudget->amount = number_format((float) $availableBudget->amount, $availableBudget->transactionCurrency->decimal_places, '.', '');
+        return view('budgets.available-budgets.edit', compact('availableBudget', 'start', 'end'));
     }
 
     /**
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function store(Request $request)
     {
@@ -170,20 +177,35 @@ class AvailableBudgetController extends Controller
             $end   = session()->get('end');
             Log::info($e->getMessage());
         }
+
+        // validate amount
+        $amount = (string) $request->get('amount');
+        if ('' === $amount) {
+            session()->flash('error', trans('firefly.invalid_amount'));
+
+            return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
+        }
+        if (bccomp($amount, '0') <= 0) {
+            session()->flash('error', trans('firefly.invalid_amount'));
+
+            return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
+        }
+
         // find currency
-        $currency = $this->currencyRepos->find((int)$request->get('currency_id'));
+        $currency = $this->currencyRepos->find((int) $request->get('currency_id'));
         if (null === $currency) {
             session()->flash('error', trans('firefly.invalid_currency'));
 
-            return redirect(route('budgets.index'));
+            return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
         }
-
+        $start->startOfDay();
+        $end->endOfDay();
         // find existing AB
         $existing = $this->abRepository->find($currency, $start, $end);
         if (null === $existing) {
             $this->abRepository->store(
                 [
-                    'amount'   => $request->get('amount'),
+                    'amount'   => $amount,
                     'currency' => $currency,
                     'start'    => $start,
                     'end'      => $end,
@@ -192,7 +214,7 @@ class AvailableBudgetController extends Controller
         }
         if (null !== $existing) {
             // update amount:
-            $this->abRepository->update($existing, ['amount' => $request->get('amount')]);
+            $this->abRepository->update($existing, ['amount' => $amount]);
         }
         session()->flash('success', trans('firefly.set_ab'));
 
@@ -203,14 +225,30 @@ class AvailableBudgetController extends Controller
      * @param Request         $request
      * @param AvailableBudget $availableBudget
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @param Carbon          $start
+     * @param Carbon          $end
+     *
+     * @return RedirectResponse|Redirector
      */
-    public function update(Request $request, AvailableBudget $availableBudget)
+    public function update(Request $request, AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
-        $this->abRepository->update($availableBudget, ['amount' => $request->get('amount')]);
+        // validate amount
+        $amount = (string) $request->get('amount');
+        if ('' === $amount) {
+            session()->flash('error', trans('firefly.invalid_amount'));
+
+            return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
+        }
+        if (bccomp($amount, '0') <= 0) {
+            session()->flash('error', trans('firefly.invalid_amount'));
+
+            return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
+        }
+
+
+        $this->abRepository->update($availableBudget, ['amount' => $amount]);
         session()->flash('success', trans('firefly.updated_ab'));
 
-        return redirect(route('budgets.index'));
+        return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
     }
-
 }

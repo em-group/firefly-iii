@@ -1,28 +1,27 @@
 <?php
 /**
  * ReconcileController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Json;
-
 
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
@@ -47,15 +46,14 @@ use Throwable;
 class ReconcileController extends Controller
 {
     use UserNavigation;
-    /** @var AccountRepositoryInterface The account repository */
-    private $accountRepos;
-    /** @var CurrencyRepositoryInterface The currency repository */
-    private $currencyRepos;
-    /** @var JournalRepositoryInterface Journals and transactions overview */
-    private $repository;
+
+    private AccountRepositoryInterface  $accountRepos;
+    private CurrencyRepositoryInterface $currencyRepos;
+    private JournalRepositoryInterface  $repository;
 
     /**
      * ReconcileController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -66,7 +64,7 @@ class ReconcileController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string)trans('firefly.accounts'));
+                app('view')->share('title', (string) trans('firefly.accounts'));
                 $this->repository    = app(JournalRepositoryInterface::class);
                 $this->accountRepos  = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -81,8 +79,8 @@ class ReconcileController extends Controller
      *
      * @param Request $request
      * @param Account $account
-     * @param Carbon $start
-     * @param Carbon $end
+     * @param Carbon  $start
+     * @param Carbon  $end
      *
      * @return JsonResponse
      */
@@ -93,6 +91,11 @@ class ReconcileController extends Controller
         $accountCurrency = $this->accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
         $amount          = '0';
         $clearedAmount   = '0';
+
+        if ($end->lt($start)) {
+            [$start, $end] = [$end, $start];
+        }
+
         $route           = route('accounts.reconcile.submit', [$account->id, $start->format('Ymd'), $end->format('Ymd')]);
         $selectedIds     = $request->get('journals') ?? [];
         $clearedJournals = [];
@@ -136,11 +139,22 @@ class ReconcileController extends Controller
 
         try {
             $view = view(
-                'accounts.reconcile.overview', compact(
-                                                 'account', 'start', 'diffCompare', 'difference', 'end', 'clearedAmount',
-                                                 'startBalance', 'endBalance', 'amount',
-                                                 'route', 'countCleared', 'reconSum', 'selectedIds'
-                                             )
+                'accounts.reconcile.overview',
+                compact(
+                    'account',
+                    'start',
+                    'diffCompare',
+                    'difference',
+                    'end',
+                    'clearedAmount',
+                    'startBalance',
+                    'endBalance',
+                    'amount',
+                    'route',
+                    'countCleared',
+                    'reconSum',
+                    'selectedIds'
+                )
             )->render();
             // @codeCoverageIgnoreStart
         } catch (Throwable $e) {
@@ -163,20 +177,24 @@ class ReconcileController extends Controller
      * Returns a list of transactions in a modal.
      *
      * @param Account $account
-     * @param Carbon $start
-     * @param Carbon $end
+     * @param Carbon  $start
+     * @param Carbon  $end
      *
      * @return mixed
      *
      */
     public function transactions(Account $account, Carbon $start, Carbon $end)
     {
+        if ($end->lt($start)) {
+            [$end, $start] = [$start, $end];
+        }
         $startDate = clone $start;
         $startDate->subDay();
 
         $currency     = $this->accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
         $startBalance = round(app('steam')->balance($account, $startDate), $currency->decimal_places);
         $endBalance   = round(app('steam')->balance($account, $end), $currency->decimal_places);
+
         // get the transactions
         $selectionStart = clone $start;
         $selectionStart->subDays(3);
@@ -191,40 +209,13 @@ class ReconcileController extends Controller
                   ->setRange($selectionStart, $selectionEnd)
                   ->withBudgetInformation()->withCategoryInformation()->withAccountInformation();
         $array    = $collector->getExtractedJournals();
-        $journals = [];
-        // "fix" amounts to make it easier on the reconciliation overview:
-        /** @var array $journal */
-        foreach ($array as $journal) {
-            $inverse = false;
-            // @codeCoverageIgnoreStart
-            if (TransactionType::DEPOSIT === $journal['transaction_type_type']) {
-                $inverse = true;
-            }
-            // transfer to this account? then positive amount:
-            if (TransactionType::TRANSFER === $journal['transaction_type_type'] && $account->id === $journal['destination_account_id']) {
-                $inverse = true;
-            }
-
-            // opening balance into account? then positive amount:
-            if (TransactionType::OPENING_BALANCE === $journal['transaction_type_type']
-                && $account->id === $journal['destination_account_id']) {
-                $inverse = true;
-            }
-
-            if (true === $inverse) {
-                $journal['amount'] = app('steam')->positive($journal['amount']);
-                if (null !== $journal['foreign_amount']) {
-                    $journal['foreign_amount'] = app('steam')->positive($journal['foreign_amount']);
-                }
-            }
-            // @codeCoverageIgnoreEnd
-
-            $journals[] = $journal;
-        }
+        $journals = $this->processTransactions($account, $array);
 
         try {
-            $html = view('accounts.reconcile.transactions',
-                         compact('account', 'journals', 'currency', 'start', 'end', 'selectionStart', 'selectionEnd'))->render();
+            $html = view(
+                'accounts.reconcile.transactions',
+                compact('account', 'journals', 'currency', 'start', 'end', 'selectionStart', 'selectionEnd')
+            )->render();
             // @codeCoverageIgnoreStart
         } catch (Throwable $e) {
             Log::debug(sprintf('Could not render: %s', $e->getMessage()));
@@ -237,10 +228,11 @@ class ReconcileController extends Controller
     }
 
     /**
-     * @param Account $account
+     * @param Account             $account
      * @param TransactionCurrency $currency
-     * @param array $journal
-     * @param string $amount
+     * @param array               $journal
+     * @param string              $amount
+     *
      * @return string
      */
     private function processJournal(Account $account, TransactionCurrency $currency, array $journal, string $amount): string
@@ -273,5 +265,46 @@ class ReconcileController extends Controller
         Log::debug(sprintf('Result is %s', $amount));
 
         return $amount;
+    }
+
+    /**
+     * "fix" amounts to make it easier on the reconciliation overview:
+     *
+     * @param Account $account
+     * @param array   $array
+     * @return array
+     */
+    private function processTransactions(Account $account, array $array): array
+    {
+        $journals = [];
+        /** @var array $journal */
+        foreach ($array as $journal) {
+            $inverse = false;
+            // @codeCoverageIgnoreStart
+            if (TransactionType::DEPOSIT === $journal['transaction_type_type']) {
+                $inverse = true;
+            }
+            // transfer to this account? then positive amount:
+            if (TransactionType::TRANSFER === $journal['transaction_type_type'] && $account->id === $journal['destination_account_id']) {
+                $inverse = true;
+            }
+
+            // opening balance into account? then positive amount:
+            if (TransactionType::OPENING_BALANCE === $journal['transaction_type_type']
+                && $account->id === $journal['destination_account_id']) {
+                $inverse = true;
+            }
+
+            if (true === $inverse) {
+                $journal['amount'] = app('steam')->positive($journal['amount']);
+                if (null !== $journal['foreign_amount']) {
+                    $journal['foreign_amount'] = app('steam')->positive($journal['foreign_amount']);
+                }
+            }
+            // @codeCoverageIgnoreEnd
+
+            $journals[] = $journal;
+        }
+        return $journals;
     }
 }

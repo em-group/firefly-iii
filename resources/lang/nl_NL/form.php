@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Reageert op',
     'strict'                      => 'Strikte modus',
     'repeat_freq'                 => 'Herhaling',
-    'journal_currency_id'         => 'Valuta',
+    'object_group'                => 'Groep',
+    'location'                    => 'Locatie',
+    'update_channel'              => 'Updatekanaal',
     'currency_id'                 => 'Valuta',
     'transaction_currency_id'     => 'Valuta',
+    'auto_budget_currency_id'     => 'Valuta',
     'external_ip'                 => 'Het externe IP-adres van je server',
     'attachments'                 => 'Bijlagen',
-    'journal_amount'              => 'Bedrag',
-    'journal_source_name'         => 'Debiteur (bron)',
-    'keep_bill_id'                => 'Contract',
-    'journal_source_id'           => 'Betaalrekening (bron)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Bevestig wachtwoordsterkte',
     'source_account'              => 'Bronrekening',
     'destination_account'         => 'Doelrekening',
-    'journal_destination_id'      => 'Betaalrekening (doel)',
     'asset_destination_account'   => 'Doelrekening',
     'include_net_worth'           => 'Meetellen in kapitaal',
     'asset_source_account'        => 'Bronrekening',
     'journal_description'         => 'Omschrijving',
     'note'                        => 'Notities',
-    'store_new_transaction'       => 'Nieuwe transactie opslaan',
-    'split_journal'               => 'Splits deze transactie',
-    'split_journal_explanation'   => 'Splits deze transactie in meerdere stukken',
     'currency'                    => 'Valuta',
     'account_id'                  => 'Betaalrekening',
     'budget_id'                   => 'Budget',
     'opening_balance'             => 'Startsaldo',
     'tagMode'                     => 'Tag modus',
-    'tag_position'                => 'Taglocatie',
     'virtual_balance'             => 'Virtueel saldo',
     'targetamount'                => 'Doelbedrag',
     'account_role'                => 'Rol van rekening',
@@ -80,10 +74,7 @@ return [
     'expense_account'             => 'Crediteur',
     'revenue_account'             => 'Debiteur',
     'decimal_places'              => 'Aantal decimalen',
-    'exchange_rate_instruction'   => 'Vreemde valuta',
-    'source_amount'               => 'Bronbedrag',
     'destination_amount'          => 'Doelbedrag',
-    'native_amount'               => 'Origineel bedrag',
     'new_email_address'           => 'Nieuw emailadres',
     'verification'                => 'Verificatie',
     'api_key'                     => 'API sleutel',
@@ -92,18 +83,13 @@ return [
     'interest'                    => 'Rente',
     'interest_period'             => 'Renteperiode',
 
-    'source_account_asset'        => 'Bronrekening (betaalrekening)',
-    'destination_account_expense' => 'Doelrekening (crediteur)',
-    'destination_account_asset'   => 'Doelrekening (betaalrekening)',
-    'source_account_revenue'      => 'Bronrekening (debiteur)',
-    'type'                        => 'Type',
-    'convert_Withdrawal'          => 'Verander uitgave',
-    'convert_Deposit'             => 'Verander inkomsten',
-    'convert_Transfer'            => 'Verander overschrijving',
+    'type'               => 'Type',
+    'convert_Withdrawal' => 'Verander uitgave',
+    'convert_Deposit'    => 'Verander inkomsten',
+    'convert_Transfer'   => 'Verander overschrijving',
 
     'amount'                      => 'Bedrag',
     'foreign_amount'              => 'Bedrag in vreemde valuta',
-    'existing_attachments'        => 'Bestaande bijlagen',
     'date'                        => 'Datum',
     'interest_date'               => 'Rentedatum',
     'book_date'                   => 'Boekdatum',
@@ -125,12 +111,6 @@ return [
     'date_format'                 => 'Datumformaat',
     'specifix'                    => 'Bank- or of bestandsspecifieke opties',
     'attachments[]'               => 'Bijlagen',
-    'store_new_withdrawal'        => 'Nieuwe uitgave opslaan',
-    'store_new_deposit'           => 'Nieuwe inkomsten opslaan',
-    'store_new_transfer'          => 'Nieuwe overschrijving opslaan',
-    'add_new_withdrawal'          => 'Maak nieuwe uitgave',
-    'add_new_deposit'             => 'Maak nieuwe inkomsten',
-    'add_new_transfer'            => 'Maak nieuwe overschrijving',
     'title'                       => 'Titel',
     'notes'                       => 'Notities',
     'filename'                    => 'Bestandsnaam',
@@ -140,8 +120,8 @@ return [
     'stop_processing'             => 'Stop met verwerken',
     'start_date'                  => 'Start van bereik',
     'end_date'                    => 'Einde van bereik',
-    'include_attachments'         => 'Sla ook geüploade bijlagen op',
-    'include_old_uploads'         => 'Sla ook geïmporteerde bestanden op',
+    'start'                       => 'Start van bereik',
+    'end'                         => 'Einde van bereik',
     'delete_account'              => 'Verwijder rekening ":name"',
     'delete_bill'                 => 'Verwijder contract ":name"',
     'delete_budget'               => 'Verwijder budget ":name"',
@@ -159,6 +139,7 @@ return [
     'account_areYouSure'          => 'Weet je zeker dat je de rekening met naam ":name" wilt verwijderen?',
     'bill_areYouSure'             => 'Weet je zeker dat je het contract met naam ":name" wilt verwijderen?',
     'rule_areYouSure'             => 'Weet je zeker dat je regel ":title" wilt verwijderen?',
+    'object_group_areYouSure'     => 'Weet je zeker dat je groep ":title" wilt verwijderen?',
     'ruleGroup_areYouSure'        => 'Weet je zeker dat je regelgroep ":title" wilt verwijderen?',
     'budget_areYouSure'           => 'Weet je zeker dat je het budget met naam ":name" wilt verwijderen?',
     'category_areYouSure'         => 'Weet je zeker dat je het category met naam ":name" wilt verwijderen?',
@@ -178,6 +159,7 @@ return [
     'also_delete_connections'     => 'De enige transactie gelinkt met dit linktype zal deze verbinding verliezen. | Alle :count transacties met dit linktype zullen deze verbinding verliezen.',
     'also_delete_rules'           => 'De enige regel in deze regelgroep wordt ook verwijderd.|Alle :count regels in deze regelgroep worden ook verwijderd.',
     'also_delete_piggyBanks'      => 'Ook het spaarpotje verbonden aan deze rekening wordt verwijderd.|Ook alle :count spaarpotjes verbonden aan deze rekening worden verwijderd.',
+    'not_delete_piggy_banks'      => 'Het spaarpotje gelinkt aan deze groep wordt niet verwijderd.|De :count spaarpotjes gelinkt aan deze groep worden niet verwijderd.',
     'bill_keep_transactions'      => 'De enige transactie verbonden aan dit contract blijft bewaard.|De :count transacties verbonden aan dit contract blijven bewaard.',
     'budget_keep_transactions'    => 'De enige transactie verbonden aan dit budget blijft bewaard.|De :count transacties verbonden aan dit budget blijven bewaard.',
     'category_keep_transactions'  => 'De enige transactie verbonden aan deze categorie blijft bewaard.|De :count transacties verbonden aan deze categorie blijven bewaard.',
@@ -185,12 +167,15 @@ return [
     'tag_keep_transactions'       => 'De enige transactie verbonden aan deze tag blijft bewaard.|De :count transacties verbonden aan deze tag blijven bewaard.',
     'check_for_updates'           => 'Op updates controleren',
 
+    'delete_object_group' => 'Verwijder groep ":title"',
+
     'email'                 => 'E-mailadres',
     'password'              => 'Wachtwoord',
     'password_confirmation' => 'Wachtwoord (nogmaals)',
     'blocked'               => 'Is geblokkeerd?',
     'blocked_code'          => 'Reden voor blokkade',
     'login_name'            => 'Login',
+    'is_owner'              => 'Is beheerder?',
 
     // import
     'apply_rules'           => 'Regels toepassen',
@@ -205,18 +190,12 @@ return [
     'is_demo_site'          => 'Is demo website',
 
     // import
-    'import_file'           => 'Importbestand',
     'configuration_file'    => 'Configuratiebestand',
-    'import_file_type'      => 'Importbestandstype',
     'csv_comma'             => 'Een komma (,)',
     'csv_semicolon'         => 'Een puntkomma (;)',
     'csv_tab'               => 'Een tab (onzichtbaar)',
     'csv_delimiter'         => 'CSV scheidingsteken',
-    'csv_import_account'    => 'Standaard rekening voor importeren',
-    'csv_config'            => 'Configuratiebestand',
     'client_id'             => 'Client ID',
-    'service_secret'        => 'Service secret',
-    'app_secret'            => 'App secret',
     'app_id'                => 'App ID',
     'secret'                => 'Secret',
     'public_key'            => 'Publieke sleutel',
@@ -257,5 +236,15 @@ return [
     'deposit_source_id'         => 'Bronrekening',
     'expected_on'               => 'Verwacht op',
     'paid'                      => 'Betaald',
+
+    'auto_budget_type'   => 'Auto-budget',
+    'auto_budget_amount' => 'Auto-budget bedrag',
+    'auto_budget_period' => 'Auto-budget periode',
+
+    'collected' => 'Verzameld',
+    'submitted' => 'Verstuurd',
+    'key'       => 'Key',
+    'value'     => 'Inhoud',
+
 
 ];

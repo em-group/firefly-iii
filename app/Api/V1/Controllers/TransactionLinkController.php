@@ -1,22 +1,22 @@
 <?php
 /**
  * TransactionLinkController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -47,8 +47,10 @@ class TransactionLinkController extends Controller
 
     /** @var JournalRepositoryInterface The journal repository */
     private $journalRepository;
+
     /** @var LinkTypeRepositoryInterface The link type repository */
     private $repository;
+
 
     /**
      * TransactionLinkController constructor.
@@ -105,7 +107,7 @@ class TransactionLinkController extends Controller
         $name = $request->get('name');
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $linkType = $this->repository->findByName($name);
 
         // get list of transaction links. Count it and split it.
@@ -124,7 +126,7 @@ class TransactionLinkController extends Controller
         $resource = new FractalCollection($journalLinks, $transformer, 'transaction_links');
         $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -146,7 +148,7 @@ class TransactionLinkController extends Controller
 
         $resource = new Item($journalLink, $transformer, 'transaction_links');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 
@@ -165,7 +167,7 @@ class TransactionLinkController extends Controller
         $inward  = $this->journalRepository->findNull($data['inward_id'] ?? 0);
         $outward = $this->journalRepository->findNull($data['outward_id'] ?? 0);
         if (null === $inward || null === $outward) {
-            throw new FireflyException('Source or destination is NULL.');
+            throw new FireflyException('200024: Source or destination does not exist.');
         }
         $data['direction'] = 'inward';
 
@@ -177,7 +179,7 @@ class TransactionLinkController extends Controller
 
         $resource = new Item($journalLink, $transformer, 'transaction_links');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
     }
 
     /**
@@ -196,7 +198,7 @@ class TransactionLinkController extends Controller
         $data['inward']  = $this->journalRepository->findNull($data['inward_id'] ?? 0);
         $data['outward'] = $this->journalRepository->findNull($data['outward_id'] ?? 0);
         if (null === $data['inward'] || null === $data['outward']) {
-            throw new FireflyException('Source or destination is NULL.');
+            throw new FireflyException('200024: Source or destination does not exist.');
         }
         $data['direction'] = 'inward';
         $journalLink       = $this->repository->updateLink($journalLink, $data);
@@ -207,7 +209,7 @@ class TransactionLinkController extends Controller
 
         $resource = new Item($journalLink, $transformer, 'transaction_links');
 
-        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', 'application/vnd.api+json');
+        return response()->json($manager->createData($resource)->toArray())->header('Content-Type', self::CONTENT_TYPE);
 
     }
 }
