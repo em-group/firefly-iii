@@ -5,11 +5,7 @@
 {% endblock %}
 
 {% block content %}
-    <div id="create_transaction"
-         :show-categories="{{ app.feature.userHasAccessToPath('/categories') ? '1' : '0' }}"
-         :show-tags="{{ app.feature.userHasAccessToPath('/tags') ? '1' : '0' }}"
-         :show-piggy-bank="{{ app.feature.userHasAccessToPath('/piggy-banks') ? '1' : '0' }}"
-    ></div>
+    <div id="create_transaction"></div>
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" nonce="{{ JS_NONCE }}">
@@ -20,5 +16,8 @@
         var previousUri = '{{ previousUri }}';
         window.sourceId = {{ sourceId }};
         window.destinationId = {{ destinationId }};
+        window.showCategories = {{ app.feature.userHasAccessToPath('/categories') ? '1' : '0' }};
+        window.showTags = {{ app.feature.userHasAccessToPath('/tags') ? '1' : '0' }};
+        window.showPiggyBank = {{ app.feature.userHasAccessToPath('/piggy-banks') ? '1' : '0' }};
     </script>
 {% endblock %}

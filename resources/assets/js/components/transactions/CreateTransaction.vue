@@ -239,17 +239,22 @@
 export default {
   name: "CreateTransaction",
   components: {},
-  props: ['showTags','showCategories','showPiggyBank'],
   mounted() {
     this.addTransactionToArray();
     document.onreadystatechange = () => {
       if (document.readyState === "complete") {
         this.prefillSourceAccount();
         this.prefillDestinationAccount();
+        this.checkFeatureAccess();
       }
     }
   },
   methods: {
+    checkFeatureAccess() {
+      this.showCategories = window.showCategories;
+      this.showTags = window.showTags;
+      this.showPiggyBank = window.showPiggyBank;
+    },
     prefillSourceAccount() {
       if (0 === window.sourceId) {
         return;
@@ -972,6 +977,9 @@ export default {
       resetFormAfter: false,
       resetButtonDisabled: true,
       attachmentCount: 0,
+      showCategories: 0,
+      showTags: 0,
+      showPiggyBank: 0
     };
   },
 }
