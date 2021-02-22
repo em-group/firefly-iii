@@ -241,13 +241,14 @@
         </li>
     {% endif %}
 
-    <li class="{{ activeRoutePartial('admin') }} {{ activeRoutePartial('profile') }} {{ activeRoutePartial('preferences') }} {{ activeRoutePartial('currencies') }} treeview" id="option-menu">
+    <li class="{{ activeRoutePartial('admin') }} {{ activeRoutePartial('profile') }} {{ activeRoutePartial('preferences') }} {{ activeRoutePartial('currencies') }} treeview"
+        id="option-menu">
         <a href="#">
-          <i class="fa fa-sliders fa-fw"></i>
-          <span>{{ 'options'|_ }}</span>
-          <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-          </span>
+            <i class="fa fa-sliders fa-fw"></i>
+            <span>{{ 'options'|_ }}</span>
+            <span class="pull-right-container">
+        <i class="fa fa-angle-left pull-right"></i>
+      </span>
         </a>
 
         <ul class="treeview-menu">
@@ -276,6 +277,14 @@
                         <span>{{ 'currencies'|_ }}</span>
                     </a>
                 </li>
+                {% if true == featuringWebhooks %}
+                    <li class="{{ activeRoutePartial('webhooks') }}">
+                        <a class="{{ activeRoutePartial('webhooks') }}" href="{{ route('webhooks.index') }}">
+                            <i class="fa fa-angle-right fa-fw"></i>
+                            <span>{{ 'webhooks'|_ }}</span>
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="{{ activeRoutePartial('admin') }}">
                   <a class="{{ activeRoutePartial('admin') }}" href="{{ route('admin.index') }}">
                     <i class="fa fa-angle-right fa-fw"></i>
