@@ -82,7 +82,7 @@ try {
 
     Breadcrumbs::register(
         'dashboard',
-        function (BreadcrumbsGenerator $breadcrumbs) {
+        function (Generator $breadcrumbs) {
             $breadcrumbs->push(trans('breadcrumbs.home'), route('dashboard'));
         }
     );
@@ -305,7 +305,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels',
-        function (BreadcrumbsGenerator $breadcrumbs) {
+        function (Generator $breadcrumbs) {
             $breadcrumbs->parent('admin.index');
             $breadcrumbs->push(trans('whitelabels.list_all_whitelabels'), route('admin.whitelabels'));
         }
@@ -313,7 +313,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.edit',
-        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+        function (Generator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.edit_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.edit', [$whitelabel->id]));
         }
@@ -321,7 +321,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.create',
-        function (BreadcrumbsGenerator $breadcrumbs) {
+        function (Generator $breadcrumbs) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.create_whitelabel'), route('admin.whitelabels.create'));
         }
@@ -329,7 +329,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.activate',
-        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+        function (Generator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.activate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.activate', [$whitelabel->id]));
         }
@@ -337,7 +337,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.deactivate',
-        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+        function (Generator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.deactivate_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.deactivate', [$whitelabel->id]));
         }
@@ -345,7 +345,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.update',
-        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+        function (Generator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.update_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
         }
@@ -353,7 +353,7 @@ try {
 
     Breadcrumbs::register(
         'admin.whitelabels.store',
-        function (BreadcrumbsGenerator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
+        function (Generator $breadcrumbs, \FireflyIII\Models\Whitelabel $whitelabel) {
             $breadcrumbs->parent('admin.whitelabels');
             $breadcrumbs->push(trans('whitelabels.store_whitelabel', ['name' => limitStringLength($whitelabel->name)]), route('admin.whitelabels.update', [$whitelabel->id]));
         }
@@ -1229,7 +1229,7 @@ try {
     // MEMBERSHIP
     Breadcrumbs::register(
         'membership.index',
-        static function (BreadcrumbsGenerator $breadcrumbs) {
+        static function (Generator $breadcrumbs) {
             $breadcrumbs->parent('home');
             $breadcrumbs->push(trans('memberships.membership'), route('membership.index'));
         }
@@ -1237,7 +1237,7 @@ try {
 
     Breadcrumbs::register(
         'membership.buy',
-        static function (BreadcrumbsGenerator $breadcrumbs) {
+        static function (Generator $breadcrumbs) {
             $breadcrumbs->parent('membership.index');
             $breadcrumbs->push(trans('memberships.purchase'), route('membership.buy'));
         }
