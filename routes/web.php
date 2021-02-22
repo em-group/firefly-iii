@@ -106,7 +106,7 @@ Route::group(
 Route::group(
     ['middleware' => ['user-full-auth'], 'namespace' => 'FireflyIII\Http\Controllers'],
     static function () {
-        Route::get('/', ['uses' => 'HomeController@index', 'as' => 'index']);
+        Route::get('/dashboard', ['uses' => 'HomeController@index', 'as' => 'index']);
         Route::get('/dashboard', ['uses' => 'HomeController@index', 'as' => 'dashboard']);
         Route::get('/flash', ['uses' => 'DebugController@testFlash', 'as' => 'test-flash']);
         Route::get('/home', ['uses' => 'HomeController@index', 'as' => 'home']);

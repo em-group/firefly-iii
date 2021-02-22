@@ -19,5 +19,6 @@
         window.showCategories = {{ app.feature.userHasAccessToPath('/categories') ? '1' : '0' }};
         window.showTags = {{ app.feature.userHasAccessToPath('/tags') ? '1' : '0' }};
         window.showPiggyBank = {{ app.feature.userHasAccessToPath('/piggy-banks') ? '1' : '0' }};
+        window.showBills = {{ app.feature.userHasAccessToPath('/bills') ? '1' : '0' }};
     </script>
 {% endblock %}

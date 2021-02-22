@@ -161,6 +161,7 @@
                       :error="transaction.errors.tags"
                   ></tags>
                   <bill
+                      v-if="showBills"
                       v-model="transaction.bill"
                       :error="transaction.errors.bill_id"
                       :no_bill="$t('firefly.none_in_select_list')"
@@ -254,6 +255,7 @@ export default {
       this.showCategories = window.showCategories;
       this.showTags = window.showTags;
       this.showPiggyBank = window.showPiggyBank;
+      this.showBills = window.showBills;
     },
     prefillSourceAccount() {
       if (0 === window.sourceId) {
@@ -979,7 +981,8 @@ export default {
       attachmentCount: 0,
       showCategories: 0,
       showTags: 0,
-      showPiggyBank: 0
+      showPiggyBank: 0,
+      showBills: 0
     };
   },
 }
