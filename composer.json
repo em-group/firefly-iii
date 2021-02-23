@@ -54,20 +54,20 @@
     "source": "https://github.com/firefly-iii/firefly-iii",
     "docs": "https://docs.firefly-iii.org/"
   },
-    "funding": [
-      {
-        "type": "patreon",
-        "url": "https://www.patreon.com/JC5"
-      },
-      {
-        "type": "github",
-        "url": "https://github.com/sponsors/JC5"
-      },
-      {
-        "type": "paypal",
-        "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L62W7DVD5ETPC&source=url"
-      }
-    ],
+  "funding": [
+    {
+      "type": "patreon",
+      "url": "https://www.patreon.com/JC5"
+    },
+    {
+      "type": "github",
+      "url": "https://github.com/sponsors/JC5"
+    },
+    {
+      "type": "paypal",
+      "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L62W7DVD5ETPC&source=url"
+    }
+  ],
   "require": {
     "php": ">=7.4.0|^8.0",
     "ext-bcmath": "*",
@@ -98,9 +98,6 @@
     "league/commonmark": "1.*",
     "league/csv": "^9.6",
     "league/fractal": "0.*",
-    "litipk/flysystem-fallback-adapter": "0.*",
-    "mschindler83/fints-hbci-php": "1.*",
-    "pragmarx/recovery": "^0.1.0",
     "sentry/sentry-laravel": "^2",
     "pragmarx/google2fa": "^8.0",
     "predis/predis": "^1.1",

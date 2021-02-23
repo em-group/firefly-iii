@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d12794c1823d3dea23bfe07c5a0073f0",
+    "content-hash": "74bb5381ef82db842a765905a813bfdb",
     "packages": [
         {
             "name": "bacon/bacon-qr-code",
@@ -2905,52 +2905,6 @@
             "time": "2020-12-10T11:35:44+00:00"
         },
         {
-            "name": "litipk/flysystem-fallback-adapter",
-            "version": "0.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Litipk/flysystem-fallback-adapter.git",
-                "reference": "1fdeb9352990deb8cba2a2c57cc94e2ff7e1381b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Litipk/flysystem-fallback-adapter/zipball/1fdeb9352990deb8cba2a2c57cc94e2ff7e1381b",
-                "reference": "1fdeb9352990deb8cba2a2c57cc94e2ff7e1381b",
-                "shasum": ""
-            },
-            "require": {
-                "league/flysystem": "~1.0",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "mockery/mockery": "0.9.*",
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Litipk\\Flysystem\\Fallback\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andrés Correa Casablanca",
-                    "email": "castarco@litipk.com"
-                }
-            ],
-            "description": "Flysystem adapter for fallback filesystems",
-            "support": {
-                "email": "castarco@litipk.com",
-                "issues": "http://github.com/Litipk/flysystem-fallback-adapter/issues",
-                "source": "http://github.com/Litipk/flysystem-fallback-adapter"
-            },
-            "time": "2016-06-23T00:18:01+00:00"
-        },
-        {
             "name": "monolog/monolog",
             "version": "2.2.0",
             "source": {
@@ -3045,45 +2999,6 @@
                 }
             ],
             "time": "2020-12-14T13:15:25+00:00"
-        },
-        {
-            "name": "mschindler83/fints-hbci-php",
-            "version": "1.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mschindler83/fints-hbci-php.git",
-                "reference": "e58cb825c178d4c39a8974a9dd93abbc8094551f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mschindler83/fints-hbci-php/zipball/e58cb825c178d4c39a8974a9dd93abbc8094551f",
-                "reference": "e58cb825c178d4c39a8974a9dd93abbc8094551f",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.2",
-                "psr/log": "~1.0"
-            },
-            "suggest": {
-                "monolog/monolog": "Allow sending log messages to a variety of different handlers"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Fhp": "lib/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "PHP Library for the protocols fints and hbci",
-            "homepage": "http://fints-hbci-php.markus-schindler.de",
-            "support": {
-                "issues": "https://github.com/mschindler83/fints-hbci-php/issues",
-                "source": "https://github.com/mschindler83/fints-hbci-php/tree/master"
-            },
-            "time": "2017-02-15T13:48:21+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -4186,74 +4101,6 @@
                 "source": "https://github.com/antonioribeiro/random/tree/master"
             },
             "time": "2017-11-21T05:26:22+00:00"
-        },
-        {
-            "name": "pragmarx/recovery",
-            "version": "v0.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/antonioribeiro/recovery.git",
-                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/antonioribeiro/recovery/zipball/e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
-                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
-                "shasum": ""
-            },
-            "require": {
-                "php": "~7.0",
-                "pragmarx/random": "~0.1"
-            },
-            "require-dev": {
-                "phpunit/phpunit": ">=5.4.3",
-                "squizlabs/php_codesniffer": "^2.3",
-                "tightenco/collect": "^5"
-            },
-            "suggest": {
-                "tightenco/collect": "Allows to generate recovery codes as collections"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.0-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "PragmaRX\\Recovery\\": "src"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Antonio Carlos Ribeiro",
-                    "email": "acr@antoniocarlosribeiro.com",
-                    "homepage": "https://antoniocarlosribeiro.com",
-                    "role": "Developer"
-                }
-            ],
-            "description": "Create recovery codes for two factor auth",
-            "homepage": "https://github.com/antonioribeiro/recovery",
-            "keywords": [
-                "2fa",
-                "account recovery",
-                "auth",
-                "backup codes",
-                "google2fa",
-                "pragmarx",
-                "recovery",
-                "recovery codes",
-                "two factor auth"
-            ],
-            "support": {
-                "issues": "https://github.com/antonioribeiro/recovery/issues",
-                "source": "https://github.com/antonioribeiro/recovery/tree/master"
-            },
-            "time": "2017-09-19T16:58:00+00:00"
         },
         {
             "name": "predis/predis",
@@ -12670,7 +12517,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4.0",
+        "php": ">=7.4.0|^8.0",
         "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-fileinfo": "*",
