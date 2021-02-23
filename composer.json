@@ -101,7 +101,7 @@
     "litipk/flysystem-fallback-adapter": "0.*",
     "mschindler83/fints-hbci-php": "1.*",
     "pragmarx/recovery": "^0.1.0",
-    "sentry/sentry-laravel": "^1.7",
+    "sentry/sentry-laravel": "^2",
     "pragmarx/google2fa": "^8.0",
     "predis/predis": "^1.1",
     "ramsey/uuid": "^4.1",
