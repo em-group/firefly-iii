@@ -45,7 +45,6 @@ class ReportSum extends Command
      */
     protected $signature = 'firefly-iii:report-sum';
 
-
     /**
      * Execute the console command.
      *
@@ -58,7 +57,6 @@ class ReportSum extends Command
         return 0;
     }
 
-
     /**
      * Reports for each user when the sum of their transactions is not zero.
      */
@@ -70,7 +68,7 @@ class ReportSum extends Command
 
         /** @var User $user */
         foreach ($userRepository->all() as $user) {
-            $sum = (string) $user->transactions()->sum('amount');
+            $sum = (string)$user->transactions()->sum('amount');
             if (0 !== bccomp($sum, '0')) {
                 $message = sprintf('Error: Transactions for user #%d (%s) are off by %s!', $user->id, $user->email, $sum);
                 $this->error($message);

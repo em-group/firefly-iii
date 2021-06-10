@@ -74,11 +74,9 @@ class HomeController extends Controller
         $isCustomRange = false;
 
         Log::debug('Received dateRange', ['start' => $request->get('start'), 'end' => $request->get('end'), 'label' => $request->get('label')]);
-
-
         // check if the label is "everything" or "Custom range" which will betray
         // a possible problem with the budgets.
-        if ($label === (string) trans('firefly.everything') || $label === (string) trans('firefly.customRange')) {
+        if ($label === (string)trans('firefly.everything') || $label === (string)trans('firefly.customRange')) {
             $isCustomRange = true;
             Log::debug('Range is now marked as "custom".');
         }
@@ -86,7 +84,7 @@ class HomeController extends Controller
         $diff = $start->diffInDays($end) + 1;
 
         if ($diff > 50) {
-            $request->session()->flash('warning', (string) trans('firefly.warning_much_data', ['days' => $diff]));
+            $request->session()->flash('warning', (string)trans('firefly.warning_much_data', ['days' => $diff]));
         }
 
         $request->session()->put('is_custom_range', $isCustomRange);
@@ -98,7 +96,6 @@ class HomeController extends Controller
 
         return response()->json(['ok' => 'ok']);
     }
-
 
     /**
      * Show index.
@@ -117,7 +114,7 @@ class HomeController extends Controller
         if (0 === $count) {
             return redirect(route('new-user.index'));
         }
-        $subTitle     = (string) trans('firefly.welcome_back');
+        $subTitle     = (string)trans('firefly.welcome_back');
         $transactions = [];
         $frontPage    = app('preferences')->getFresh('frontPageAccounts', $repository->getAccountsByType([AccountType::ASSET])->pluck('id')->toArray());
         /** @var Carbon $start */
@@ -133,8 +130,6 @@ class HomeController extends Controller
         /** @var BillRepositoryInterface $billRepository */
         $billRepository = app(BillRepositoryInterface::class);
         $billCount      = $billRepository->getBills()->count();
-
-
         // collect groups for each transaction.
         foreach ($accounts as $account) {
             /** @var GroupCollectorInterface $collector */
@@ -148,6 +143,6 @@ class HomeController extends Controller
         $user = auth()->user();
         event(new RequestedVersionCheckStatus($user));
 
-        return view('index', compact('count', 'subTitle', 'transactions', 'billCount', 'start', 'end', 'today'));
+        return prefixView('index', compact('count', 'subTitle', 'transactions', 'billCount', 'start', 'end', 'today'));
     }
 }

@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * MessageGeneratorInterface.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,6 +19,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Generator\Webhook;
 
 use FireflyIII\User;
@@ -32,19 +33,14 @@ interface MessageGeneratorInterface
 {
 
     /**
-     * @return int
-     */
-    public function getVersion(): int;
-
-    /**
      *
      */
     public function generateMessages(): void;
 
     /**
-     * @param User $user
+     * @return int
      */
-    public function setUser(User $user): void;
+    public function getVersion(): int;
 
     /**
      * @param Collection $objects
@@ -55,4 +51,9 @@ interface MessageGeneratorInterface
      * @param int $trigger
      */
     public function setTrigger(int $trigger): void;
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void;
 }

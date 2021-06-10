@@ -26,6 +26,7 @@ namespace FireflyIII\Http\Middleware;
 
 use Closure;
 use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Factory as Auth;
 use Illuminate\Database\QueryException;
@@ -62,10 +63,10 @@ class Authenticate
      * @param Closure  $next
      * @param string[] ...$guards
      *
-     * @throws AuthenticationException
-     * @throws FireflyException
      * @return mixed
      *
+     * @throws FireflyException
+     * @throws AuthenticationException
      */
     public function handle($request, Closure $next, ...$guards)
     {
@@ -74,21 +75,20 @@ class Authenticate
         return $next($request);
     }
 
-
     /**
      * Determine if the user is logged in to any of the given guards.
      *
-     * @param        $request
-     * @param array  $guards
+     * @param mixed $request
+     * @param array $guards
      *
-     * @throws AuthenticationException
-     * @throws FireflyException
      * @return mixed
+     * @throws FireflyException
+     * @throws AuthenticationException
      */
     protected function authenticate($request, array $guards)
     {
 
-        if (empty($guards)) {
+        if (0 === count($guards)) {
             try {
                 // go for default guard:
                 /** @noinspection PhpUndefinedMethodInspection */
@@ -96,11 +96,12 @@ class Authenticate
 
                     // do an extra check on user object.
                     /** @noinspection PhpUndefinedMethodInspection */
+                    /** @var User $user */
                     $user = $this->auth->authenticate();
-                    if (1 === (int) $user->blocked) {
-                        $message = (string) trans('firefly.block_account_logout');
+                    if (1 === (int)$user->blocked) {
+                        $message = (string)trans('firefly.block_account_logout');
                         if ('email_changed' === $user->blocked_code) {
-                            $message = (string) trans('firefly.email_changed_logout');
+                            $message = (string)trans('firefly.email_changed_logout');
                         }
                         app('session')->flash('logoutMessage', $message);
                         /** @noinspection PhpUndefinedMethodInspection */
@@ -110,29 +111,29 @@ class Authenticate
                     }
                 }
             } catch (QueryException $e) {
-                // @codeCoverageIgnoreStart
+
                 throw new FireflyException(
                     sprintf(
                         'It seems the database has not yet been initialized. Did you run the correct upgrade or installation commands? Error: %s',
                         $e->getMessage()
-                    )
+                    ), 0, $e
                 );
-                // @codeCoverageIgnoreEnd
+
             }
 
             /** @noinspection PhpUndefinedMethodInspection */
             return $this->auth->authenticate();
         }
 
-        // @codeCoverageIgnoreStart
+
         foreach ($guards as $guard) {
             if ($this->auth->guard($guard)->check()) {
                 /** @noinspection PhpVoidFunctionResultUsedInspection */
-                return $this->auth->shouldUse($guard);
+                return $this->auth->shouldUse($guard); // @phpstan-ignore-line
             }
         }
 
         throw new AuthenticationException('Unauthenticated.', $guards);
-        // @codeCoverageIgnoreEnd
+
     }
 }

@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * WebhookSenderInterface.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,6 +19,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Services\Webhook;
 
 use FireflyIII\Models\WebhookMessage;
@@ -35,12 +36,12 @@ interface WebhookSenderInterface
     public function getVersion(): int;
 
     /**
-     * @param WebhookMessage $message
-     */
-    public function setMessage(WebhookMessage $message): void;
-
-    /**
      *
      */
     public function send(): void;
+
+    /**
+     * @param WebhookMessage $message
+     */
+    public function setMessage(WebhookMessage $message): void;
 }

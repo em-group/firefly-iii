@@ -24,6 +24,8 @@ declare(strict_types=1);
 namespace FireflyIII\Validation;
 
 use Carbon\Carbon;
+use FireflyIII\Models\Recurrence;
+use FireflyIII\Models\RecurrenceTransaction;
 use Illuminate\Validation\Validator;
 use InvalidArgumentException;
 use Log;
@@ -36,8 +38,6 @@ use Log;
  */
 trait RecurrenceValidation
 {
-
-
     /**
      * Validate account information input for recurrences which are being updated.
      *
@@ -50,7 +50,29 @@ trait RecurrenceValidation
         $data = $validator->getData();
 
         $transactionType = $data['type'] ?? 'invalid';
-        $transactions    = $data['transactions'] ?? [];
+
+        // grab model from parameter and try to set the transaction type from it
+        if ('invalid' === $transactionType) {
+            Log::debug('Type is invalid but we will search for it.');
+            /** @var Recurrence $recurrence */
+            $recurrence = $this->route()->parameter('recurrence');
+            if (null !== $recurrence) {
+                Log::debug('There is a recurrence in the route.');
+                // ok so we have a recurrence should be able to extract type somehow.
+                /** @var RecurrenceTransaction|null $first */
+                $first = $recurrence->recurrenceTransactions()->first();
+                if (null !== $first) {
+                    $transactionType = $first->transactionType ? $first->transactionType->type : 'withdrawal';
+                    Log::debug(sprintf('Determined type to be %s.', $transactionType));
+                }
+                if (null === $first) {
+                    Log::warning('Just going to assume type is a withdrawal.');
+                    $transactionType = 'withdrawal';
+                }
+            }
+        }
+
+        $transactions = $data['transactions'] ?? [];
 
         /** @var AccountValidator $accountValidator */
         $accountValidator = app(AccountValidator::class);
@@ -60,8 +82,16 @@ trait RecurrenceValidation
             $transactionType = $transaction['type'] ?? $transactionType;
             $accountValidator->setTransactionType($transactionType);
 
+            if (
+                !array_key_exists('source_id', $transaction)
+                && !array_key_exists('destination_id', $transaction)
+                && !array_key_exists('source_name', $transaction)
+                && !array_key_exists('destination_name', $transaction)
+            ) {
+                continue;
+            }
             // validate source account.
-            $sourceId    = isset($transaction['source_id']) ? (int)$transaction['source_id'] : null;
+            $sourceId    = array_key_exists('source_id', $transaction) ? (int)$transaction['source_id'] : null;
             $sourceName  = $transaction['source_name'] ?? null;
             $validSource = $accountValidator->validateSource($sourceId, $sourceName, null);
 
@@ -73,7 +103,7 @@ trait RecurrenceValidation
                 return;
             }
             // validate destination account
-            $destinationId    = isset($transaction['destination_id']) ? (int)$transaction['destination_id'] : null;
+            $destinationId    = array_key_exists('destination_id', $transaction) ? (int)$transaction['destination_id'] : null;
             $destinationName  = $transaction['destination_name'] ?? null;
             $validDestination = $accountValidator->validateDestination($destinationId, $destinationName, null);
             // do something with result:
@@ -96,7 +126,7 @@ trait RecurrenceValidation
         $data        = $validator->getData();
         $repetitions = $data['repetitions'] ?? [];
         // need at least one transaction
-        if (0 === count($repetitions)) {
+        if (!is_countable($repetitions) || 0 === count($repetitions)) {
             $validator->errors()->add('repetitions', (string)trans('validation.at_least_one_repetition'));
         }
     }
@@ -137,6 +167,26 @@ trait RecurrenceValidation
         }
     }
 
+    public function validateRecurringConfig(Validator $validator)
+    {
+        $data        = $validator->getData();
+        $reps        = array_key_exists('nr_of_repetitions', $data) ? (int)$data['nr_of_repetitions'] : null;
+        $repeatUntil = array_key_exists('repeat_until', $data) ? new Carbon($data['repeat_until']) : null;
+
+        if (null === $reps && null === $repeatUntil) {
+            $validator->errors()->add('nr_of_repetitions', trans('validation.require_repeat_until'));
+            $validator->errors()->add('repeat_until', trans('validation.require_repeat_until'));
+
+            return;
+        }
+        if ($reps > 0 && null !== $repeatUntil) {
+            $validator->errors()->add('nr_of_repetitions', trans('validation.require_repeat_until'));
+            $validator->errors()->add('repeat_until', trans('validation.require_repeat_until'));
+
+            return;
+        }
+    }
+
     /**
      * @param Validator $validator
      */
@@ -144,11 +194,23 @@ trait RecurrenceValidation
     {
         $data        = $validator->getData();
         $repetitions = $data['repetitions'] ?? [];
+        if (!is_array($repetitions)) {
+            $validator->errors()->add(sprintf('repetitions.%d.type', 0), (string)trans('validation.valid_recurrence_rep_type'));
+
+            return;
+        }
         /**
          * @var int   $index
          * @var array $repetition
          */
         foreach ($repetitions as $index => $repetition) {
+            if (!array_key_exists('moment', $repetition)) {
+                continue;
+            }
+            if (null === $repetition['moment']) {
+                $repetition['moment'] = '';
+            }
+            $repetition['moment'] = $repetition['moment'] ?? 'invalid';
             switch ($repetition['type'] ?? 'empty') {
                 default:
                     $validator->errors()->add(sprintf('repetitions.%d.type', $index), (string)trans('validation.valid_recurrence_rep_type'));

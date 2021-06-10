@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
-
-
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -74,6 +72,9 @@ use Illuminate\Support\Collection;
  * @method static Builder|RecurrenceTransaction withTrashed()
  * @method static Builder|RecurrenceTransaction withoutTrashed()
  * @mixin Eloquent
+ * @property int|null $transaction_type_id
+ * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransaction whereTransactionTypeId($value)
+ * @property-read \FireflyIII\Models\TransactionType|null $transactionType
  */
 class RecurrenceTransaction extends Model
 {
@@ -151,5 +152,13 @@ class RecurrenceTransaction extends Model
     public function transactionCurrency(): BelongsTo
     {
         return $this->belongsTo(TransactionCurrency::class);
+    }
+    /**
+     * @codeCoverageIgnore
+     * @return BelongsTo
+     */
+    public function transactionType(): BelongsTo
+    {
+        return $this->belongsTo(TransactionType::class);
     }
 }

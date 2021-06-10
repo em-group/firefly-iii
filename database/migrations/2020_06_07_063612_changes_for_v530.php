@@ -27,6 +27,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 /**
  * Class ChangesForV530
+ *
  * @codeCoverageIgnore
  */
 class ChangesForV530 extends Migration
@@ -62,8 +63,6 @@ class ChangesForV530 extends Migration
             }
             );
         }
-
-
         if (!Schema::hasTable('object_groupables')) {
             Schema::create(
                 'object_groupables', static function (Blueprint $table) {

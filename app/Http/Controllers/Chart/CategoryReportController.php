@@ -140,10 +140,8 @@ class CategoryReportController extends Controller
      * @param Collection $categories
      * @param Carbon     $start
      * @param Carbon     $end
-     * @param string     $others
      *
      * @return JsonResponse
-     *
      */
     public function categoryIncome(Collection $accounts, Collection $categories, Carbon $start, Carbon $end): JsonResponse
     {
@@ -267,7 +265,7 @@ class CategoryReportController extends Controller
             $chartData[$spentKey] = $chartData[$spentKey] ?? [
                     'label'           => sprintf(
                         '%s (%s)',
-                        (string) trans('firefly.spent_in_specific_category', ['category' => $category->name]),
+                        (string)trans('firefly.spent_in_specific_category', ['category' => $category->name]),
                         $currency['currency_name']
                     ),
                     'type'            => 'bar',
@@ -294,7 +292,7 @@ class CategoryReportController extends Controller
             $chartData[$spentKey] = $chartData[$spentKey] ?? [
                     'label'           => sprintf(
                         '%s (%s)',
-                        (string) trans('firefly.earned_in_specific_category', ['category' => $category->name]),
+                        (string)trans('firefly.earned_in_specific_category', ['category' => $category->name]),
                         $currency['currency_name']
                     ),
                     'type'            => 'bar',
@@ -317,6 +315,31 @@ class CategoryReportController extends Controller
         $data = $this->generator->multiSet($chartData);
 
         return response()->json($data);
+    }
+
+    /**
+     * TODO duplicate function
+     *
+     * @param Carbon $start
+     * @param Carbon $end
+     *
+     * @return array
+     */
+    private function makeEntries(Carbon $start, Carbon $end): array
+    {
+        $return         = [];
+        $format         = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
+        $preferredRange = app('navigation')->preferredRangeFormat($start, $end);
+        $currentStart   = clone $start;
+        while ($currentStart <= $end) {
+            $currentEnd   = app('navigation')->endOfPeriod($currentStart, $preferredRange);
+            $key          = $currentStart->formatLocalized($format);
+            $return[$key] = '0';
+            $currentStart = clone $currentEnd;
+            $currentStart->addDay()->startOfDay();
+        }
+
+        return $return;
     }
 
     /**
@@ -389,30 +412,5 @@ class CategoryReportController extends Controller
         $data = $this->generator->multiCurrencyPieChart($result);
 
         return response()->json($data);
-    }
-
-    /**
-     * TODO duplicate function
-     *
-     * @param Carbon $start
-     * @param Carbon $end
-     *
-     * @return array
-     */
-    private function makeEntries(Carbon $start, Carbon $end): array
-    {
-        $return         = [];
-        $format         = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
-        $preferredRange = app('navigation')->preferredRangeFormat($start, $end);
-        $currentStart   = clone $start;
-        while ($currentStart <= $end) {
-            $currentEnd   = app('navigation')->endOfPeriod($currentStart, $preferredRange);
-            $key          = $currentStart->formatLocalized($format);
-            $return[$key] = '0';
-            $currentStart = clone $currentEnd;
-            $currentStart->addDay()->startOfDay();
-        }
-
-        return $return;
     }
 }

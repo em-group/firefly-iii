@@ -54,7 +54,6 @@ class FixRecurringTransactions extends Command
     /** @var UserRepositoryInterface */
     private $userRepos;
 
-
     /**
      * Execute the console command.
      *
@@ -65,24 +64,10 @@ class FixRecurringTransactions extends Command
         $start = microtime(true);
         $this->stupidLaravel();
         $this->correctTransactions();
-
-
         $end = round(microtime(true) - $start, 2);
         $this->info(sprintf('Corrected recurring transactions in %s seconds.', $end));
 
         return 0;
-    }
-
-    /**
-     *
-     */
-    private function correctTransactions(): void
-    {
-        $users = $this->userRepos->all();
-        /** @var User $user */
-        foreach ($users as $user) {
-            $this->processUser($user);
-        }
     }
 
     /**
@@ -96,6 +81,18 @@ class FixRecurringTransactions extends Command
     {
         $this->recurringRepos = app(RecurringRepositoryInterface::class);
         $this->userRepos      = app(UserRepositoryInterface::class);
+    }
+
+    /**
+     *
+     */
+    private function correctTransactions(): void
+    {
+        $users = $this->userRepos->all();
+        /** @var User $user */
+        foreach ($users as $user) {
+            $this->processUser($user);
+        }
     }
 
     /**

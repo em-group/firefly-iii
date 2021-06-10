@@ -57,6 +57,7 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     public function countJournals(TransactionCurrency $currency): int
     {
         $count = $currency->transactions()->whereNull('deleted_at')->count() + $currency->transactionJournals()->whereNull('deleted_at')->count();
+
         // also count foreign:
         return $count + Transaction::where('foreign_currency_id', $currency->id)->count();
     }
@@ -170,8 +171,6 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     {
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
-
-
         if ($repository->hasRole($this->user, 'owner')) {
             /** @var CurrencyDestroyService $service */
             $service = app(CurrencyDestroyService::class);
@@ -434,33 +433,22 @@ class CurrencyRepository implements CurrencyRepositoryInterface
     }
 
     /**
-     * Return a list of exchange rates with this currency.
-     *
-     * @param TransactionCurrency $currency
-     *
-     * @return Collection
+     * @inheritDoc
      */
-    public function getExchangeRates(TransactionCurrency $currency): Collection
+    public function isFallbackCurrency(TransactionCurrency $currency): bool
     {
-        /** @var CurrencyExchangeRate $rate */
-        return $this->user->currencyExchangeRates()
-                          ->where(
-                              function (Builder $query) use ($currency) {
-                                  $query->where('from_currency_id', $currency->id);
-                                  $query->orWhere('to_currency_id', $currency->id);
-                              }
-                          )->get();
+        return $currency->code === config('firefly.default_currency', 'EUR');
     }
 
     /**
      * @param string $search
-     * @param int $limit
+     * @param int    $limit
      *
      * @return Collection
      */
     public function searchCurrency(string $search, int $limit): Collection
     {
-        $query = TransactionCurrency::where('enabled', 1);
+        $query = TransactionCurrency::where('enabled', true);
         if ('' !== $search) {
             $query->where('name', 'LIKE', sprintf('%%%s%%', $search));
         }
@@ -507,13 +495,5 @@ class CurrencyRepository implements CurrencyRepositoryInterface
         $service = app(CurrencyUpdateService::class);
 
         return $service->update($currency, $data);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isFallbackCurrency(TransactionCurrency $currency): bool
-    {
-        return $currency->code === config('firefly.default_currency', 'EUR');
     }
 }

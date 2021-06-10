@@ -57,7 +57,6 @@ class BalanceController extends Controller
         );
     }
 
-
     /**
      * Show overview of budget balances.
      *
@@ -136,12 +135,10 @@ class BalanceController extends Controller
             $report['budgets'][$budgetId]['spent'] = $spent;
             // get transactions in budget
         }
-
-
         try {
-            $result = view('reports.partials.balance', compact('report'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.partials.balance', compact('report'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.balance: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }

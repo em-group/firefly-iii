@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Factory;
 
-
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\User;
 
@@ -42,8 +41,8 @@ class PiggyBankFactory
      */
     public function find(?int $piggyBankId, ?string $piggyBankName): ?PiggyBank
     {
-        $piggyBankId   = (int) $piggyBankId;
-        $piggyBankName = (string) $piggyBankName;
+        $piggyBankId   = (int)$piggyBankId;
+        $piggyBankName = (string)$piggyBankName;
         if ('' === $piggyBankName && 0 === $piggyBankId) {
             return null;
         }

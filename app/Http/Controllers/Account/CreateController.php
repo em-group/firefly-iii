@@ -44,11 +44,8 @@ class CreateController extends Controller
 {
     use ModelInformation;
 
-    /** @var AttachmentHelperInterface Helper for attachments. */
-    private $attachments;
-
-    /** @var AccountRepositoryInterface The account repository */
-    private $repository;
+    private AttachmentHelperInterface  $attachments;
+    private AccountRepositoryInterface $repository;
 
     /**
      * CreateController constructor.
@@ -63,7 +60,7 @@ class CreateController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string) trans('firefly.accounts'));
+                app('view')->share('title', (string)trans('firefly.accounts'));
 
                 $this->repository  = app(AccountRepositoryInterface::class);
                 $this->attachments = app(AttachmentHelperInterface::class);
@@ -86,7 +83,7 @@ class CreateController extends Controller
         $objectType      = $objectType ?? 'asset';
         $defaultCurrency = app('amount')->getDefaultCurrency();
         $subTitleIcon    = config(sprintf('firefly.subIconsByIdentifier.%s', $objectType));
-        $subTitle        = (string) trans(sprintf('firefly.make_new_%s_account', $objectType));
+        $subTitle        = (string)trans(sprintf('firefly.make_new_%s_account', $objectType));
         $roles           = $this->getRoles();
         $liabilityTypes  = $this->getLiabilityTypes();
         $hasOldInput     = null !== $request->old('_token');
@@ -101,9 +98,9 @@ class CreateController extends Controller
 
         // interest calculation periods:
         $interestPeriods = [
-            'daily'   => (string) trans('firefly.interest_calc_daily'),
-            'monthly' => (string) trans('firefly.interest_calc_monthly'),
-            'yearly'  => (string) trans('firefly.interest_calc_yearly'),
+            'daily'   => (string)trans('firefly.interest_calc_daily'),
+            'monthly' => (string)trans('firefly.interest_calc_monthly'),
+            'yearly'  => (string)trans('firefly.interest_calc_yearly'),
         ];
 
         // pre fill some data
@@ -111,7 +108,7 @@ class CreateController extends Controller
             'preFilled',
             [
                 'currency_id'       => $defaultCurrency->id,
-                'include_net_worth' => $hasOldInput ? (bool) $request->old('include_net_worth') : true,
+                'include_net_worth' => $hasOldInput ? (bool)$request->old('include_net_worth') : true,
             ]
         );
 
@@ -122,7 +119,7 @@ class CreateController extends Controller
         $request->session()->forget('accounts.create.fromStore');
         Log::channel('audit')->info('Creating new account.');
 
-        return view('accounts.create', compact('subTitleIcon', 'locations', 'objectType', 'interestPeriods', 'subTitle', 'roles', 'liabilityTypes'));
+        return prefixView('accounts.create', compact('subTitleIcon', 'locations', 'objectType', 'interestPeriods', 'subTitle', 'roles', 'liabilityTypes'));
     }
 
     /**
@@ -136,7 +133,7 @@ class CreateController extends Controller
     {
         $data    = $request->getAccountData();
         $account = $this->repository->store($data);
-        $request->session()->flash('success', (string) trans('firefly.stored_new_account', ['name' => $account->name]));
+        $request->session()->flash('success', (string)trans('firefly.stored_new_account', ['name' => $account->name]));
         app('preferences')->mark();
 
         Log::channel('audit')->info('Stored new account.', $data);
@@ -155,16 +152,16 @@ class CreateController extends Controller
             $this->attachments->saveAttachmentsForModel($account, $files);
         }
         if (null !== $files && auth()->user()->hasRole('demo')) {
-            session()->flash('info',(string)trans('firefly.no_att_demo_user'));
+            session()->flash('info', (string)trans('firefly.no_att_demo_user'));
         }
 
         if (count($this->attachments->getMessages()->get('attachments')) > 0) {
-            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); // @codeCoverageIgnore
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
         }
 
         // redirect to previous URL.
         $redirect = redirect($this->getPreviousUri('accounts.create.uri'));
-        if (1 === (int) $request->get('create_another')) {
+        if (1 === (int)$request->get('create_another')) {
             // set value so create routine will not overwrite URL:
             $request->session()->put('accounts.create.fromStore', true);
 

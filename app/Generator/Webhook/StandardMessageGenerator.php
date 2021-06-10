@@ -42,10 +42,10 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class StandardMessageGenerator implements MessageGeneratorInterface
 {
-    private int        $version = 0;
-    private User       $user;
     private Collection $objects;
     private int        $trigger;
+    private User       $user;
+    private int        $version = 0;
     private Collection $webhooks;
 
     /**
@@ -65,11 +65,11 @@ class StandardMessageGenerator implements MessageGeneratorInterface
     }
 
     /**
-     * @param User $user
+     * @inheritDoc
      */
-    public function setUser(User $user): void
+    public function getVersion(): int
     {
-        $this->user = $user;
+        return $this->version;
     }
 
     /**
@@ -89,11 +89,19 @@ class StandardMessageGenerator implements MessageGeneratorInterface
     }
 
     /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
+
+    /**
      * @return Collection
      */
     private function getWebhooks(): Collection
     {
-        return $this->user->webhooks()->where('active', 1)->where('trigger', $this->trigger)->get(['webhooks.*']);
+        return $this->user->webhooks()->where('active', true)->where('trigger', $this->trigger)->get(['webhooks.*']);
     }
 
     /**
@@ -224,14 +232,5 @@ class StandardMessageGenerator implements MessageGeneratorInterface
         Log::debug(sprintf('Stored new webhook message #%d', $webhookMessage->id));
 
         return $webhookMessage;
-    }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function getVersion(): int
-    {
-        return $this->version;
     }
 }

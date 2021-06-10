@@ -54,7 +54,6 @@ class ScanAttachments extends Command
      */
     protected $signature = 'firefly-iii:scan-attachments';
 
-
     /**
      * Execute the console command.
      */
@@ -88,6 +87,7 @@ class ScanAttachments extends Command
         }
 
         app('telemetry')->feature('system.command.executed', $this->signature);
+
         return 0;
     }
 }

@@ -54,7 +54,7 @@ class ConfigurationController extends Controller
 
         $this->middleware(
             static function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.administration'));
+                app('view')->share('title', (string)trans('firefly.administration'));
                 app('view')->share('mainTitleIcon', 'fa-hand-spock-o');
 
                 return $next($request);
@@ -70,13 +70,12 @@ class ConfigurationController extends Controller
      */
     public function index()
     {
-        $subTitle     = (string) trans('firefly.instance_configuration');
+        $subTitle     = (string)trans('firefly.instance_configuration');
         $subTitleIcon = 'fa-wrench';
 
         Log::channel('audit')->info('User visits admin config index.');
 
-        $newerRelease = $this->updateAvailable();
-        $latestReleaseVersion = $this->latestRelease->getTitle() ?? config('firefly.version');
+        $latestReleaseVersion = $this->updateAvailable() ?? config('firefly.version');
 
         // all available configuration and their default value in case
         // they don't exist yet.
@@ -84,9 +83,9 @@ class ConfigurationController extends Controller
         $isDemoSite     = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
         $siteOwner      = config('firefly.site_owner');
 
-        return view(
+        return prefixView(
             'admin.configuration.index',
-            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'newerRelease', 'latestReleaseVersion')
+            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'latestReleaseVersion')
         );
     }
 
@@ -109,7 +108,7 @@ class ConfigurationController extends Controller
         app('fireflyconfig')->set('is_demo_site', $data['is_demo_site']);
 
         // flash message
-        session()->flash('success', (string) trans('firefly.configuration_updated'));
+        session()->flash('success', (string)trans('firefly.configuration_updated'));
         app('preferences')->mark();
 
         return redirect()->route('admin.configuration.index');
@@ -118,7 +117,7 @@ class ConfigurationController extends Controller
     protected function updateAvailable()
     {
         $this->latestRelease = $this->getLatestRelease();
-        $versionCheck  = $this->versionCheck($this->latestRelease);
-        return $versionCheck < 0;
+//        $versionCheck  = $this->versionCheck($this->latestRelease);
+        return $this->latestRelease['message'];
     }
 }

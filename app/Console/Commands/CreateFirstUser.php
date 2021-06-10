@@ -1,4 +1,25 @@
 <?php
+
+/*
+ * CreateFirstUser.php
+ * Copyright (c) 2021 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands;
@@ -10,24 +31,23 @@ use Str;
 
 /**
  * Class CreateFirstUser
+ *
  * @package FireflyIII\Console\Commands
  */
 class CreateFirstUser extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'firefly-iii:create-first-user {email}';
-
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Creates a new user and gives admin rights. Outputs the password on the command line. Strictly for testing.';
-
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected                       $signature = 'firefly-iii:create-first-user {email}';
     private UserRepositoryInterface $repository;
 
     /**
@@ -39,12 +59,14 @@ class CreateFirstUser extends Command
     {
         if ('testing' !== env('APP_ENV', 'local')) {
             $this->error('This command only works in the testing environment.');
+
             return 1;
         }
         $this->stupidLaravel();
         $count = $this->repository->count();
         if ($count > 0) {
             $this->error('Already have more than zero users in DB.');
+
             return 1;
         }
         $data           = [
@@ -61,6 +83,7 @@ class CreateFirstUser extends Command
 
         $this->info(sprintf('Created new admin user (ID #%d) with email address "%s" and password "%s".', $user->id, $user->email, $password));
         $this->error('Change this password.');
+
         return 0;
     }
 

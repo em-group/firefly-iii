@@ -78,7 +78,6 @@ class BudgetController extends Controller
         );
     }
 
-
     /**
      * Shows overview of a single budget.
      *
@@ -99,7 +98,7 @@ class BudgetController extends Controller
         $cache->addProperty($budget->id);
 
         if ($cache->has()) {
-            //return response()->json($cache->get()); // @codeCoverageIgnore
+            //return response()->json($cache->get()); 
         }
         $step           = $this->calculateStep($start, $end); // depending on diff, do something with range of chart.
         $collection     = new Collection([$budget]);
@@ -109,7 +108,7 @@ class BudgetController extends Controller
         $currencies     = [];
         $defaultEntries = [];
         while ($end >= $loopStart) {
-            /** @var Carbon $currentEnd */
+            /** @var Carbon $loopEnd */
             $loopEnd = app('navigation')->endOfPeriod($loopStart, $step);
             $spent   = $this->opsRepository->sumExpenses($loopStart, $loopEnd, null, $collection);
             $label   = trim(app('navigation')->periodShow($loopStart, $step));
@@ -144,7 +143,6 @@ class BudgetController extends Controller
         return response()->json($data);
     }
 
-
     /**
      * Shows the amount left in a specific budget limit.
      *
@@ -171,7 +169,7 @@ class BudgetController extends Controller
         $cache->addProperty($budget->id);
 
         if ($cache->has()) {
-             return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
         $locale           = app('steam')->getLocale();
         $entries          = [];
@@ -196,7 +194,6 @@ class BudgetController extends Controller
 
         return response()->json($data);
     }
-
 
     /**
      * Shows how much is spent per asset account.
@@ -227,7 +224,7 @@ class BudgetController extends Controller
         $cache->addProperty($end);
 
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
         $collector->setRange($start, $end);
         $collector->setBudget($budget);
@@ -266,7 +263,6 @@ class BudgetController extends Controller
         return response()->json($data);
     }
 
-
     /**
      * Shows how much is spent per category.
      *
@@ -295,7 +291,7 @@ class BudgetController extends Controller
         $cache->addProperty($end);
 
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
         $collector->setRange($start, $end);
         $collector->setBudget($budget)->withCategoryInformation();
@@ -308,7 +304,6 @@ class BudgetController extends Controller
                     'amount'          => '0',
                     'currency_symbol' => $journal['currency_symbol'],
                     'currency_code'   => $journal['currency_code'],
-                    'currency_symbol' => $journal['currency_symbol'],
                     'currency_name'   => $journal['currency_name'],
                 ];
             $result[$key]['amount'] = bcadd($journal['amount'], $result[$key]['amount']);
@@ -330,7 +325,6 @@ class BudgetController extends Controller
 
         return response()->json($data);
     }
-
 
     /**
      * Shows how much is spent per expense account.
@@ -361,7 +355,7 @@ class BudgetController extends Controller
         $cache->addProperty($end);
 
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
         $collector->setRange($start, $end);
         $collector->setTypes([TransactionType::WITHDRAWAL])->setBudget($budget)->withAccountInformation();
@@ -399,7 +393,6 @@ class BudgetController extends Controller
         return response()->json($data);
     }
 
-
     /**
      * Shows a budget list with spent/left/overspent.
      *
@@ -417,7 +410,7 @@ class BudgetController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.budget.frontpage');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
 
         $chartGenerator = app(FrontpageChartGenerator::class);
@@ -431,7 +424,6 @@ class BudgetController extends Controller
 
         return response()->json($data);
     }
-
 
     /**
      * Shows a budget overview chart (spent and budgeted).
@@ -455,7 +447,7 @@ class BudgetController extends Controller
         $cache->addProperty($currency->id);
         $cache->addProperty('chart.budget.period');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
         $titleFormat    = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
         $preferredRange = app('navigation')->preferredRangeFormat($start, $end);
@@ -491,13 +483,13 @@ class BudgetController extends Controller
             // get budget limit in this period for this currency.
             $limit = $this->blRepository->find($budget, $currency, $currentStart, $currentEnd);
             if (null !== $limit) {
-                $chartData[1]['entries'][$title] = round((float) $limit->amount, $currency->decimal_places);
+                $chartData[1]['entries'][$title] = round((float)$limit->amount, $currency->decimal_places);
             }
 
             // get spent amount in this period for this currency.
             $sum                             = $this->opsRepository->sumExpenses($currentStart, $currentEnd, $accounts, new Collection([$budget]), $currency);
             $amount                          = app('steam')->positive($sum[$currency->id]['sum'] ?? '0');
-            $chartData[0]['entries'][$title] = round((float) $amount, $currency->decimal_places);
+            $chartData[0]['entries'][$title] = round((float)$amount, $currency->decimal_places);
 
             $currentStart = clone $currentEnd;
             $currentStart->addDay()->startOfDay();
@@ -508,7 +500,6 @@ class BudgetController extends Controller
 
         return response()->json($data);
     }
-
 
     /**
      * Shows a chart for transactions without a budget.
@@ -530,7 +521,7 @@ class BudgetController extends Controller
         $cache->addProperty($currency->id);
         $cache->addProperty('chart.budget.no-budget');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
 
         // the expenses:
@@ -543,7 +534,7 @@ class BudgetController extends Controller
             $title             = $currentStart->formatLocalized($titleFormat);
             $sum               = $this->nbRepository->sumExpenses($currentStart, $currentEnd, $accounts, $currency);
             $amount            = app('steam')->positive($sum[$currency->id]['sum'] ?? '0');
-            $chartData[$title] = round((float) $amount, $currency->decimal_places);
+            $chartData[$title] = round((float)$amount, $currency->decimal_places);
             $currentStart      = app('navigation')->addPeriod($currentStart, $preferredRange, 0);
         }
 

@@ -44,12 +44,12 @@ class BudgetFormStoreRequest extends FormRequest
     public function getBudgetData(): array
     {
         return [
-            'name'                    => $this->string('name'),
-            'active'                  => $this->boolean('active'),
-            'auto_budget_type'        => $this->integer('auto_budget_type'),
-            'transaction_currency_id' => $this->integer('auto_budget_currency_id'),
-            'auto_budget_amount'      => $this->string('auto_budget_amount'),
-            'auto_budget_period'      => $this->string('auto_budget_period'),
+            'name'               => $this->string('name'),
+            'active'             => $this->boolean('active'),
+            'auto_budget_type'   => $this->integer('auto_budget_type'),
+            'currency_id'        => $this->integer('auto_budget_currency_id'),
+            'auto_budget_amount' => $this->string('auto_budget_amount'),
+            'auto_budget_period' => $this->string('auto_budget_period'),
         ];
     }
 
@@ -65,7 +65,7 @@ class BudgetFormStoreRequest extends FormRequest
             'active'                  => 'numeric|between:0,1',
             'auto_budget_type'        => 'numeric|between:0,2',
             'auto_budget_currency_id' => 'exists:transaction_currencies,id',
-            'auto_budget_amount'      => 'min:0|max:1000000000',
+            'auto_budget_amount'      => 'min:0|max:1000000000|required_if:auto_budget_type,1|required_if:auto_budget_type,2',
             'auto_budget_period'      => 'in:daily,weekly,monthly,quarterly,half_year,yearly',
         ];
     }

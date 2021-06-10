@@ -39,13 +39,14 @@ class TransactionTypeSeeder extends Seeder
             TransactionType::TRANSFER,
             TransactionType::OPENING_BALANCE,
             TransactionType::RECONCILIATION,
+            TransactionType::INVALID,
         ];
 
         foreach ($types as $type) {
             try {
                 TransactionType::create(['type' => $type]);
             } catch (PDOException $e) {
-                // dont care
+                // @ignoreException
             }
         }
     }

@@ -76,9 +76,7 @@ class AccountTasker implements AccountTaskerInterface
                     'currency_symbol'         => $currency->symbol,
                     'currency_name'           => $currency->name,
                     'currency_decimal_places' => $currency->decimal_places,];
-
-
-            $entry = [
+            $entry                         = [
                 'name'                    => $account->name,
                 'id'                      => $account->id,
                 'currency_id'             => $currency->id,
@@ -270,7 +268,7 @@ class AccountTasker implements AccountTaskerInterface
             $sourceId   = (int)$journal['source_account_id'];
             $currencyId = (int)$journal['currency_id'];
             $key        = sprintf('%s-%s', $sourceId, $currencyId);
-            if (!isset($report['accounts'][$key])) {
+            if (!array_key_exists($key, $report['accounts'])) {
                 $currencies[$currencyId]  = $currencies[$currencyId] ?? $currencyRepos->findNull($currencyId);
                 $report['accounts'][$key] = [
                     'id'                      => $sourceId,

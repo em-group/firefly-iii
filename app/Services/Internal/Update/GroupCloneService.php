@@ -51,8 +51,6 @@ class GroupCloneService
         foreach ($group->transactionJournals as $journal) {
             $this->cloneJournal($journal, $newGroup, (int)$group->id);
         }
-
-
         return $newGroup;
     }
 
@@ -108,16 +106,15 @@ class GroupCloneService
     }
 
     /**
-     * @param TransactionJournalMeta $meta
-     * @param TransactionJournal     $newJournal
+     * @param Transaction        $transaction
+     * @param TransactionJournal $newJournal
      */
-    private function cloneMeta(TransactionJournalMeta $meta, TransactionJournal $newJournal): void
+    private function cloneTransaction(Transaction $transaction, TransactionJournal $newJournal): void
     {
-        $newMeta                         = $meta->replicate();
-        $newMeta->transaction_journal_id = $newJournal->id;
-        if ('recurrence_id' !== $newMeta->name) {
-            $newMeta->save();
-        }
+        $newTransaction                         = $transaction->replicate();
+        $newTransaction->transaction_journal_id = $newJournal->id;
+        $newTransaction->reconciled             = false;
+        $newTransaction->save();
     }
 
     /**
@@ -137,16 +134,15 @@ class GroupCloneService
     }
 
     /**
-     * @param Transaction        $transaction
-     * @param TransactionJournal $newJournal
+     * @param TransactionJournalMeta $meta
+     * @param TransactionJournal     $newJournal
      */
-    private function cloneTransaction(Transaction $transaction, TransactionJournal $newJournal): void
+    private function cloneMeta(TransactionJournalMeta $meta, TransactionJournal $newJournal): void
     {
-        $newTransaction                         = $transaction->replicate();
-        $newTransaction->transaction_journal_id = $newJournal->id;
-        $newTransaction->reconciled             = false;
-        $newTransaction->save();
+        $newMeta                         = $meta->replicate();
+        $newMeta->transaction_journal_id = $newJournal->id;
+        if ('recurrence_id' !== $newMeta->name) {
+            $newMeta->save();
+        }
     }
-
-
 }

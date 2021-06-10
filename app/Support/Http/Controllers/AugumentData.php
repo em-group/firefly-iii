@@ -123,7 +123,7 @@ trait AugumentData
         foreach ($accountIds as $combinedId) {
             $parts     = explode('-', $combinedId);
             $accountId = (int)$parts[0];
-            if (isset($grouped[$accountId])) {
+            if (array_key_exists($accountId, $grouped)) {
                 $return[$accountId] = $grouped[$accountId][0]['name'];
             }
         }
@@ -147,7 +147,7 @@ trait AugumentData
         $grouped    = $budgets->groupBy('id')->toArray();
         $return     = [];
         foreach ($budgetIds as $budgetId) {
-            if (isset($grouped[$budgetId])) {
+            if (array_key_exists($budgetId, $grouped)) {
                 $return[$budgetId] = $grouped[$budgetId][0]['name'];
             }
         }
@@ -173,7 +173,7 @@ trait AugumentData
         foreach ($categoryIds as $combinedId) {
             $parts      = explode('-', $combinedId);
             $categoryId = (int)$parts[0];
-            if (isset($grouped[$categoryId])) {
+            if (array_key_exists($categoryId, $grouped)) {
                 $return[$categoryId] = $grouped[$categoryId][0]['name'];
             }
         }
@@ -198,7 +198,6 @@ trait AugumentData
 
         /** @var BudgetLimitRepositoryInterface $blRepository */
         $blRepository = app(BudgetLimitRepositoryInterface::class);
-
         // properties for cache
         $cache = new CacheProperties;
         $cache->addProperty($start);
@@ -207,18 +206,19 @@ trait AugumentData
         $cache->addProperty('get-limits');
 
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
 
         $set              = $blRepository->getBudgetLimits($budget, $start, $end);
         $limits           = new Collection();
         $budgetCollection = new Collection([$budget]);
+
         /** @var BudgetLimit $entry */
         foreach ($set as $entry) {
             $currency = $entry->transactionCurrency;
             // clone because these objects change each other.
-            $currentStart = clone $start;
-            $currentEnd   = clone $end;
+            $currentStart = clone $entry->start_date;
+            $currentEnd   = clone $entry->end_date;
             $expenses     = $opsRepository->sumExpenses($currentStart, $currentEnd, null, $budgetCollection, $currency);
             $spent        = $expenses[(int)$currency->id]['sum'] ?? '0';
             $entry->spent = $spent;
@@ -286,7 +286,7 @@ trait AugumentData
             $currencyId = (int)$journal['currency_id'];
 
             // if not set, set to zero:
-            if (!isset($sum['per_currency'][$currencyId])) {
+            if (!array_key_exists($currencyId, $sum['per_currency'])) {
                 $sum['per_currency'][$currencyId] = [
                     'sum'      => '0',
                     'currency' => [

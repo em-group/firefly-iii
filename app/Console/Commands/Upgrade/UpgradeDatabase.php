@@ -48,7 +48,6 @@ class UpgradeDatabase extends Command
      */
     protected $signature = 'firefly-iii:upgrade-database {--F|force : Force all upgrades.}';
 
-
     /**
      * Execute the console command.
      *
@@ -58,8 +57,6 @@ class UpgradeDatabase extends Command
     {
 
         $this->callInitialCommands();
-
-
         $commands = [
             // there are 14 upgrade commands.
             'firefly-iii:transaction-identifiers',
@@ -76,6 +73,7 @@ class UpgradeDatabase extends Command
             'firefly-iii:rename-account-meta',
             'firefly-iii:migrate-recurrence-meta',
             'firefly-iii:migrate-tag-locations',
+            'firefly-iii:migrate-recurrence-type',
 
             // there are 16 verify commands.
             'firefly-iii:fix-piggies',
@@ -97,6 +95,7 @@ class UpgradeDatabase extends Command
             'firefly-iii:fix-recurring-transactions',
             'firefly-iii:unify-group-accounts',
             'firefly-iii:fix-transaction-types',
+            'firefly-iii:fix-frontpage-accounts',
 
             // two report commands
             'firefly-iii:report-empty-objects',
@@ -117,9 +116,9 @@ class UpgradeDatabase extends Command
             echo $result;
         }
         // set new DB version.
-        app('fireflyconfig')->set('db_version', (int) config('firefly.db_version'));
+        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
         // index will set FF3 version.
-        app('fireflyconfig')->set('ff3_version', (string) config('firefly.version'));
+        app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
 
         return 0;
     }
@@ -128,6 +127,11 @@ class UpgradeDatabase extends Command
     {
         $this->line('Now seeding the database...');
         Artisan::call('migrate', ['--seed' => true, '--force' => true]);
+        $result = Artisan::output();
+        echo $result;
+
+        $this->line('Fix PostgreSQL sequences.');
+        Artisan::call('firefly-iii:fix-pgsql-sequences');
         $result = Artisan::output();
         echo $result;
 

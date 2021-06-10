@@ -28,7 +28,6 @@ use FireflyIII\Mail\WhitelabelMailable as Mailable;
 use Illuminate\Queue\SerializesModels;
 use Laravel\Passport\Client;
 
-
 /**
  * Class OAuthTokenCreatedMail
  *
@@ -67,6 +66,6 @@ class OAuthTokenCreatedMail extends Mailable
     public function build(): self
     {
         return $this->view('emails.oauth-client-created-html')->text('emails.oauth-client-created-text')
-                    ->subject((string) trans('email.oauth_created_subject'));
+                    ->subject((string)trans('email.oauth_created_subject'));
     }
 }

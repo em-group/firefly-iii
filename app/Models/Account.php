@@ -33,42 +33,41 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * Class Account
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $user_id
- * @property int $account_type_id
- * @property string $name
- * @property string|null $virtual_balance
- * @property string|null $iban
- * @property bool $active
- * @property bool $encrypted
- * @property int $order
+ * @property int                                                                            $id
+ * @property \Illuminate\Support\Carbon|null                                                $created_at
+ * @property \Illuminate\Support\Carbon|null                                                $updated_at
+ * @property \Illuminate\Support\Carbon|null                                                $deleted_at
+ * @property int                                                                            $user_id
+ * @property int                                                                            $account_type_id
+ * @property string                                                                         $name
+ * @property string|null                                                                    $virtual_balance
+ * @property string|null                                                                    $iban
+ * @property bool                                                                           $active
+ * @property bool                                                                           $encrypted
+ * @property int                                                                            $order
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\AccountMeta[] $accountMeta
- * @property-read int|null $account_meta_count
- * @property-read \FireflyIII\Models\AccountType $accountType
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[] $attachments
- * @property-read int|null $attachments_count
- * @property-read string $account_number
- * @property-read string $edit_name
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Location[] $locations
- * @property-read int|null $locations_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Note[] $notes
- * @property-read int|null $notes_count
+ * @property-read int|null                                                                  $account_meta_count
+ * @property \FireflyIII\Models\AccountType                                                 $accountType
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[]  $attachments
+ * @property-read int|null                                                                  $attachments_count
+ * @property-read string                                                                    $account_number
+ * @property-read string                                                                    $edit_name
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Location[]    $locations
+ * @property-read int|null                                                                  $locations_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Note[]        $notes
+ * @property-read int|null                                                                  $notes_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\ObjectGroup[] $objectGroups
- * @property-read int|null $object_groups_count
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\PiggyBank[] $piggyBanks
- * @property-read int|null $piggy_banks_count
+ * @property-read int|null                                                                  $object_groups_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\PiggyBank[]   $piggyBanks
+ * @property-read int|null                                                                  $piggy_banks_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Transaction[] $transactions
- * @property-read int|null $transactions_count
- * @property-read User $user
+ * @property-read int|null                                                                  $transactions_count
+ * @property-read User                                                                      $user
  * @method static EloquentBuilder|Account accountTypeIn($types)
  * @method static EloquentBuilder|Account newModelQuery()
  * @method static EloquentBuilder|Account newQuery()
@@ -89,6 +88,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|Account withTrashed()
  * @method static Builder|Account withoutTrashed()
  * @mixin Eloquent
+ * @property Carbon $lastActivityDate
  */
 class Account extends Model
 {
@@ -120,13 +120,13 @@ class Account extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return Account
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): Account
     {
         if (auth()->check()) {
-            $accountId = (int) $value;
+            $accountId = (int)$value;
             /** @var User $user */
             $user = auth()->user();
             /** @var Account $account */
@@ -248,14 +248,14 @@ class Account extends Model
     /**
      * @codeCoverageIgnore
      *
-     * @param $value
+     * @param mixed $value
      *
      * @codeCoverageIgnore
      */
     public function setVirtualBalanceAttribute($value): void
     {
         $value = (string)$value;
-        if('' === $value) {
+        if ('' === $value) {
             $value = null;
         }
         $this->attributes['virtual_balance'] = $value;

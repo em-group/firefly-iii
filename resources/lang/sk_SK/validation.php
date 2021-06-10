@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute musí byť menej než 10.000.000',
     'active_url'                     => ':attribute nie je platná adresa URL.',
     'after'                          => ':attribute musí byť neskôr, než :date.',
+    'date_after'                     => 'Počiatočný dátum musí byť starší, než konečný dátum.',
     'alpha'                          => ':attribute môže obsahovať len písmená.',
     'alpha_dash'                     => ':attribute môže obsahovať len písmená, čísla a pomlčky.',
     'alpha_num'                      => ':attribute môže obsahovať len písmená a čísla.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'Hodnota musí začínať :values.',
     'unique_webhook'                 => 'Webhook s týmito hodnotami už existuje.',
     'unique_existing_webhook'        => 'Iný webhook s týmito hodnotami už existuje.',
+    'same_account_type'              => 'Oba účty musia mať rovnaký typ',
+    'same_account_currency'          => 'Oba účty musia mať rovnakú menu',
 
     'secure_password'             => 'Toto nie je bezpečné heslo. Skúste iné. Viac se dozviete na http://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Neplatný typ opakovania pre opakované transakcie.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Pre ID „:id“ alebo mena „:name“ sa nenašiel žiadny platný zdrojový účet.',
     'withdrawal_dest_need_data'   => 'Pro pokračovanie je potrebné platné ID zdrojového účtu a/alebo platný názov zdrojového účtu.',
     'withdrawal_dest_bad_data'    => 'Pre ID „:id“ alebo mena „:name“ sa nenašiel žiadny platný cieľový účet.',
+
+    'generic_source_bad_data'  => 'Pre ID ":id" alebo meno ":name" sa nenašiel žiadny platný zdrojový účet.',
 
     'deposit_source_need_data' => 'Pre pokračovanie je potrebné platné ID zdrojového účtu a/alebo platný názov zdrojového účtu.',
     'deposit_source_bad_data'  => 'Pre ID „:id“ alebo „:name“ sa nenašiel žiadny platný zdrojový účet.',

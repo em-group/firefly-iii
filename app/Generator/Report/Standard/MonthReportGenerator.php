@@ -53,8 +53,8 @@ class MonthReportGenerator implements ReportGeneratorInterface
         $reportType = 'default';
 
         try {
-            return view('reports.default.month', compact('accountIds', 'reportType'))->with('start', $this->start)->with('end', $this->end)->render();
-        } catch (Throwable $e) {
+            return prefixView('reports.default.month', compact('accountIds', 'reportType'))->with('start', $this->start)->with('end', $this->end)->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.default.month: %s', $e->getMessage()));
             $result = 'Could not render report view.';
         }

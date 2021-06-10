@@ -88,7 +88,7 @@ class SearchController extends Controller
 
         $subTitle = (string) trans('breadcrumbs.search_result', ['query' => $fullQuery]);
 
-        return view('search.index', compact('query',  'operators', 'page', 'rule', 'fullQuery', 'subTitle', 'ruleId', 'ruleChanged'));
+        return prefixView('search.index', compact('query',  'operators', 'page', 'rule', 'fullQuery', 'subTitle', 'ruleId', 'ruleChanged'));
     }
 
     /**
@@ -115,15 +115,12 @@ class SearchController extends Controller
         $groups->setPath($url);
 
         try {
-            $html = view('search.search', compact('groups', 'hasPages', 'searchTime'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $html = prefixView('search.search', compact('groups', 'hasPages', 'searchTime'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render search.search: %s', $e->getMessage()));
             $html = 'Could not render view.';
         }
-
-        // @codeCoverageIgnoreEnd
-
         return response()->json(['count' => $groups->count(), 'html' => $html]);
     }
 }

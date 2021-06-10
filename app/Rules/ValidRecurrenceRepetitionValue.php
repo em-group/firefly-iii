@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Rules;
-
-
 use Carbon\Carbon;
 use Illuminate\Contracts\Validation\Rule;
 use InvalidArgumentException;
@@ -31,6 +29,7 @@ use Log;
 
 /**
  * Class ValidRecurrenceRepetitionValue
+ *
  * @codeCoverageIgnore
  */
 class ValidRecurrenceRepetitionValue implements Rule
@@ -49,8 +48,8 @@ class ValidRecurrenceRepetitionValue implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed  $value
      *
      * @return bool
      *

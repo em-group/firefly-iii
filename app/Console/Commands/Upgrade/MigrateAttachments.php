@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
-
 use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Note;
 use Illuminate\Console\Command;
@@ -48,7 +47,6 @@ class MigrateAttachments extends Command
      */
     protected $signature = 'firefly-iii:migrate-attachments {--F|force : Force the execution of this command.}';
 
-
     /**
      * Execute the console command.
      *
@@ -56,14 +54,14 @@ class MigrateAttachments extends Command
      */
     public function handle(): int
     {
-        // @codeCoverageIgnoreStart
+
         $start = microtime(true);
         if ($this->isExecuted() && true !== $this->option('force')) {
             $this->warn('This command has already been executed.');
 
             return 0;
         }
-        // @codeCoverageIgnoreEnd
+
 
         $attachments = Attachment::get();
         $count       = 0;
@@ -72,7 +70,7 @@ class MigrateAttachments extends Command
         foreach ($attachments as $att) {
 
             // move description:
-            $attDescription = (string) $att->description;
+            $attDescription = (string)$att->description;
             if ('' !== $attDescription) {
 
                 // find or create note:
@@ -112,12 +110,11 @@ class MigrateAttachments extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool) $configVar->data;
+            return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
+        return false; 
     }
-
 
     /**
      *

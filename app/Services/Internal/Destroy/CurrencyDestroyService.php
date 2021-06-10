@@ -29,20 +29,11 @@ use Log;
 
 /**
  * Class CurrencyDestroyService
+ *
  * @codeCoverageIgnore
  */
 class CurrencyDestroyService
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param TransactionCurrency $currency
      */
@@ -51,8 +42,8 @@ class CurrencyDestroyService
 
         try {
             $currency->delete();
-        } catch (Exception $e) { // @codeCoverageIgnore
-            Log::error(sprintf('Could not delete transaction currency: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
     }
 

@@ -22,11 +22,8 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Models\ObjectGroup;
 use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepositoryInterface;
-use Log;
 
 /**
  * Class AccountTransformer
@@ -43,10 +40,6 @@ class ObjectGroupTransformer extends AbstractTransformer
      */
     public function __construct()
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-
         $this->repository = app(ObjectGroupRepositoryInterface::class);
     }
 
@@ -62,15 +55,15 @@ class ObjectGroupTransformer extends AbstractTransformer
         $this->repository->setUser($objectGroup->user);
 
         return [
-            'id'         => (int) $objectGroup->id,
+            'id'         => (string)$objectGroup->id,
             'created_at' => $objectGroup->created_at->toAtomString(),
             'updated_at' => $objectGroup->updated_at->toAtomString(),
             'title'      => $objectGroup->title,
-            'order'      => $objectGroup->order,
+            'order'      => (int)$objectGroup->order,
             'links'      => [
                 [
                     'rel' => 'self',
-                    'uri' => '/groups/' . $objectGroup->id,
+                    'uri' => '/object_groups/' . $objectGroup->id,
                 ],
             ],
         ];

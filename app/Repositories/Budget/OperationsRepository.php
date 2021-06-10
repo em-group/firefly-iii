@@ -25,12 +25,9 @@ namespace FireflyIII\Repositories\Budget;
 
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
-use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Budget;
-use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionType;
-use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 use Log;
@@ -59,15 +56,15 @@ class OperationsRepository implements OperationsRepositoryInterface
         foreach ($budget->budgetlimits as $limit) {
             $diff   = $limit->start_date->diffInDays($limit->end_date);
             $diff   = 0 === $diff ? 1 : $diff;
-            $amount = (string) $limit->amount;
-            $perDay = bcdiv($amount, (string) $diff);
+            $amount = (string)$limit->amount;
+            $perDay = bcdiv($amount, (string)$diff);
             $total  = bcadd($total, $perDay);
             $count++;
             Log::debug(sprintf('Found %d budget limits. Per day is %s, total is %s', $count, $perDay, $total));
         }
         $avg = $total;
         if ($count > 0) {
-            $avg = bcdiv($total, (string) $count);
+            $avg = bcdiv($total, (string)$count);
         }
         Log::debug(sprintf('%s / %d = %s = average.', $total, $count, $avg));
 
@@ -90,8 +87,6 @@ class OperationsRepository implements OperationsRepositoryInterface
     {
         $carbonFormat = app('navigation')->preferredCarbonFormat($start, $end);
         $data         = [];
-
-
         // get all transactions:
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
@@ -103,9 +98,9 @@ class OperationsRepository implements OperationsRepositoryInterface
         /** @var array $journal */
         foreach ($journals as $journal) {
             // prep data array for currency:
-            $budgetId   = (int) $journal['budget_id'];
+            $budgetId   = (int)$journal['budget_id'];
             $budgetName = $journal['budget_name'];
-            $currencyId = (int) $journal['currency_id'];
+            $currencyId = (int)$journal['currency_id'];
             $key        = sprintf('%d-%d', $budgetId, $currencyId);
 
             $data[$key]                   = $data[$key] ?? [
@@ -157,9 +152,9 @@ class OperationsRepository implements OperationsRepositoryInterface
         $array    = [];
 
         foreach ($journals as $journal) {
-            $currencyId = (int) $journal['currency_id'];
-            $budgetId   = (int) $journal['budget_id'];
-            $budgetName = (string) $journal['budget_name'];
+            $currencyId = (int)$journal['currency_id'];
+            $budgetId   = (int)$journal['budget_id'];
+            $budgetName = (string)$journal['budget_name'];
 
             // catch "no category" entries.
             if (0 === $budgetId) {
@@ -185,9 +180,7 @@ class OperationsRepository implements OperationsRepositoryInterface
 
             // add journal to array:
             // only a subset of the fields.
-            $journalId = (int) $journal['transaction_journal_id'];
-
-
+            $journalId = (int)$journal['transaction_journal_id'];
             $array[$currencyId]['budgets'][$budgetId]['transaction_journals'][$journalId] = [
                 'amount'                   => app('steam')->negative($journal['amount']),
                 'destination_account_id'   => $journal['destination_account_id'],
@@ -244,7 +237,7 @@ class OperationsRepository implements OperationsRepositoryInterface
             /** @var array $transaction */
             foreach ($group['transactions'] as $transaction) {
                 $code = $transaction['currency_code'];
-                if (!isset($currencies[$code])) {
+                if (!array_key_exists($code, $currencies)) {
                     $currencies[$code] = [
                         'id'             => $transaction['currency_id'],
                         'decimal_places' => $transaction['currency_decimal_places'],
@@ -253,7 +246,7 @@ class OperationsRepository implements OperationsRepositoryInterface
                         'symbol'         => $transaction['currency_symbol'],
                     ];
                 }
-                $total[$code] = isset($total[$code]) ? bcadd($total[$code], $transaction['amount']) : $transaction['amount'];
+                $total[$code] = array_key_exists($code, $total) ? bcadd($total[$code], $transaction['amount']) : $transaction['amount'];
             }
         }
         /**
@@ -264,12 +257,12 @@ class OperationsRepository implements OperationsRepositoryInterface
             /** @var TransactionCurrency $currency */
             $currency = $currencies[$code];
             $return[] = [
-                'currency_id'             => $currency['id'],
+                'currency_id'             => (string)$currency['id'],
                 'currency_code'           => $code,
                 'currency_name'           => $currency['name'],
                 'currency_symbol'         => $currency['symbol'],
                 'currency_decimal_places' => $currency['decimal_places'],
-                'amount'                  => number_format((float) $spent, $currency['decimal_places'], '.', ''),
+                'amount'                  => number_format((float)$spent, $currency['decimal_places'], '.', ''),
             ];
         }
 
@@ -286,8 +279,7 @@ class OperationsRepository implements OperationsRepositoryInterface
      * @return array
      */
     public function sumExpenses(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $budgets = null, ?TransactionCurrency $currency = null
-    ): array
-    {
+    ): array {
         Log::debug(sprintf('Now in %s', __METHOD__));
         $start->startOfDay();
         $end->endOfDay();
@@ -326,7 +318,7 @@ class OperationsRepository implements OperationsRepositoryInterface
         $array = [];
 
         foreach ($journals as $journal) {
-            $currencyId                = (int) $journal['currency_id'];
+            $currencyId                = (int)$journal['currency_id'];
             $array[$currencyId]        = $array[$currencyId] ?? [
                     'sum'                     => '0',
                     'currency_id'             => $currencyId,
@@ -338,8 +330,8 @@ class OperationsRepository implements OperationsRepositoryInterface
             $array[$currencyId]['sum'] = bcadd($array[$currencyId]['sum'], app('steam')->negative($journal['amount']));
 
             // also do foreign amount:
-            $foreignId                = (int) $journal['foreign_currency_id'];
-            if(0 !== $foreignId) {
+            $foreignId = (int)$journal['foreign_currency_id'];
+            if (0 !== $foreignId) {
                 $array[$foreignId]        = $array[$foreignId] ?? [
                         'sum'                     => '0',
                         'currency_id'             => $foreignId,
@@ -351,9 +343,18 @@ class OperationsRepository implements OperationsRepositoryInterface
                 $array[$foreignId]['sum'] = bcadd($array[$foreignId]['sum'], app('steam')->negative($journal['foreign_amount']));
             }
         }
-
-
         return $array;
+    }
+
+    /**
+     * @return Collection
+     */
+    private function getBudgets(): Collection
+    {
+        /** @var BudgetRepositoryInterface $repos */
+        $repos = app(BudgetRepositoryInterface::class);
+
+        return $repos->getActiveBudgets();
     }
 
     /**
@@ -372,16 +373,5 @@ class OperationsRepository implements OperationsRepositoryInterface
         $blRepository = app(BudgetLimitRepositoryInterface::class);
 
         return $blRepository->getBudgetLimits($budget, $start, $end);
-    }
-
-    /**
-     * @return Collection
-     */
-    private function getBudgets(): Collection
-    {
-        /** @var BudgetRepositoryInterface $repos */
-        $repos = app(BudgetRepositoryInterface::class);
-
-        return $repos->getActiveBudgets();
     }
 }

@@ -25,6 +25,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 /**
  * Class ChangesForV450.
+ *
  * @codeCoverageIgnore
  */
 class ChangesForV450 extends Migration
@@ -71,7 +72,7 @@ class ChangesForV450 extends Migration
         Schema::table(
             'transactions',
             static function (Blueprint $table) {
-                $table->decimal('foreign_amount', 22, 12)->nullable()->after('amount');
+                $table->decimal('foreign_amount', 36, 24)->nullable()->after('amount');
             }
         );
 

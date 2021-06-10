@@ -22,15 +22,12 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Budget;
-
-
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  *
@@ -78,7 +75,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
                 ];
             $date              = $journal['date']->format($carbonFormat);
 
-            if (!isset($data[$currencyId]['entries'][$date])) {
+            if (!array_key_exists($date, $data[$currencyId]['entries'])) {
                 $data[$currencyId]['entries'][$date] = '0';
             }
             $data[$currencyId]['entries'][$date] = bcadd($data[$currencyId]['entries'][$date], $journal['amount']);
@@ -121,7 +118,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
         /** @var array $journal */
         foreach ($journals as $journal) {
             $code = $journal['currency_code'];
-            if (!isset($currencies[$code])) {
+            if (!array_key_exists($code, $currencies)) {
                 $currencies[$code] = [
                     'id'             => $journal['currency_id'],
                     'name'           => $journal['currency_name'],
@@ -129,18 +126,18 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
                     'decimal_places' => $journal['currency_decimal_places'],
                 ];
             }
-            $total[$code] = isset($total[$code]) ? bcadd($total[$code], $journal['amount']) : $journal['amount'];
+            $total[$code] = array_key_exists($code, $total) ? bcadd($total[$code], $journal['amount']) : $journal['amount'];
         }
         foreach ($total as $code => $spent) {
             /** @var TransactionCurrency $currency */
             $currency = $currencies[$code];
             $return[] = [
-                'currency_id'             => $currency['id'],
+                'currency_id'             => (string)$currency['id'],
                 'currency_code'           => $code,
                 'currency_name'           => $currency['name'],
                 'currency_symbol'         => $currency['symbol'],
                 'currency_decimal_places' => $currency['decimal_places'],
-                'amount'                  => number_format((float)$spent,$currency['decimal_places'], '.',''),
+                'amount'                  => number_format((float)$spent, $currency['decimal_places'], '.', ''),
             ];
         }
 

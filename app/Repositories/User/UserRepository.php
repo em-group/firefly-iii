@@ -26,6 +26,7 @@ use EM\Hub\Library\SendsHubRequests;
 use EM\Hub\Models\HubEmailChange;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
+use Exception;
 use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
@@ -82,7 +83,7 @@ class UserRepository implements UserRepositoryInterface
      * @param string $newEmail
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      * @see updateEmail
      *
      */
@@ -107,7 +108,7 @@ class UserRepository implements UserRepositoryInterface
 
         $user->email         = $newEmail;
         $user->blake2b_email = $user->getEmailHash();
-        $user->blocked       = 1;
+        $user->blocked       = true;
         $user->blocked_code  = 'email_changed';
         $user->save();
 
@@ -169,7 +170,7 @@ class UserRepository implements UserRepositoryInterface
      * @param User $user
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(User $user): bool
     {
@@ -230,7 +231,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function getRoleByUser(User $user): ?string
     {
-        /** @var Role $role */
+        /** @var Role|null $role */
         $role = $user->roles()->first();
         if (null !== $role) {
             return $role->name;
@@ -267,7 +268,8 @@ class UserRepository implements UserRepositoryInterface
                                                     ->leftJoin('budgets', 'budgets.id', '=', 'budget_limits.budget_id')
                                                     ->where('amount', '>', 0)
                                                     ->whereNull('budgets.deleted_at')
-                                                    ->where('budgets.user_id', $user->id)->get(['budget_limits.budget_id'])->count();
+                                                    ->where('budgets.user_id', $user->id)
+                                                    ->count('budget_limits.budget_id');
         $return['rule_groups']         = $user->ruleGroups()->count();
         $return['rules']               = $user->rules()->count();
         $return['tags']                = $user->tags()->count();
@@ -350,7 +352,7 @@ class UserRepository implements UserRepositoryInterface
      */
     public function unblockUser(User $user): void
     {
-        $user->blocked      = 0;
+        $user->blocked      = false;
         $user->blocked_code = '';
         $user->save();
 
@@ -367,13 +369,13 @@ class UserRepository implements UserRepositoryInterface
     public function update(User $user, array $data): User
     {
         $this->updateEmail($user, $data['email'] ?? '');
-        if (isset($data['blocked']) && is_bool($data['blocked'])) {
+        if (array_key_exists('blocked', $data) && is_bool($data['blocked'])) {
             $user->blocked = $data['blocked'];
         }
-        if (isset($data['blocked_code']) && '' !== $data['blocked_code'] && is_string($data['blocked_code'])) {
+        if (array_key_exists('blocked_code', $data) && '' !== $data['blocked_code'] && is_string($data['blocked_code'])) {
             $user->blocked_code = $data['blocked_code'];
         }
-        if (isset($data['role']) && '' === $data['role']) {
+        if (array_key_exists('role', $data) && '' === $data['role']) {
             $this->removeRole($user, 'owner');
             $this->removeRole($user, 'demo');
         }

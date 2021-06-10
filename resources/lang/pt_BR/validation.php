@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute deve ser menor do que 10.000.000',
     'active_url'                     => 'O campo :attribute não contém um URL válido.',
     'after'                          => 'O campo :attribute deverá conter uma data posterior a :date.',
+    'date_after'                     => 'A data de início deve ser anterior à data de término.',
     'alpha'                          => 'O campo :attribute deverá conter apenas letras.',
     'alpha_dash'                     => 'O campo :attribute deverá conter apenas letras, números e traços.',
     'alpha_num'                      => 'O campo :attribute deverá conter apenas letras e números .',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'O valor deve começar com :values.',
     'unique_webhook'                 => 'Você já tem um webhook com esses valores.',
     'unique_existing_webhook'        => 'Você já tem outro webhook com esses valores.',
+    'same_account_type'              => 'Ambas as contas devem ser do mesmo tipo',
+    'same_account_currency'          => 'Ambas as contas devem ter a mesma configuração de moeda',
 
     'secure_password'             => 'Esta não é uma senha segura. Por favor, tente novamente. Para mais informações, visite https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Tipo de repetição inválido para transações recorrentes.',
@@ -178,12 +181,14 @@ return [
 
     // validation of accounts:
     'withdrawal_source_need_data' => 'É necessário obter um ID de uma conta de origem válida e/ou um nome de conta de origem válido para continuar.',
-    'withdrawal_source_bad_data'  => 'Não foi possível encontrar uma conta de destino válida ao pesquisar por ID ":id" ou nome ":name".',
-    'withdrawal_dest_need_data'   => 'É necessário obter um ID de uma conta de origem válida e/ou um nome de conta de origem válido para continuar.',
+    'withdrawal_source_bad_data'  => 'Não foi possível encontrar uma conta de origem válida ao pesquisar por ID ":id" ou nome ":name".',
+    'withdrawal_dest_need_data'   => 'É necessário obter um ID de uma conta de destino válida e/ou um nome de conta de destino válido para continuar.',
     'withdrawal_dest_bad_data'    => 'Não foi possível encontrar uma conta de destino válida ao pesquisar por ID ":id" ou nome ":name".',
 
+    'generic_source_bad_data'  => 'Não foi possível encontrar uma conta de origem válida ao pesquisar pelo ID ":id" ou pelo nome ":name".',
+
     'deposit_source_need_data' => 'É necessário obter um ID de uma conta de origem válida e/ou um nome de conta de origem válido para continuar.',
-    'deposit_source_bad_data'  => 'Não foi possível encontrar uma conta de destino válida ao pesquisar por ID ":id" ou nome ":name".',
+    'deposit_source_bad_data'  => 'Não foi possível encontrar uma conta de origem válida ao pesquisar por ID ":id" ou nome ":name".',
     'deposit_dest_need_data'   => 'É necessário obter obter um ID de conta de destino válido e/ou nome de conta de destino válido para continuar.',
     'deposit_dest_bad_data'    => 'Não foi possível encontrar uma conta de destino válida ao pesquisar por ID ":id" ou nome ":name".',
     'deposit_dest_wrong_type'  => 'A conta de destino enviada não é do tipo certo.',
@@ -202,12 +207,12 @@ return [
     'generic_invalid_destination' => 'Você não pode usar esta conta como conta de destino.',
 
     'gte.numeric' => ':attribute deve ser maior ou igual a :value.',
-    'gt.numeric'  => 'The :attribute must be greater than :value.',
-    'gte.file'    => 'The :attribute must be greater than or equal to :value kilobytes.',
-    'gte.string'  => 'The :attribute must be greater than or equal to :value characters.',
-    'gte.array'   => 'The :attribute must have :value items or more.',
+    'gt.numeric'  => 'O campo :attribute deve ser maior que :value.',
+    'gte.file'    => 'O campo :attribute deve ser maior ou igual a :value kilobytes.',
+    'gte.string'  => 'O campo :attribute deve ser maior ou igual a :value caracteres.',
+    'gte.array'   => 'O campo :attribute deve ter :value itens ou mais.',
 
-    'amount_required_for_auto_budget' => 'The amount is required.',
+    'amount_required_for_auto_budget' => 'O valor é necessário.',
     'auto_budget_amount_positive'     => 'A quantidade deve ser maior do que zero.',
-    'auto_budget_period_mandatory'    => 'The auto budget period is a mandatory field.',
+    'auto_budget_period_mandatory'    => 'O período de orçamento automático é um campo obrigatório.',
 ];

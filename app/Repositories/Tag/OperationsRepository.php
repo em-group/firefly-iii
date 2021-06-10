@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace FireflyIII\Repositories\Tag;
 
 use Carbon\Carbon;
-use Log;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\TransactionType;
@@ -70,8 +69,6 @@ class OperationsRepository implements OperationsRepositoryInterface
         $journals       = $collector->getExtractedJournals();
         $array          = [];
         $listedJournals = [];
-
-
         foreach ($journals as $journal) {
             $currencyId         = (int)$journal['currency_id'];
             $array[$currencyId] = $array[$currencyId] ?? [

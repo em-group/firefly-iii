@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Factory;
 
-
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Category;
 use FireflyIII\User;
@@ -36,16 +35,6 @@ use Log;
 class CategoryFactory
 {
     private User $user;
-
-    /**
-     * @param string $name
-     *
-     * @return Category|null
-     */
-    public function findByName(string $name): ?Category
-    {
-        return $this->user->categories()->where('name', $name)->first();
-    }
 
     /**
      * @param int|null    $categoryId
@@ -87,11 +76,21 @@ class CategoryFactory
                 );
             } catch (QueryException $e) {
                 Log::error($e->getMessage());
-                throw new FireflyException('400003: Could not store new category.');
+                throw new FireflyException('400003: Could not store new category.', 0, $e);
             }
         }
 
         return null;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Category|null
+     */
+    public function findByName(string $name): ?Category
+    {
+        return $this->user->categories()->where('name', $name)->first();
     }
 
     /**

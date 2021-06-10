@@ -1,4 +1,4 @@
-{% extends "./layout/auth" %}
+{% extends './v2/layout/auth' %}
 {% block content %}
     {# error when logging in with MFA #}
     {% if session_has('error') %}
@@ -15,8 +15,7 @@
     {# default header #}
     <div class="login-box">
         <div class="login-logo">
-            <img src="v2/images/firefly-iii-logo.png" alt="Firefly III" width="40"/>
-            <a href="{{ route('index') }}"><b>Firefly</b>III</a>
+            <img src="v2/images/firefly-iii-logo-new.png" alt="Firefly III" width="90"/><br />
         </div>
 
         <!-- /.login-logo -->
@@ -37,10 +36,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-6">
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-6">
+                        <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block">{{ 'authenticate'|_ }}</button>
                         </div>
                         <!-- /.col -->

@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace FireflyIII\Repositories\ObjectGroup;
 
 use FireflyIII\Models\ObjectGroup;
+use FireflyIII\User;
 use Illuminate\Support\Collection;
 
 /**
@@ -33,26 +34,31 @@ use Illuminate\Support\Collection;
 interface ObjectGroupRepositoryInterface
 {
     /**
-     * @return Collection
+     * Delete all.
      */
-    public function get(): Collection;
-
-    /**
-     * @param string $query
-     * @param int $limit
-     *
-     * @return Collection
-     */
-    public function search(string $query, int $limit): Collection;
+    public function deleteAll(): void;
 
     /**
      * Delete empty ones.
      */
     public function deleteEmpty(): void;
+
     /**
-     * Delete all.
+     * @param ObjectGroup $objectGroup
      */
-    public function deleteAll(): void;
+    public function destroy(ObjectGroup $objectGroup): void;
+
+    /**
+     * @return Collection
+     */
+    public function get(): Collection;
+
+    /**
+     * @param ObjectGroup $objectGroup
+     *
+     * @return Collection
+     */
+    public function getBills(ObjectGroup $objectGroup): Collection;
 
     /**
      * @param ObjectGroup $objectGroup
@@ -62,17 +68,30 @@ interface ObjectGroupRepositoryInterface
     public function getPiggyBanks(ObjectGroup $objectGroup): Collection;
 
     /**
-     * Sort
+     * Delete all.
      */
-    public function sort(): void;
+    public function resetOrder(): void;
+
+    /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function search(string $query, int $limit): Collection;
 
     /**
      * @param ObjectGroup $objectGroup
-     * @param int         $index
+     * @param int         $newOrder
      *
      * @return ObjectGroup
      */
-    public function setOrder(ObjectGroup $objectGroup, int $index): ObjectGroup;
+    public function setOrder(ObjectGroup $objectGroup, int $newOrder): ObjectGroup;
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void;
 
     /**
      * @param ObjectGroup $objectGroup
@@ -81,10 +100,5 @@ interface ObjectGroupRepositoryInterface
      * @return ObjectGroup
      */
     public function update(ObjectGroup $objectGroup, array $data): ObjectGroup;
-
-    /**
-     * @param ObjectGroup $objectGroup
-     */
-    public function destroy(ObjectGroup $objectGroup): void;
 
 }

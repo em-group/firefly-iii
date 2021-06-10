@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName, account, start, end) }}
@@ -120,9 +120,6 @@
             </div>
         </div>
     </div>
-
-
-
 {% endblock %}
 
 {% block scripts %}

@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * OperatorQuerySearch.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -19,6 +18,8 @@ declare(strict_types=1);
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Support\Search;
 
@@ -65,20 +66,21 @@ class OperatorQuerySearch implements SearchInterface
     private BillRepositoryInterface            $billRepository;
     private BudgetRepositoryInterface          $budgetRepository;
     private CategoryRepositoryInterface        $categoryRepository;
-    private TagRepositoryInterface             $tagRepository;
-    private CurrencyRepositoryInterface        $currencyRepository;
-    private TransactionTypeRepositoryInterface $typeRepository;
-    private User                               $user;
-    private ParsedQuery                        $query;
-    private int                                $page;
-    private int                                $limit;
-    private array                              $words;
-    private array                              $validOperators;
     private GroupCollectorInterface            $collector;
-    private float                              $startTime;
-    private Collection                         $modifiers; // obsolete
+    private CurrencyRepositoryInterface        $currencyRepository;
+    private Carbon                             $date;
+    private int                                $limit;
+    private Collection                         $modifiers;
     private Collection                         $operators;
     private string                             $originalQuery;
+    private int                                $page;
+    private ParsedQuery                        $query;
+    private float                              $startTime;
+    private TagRepositoryInterface             $tagRepository;
+    private TransactionTypeRepositoryInterface $typeRepository; // obsolete
+    private User                               $user;
+    private array                              $validOperators;
+    private array                              $words;
 
     /**
      * OperatorQuerySearch constructor.
@@ -94,6 +96,7 @@ class OperatorQuerySearch implements SearchInterface
         $this->words              = [];
         $this->limit              = 25;
         $this->originalQuery      = '';
+        $this->date               = today(config('app.timezone'));
         $this->validOperators     = array_keys(config('firefly.search.operators'));
         $this->startTime          = microtime(true);
         $this->accountRepository  = app(AccountRepositoryInterface::class);
@@ -130,24 +133,6 @@ class OperatorQuerySearch implements SearchInterface
     public function getWordsAsString(): string
     {
         return implode(' ', $this->words);
-    }
-
-    /**
-     * @return array
-     */
-    public function getWords(): array
-    {
-        return $this->words;
-    }
-
-    /**
-     * @inheritDoc
-     * @codeCoverageIgnore
-     */
-    public function setPage(int $page): void
-    {
-        $this->page = $page;
-        $this->collector->setPage($this->page);
     }
 
     /**
@@ -194,10 +179,37 @@ class OperatorQuerySearch implements SearchInterface
     public function searchTransactions(): LengthAwarePaginator
     {
         if (0 === count($this->getWords()) && 0 === count($this->getOperators())) {
-            return new LengthAwarePaginator;
+            return new LengthAwarePaginator([],0,5,1);
         }
 
         return $this->collector->getPaginatedGroups();
+    }
+
+    /**
+     * @param Carbon $date
+     */
+    public function setDate(Carbon $date): void
+    {
+        $this->date = $date;
+    }
+
+    /**
+     * @param int $limit
+     */
+    public function setLimit(int $limit): void
+    {
+        $this->limit = $limit;
+        $this->collector->setLimit($this->limit);
+    }
+
+    /**
+     * @inheritDoc
+     * @codeCoverageIgnore
+     */
+    public function setPage(int $page): void
+    {
+        $this->page = $page;
+        $this->collector->setPage($this->page);
     }
 
     /**
@@ -234,7 +246,7 @@ class OperatorQuerySearch implements SearchInterface
                 throw new FireflyException(sprintf('Firefly III search cant handle "%s"-nodes', $class));
             case Subquery::class:
                 // loop all notes in subquery:
-                foreach($searchNode->getNodes() as $subNode) {
+                foreach ($searchNode->getNodes() as $subNode) { // @phpstan-ignore-line
                     $this->handleSearchNode($subNode); // lets hope its not too recursive!
                 }
                 break;
@@ -464,6 +476,12 @@ class OperatorQuerySearch implements SearchInterface
             //
             // bill
             //
+            case 'has_no_bill':
+                $this->collector->withoutBill();
+                break;
+            case 'has_any_bill':
+                $this->collector->withBill();
+                break;
             case 'bill_is':
                 $result = $this->billRepository->searchBill($value, 25);
                 if ($result->count() > 0) {
@@ -614,6 +632,28 @@ class OperatorQuerySearch implements SearchInterface
     }
 
     /**
+     * @param string $operator
+     *
+     * @return string
+     * @throws FireflyException
+     */
+    public static function getRootOperator(string $operator): string
+    {
+        $config = config(sprintf('firefly.search.operators.%s', $operator));
+        if (null === $config) {
+            throw new FireflyException(sprintf('No configuration for search operator "%s"', $operator));
+        }
+        if (true === $config['alias']) {
+            Log::debug(sprintf('"%s" is an alias for "%s", so return that instead.', $operator, $config['alias_for']));
+
+            return $config['alias_for'];
+        }
+        Log::debug(sprintf('"%s" is not an alias.', $operator));
+
+        return $operator;
+    }
+
+    /**
      * searchDirection: 1 = source (default), 2 = destination
      * stringPosition: 1 = start (default), 2 = end, 3 = contains, 4 = is
      *
@@ -677,7 +717,6 @@ class OperatorQuerySearch implements SearchInterface
         Log::debug(sprintf('Left with %d, set as %s().', $filtered->count(), $collectorMethod));
         $this->collector->$collectorMethod($filtered);
     }
-
 
     /**
      * searchDirection: 1 = source (default), 2 = destination
@@ -757,6 +796,14 @@ class OperatorQuerySearch implements SearchInterface
     }
 
     /**
+     * @return Account
+     */
+    private function getCashAccount(): Account
+    {
+        return $this->accountRepository->getCashAccount();
+    }
+
+    /**
      * @param string $value
      *
      * @return TransactionCurrency|null
@@ -768,36 +815,12 @@ class OperatorQuerySearch implements SearchInterface
             $parts = explode(' ', $value);
             $value = trim($parts[count($parts) - 1], "() \t\n\r\0\x0B");
         }
-
-
         $result = $this->currencyRepository->findByCodeNull($value);
         if (null === $result) {
             $result = $this->currencyRepository->findByNameNull($value);
         }
 
         return $result;
-    }
-
-    /**
-     * @param string $operator
-     *
-     * @return string
-     * @throws FireflyException
-     */
-    public static function getRootOperator(string $operator): string
-    {
-        $config = config(sprintf('firefly.search.operators.%s', $operator));
-        if (null === $config) {
-            throw new FireflyException(sprintf('No configuration for search operator "%s"', $operator));
-        }
-        if (true === $config['alias']) {
-            Log::debug(sprintf('"%s" is an alias for "%s", so return that instead.', $operator, $config['alias_for']));
-
-            return $config['alias_for'];
-        }
-        Log::debug(sprintf('"%s" is not an alias.', $operator));
-
-        return $operator;
     }
 
     /**
@@ -810,7 +833,7 @@ class OperatorQuerySearch implements SearchInterface
     {
         $parser = new ParseDateString;
         if ($parser->isDateRange($value)) {
-            return $parser->parseRange($value, today(config('app.timezone')));
+            return $parser->parseRange($value, $this->date);
         }
         $date = $parser->parseDate($value);
 
@@ -821,19 +844,10 @@ class OperatorQuerySearch implements SearchInterface
     }
 
     /**
-     * @param int $limit
+     * @return array
      */
-    public function setLimit(int $limit): void
+    public function getWords(): array
     {
-        $this->limit = $limit;
-        $this->collector->setLimit($this->limit);
-    }
-
-    /**
-     * @return Account
-     */
-    private function getCashAccount(): Account
-    {
-        return $this->accountRepository->getCashAccount();
+        return $this->words;
     }
 }

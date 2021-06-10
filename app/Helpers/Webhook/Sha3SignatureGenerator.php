@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * Sha3SignatureGenerator.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,6 +19,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Helpers\Webhook;
 
 use FireflyIII\Models\WebhookMessage;
@@ -31,14 +32,6 @@ use JsonException;
 class Sha3SignatureGenerator implements SignatureGeneratorInterface
 {
     private int $version = 1;
-
-    /**
-     * @inheritDoc
-     */
-    public function getVersion(): int
-    {
-        return $this->version;
-    }
 
     /**
      * @inheritDoc
@@ -67,5 +60,13 @@ class Sha3SignatureGenerator implements SignatureGeneratorInterface
         // The timestamp is prefixed by t=, and each signature is prefixed by a scheme.
         // Schemes start with v, followed by an integer. Currently, the only valid live signature scheme is v1.
         return sprintf('t=%s,v%d=%s', $timestamp, $this->getVersion(), $signature);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
     }
 }

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Rule;
 
-
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\RuleFormRequest;
 use FireflyIII\Models\Rule;
@@ -37,8 +36,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
-use Throwable;
 use Log;
+use Throwable;
 
 /**
  * Class EditController
@@ -60,7 +59,7 @@ class EditController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.rules'));
+                app('view')->share('title', (string)trans('firefly.rules'));
                 app('view')->share('mainTitleIcon', 'fa-random');
 
                 $this->ruleRepos = app(RuleRepositoryInterface::class);
@@ -86,7 +85,7 @@ class EditController extends Controller
         $oldTriggers  = [];
 
         // build triggers from query, if present.
-        $query = (string) $request->get('from_query');
+        $query = (string)$request->get('from_query');
         if ('' !== $query) {
             $search = app(SearchInterface::class);
             $search->parseQuery($query);
@@ -98,12 +97,10 @@ class EditController extends Controller
             }
             $oldTriggers = $this->parseFromOperators($operators);
         }
-
-
         // has old input?
         if (count($request->old()) > 0) {
-            $oldTriggers  = $this->getPreviousTriggers($request);
-            $oldActions   = $this->getPreviousActions($request);
+            $oldTriggers = $this->getPreviousTriggers($request);
+            $oldActions  = $this->getPreviousActions($request);
         }
         $triggerCount = count($oldTriggers);
         $actionCount  = count($oldActions);
@@ -118,15 +115,15 @@ class EditController extends Controller
 
         $hasOldInput = null !== $request->old('_token');
         $preFilled   = [
-            'active'          => $hasOldInput ? (bool) $request->old('active') : $rule->active,
-            'stop_processing' => $hasOldInput ? (bool) $request->old('stop_processing') : $rule->stop_processing,
-            'strict'          => $hasOldInput ? (bool) $request->old('strict') : $rule->strict,
+            'active'          => $hasOldInput ? (bool)$request->old('active') : $rule->active,
+            'stop_processing' => $hasOldInput ? (bool)$request->old('stop_processing') : $rule->stop_processing,
+            'strict'          => $hasOldInput ? (bool)$request->old('strict') : $rule->strict,
 
         ];
 
         // get rule trigger for update / store-journal:
         $primaryTrigger = $this->ruleRepos->getPrimaryTrigger($rule);
-        $subTitle       = (string) trans('firefly.edit_rule', ['title' => $rule->title]);
+        $subTitle       = (string)trans('firefly.edit_rule', ['title' => $rule->title]);
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('rules.edit.fromUpdate')) {
@@ -136,7 +133,49 @@ class EditController extends Controller
 
         $request->session()->flash('preFilled', $preFilled);
 
-        return view('rules.rule.edit', compact('rule', 'subTitle', 'primaryTrigger', 'oldTriggers', 'oldActions', 'triggerCount', 'actionCount'));
+        return prefixView('rules.rule.edit', compact('rule', 'subTitle', 'primaryTrigger', 'oldTriggers', 'oldActions', 'triggerCount', 'actionCount'));
+    }
+
+    /**
+     * @param array $submittedOperators
+     *
+     * @return array
+     */
+    private function parseFromOperators(array $submittedOperators): array
+    {
+        // TODO duplicated code.
+        $operators       = config('firefly.search.operators');
+        $renderedEntries = [];
+        $triggers        = [];
+        foreach ($operators as $key => $operator) {
+            if ('user_action' !== $key && false === $operator['alias']) {
+
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+            }
+        }
+        asort($triggers);
+
+        $index = 0;
+        foreach ($submittedOperators as $operator) {
+            try {
+                $renderedEntries[] = prefixView(
+                    'rules.partials.trigger',
+                    [
+                        'oldTrigger' => OperatorQuerySearch::getRootOperator($operator['type']),
+                        'oldValue'   => $operator['value'],
+                        'oldChecked' => false,
+                        'count'      => $index + 1,
+                        'triggers'   => $triggers,
+                    ]
+                )->render();
+            } catch (Throwable $e) { // @phpstan-ignore-line
+                Log::debug(sprintf('Throwable was thrown in getPreviousTriggers(): %s', $e->getMessage()));
+                Log::error($e->getTraceAsString());
+            }
+            $index++;
+        }
+
+        return $renderedEntries;
     }
 
     /**
@@ -152,58 +191,17 @@ class EditController extends Controller
         $data = $request->getRuleData();
         $this->ruleRepos->update($rule, $data);
 
-        session()->flash('success', (string) trans('firefly.updated_rule', ['title' => $rule->title]));
+        session()->flash('success', (string)trans('firefly.updated_rule', ['title' => $rule->title]));
         app('preferences')->mark();
         $redirect = redirect($this->getPreviousUri('rules.edit.uri'));
-        if (1 === (int) $request->get('return_to_edit')) {
-            // @codeCoverageIgnoreStart
+        if (1 === (int)$request->get('return_to_edit')) {
+
             session()->put('rules.edit.fromUpdate', true);
 
             $redirect = redirect(route('rules.edit', [$rule->id]))->withInput(['return_to_edit' => 1]);
-            // @codeCoverageIgnoreEnd
+
         }
 
         return $redirect;
-    }
-
-    /**
-     * @param array $submittedOperators
-     * @return array
-     */
-    private function parseFromOperators(array $submittedOperators): array
-    {
-        // TODO duplicated code.
-        $operators       = config('firefly.search.operators');
-        $renderedEntries = [];
-        $triggers        = [];
-        foreach ($operators as $key => $operator) {
-            if ('user_action' !== $key && false === $operator['alias']) {
-
-                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
-            }
-        }
-        asort($triggers);
-
-        $index = 0;
-        foreach ($submittedOperators as $operator) {
-            try {
-                $renderedEntries[] = view(
-                    'rules.partials.trigger',
-                    [
-                        'oldTrigger' => OperatorQuerySearch::getRootOperator($operator['type']),
-                        'oldValue'   => $operator['value'],
-                        'oldChecked' => false,
-                        'count'      => $index + 1,
-                        'triggers'   => $triggers,
-                    ]
-                )->render();
-            } catch (Throwable $e) {
-                Log::debug(sprintf('Throwable was thrown in getPreviousTriggers(): %s', $e->getMessage()));
-                Log::error($e->getTraceAsString());
-            }
-            $index++;
-        }
-
-        return $renderedEntries;
     }
 }

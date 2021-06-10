@@ -25,6 +25,7 @@ namespace FireflyIII\Http\Requests;
 
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Factory\CategoryFactory;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Rules\ValidRecurrenceRepetitionType;
@@ -55,15 +56,15 @@ class RecurrenceFormRequest extends FormRequest
         $repetitionData = $this->parseRepetitionData();
         $return         = [
             'recurrence'   => [
-                'type'           => $this->string('transaction_type'),
-                'title'          => $this->string('title'),
-                'description'    => $this->string('recurring_description'),
-                'first_date'     => $this->date('first_date'),
-                'repeat_until'   => $this->date('repeat_until'),
-                'repetitions'    => $this->integer('repetitions'),
-                'apply_rules'    => $this->boolean('apply_rules'),
-                'active'         => $this->boolean('active'),
-                'repetition_end' => $this->string('repetition_end'),
+                'type'              => $this->string('transaction_type'),
+                'title'             => $this->string('title'),
+                'description'       => $this->string('recurring_description'),
+                'first_date'        => $this->date('first_date'),
+                'repeat_until'      => $this->date('repeat_until'),
+                'nr_of_repetitions' => $this->integer('repetitions'),
+                'apply_rules'       => $this->boolean('apply_rules'),
+                'active'            => $this->boolean('active'),
+                'repetition_end'    => $this->string('repetition_end'),
             ],
             'transactions' => [
                 [
@@ -108,7 +109,7 @@ class RecurrenceFormRequest extends FormRequest
         // fill in source and destination account data
         switch ($this->string('transaction_type')) {
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); // @codeCoverageIgnore
+                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); 
             case 'withdrawal':
                 $return['transactions'][0]['source_id']      = $this->integer('source_id');
                 $return['transactions'][0]['destination_id'] = $this->integer('withdrawal_destination_id');
@@ -121,6 +122,19 @@ class RecurrenceFormRequest extends FormRequest
                 $return['transactions'][0]['source_id']      = $this->integer('source_id');
                 $return['transactions'][0]['destination_id'] = $this->integer('destination_id');
                 break;
+        }
+
+        // replace category name with a new category:
+        $factory = app(CategoryFactory::class);
+        $factory->setUser(auth()->user());
+        foreach ($return['transactions'] as $index => $transaction) {
+            $categoryName = $transaction['category_name'] ?? null;
+            if (null !== $categoryName) {
+                $category = $factory->findOrCreate(null, $categoryName);
+                if (null !== $category) {
+                    $return['transactions'][$index]['category_id'] = $category->id;
+                }
+            }
         }
 
         return $return;
@@ -158,8 +172,6 @@ class RecurrenceFormRequest extends FormRequest
         }
 
         return $return;
-
-
     }
 
     /**
@@ -239,7 +251,7 @@ class RecurrenceFormRequest extends FormRequest
 
                 break;
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type of type "%s"', $this->string('transaction_type'))); // @codeCoverageIgnore
+                throw new FireflyException(sprintf('Cannot handle transaction type of type "%s"', $this->string('transaction_type'))); 
         }
 
         // update some rules in case the user is editing a post:
@@ -296,7 +308,7 @@ class RecurrenceFormRequest extends FormRequest
 
         switch ($this->string('transaction_type')) {
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); // @codeCoverageIgnore
+                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); 
             case 'withdrawal':
                 $sourceId      = (int)$data['source_id'];
                 $destinationId = (int)$data['withdrawal_destination_id'];
@@ -310,8 +322,6 @@ class RecurrenceFormRequest extends FormRequest
                 $destinationId = (int)$data['destination_id'];
                 break;
         }
-
-
         // validate source account.
         $validSource = $accountValidator->validateSource($sourceId, null, null);
 

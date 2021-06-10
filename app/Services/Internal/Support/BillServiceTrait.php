@@ -32,6 +32,7 @@ use Log;
 
 /**
  * Trait BillServiceTrait
+ *
  * @codeCoverageIgnore
  */
 trait BillServiceTrait
@@ -60,8 +61,6 @@ trait BillServiceTrait
             $ruleAction->save();
         }
     }
-
-
     /**
      * @param Bill   $bill
      * @param string $note
@@ -75,8 +74,8 @@ trait BillServiceTrait
             if (null !== $dbNote) {
                 try {
                     $dbNote->delete();
-                } catch (Exception $e) {
-                    Log::debug(sprintf('Error deleting note: %s', $e->getMessage()));
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    // @ignoreException
                 }
             }
 

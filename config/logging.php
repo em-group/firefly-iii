@@ -96,7 +96,7 @@ return [
             'driver' => 'single',
             'path'   => 'php://stdout',
             'tap'    => [AuditLogger::class],
-            'level'  => envNonEmpty('APP_LOG_LEVEL', 'info'),
+            'level'  => envNonEmpty('AUDIT_LOG_LEVEL', 'info'),
         ],
         'dailytest'  => [
             'driver' => 'daily',

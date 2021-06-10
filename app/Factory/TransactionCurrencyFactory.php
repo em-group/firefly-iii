@@ -40,13 +40,13 @@ class TransactionCurrencyFactory
     /**
      * @param array $data
      *
-     * @throws FireflyException
      * @return TransactionCurrency
+     * @throws FireflyException
      */
     public function create(array $data): TransactionCurrency
     {
         try {
-            /** @var TransactionCurrency $currency */
+            /** @var TransactionCurrency $result */
             $result = TransactionCurrency::create(
                 [
                     'name'           => $data['name'],
@@ -59,7 +59,7 @@ class TransactionCurrencyFactory
         } catch (QueryException $e) {
             $result = null;
             Log::error(sprintf('Could not create new currency: %s', $e->getMessage()));
-            throw new FireflyException('400004: Could not store new currency.');
+            throw new FireflyException('400004: Could not store new currency.', 0, $e);
         }
 
         return $result;
@@ -73,8 +73,8 @@ class TransactionCurrencyFactory
      */
     public function find(?int $currencyId, ?string $currencyCode): ?TransactionCurrency
     {
-        $currencyCode = (string) $currencyCode;
-        $currencyId   = (int) $currencyId;
+        $currencyCode = (string)$currencyCode;
+        $currencyId   = (int)$currencyId;
 
         if ('' === $currencyCode && 0 === $currencyId) {
             Log::debug('Cannot find anything on empty currency code and empty currency ID!');
@@ -102,6 +102,4 @@ class TransactionCurrencyFactory
 
         return null;
     }
-
-
 }

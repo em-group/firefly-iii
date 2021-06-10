@@ -22,11 +22,8 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Models\Attachment;
 use FireflyIII\Repositories\Attachment\AttachmentRepositoryInterface;
-use Log;
 
 /**
  * Class AttachmentTransformer
@@ -43,9 +40,6 @@ class AttachmentTransformer extends AbstractTransformer
     public function __construct()
     {
         $this->repository = app(AttachmentRepositoryInterface::class);
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
     }
 
     /**
@@ -60,10 +54,10 @@ class AttachmentTransformer extends AbstractTransformer
         $this->repository->setUser($attachment->user);
 
         return [
-            'id'              => (int)$attachment->id,
+            'id'              => (string)$attachment->id,
             'created_at'      => $attachment->created_at->toAtomString(),
             'updated_at'      => $attachment->updated_at->toAtomString(),
-            'attachable_id'   => (int) $attachment->attachable_id,
+            'attachable_id'   => (string)$attachment->attachable_id,
             'attachable_type' => str_replace('FireflyIII\\Models\\', '', $attachment->attachable_type),
             'md5'             => $attachment->md5,
             'filename'        => $attachment->filename,

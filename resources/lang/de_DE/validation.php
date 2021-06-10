@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute muss kleiner als 10.000.000 sein',
     'active_url'                     => ':attribute ist keine gültige URL.',
     'after'                          => ':attribute muss ein Datum nach :date sein.',
+    'date_after'                     => 'Das Startdatum muss vor dem Enddatum liegen.',
     'alpha'                          => ':attribute darf nur Buchstaben enthalten.',
     'alpha_dash'                     => ':attribute darf nur Buchstaben, Zahlen und Bindestrichen enthalten.',
     'alpha_num'                      => ':attribute darf nur Buchstaben und Zahlen enthalten.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'Der Wert muss mit :values beginnen.',
     'unique_webhook'                 => 'Sie haben bereits einen Webhook mit diesen Werten.',
     'unique_existing_webhook'        => 'Sie haben bereits einen anderen Webhook mit diesen Werten.',
+    'same_account_type'              => 'Beide Konten müssen vom selben Kontotyp sein',
+    'same_account_currency'          => 'Beiden Konten muss die gleiche Währung zugeordnet sein',
 
     'secure_password'             => 'Dies ist ein unsicheres Passwort. Bitte versuchen Sie es erneut. Weitere Informationen finden Sie unter https://github.com/firefly-iii/help/wiki/Secure-password',
     'valid_recurrence_rep_type'   => 'Ungültige Wiederholungsart für Daueraufträge.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
     'withdrawal_dest_need_data'   => 'Um fortzufahren, benötigen Sie eine gültige Zielkontenkennung und/oder einen gültigen Zielkontonamen.',
     'withdrawal_dest_bad_data'    => 'Bei der Suche nach Kennung „:id” oder Name „:name” konnte kein gültiges Zielkonto gefunden werden.',
+
+    'generic_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
 
     'deposit_source_need_data' => 'Um fortzufahren, benötigen Sie eine gültige Quellkontenkennung und/oder einen gültigen Quellkontonamen.',
     'deposit_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',

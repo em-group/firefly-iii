@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\TransactionGroup;
-
-
 use Carbon\Carbon;
 use DB;
 use Exception;
@@ -32,6 +30,7 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\TransactionGroupFactory;
 use FireflyIII\Models\AccountMeta;
 use FireflyIII\Models\Attachment;
+use FireflyIII\Models\Location;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\PiggyBankEvent;
 use FireflyIII\Models\Transaction;
@@ -103,7 +102,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
         $journals = $group->transactionJournals->pluck('id')->toArray();
         $set      = Attachment::whereIn('attachable_id', $journals)
                               ->where('attachable_type', TransactionJournal::class)
-                              ->where('uploaded', 1)
+                              ->where('uploaded', true)
                               ->whereNull('deleted_at')->get();
 
         $result = [];
@@ -113,7 +112,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
             $result[$journalId]       = $result[$journalId] ?? [];
             $current                  = $attachment->toArray();
             $current['file_exists']   = true;
-            $current['journal_title'] = $attachment->attachable->description;
+            $current['journal_title'] = $attachment->attachable->description; // @phpstan-ignore-line
             $result[$journalId][]     = $current;
 
         }
@@ -177,6 +176,17 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getLocation(int $journalId): ?Location
+    {
+        /** @var TransactionJournal $journal */
+        $journal = $this->user->transactionJournals()->find($journalId);
+
+        return $journal->locations()->first();
+    }
+
+    /**
      * Return object with all found meta field things as Carbon objects.
      *
      * @param int   $journalId
@@ -236,7 +246,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
      */
     public function getNoteText(int $journalId): ?string
     {
-        /** @var Note $note */
+        /** @var Note|null $note */
         $note = Note
             ::where('noteable_id', $journalId)
             ->where('noteable_type', TransactionJournal::class)
@@ -259,13 +269,14 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     {
         $return   = [];
         $journals = $group->transactionJournals->pluck('id')->toArray();
+        $currency = app('amount')->getDefaultCurrencyByUser($this->user);
         $data     = PiggyBankEvent
             ::whereIn('transaction_journal_id', $journals)
             ->with('piggyBank', 'piggyBank.account')
             ->get(['piggy_bank_events.*']);
         /** @var PiggyBankEvent $row */
         foreach ($data as $row) {
-            if(null === $row->piggyBank) {
+            if (null === $row->piggyBank) {
                 continue;
             }
             // get currency preference.
@@ -294,6 +305,17 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getTagObjects(int $journalId): Collection
+    {
+        /** @var TransactionJournal $journal */
+        $journal = $this->user->transactionJournals()->find($journalId);
+
+        return $journal->tags()->get();
+    }
+
+    /**
      * Get the tags for a journal (by ID).
      *
      * @param int $journalId
@@ -306,6 +328,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
             ::table('tag_transaction_journal')
             ->leftJoin('tags', 'tag_transaction_journal.tag_id', '=', 'tags.id')
             ->where('tag_transaction_journal.transaction_journal_id', $journalId)
+            ->orderBy('tags.tag', 'ASC')
             ->get(['tags.tag']);
 
         return $result->pluck('tag')->toArray();
@@ -335,15 +358,13 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
             return $factory->create($data);
         } catch (DuplicateTransactionException $e) {
             Log::warning('Group repository caught group factory with a duplicate exception!');
-            throw new DuplicateTransactionException($e->getMessage());
-        } catch(FireflyException $e) {
+            throw new DuplicateTransactionException($e->getMessage(),0, $e);
+        } catch (FireflyException $e) {
             Log::warning('Group repository caught group factory with an exception!');
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
-            throw new FireflyException($e->getMessage());
+            throw new FireflyException($e->getMessage(),0, $e);
         }
-
-
     }
 
     /**
@@ -396,9 +417,9 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
      */
     private function expandTransaction(Transaction $transaction): array
     {
-        $array = $transaction->toArray();
-        $array['account'] = $transaction->account->toArray();
-        $array['budgets'] = [];
+        $array               = $transaction->toArray();
+        $array['account']    = $transaction->account->toArray();
+        $array['budgets']    = [];
         $array['categories'] = [];
 
         foreach ($transaction->categories as $category) {
@@ -460,16 +481,5 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
         }
 
         return $return;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTagObjects(int $journalId): Collection
-    {
-        /** @var TransactionJournal $journal */
-        $journal = $this->user->transactionJournals()->find($journalId);
-
-        return $journal->tags()->get();
     }
 }

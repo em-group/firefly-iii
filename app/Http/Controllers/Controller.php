@@ -37,15 +37,11 @@ use Route;
  */
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, UserNavigation, RequestInformation;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, RequestInformation, UserNavigation;
 
-    /** @var string Format for date and time. */
     protected string $dateTimeFormat;
-    /** @var string Format for "23 Feb, 2016". */
     protected string $monthAndDayFormat;
-    /** @var string Format for "March 2018" */
     protected string $monthFormat;
-    /** @var string Redirect user */
     protected string $redirectUri = '/';
 
     /**
@@ -77,8 +73,6 @@ abstract class Controller extends BaseController
         $maxFileSize = app('steam')->phpBytes(ini_get('upload_max_filesize'));
         $maxPostSize = app('steam')->phpBytes(ini_get('post_max_size'));
         $uploadSize  = min($maxFileSize, $maxPostSize);
-
-
         app('view')->share('uploadSize', $uploadSize);
 
         // share is alpha, is beta

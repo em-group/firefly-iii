@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Factory;
 
-
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Recurrence;
@@ -41,9 +40,9 @@ class RecurrenceFactory
 {
 
     use TransactionTypeTrait, RecurringTransactionTrait;
-    private MessageBag $errors;
-    private User $user;
 
+    private MessageBag $errors;
+    private User       $user;
 
     /**
      * Constructor.
@@ -58,8 +57,8 @@ class RecurrenceFactory
     /**
      * @param array $data
      *
-     * @throws FireflyException
      * @return Recurrence
+     * @throws FireflyException
      */
     public function create(array $data): Recurrence
     {
@@ -70,42 +69,76 @@ class RecurrenceFactory
             Log::error($message);
             Log::error($e->getTraceAsString());
 
-            throw new FireflyException($message);
+            throw new FireflyException($message, 0, $e);
         }
-        /** @var Carbon $firstDate */
-        $firstDate = $data['recurrence']['first_date'];
+        $firstDate         = null;
+        $repeatUntil       = null;
+        $repetitions       = 0;
+        $title             = null;
+        $description       = '';
+        $applyRules        = true;
+        $active            = true;
+        $repeatUntilString = null;
+        if (array_key_exists('first_date', $data['recurrence'])) {
+            /** @var Carbon $firstDate */
+            $firstDate = $data['recurrence']['first_date'];
+        }
+        if (array_key_exists('nr_of_repetitions', $data['recurrence'])) {
+            $repetitions = (int)$data['recurrence']['nr_of_repetitions'];
+        }
+        if (array_key_exists('repeat_until', $data['recurrence'])) {
+            $repeatUntil = $data['recurrence']['repeat_until'];
+        }
+        if (array_key_exists('title', $data['recurrence'])) {
+            $title = $data['recurrence']['title'];
+        }
+        if (array_key_exists('description', $data['recurrence'])) {
+            $description = $data['recurrence']['description'];
+        }
+        if (array_key_exists('apply_rules', $data['recurrence'])) {
+            $applyRules = $data['recurrence']['apply_rules'];
+        }
+        if (array_key_exists('active', $data['recurrence'])) {
+            $active = $data['recurrence']['active'];
+        }
+        if (null !== $repeatUntil) {
+            $repeatUntilString = $repeatUntil->format('Y-m-d');
+        }
 
-        $repetitions = (int) $data['recurrence']['repetitions'];
-        $recurrence  = new Recurrence(
+        $recurrence = new Recurrence(
             [
                 'user_id'             => $this->user->id,
                 'transaction_type_id' => $type->id,
-                'title'               => $data['recurrence']['title'],
-                'description'         => $data['recurrence']['description'],
-                'first_date'          => $firstDate->format('Y-m-d'),
-                'repeat_until'        => $repetitions > 0 ? null : $data['recurrence']['repeat_until'],
+                'title'               => $title,
+                'description'         => $description,
+                'first_date'          => $firstDate ? $firstDate->format('Y-m-d') : null,
+                'repeat_until'        => $repetitions > 0 ? null : $repeatUntilString,
                 'latest_date'         => null,
-                'repetitions'         => $data['recurrence']['repetitions'],
-                'apply_rules'         => $data['recurrence']['apply_rules'],
-                'active'              => $data['recurrence']['active'],
+                'repetitions'         => $repetitions,
+                'apply_rules'         => $applyRules,
+                'active'              => $active,
             ]
         );
         $recurrence->save();
 
+        if (array_key_exists('notes', $data['recurrence'])) {
+            $this->updateNote($recurrence, (string)$data['recurrence']['notes']);
+
+        }
+
         $this->createRepetitions($recurrence, $data['repetitions'] ?? []);
         try {
             $this->createTransactions($recurrence, $data['transactions'] ?? []);
-            // @codeCoverageIgnoreStart
+
         } catch (FireflyException $e) {
             Log::error($e->getMessage());
             $recurrence->forceDelete();
             $message = sprintf('Could not create recurring transaction: %s', $e->getMessage());
             $this->errors->add('store', $message);
-            throw new FireflyException($message);
+            throw new FireflyException($message, 0, $e);
 
         }
 
-        // @codeCoverageIgnoreEnd
 
         return $recurrence;
     }
@@ -117,5 +150,14 @@ class RecurrenceFactory
     {
         $this->user = $user;
     }
+
+    /**
+     * @return MessageBag
+     */
+    public function getErrors(): MessageBag
+    {
+        return $this->errors;
+    }
+
 
 }

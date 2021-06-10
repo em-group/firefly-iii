@@ -52,11 +52,9 @@ class TransactionController extends Controller
     }
 
     /**
-     * @param string $objectType
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @throws FireflyException
      * @return JsonResponse
      */
     public function budgets(Carbon $start, Carbon $end)
@@ -66,10 +64,8 @@ class TransactionController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.transactions.budgets');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setRange($start, $end);
@@ -82,8 +78,8 @@ class TransactionController extends Controller
         // group by category.
         /** @var array $journal */
         foreach ($result as $journal) {
-            $budget = $journal['budget_name'] ?? (string) trans('firefly.no_budget');
-            $title  = sprintf('%s (%s)', $budget, $journal['currency_symbol']);
+            $budget                 = $journal['budget_name'] ?? (string)trans('firefly.no_budget');
+            $title                  = sprintf('%s (%s)', $budget, $journal['currency_symbol']);
             $data[$title]           = $data[$title] ?? [
                     'amount'          => '0',
                     'currency_symbol' => $journal['currency_symbol'],
@@ -102,8 +98,8 @@ class TransactionController extends Controller
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @throws FireflyException
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function categories(string $objectType, Carbon $start, Carbon $end)
     {
@@ -113,10 +109,8 @@ class TransactionController extends Controller
         $cache->addProperty($objectType);
         $cache->addProperty('chart.transactions.categories');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setRange($start, $end);
@@ -141,8 +135,8 @@ class TransactionController extends Controller
         // group by category.
         /** @var array $journal */
         foreach ($result as $journal) {
-            $category = $journal['category_name'] ?? (string) trans('firefly.no_category');
-            $title    = sprintf('%s (%s)', $category, $journal['currency_symbol']);
+            $category               = $journal['category_name'] ?? (string)trans('firefly.no_category');
+            $title                  = sprintf('%s (%s)', $category, $journal['currency_symbol']);
             $data[$title]           = $data[$title] ?? [
                     'amount'          => '0',
                     'currency_symbol' => $journal['currency_symbol'],
@@ -162,8 +156,8 @@ class TransactionController extends Controller
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @throws FireflyException
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function destinationAccounts(string $objectType, Carbon $start, Carbon $end)
     {
@@ -173,10 +167,8 @@ class TransactionController extends Controller
         $cache->addProperty($objectType);
         $cache->addProperty('chart.transactions.destinations');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setRange($start, $end);
@@ -221,8 +213,8 @@ class TransactionController extends Controller
      * @param Carbon $start
      * @param Carbon $end
      *
-     * @throws FireflyException
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function sourceAccounts(string $objectType, Carbon $start, Carbon $end)
     {
@@ -232,10 +224,8 @@ class TransactionController extends Controller
         $cache->addProperty($objectType);
         $cache->addProperty('chart.transactions.sources');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setRange($start, $end);

@@ -58,7 +58,7 @@ class AvailableBudgetController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.budgets'));
+                app('view')->share('title', (string)trans('firefly.budgets'));
                 app('view')->share('mainTitleIcon', 'fa-pie-chart');
                 $this->abRepository  = app(AvailableBudgetRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -95,9 +95,9 @@ class AvailableBudgetController extends Controller
 
             return redirect(route('available-budgets.edit', [$first->id]));
         }
-        $page = (int) ($request->get('page') ?? 1);
+        $page = (int)($request->get('page') ?? 1);
 
-        return view('budgets.available-budgets.create', compact('start', 'end', 'page', 'currency'));
+        return prefixView('budgets.available-budgets.create', compact('start', 'end', 'page', 'currency'));
     }
 
     /**
@@ -127,11 +127,9 @@ class AvailableBudgetController extends Controller
                 return true;
             }
         );
+        $page       = (int)($request->get('page') ?? 1);
 
-
-        $page = (int) ($request->get('page') ?? 1);
-
-        return view('budgets.available-budgets.create-alternative', compact('start', 'end', 'page', 'currencies'));
+        return prefixView('budgets.available-budgets.create-alternative', compact('start', 'end', 'page', 'currencies'));
     }
 
     /**
@@ -157,8 +155,9 @@ class AvailableBudgetController extends Controller
      */
     public function edit(AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
-        $availableBudget->amount = number_format((float) $availableBudget->amount, $availableBudget->transactionCurrency->decimal_places, '.', '');
-        return view('budgets.available-budgets.edit', compact('availableBudget', 'start', 'end'));
+        $availableBudget->amount = number_format((float)$availableBudget->amount, $availableBudget->transactionCurrency->decimal_places, '.', '');
+
+        return prefixView('budgets.available-budgets.edit', compact('availableBudget', 'start', 'end'));
     }
 
     /**
@@ -179,7 +178,7 @@ class AvailableBudgetController extends Controller
         }
 
         // validate amount
-        $amount = (string) $request->get('amount');
+        $amount = (string)$request->get('amount');
         if ('' === $amount) {
             session()->flash('error', trans('firefly.invalid_amount'));
 
@@ -192,7 +191,7 @@ class AvailableBudgetController extends Controller
         }
 
         // find currency
-        $currency = $this->currencyRepos->find((int) $request->get('currency_id'));
+        $currency = $this->currencyRepos->find((int)$request->get('currency_id'));
         if (null === $currency) {
             session()->flash('error', trans('firefly.invalid_currency'));
 
@@ -205,10 +204,10 @@ class AvailableBudgetController extends Controller
         if (null === $existing) {
             $this->abRepository->store(
                 [
-                    'amount'   => $amount,
-                    'currency' => $currency,
-                    'start'    => $start,
-                    'end'      => $end,
+                    'amount'      => $amount,
+                    'currency_id' => $currency->id,
+                    'start'       => $start,
+                    'end'         => $end,
                 ]
             );
         }
@@ -233,7 +232,7 @@ class AvailableBudgetController extends Controller
     public function update(Request $request, AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
         // validate amount
-        $amount = (string) $request->get('amount');
+        $amount = (string)$request->get('amount');
         if ('' === $amount) {
             session()->flash('error', trans('firefly.invalid_amount'));
 
@@ -244,8 +243,6 @@ class AvailableBudgetController extends Controller
 
             return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
         }
-
-
         $this->abRepository->update($availableBudget, ['amount' => $amount]);
         session()->flash('success', trans('firefly.updated_ab'));
 

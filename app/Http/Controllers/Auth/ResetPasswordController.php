@@ -32,6 +32,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
@@ -76,7 +77,7 @@ class ResetPasswordController extends Controller
      * @param Request $request
      *
      * @return Factory|JsonResponse|RedirectResponse|View
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      *
      */
     public function reset(Request $request)
@@ -85,7 +86,7 @@ class ResetPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
 
         $rules = [
@@ -130,20 +131,20 @@ class ResetPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
 
         // is allowed to register?
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $userCount         = User::count();
         $allowRegistration = true;
-        $pageTitle         = (string) trans('firefly.reset_pw_page_title');
+        $pageTitle         = (string)trans('firefly.reset_pw_page_title');
         if (true === $singleUserMode && $userCount > 0) {
             $allowRegistration = false;
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
-        return view('auth.passwords.reset')->with(
+        return prefixView('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email, 'allowRegistration' => $allowRegistration, 'pageTitle' => $pageTitle]
         );
     }

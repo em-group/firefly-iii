@@ -24,12 +24,12 @@ namespace FireflyIII\Repositories\Tag;
 
 use Carbon\Carbon;
 use DB;
+use Exception;
 use FireflyIII\Factory\TagFactory;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Location;
-use FireflyIII\Models\RuleAction;
-use FireflyIII\Models\RuleTrigger;
+use FireflyIII\Models\Note;
 use FireflyIII\Models\Tag;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
@@ -57,7 +57,7 @@ class TagRepository implements TagRepositoryInterface
      * @param Tag $tag
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(Tag $tag): bool
     {
@@ -144,6 +144,26 @@ class TagRepository implements TagRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function getAttachments(Tag $tag): Collection
+    {
+        $set = $tag->attachments()->get();
+        /** @var Storage $disk */
+        $disk = Storage::disk('upload');
+
+        return $set->each(
+            static function (Attachment $attachment, int $index) use ($disk) {
+                /** @var Note $note */
+                $note = $attachment->notes()->first();
+                // only used in v1 view of tags
+                $attachment->file_exists = $disk->exists($attachment->fileName());
+                $attachment->notes_text  = null === $note ? '' : $note->text;
+            }
+        );
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function getLocation(Tag $tag): ?Location
     {
         return $tag->locations()->first();
@@ -152,7 +172,7 @@ class TagRepository implements TagRepositoryInterface
     /**
      * @param int|null $year
      *
-     * @return Collection
+     * @return array
      */
     public function getTagsInYear(?int $year): array
     {
@@ -317,7 +337,7 @@ class TagRepository implements TagRepositoryInterface
 
         /** @var array $journal */
         foreach ($journals as $journal) {
-            $currencyId        = (int) $journal['currency_id'];
+            $currencyId        = (int)$journal['currency_id'];
             $sums[$currencyId] = $sums[$currencyId] ?? [
                     'currency_id'                    => $currencyId,
                     'currency_name'                  => $journal['currency_name'],
@@ -331,7 +351,7 @@ class TagRepository implements TagRepositoryInterface
                 ];
 
             // add amount to correct type:
-            $amount = app('steam')->positive((string) $journal['amount']);
+            $amount = app('steam')->positive((string)$journal['amount']);
             $type   = $journal['transaction_type_type'];
             if (TransactionType::WITHDRAWAL === $type) {
                 $amount = bcmul($amount, '-1');
@@ -352,7 +372,7 @@ class TagRepository implements TagRepositoryInterface
                         TransactionType::OPENING_BALANCE => '0',
                     ];
                 // add foreign amount to correct type:
-                $amount = app('steam')->positive((string) $journal['foreign_amount']);
+                $amount = app('steam')->positive((string)$journal['foreign_amount']);
                 $type   = $journal['transaction_type_type'];
                 if (TransactionType::WITHDRAWAL === $type) {
                     $amount = bcmul($amount, '-1');
@@ -361,58 +381,8 @@ class TagRepository implements TagRepositoryInterface
 
             }
         }
+
         return $sums;
-    }
-
-    /**
-     * Generates a tag cloud.
-     *
-     * @param int|null $year
-     *
-     * @return array
-     * @deprecated
-     */
-    public function tagCloud(?int $year): array
-    {
-        // Some vars
-        $tags = $this->getTagsInYear($year);
-
-        $max           = $this->getMaxAmount($tags);
-        $min           = $this->getMinAmount($tags);
-        $diff          = bcsub($max, $min);
-        $return        = [];
-        $minimumFont   = '12'; // default scale is from 12 to 24, so 12 points.
-        $maxPoints     = '12';
-        $pointsPerCoin = '0';
-
-        Log::debug(sprintf('Minimum is %s, maximum is %s, difference is %s', $min, $max, $diff));
-
-        if (0 !== bccomp($diff, '0')) { // for each full coin in tag, add so many points
-            // minus the smallest tag.
-            $pointsPerCoin = bcdiv($maxPoints, $diff);
-        }
-
-        Log::debug(sprintf('Each coin in a tag earns it %s points', $pointsPerCoin));
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $amount       = (string) $tag->amount_sum;
-            $amount       = '' === $amount ? '0' : $amount;
-            $amountMin    = bcsub($amount, $min);
-            $pointsForTag = bcmul($amountMin, $pointsPerCoin);
-            $fontSize     = bcadd($minimumFont, $pointsForTag);
-            Log::debug(sprintf('Tag "%s": Amount is %s, so points is %s', $tag->tag, $amount, $fontSize));
-
-            // return value for tag cloud:
-            $return[$tag->id] = [
-                'size'       => $fontSize,
-                'tag'        => $tag->tag,
-                'id'         => $tag->id,
-                'created_at' => $tag->created_at,
-                'location'   => $this->getLocation($tag),
-            ];
-        }
-
-        return $return;
     }
 
     /**
@@ -440,16 +410,24 @@ class TagRepository implements TagRepositoryInterface
      */
     public function update(Tag $tag, array $data): Tag
     {
-        $tag->tag         = $data['tag'];
-        $tag->date        = $data['date'];
-        $tag->description = $data['description'];
-        $tag->latitude    = null;
-        $tag->longitude   = null;
-        $tag->zoomLevel   = null;
+        if (array_key_exists('tag', $data)) {
+            $tag->tag = $data['tag'];
+        }
+        if (array_key_exists('date', $data)) {
+            $tag->date = $data['date'];
+        }
+        if (array_key_exists('description', $data)) {
+            $tag->description = $data['description'];
+        }
+
+        $tag->latitude  = null;
+        $tag->longitude = null;
+        $tag->zoomLevel = null;
         $tag->save();
 
         // update, delete or create location:
         $updateLocation = $data['update_location'] ?? false;
+        $deleteLocation = $data['remove_location'] ?? false;
 
         // location must be updated?
         if (true === $updateLocation) {
@@ -472,77 +450,11 @@ class TagRepository implements TagRepositoryInterface
                 $location->save();
             }
         }
+        if (true === $deleteLocation) {
+            $tag->locations()->delete();
+        }
 
         return $tag;
     }
 
-    /**
-     * @param Collection $tags
-     *
-     * @return string
-     */
-    private function getMaxAmount(Collection $tags): string
-    {
-        $max = '0';
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $amount = (string) $tag->amount_sum;
-            $amount = '' === $amount ? '0' : $amount;
-            $max    = 1 === bccomp($amount, $max) ? $amount : $max;
-
-        }
-        Log::debug(sprintf('Maximum is %s.', $max));
-
-        return $max;
-    }
-
-    /**
-     * @param Collection $tags
-     *
-     * @return string
-     *
-     */
-    private function getMinAmount(Collection $tags): string
-    {
-        $min = null;
-
-        /** @var Tag $tag */
-        foreach ($tags as $tag) {
-            $amount = (string) $tag->amount_sum;
-            $amount = '' === $amount ? '0' : $amount;
-
-            if (null === $min) {
-                $min = $amount;
-            }
-            $min = -1 === bccomp($amount, $min) ? $amount : $min;
-        }
-
-
-        if (null === $min) {
-            $min = '0';
-        }
-        Log::debug(sprintf('Minimum is %s.', $min));
-
-        return $min;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAttachments(Tag $tag): Collection
-    {
-        $set = $tag->attachments()->get();
-        /** @var Storage $disk */
-        $disk = Storage::disk('upload');
-
-        return $set->each(
-            static function (Attachment $attachment) use ($disk) {
-                $notes                   = $attachment->notes()->first();
-                $attachment->file_exists = $disk->exists($attachment->fileName());
-                $attachment->notes       = $notes ? $notes->text : '';
-
-                return $attachment;
-            }
-        );
-    }
 }

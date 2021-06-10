@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute должен быть меньше 10,000,000',
     'active_url'                     => ':attribute не является допустимым URL-адресом.',
     'after'                          => ':attribute должна быть позже :date.',
+    'date_after'                     => 'The start date must be before the end date.',
     'alpha'                          => ':attribute может содержать только буквы.',
     'alpha_dash'                     => ':attribute может содержать только буквы, числа и дефис.',
     'alpha_num'                      => ':attribute может содержать только буквы и числа.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'Значение должно начинаться с :values.',
     'unique_webhook'                 => 'У вас уже есть webhook с таким именем.',
     'unique_existing_webhook'        => 'У вас уже есть другой webhook с таким именем.',
+    'same_account_type'              => 'Both accounts must be of the same account type',
+    'same_account_currency'          => 'Both accounts must have the same currency setting',
 
     'secure_password'             => 'Это не безопасный пароль. Попробуйте еще раз. Подробнее можно узнать по ссылке https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Недопустимый тип для повторяющихся транзакций.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',
     'withdrawal_dest_need_data'   => 'Для продолжения необходим действительный ID счёта назначения и/или действительное имя счёта.',
     'withdrawal_dest_bad_data'    => 'Не удалось найти действительный счёт назначения при поиске ID ":id" или имени ":name".',
+
+    'generic_source_bad_data'  => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',
 
     'deposit_source_need_data' => 'Для продолжения необходим действительный ID счёта-источника и/или действительное имя счёта.',
     'deposit_source_bad_data'  => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',

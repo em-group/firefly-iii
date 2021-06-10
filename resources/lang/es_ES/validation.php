@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute debe ser menor que 10.000.000',
     'active_url'                     => 'El campo :attribute no es una URL válida.',
     'after'                          => 'El campo :attribute debe ser una fecha posterior a :date.',
+    'date_after'                     => 'La fecha de inicio debe ser anterior a la fecha de finalización.',
     'alpha'                          => 'El campo :attribute sólo puede contener letras.',
     'alpha_dash'                     => 'El campo :attribute sólo puede contener letras, números y guiones.',
     'alpha_num'                      => 'El campo :attribute sólo puede contener letras y números.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'El valor debe comenzar con :values.',
     'unique_webhook'                 => 'Ya tiene un webhook con estos valores.',
     'unique_existing_webhook'        => 'Ya tiene otro webhook con estos valores.',
+    'same_account_type'              => 'Ambas cuentas deben ser del mismo tipo de cuenta',
+    'same_account_currency'          => 'Ambas cuentas deben tener la misma configuración de moneda',
 
     'secure_password'             => 'Esta contraseña no es segura. Por favor inténtalo de nuevo. Para más información, visita https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Tipo de repetición no válido para transacciones recurrentes.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'No se pudo encontrar una cuenta de origen válida para ID ":id" o nombre ":name".',
     'withdrawal_dest_need_data'   => 'Necesita obtener un ID de cuenta de destino válido y/o nombre de cuenta de destino válido para continuar.',
     'withdrawal_dest_bad_data'    => 'No se pudo encontrar una cuenta de destino válida buscando ID ":id" o nombre ":name".',
+
+    'generic_source_bad_data'  => 'No se pudo encontrar una cuenta de origen válida al buscar el ID ":id" o nombre ":name".',
 
     'deposit_source_need_data' => 'Necesita obtener un ID de cuenta de origen válido y/o nombre de cuenta de origen válido para continuar.',
     'deposit_source_bad_data'  => 'No se pudo encontrar una cuenta de origen válida para ID ":id" o nombre ":name".',

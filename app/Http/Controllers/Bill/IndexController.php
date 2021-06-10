@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Bill;
 
-
 use Carbon\Carbon;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Bill;
@@ -57,7 +56,7 @@ class IndexController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.bills'));
+                app('view')->share('title', (string)trans('firefly.bills'));
                 app('view')->share('mainTitleIcon', 'fa-calendar-o');
                 $this->repository = app(BillRepositoryInterface::class);
 
@@ -73,8 +72,6 @@ class IndexController extends Controller
     {
         $this->cleanupObjectGroups();
         $this->repository->correctOrder();
-
-
         $start      = session('start');
         $end        = session('end');
         $collection = $this->repository->getBills();
@@ -96,16 +93,14 @@ class IndexController extends Controller
         $bills = [
             0 => [ // the index is the order, not the ID.
                    'object_group_id'    => 0,
-                   'object_group_title' => (string) trans('firefly.default_group_title_name'),
+                   'object_group_title' => (string)trans('firefly.default_group_title_name'),
                    'bills'              => [],
             ],
         ];
-
-
         /** @var Bill $bill */
         foreach ($collection as $bill) {
             $array      = $transformer->transform($bill);
-            $groupOrder = (int) $array['object_group_order'];
+            $groupOrder = (int)$array['object_group_order'];
             // make group array if necessary:
             $bills[$groupOrder] = $bills[$groupOrder] ?? [
                     'object_group_id'    => $array['object_group_id'],
@@ -121,7 +116,7 @@ class IndexController extends Controller
             }
             $current = $array['pay_dates'][0] ?? null;
             if (null !== $current && !$nextExpectedMatch->isToday()) {
-                $currentExpectedMatch              = Carbon::createFromFormat('!Y-m-d', $current);
+                $currentExpectedMatch              = Carbon::createFromFormat(Carbon::ATOM, $current);
                 $array['next_expected_match_diff'] = $currentExpectedMatch->diffForHumans(today(), Carbon::DIFF_RELATIVE_TO_NOW);
             }
 
@@ -143,9 +138,8 @@ class IndexController extends Controller
         $sums   = $this->getSums($bills);
         $totals = $this->getTotals($sums);
 
-        return view('bills.index', compact('bills', 'sums', 'total', 'totals'));
+        return prefixView('bills.index', compact('bills', 'sums', 'total', 'totals'));
     }
-
 
     /**
      * @param array $bills
@@ -165,7 +159,6 @@ class IndexController extends Controller
                     continue;
                 }
 
-                /** @var TransactionCurrency $currency */
                 $currencyId                     = $bill['currency_id'];
                 $sums[$groupOrder][$currencyId] = $sums[$groupOrder][$currencyId] ?? [
                         'currency_id'             => $currencyId,
@@ -179,8 +172,8 @@ class IndexController extends Controller
                     ];
                 // only fill in avg when bill is active.
                 if (count($bill['pay_dates']) > 0) {
-                    $avg                                   = bcdiv(bcadd((string) $bill['amount_min'], (string) $bill['amount_max']), '2');
-                    $avg                                   = bcmul($avg, (string) count($bill['pay_dates']));
+                    $avg                                   = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
+                    $avg                                   = bcmul($avg, (string)count($bill['pay_dates']));
                     $sums[$groupOrder][$currencyId]['avg'] = bcadd($sums[$groupOrder][$currencyId]['avg'], $avg);
                 }
                 // fill in per period regardless:
@@ -199,7 +192,7 @@ class IndexController extends Controller
      */
     private function amountPerPeriod(array $bill, string $range): string
     {
-        $avg = bcdiv(bcadd((string) $bill['amount_min'], (string) $bill['amount_max']), '2');
+        $avg = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
 
         Log::debug(sprintf('Amount per period for bill #%d "%s"', $bill['id'], $bill['name']));
         Log::debug(sprintf(sprintf('Average is %s', $avg)));
@@ -211,8 +204,8 @@ class IndexController extends Controller
             'monthly'   => '12',
             'weekly'    => '52.17',
         ];
-        $yearAmount = bcmul($avg, $multiplies[$bill['repeat_freq']]);
-        Log::debug(sprintf('Amount per year is %s (%s * %s)', $yearAmount, $avg, $multiplies[$bill['repeat_freq']]));
+        $yearAmount = bcmul($avg, bcdiv($multiplies[$bill['repeat_freq']], (string)($bill['skip'] + 1)));
+        Log::debug(sprintf('Amount per year is %s (%s * %s / %s)', $yearAmount, $avg, $multiplies[$bill['repeat_freq']], (string)($bill['skip'] + 1)));
 
         // per period:
         $division  = [
@@ -231,30 +224,8 @@ class IndexController extends Controller
     }
 
     /**
-     * Set the order of a bill.
-     *
-     * @param Request $request
-     * @param Bill    $bill
-     *
-     * @return JsonResponse
-     */
-    public function setOrder(Request $request, Bill $bill): JsonResponse
-    {
-        $objectGroupTitle = (string) $request->get('objectGroupTitle');
-        $newOrder         = (int) $request->get('order');
-        $this->repository->setOrder($bill, $newOrder);
-        if ('' !== $objectGroupTitle) {
-            $this->repository->setObjectGroup($bill, $objectGroupTitle);
-        }
-        if ('' === $objectGroupTitle) {
-            $this->repository->removeObjectGroup($bill);
-        }
-
-        return response()->json(['data' => 'OK']);
-    }
-
-    /**
      * @param array $sums
+     *
      * @return array
      */
     private function getTotals(array $sums): array
@@ -288,5 +259,28 @@ class IndexController extends Controller
         }
 
         return $totals;
+    }
+
+    /**
+     * Set the order of a bill.
+     *
+     * @param Request $request
+     * @param Bill    $bill
+     *
+     * @return JsonResponse
+     */
+    public function setOrder(Request $request, Bill $bill): JsonResponse
+    {
+        $objectGroupTitle = (string)$request->get('objectGroupTitle');
+        $newOrder         = (int)$request->get('order');
+        $this->repository->setOrder($bill, $newOrder);
+        if ('' !== $objectGroupTitle) {
+            $this->repository->setObjectGroup($bill, $objectGroupTitle);
+        }
+        if ('' === $objectGroupTitle) {
+            $this->repository->removeObjectGroup($bill);
+        }
+
+        return response()->json(['data' => 'OK']);
     }
 }

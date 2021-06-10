@@ -42,20 +42,14 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class AttachmentHelper implements AttachmentHelperInterface
 {
-    /** @var Collection All attachments */
-    public $attachments;
-    /** @var MessageBag All errors */
-    public $errors;
-    /** @var MessageBag All messages */
-    public $messages;
-    /** @var array Allowed mimes */
-    protected $allowedMimes = [];
-    /** @var int Max upload size. */
-    protected $maxUploadSize = 0;
+    public Collection $attachments;
+    public MessageBag $errors;
+    public MessageBag $messages;
+    protected array   $allowedMimes  = [];
+    protected int     $maxUploadSize = 0;
 
     /** @var Filesystem The disk where attachments are stored. */
     protected $uploadDisk;
-
 
     /**
      * AttachmentHelper constructor.
@@ -64,14 +58,13 @@ class AttachmentHelper implements AttachmentHelperInterface
      */
     public function __construct()
     {
-        $this->maxUploadSize = (int) config('firefly.maxUploadSize');
-        $this->allowedMimes  = (array) config('firefly.allowedMimes');
+        $this->maxUploadSize = (int)config('firefly.maxUploadSize');
+        $this->allowedMimes  = (array)config('firefly.allowedMimes');
         $this->errors        = new MessageBag;
         $this->messages      = new MessageBag;
         $this->attachments   = new Collection;
         $this->uploadDisk    = Storage::disk('upload');
     }
-
 
     /**
      * Returns the content of an attachment.
@@ -92,7 +85,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         }
         try {
             $unencryptedData = Crypt::decrypt($encryptedData); // verified
-        } catch (DecryptException|FileNotFoundException $e) {
+        } catch (DecryptException | FileNotFoundException $e) {
             Log::error(sprintf('Could not decrypt data of attachment #%d: %s', $attachment->id, $e->getMessage()));
             $unencryptedData = $encryptedData;
         }
@@ -110,7 +103,7 @@ class AttachmentHelper implements AttachmentHelperInterface
      */
     public function getAttachmentLocation(Attachment $attachment): string
     {
-        return sprintf('%sat-%d.data', DIRECTORY_SEPARATOR, (int) $attachment->id);
+        return sprintf('%sat-%d.data', DIRECTORY_SEPARATOR, (int)$attachment->id);
     }
 
     /**
@@ -158,11 +151,11 @@ class AttachmentHelper implements AttachmentHelperInterface
     {
         $resource = tmpfile();
         if (false === $resource) {
-            // @codeCoverageIgnoreStart
+
             Log::error('Cannot create temp-file for file upload.');
 
             return false;
-            // @codeCoverageIgnoreEnd
+
         }
 
         if ('' === $content) {
@@ -200,13 +193,13 @@ class AttachmentHelper implements AttachmentHelperInterface
      * @param object     $model
      * @param array|null $files
      *
-     * @throws FireflyException
      * @return bool
+     * @throws FireflyException
      */
     public function saveAttachmentsForModel(object $model, ?array $files): bool
     {
         if (!($model instanceof Model)) {
-            return false; // @codeCoverageIgnore
+            return false;
         }
 
         Log::debug(sprintf('Now in saveAttachmentsForModel for model %s', get_class($model)));
@@ -220,42 +213,11 @@ class AttachmentHelper implements AttachmentHelperInterface
             }
             Log::debug('Done processing uploads.');
         }
-        if (!is_array($files) || empty($files)) {
+        if (!is_array($files)) {
             Log::debug('Array of files is not an array. Probably nothing uploaded. Will not store attachments.');
         }
 
         return true;
-    }
-
-    /**
-     * Check if a model already has this file attached.
-     *
-     * @param UploadedFile $file
-     * @param Model        $model
-     *
-     * @return bool
-     */
-    protected function hasFile(UploadedFile $file, Model $model): bool
-    {
-        $md5   = md5_file($file->getRealPath());
-        $name  = $file->getClientOriginalName();
-        $class = get_class($model);
-        $count = 0;
-        if (PiggyBank::class === $class) {
-            $count = $model->account->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
-        }
-        if (PiggyBank::class !== $class) {
-            $count = $model->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
-        }
-        $result = false;
-        if ($count > 0) {
-            $msg = (string) trans('validation.file_already_attached', ['name' => $name]);
-            $this->errors->add('attachments', $msg);
-            Log::error($msg);
-            $result = true;
-        }
-
-        return $result;
     }
 
     /**
@@ -264,9 +226,9 @@ class AttachmentHelper implements AttachmentHelperInterface
      * @param UploadedFile $file
      * @param Model        $model
      *
-     * @throws EncryptException
-     * @throws FireflyException
      * @return Attachment|null
+     * @throws FireflyException
+     * @throws EncryptException
      */
     protected function processFile(UploadedFile $file, Model $model): ?Attachment
     {
@@ -275,7 +237,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         $attachment = null;
         if (false !== $validation) {
             $class = get_class($model);
-            $user = $model->user;
+            $user  = $model->user;
             if (PiggyBank::class === $class) {
                 $user = $model->account->user;
             }
@@ -296,7 +258,7 @@ class AttachmentHelper implements AttachmentHelperInterface
             $fileObject->rewind();
 
             if (0 === $file->getSize()) {
-                throw new FireflyException('Cannot upload empty or non-existent file.'); // @codeCoverageIgnore
+                throw new FireflyException('Cannot upload empty or non-existent file.');
             }
 
             $content = $fileObject->fread($file->getSize());
@@ -309,11 +271,44 @@ class AttachmentHelper implements AttachmentHelperInterface
             $this->attachments->push($attachment);
 
             $name = e($file->getClientOriginalName()); // add message:
-            $msg  = (string) trans('validation.file_attached', ['name' => $name]);
+            $msg  = (string)trans('validation.file_attached', ['name' => $name]);
             $this->messages->add('attachments', $msg);
         }
 
         return $attachment;
+    }
+
+    /**
+     * Verify if the file was uploaded correctly.
+     *
+     * @param UploadedFile $file
+     * @param Model        $model
+     *
+     * @return bool
+     */
+    protected function validateUpload(UploadedFile $file, Model $model): bool
+    {
+        Log::debug('Now in validateUpload()');
+        $result = true;
+        if (!$this->validMime($file)) {
+            $result = false;
+        }
+        if (0 === $file->getSize()) {
+            Log::error('Cannot upload empty file.');
+            $result = false;
+        }
+
+
+        // can't seem to reach this point.
+        if (true === $result && !$this->validSize($file)) {
+            $result = false;
+        }
+
+        if (true === $result && $this->hasFile($file, $model)) {
+            $result = false;
+        }
+
+        return $result;
     }
 
     /**
@@ -333,7 +328,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         $result = true;
 
         if (!in_array($mime, $this->allowedMimes, true)) {
-            $msg = (string) trans('validation.file_invalid_mime', ['name' => $name, 'mime' => $mime]);
+            $msg = (string)trans('validation.file_invalid_mime', ['name' => $name, 'mime' => $mime]);
             $this->errors->add('attachments', $msg);
             Log::error($msg);
 
@@ -358,7 +353,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         $name   = e($file->getClientOriginalName());
         $result = true;
         if ($size > $this->maxUploadSize) {
-            $msg = (string) trans('validation.file_too_large', ['name' => $name]);
+            $msg = (string)trans('validation.file_too_large', ['name' => $name]);
             $this->errors->add('attachments', $msg);
             Log::error($msg);
 
@@ -369,33 +364,31 @@ class AttachmentHelper implements AttachmentHelperInterface
     }
 
     /**
-     * Verify if the file was uploaded correctly.
+     * Check if a model already has this file attached.
      *
      * @param UploadedFile $file
      * @param Model        $model
      *
      * @return bool
      */
-    protected function validateUpload(UploadedFile $file, Model $model): bool
+    protected function hasFile(UploadedFile $file, Model $model): bool
     {
-        Log::debug('Now in validateUpload()');
-        $result = true;
-        if (!$this->validMime($file)) {
-            $result = false;
+        $md5   = md5_file($file->getRealPath());
+        $name  = $file->getClientOriginalName();
+        $class = get_class($model);
+        $count = 0;
+        if (PiggyBank::class === $class) {
+            $count = $model->account->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
         }
-        if (0 === $file->getSize()) {
-            Log::error('Cannot upload empty file.');
-            $result = false;
+        if (PiggyBank::class !== $class) {
+            $count = $model->user->attachments()->where('md5', $md5)->where('attachable_id', $model->id)->where('attachable_type', $class)->count();
         }
-
-        // @codeCoverageIgnoreStart
-        // can't seem to reach this point.
-        if (true === $result && !$this->validSize($file)) {
-            $result = false;
-        }
-        // @codeCoverageIgnoreEnd
-        if (true === $result && $this->hasFile($file, $model)) {
-            $result = false;
+        $result = false;
+        if ($count > 0) {
+            $msg = (string)trans('validation.file_already_attached', ['name' => $name]);
+            $this->errors->add('attachments', $msg);
+            Log::error($msg);
+            $result = true;
         }
 
         return $result;

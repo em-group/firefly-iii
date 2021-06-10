@@ -31,10 +31,11 @@ use Illuminate\Support\Collection;
  */
 interface RuleGroupRepositoryInterface
 {
+
     /**
-     * Delete everything.
+     * Make sure rule group order is correct in DB.
      */
-    public function destroyAll(): void;
+    public function correctRuleGroupOrder(): void;
 
     /**
      * @return int
@@ -48,6 +49,11 @@ interface RuleGroupRepositoryInterface
      * @return bool
      */
     public function destroy(RuleGroup $ruleGroup, ?RuleGroup $moveTo): bool;
+
+    /**
+     * Delete everything.
+     */
+    public function destroyAll(): void;
 
     /**
      * @param int $ruleGroupId
@@ -102,9 +108,20 @@ interface RuleGroupRepositoryInterface
     public function getHighestOrderRuleGroup(): int;
 
     /**
+     * @param string|null $filter
+     *
      * @return Collection
      */
-    public function getRuleGroupsWithRules(): Collection;
+    public function getRuleGroupsWithRules(?string $filter): Collection;
+
+    /**
+     * Also inactive groups.
+     *
+     * @param string|null $filter
+     *
+     * @return Collection
+     */
+    public function getAllRuleGroupsWithRules(?string $filter): Collection;
 
     /**
      * @param RuleGroup $group
@@ -114,30 +131,37 @@ interface RuleGroupRepositoryInterface
     public function getRules(RuleGroup $group): Collection;
 
     /**
-     * @param RuleGroup $ruleGroup
+     * Get highest possible order for a rule group.
      *
+     * @return int
+     */
+    public function maxOrder(): int;
+
+    /**
      * @return bool
      */
-    public function moveDown(RuleGroup $ruleGroup): bool;
+    public function resetOrder(): bool;
 
     /**
      * @param RuleGroup $ruleGroup
      *
      * @return bool
      */
-    public function moveUp(RuleGroup $ruleGroup): bool;
+    public function resetRuleOrder(RuleGroup $ruleGroup): bool;
 
     /**
-     * @return bool
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
      */
-    public function resetRuleGroupOrder(): bool;
+    public function searchRuleGroup(string $query, int $limit): Collection;
 
     /**
      * @param RuleGroup $ruleGroup
-     *
-     * @return bool
+     * @param int       $newOrder
      */
-    public function resetRulesInGroupOrder(RuleGroup $ruleGroup): bool;
+    public function setOrder(RuleGroup $ruleGroup, int $newOrder): void;
 
     /**
      * @param User $user
@@ -153,7 +177,7 @@ interface RuleGroupRepositoryInterface
 
     /**
      * @param RuleGroup $ruleGroup
-     * @param array $data
+     * @param array     $data
      *
      * @return RuleGroup
      */

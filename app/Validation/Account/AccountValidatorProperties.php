@@ -24,10 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Validation\Account;
 
-use FireflyIII\Models\Account;
-use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\User;
-
 /**
  * I have no idea what made me do this. I'll reverse it some day.
  *
@@ -35,13 +31,5 @@ use FireflyIII\User;
  */
 trait AccountValidatorProperties
 {
-    public bool                        $createMode;
-    public string                      $destError;
-    public Account                     $destination;
-    public Account                     $source;
-    public string                      $sourceError;
-    private AccountRepositoryInterface $accountRepository;
-    private array                      $combinations;
-    private string                     $transactionType;
-    private User                       $user;
+
 }

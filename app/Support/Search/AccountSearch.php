@@ -23,8 +23,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Search;
-
-
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -61,7 +59,7 @@ class AccountSearch implements GenericSearchInterface
     public function search(): Collection
     {
 
-        $searchQuery         = $this->user->accounts()
+        $searchQuery   = $this->user->accounts()
                                     ->leftJoin('account_types', 'accounts.account_type_id', '=', 'account_types.id')
                                     ->leftJoin('account_meta', 'accounts.id', '=', 'account_meta.account_id')
                                     ->whereIn('account_types.type', $this->types);

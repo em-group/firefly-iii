@@ -110,9 +110,9 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.double.partials.avg-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.double.partials.avg-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -162,9 +162,9 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.double.partials.avg-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.double.partials.avg-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -288,7 +288,32 @@ class DoubleController extends Controller
             }
         }
 
-        return view('reports.double.partials.accounts', compact('sums', 'report'));
+        return prefixView('reports.double.partials.accounts', compact('sums', 'report'));
+    }
+
+    /**
+     * TODO this method is double.
+     *
+     * @param Collection  $accounts
+     * @param int         $id
+     * @param string      $name
+     * @param string|null $iban
+     *
+     * @return string
+     */
+    private function getCounterpartName(Collection $accounts, int $id, string $name, ?string $iban): string
+    {
+        /** @var Account $account */
+        foreach ($accounts as $account) {
+            if ($account->name === $name && $account->id !== $id) {
+                return $account->name;
+            }
+            if (null !== $account->iban && $account->iban === $iban && $account->id !== $id) {
+                return $account->iban;
+            }
+        }
+
+        return $name;
     }
 
     /**
@@ -388,7 +413,7 @@ class DoubleController extends Controller
             }
         }
 
-        return view('reports.double.partials.accounts-per-asset', compact('sums', 'report'));
+        return prefixView('reports.double.partials.accounts-per-asset', compact('sums', 'report'));
     }
 
     /**
@@ -431,9 +456,9 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.double.partials.top-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.double.partials.top-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -481,38 +506,13 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.double.partials.top-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.double.partials.top-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
 
         return $result;
-    }
-
-    /**
-     * TODO this method is double.
-     *
-     * @param Collection  $accounts
-     * @param int         $id
-     * @param string      $name
-     * @param string|null $iban
-     *
-     * @return string
-     */
-    private function getCounterpartName(Collection $accounts, int $id, string $name, ?string $iban): string
-    {
-        /** @var Account $account */
-        foreach ($accounts as $account) {
-            if ($account->name === $name && $account->id !== $id) {
-                return $account->name;
-            }
-            if (null !== $account->iban && $account->iban === $iban && $account->id !== $id) {
-                return $account->iban;
-            }
-        }
-
-        return $name;
     }
 }

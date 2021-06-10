@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Json;
 
-
 use Carbon\Carbon;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionCurrency;
@@ -42,6 +41,7 @@ use Illuminate\Http\JsonResponse;
 class BudgetController extends Controller
 {
     use DateCalculation;
+
     /** @var AvailableBudgetRepositoryInterface */
     private $abRepository;
     /** @var BudgetLimitRepositoryInterface */
@@ -64,7 +64,7 @@ class BudgetController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.budgets'));
+                app('view')->share('title', (string)trans('firefly.budgets'));
                 app('view')->share('mainTitleIcon', 'fa-pie-chart');
                 $this->repository         = app(BudgetRepositoryInterface::class);
                 $this->opsRepository      = app(OperationsRepositoryInterface::class);

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\Search;
 
+use Carbon\Carbon;
 use FireflyIII\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -47,16 +48,6 @@ interface SearchInterface
     public function getWordsAsString(): string;
 
     /**
-     * @param int $page
-     */
-    public function setPage(int $page): void;
-
-    /**
-     * @param int $limit
-     */
-    public function setLimit(int $limit): void;
-
-    /**
      * @return bool
      */
     public function hasModifiers(): bool;
@@ -75,6 +66,21 @@ interface SearchInterface
      * @return LengthAwarePaginator
      */
     public function searchTransactions(): LengthAwarePaginator;
+
+    /**
+     * @param Carbon $date
+     */
+    public function setDate(Carbon $date): void;
+
+    /**
+     * @param int $limit
+     */
+    public function setLimit(int $limit): void;
+
+    /**
+     * @param int $page
+     */
+    public function setPage(int $page): void;
 
     /**
      * @param User $user

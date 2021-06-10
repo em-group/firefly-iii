@@ -48,12 +48,11 @@ class DeleteOrphanedTransactions extends Command
      */
     protected $signature = 'firefly-iii:delete-orphaned-transactions';
 
-
     /**
      * Execute the console command.
      *
-     * @throws Exception
      * @return int
+     * @throws Exception
      */
     public function handle(): int
     {
@@ -64,45 +63,6 @@ class DeleteOrphanedTransactions extends Command
         $this->info(sprintf('Verified orphans in %s seconds', $end));
 
         return 0;
-    }
-
-    /**
-     *
-     */
-    private function deleteFromOrphanedAccounts(): void
-    {
-        $set
-               = Transaction
-            ::leftJoin('accounts', 'transactions.account_id', '=', 'accounts.id')
-            ->whereNotNull('accounts.deleted_at')
-            ->get(['transactions.*']);
-        $count = 0;
-        /** @var Transaction $transaction */
-        foreach ($set as $transaction) {
-            // delete journals
-            $journal = TransactionJournal::find((int) $transaction->transaction_journal_id);
-            if ($journal) {
-                try {
-                    $journal->delete();
-                    // @codeCoverageIgnoreStart
-                } catch (Exception $e) {
-                    Log::info(sprintf('Could not delete journal %s', $e->getMessage()));
-                }
-                // @codeCoverageIgnoreEnd
-            }
-            Transaction::where('transaction_journal_id', (int) $transaction->transaction_journal_id)->delete();
-            $this->line(
-                sprintf(
-                    'Deleted transaction journal #%d because account #%d was already deleted.',
-                    $transaction->transaction_journal_id,
-                    $transaction->account_id
-                )
-            );
-            $count++;
-        }
-        if (0 === $count) {
-            $this->info('No orphaned accounts.');
-        }
     }
 
     /**
@@ -124,7 +84,7 @@ class DeleteOrphanedTransactions extends Command
             );
         /** @var stdClass $entry */
         foreach ($set as $entry) {
-            $transaction = Transaction::find((int) $entry->transaction_id);
+            $transaction = Transaction::find((int)$entry->transaction_id);
             $transaction->delete();
             $this->info(
                 sprintf(
@@ -137,6 +97,45 @@ class DeleteOrphanedTransactions extends Command
         }
         if (0 === $count) {
             $this->info('No orphaned transactions.');
+        }
+    }
+
+    /**
+     *
+     */
+    private function deleteFromOrphanedAccounts(): void
+    {
+        $set
+               = Transaction
+            ::leftJoin('accounts', 'transactions.account_id', '=', 'accounts.id')
+            ->whereNotNull('accounts.deleted_at')
+            ->get(['transactions.*']);
+        $count = 0;
+        /** @var Transaction $transaction */
+        foreach ($set as $transaction) {
+            // delete journals
+            $journal = TransactionJournal::find((int)$transaction->transaction_journal_id);
+            if ($journal) {
+                try {
+                    $journal->delete();
+
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    Log::info(sprintf('Could not delete journal %s', $e->getMessage()));
+                }
+
+            }
+            Transaction::where('transaction_journal_id', (int)$transaction->transaction_journal_id)->delete();
+            $this->line(
+                sprintf(
+                    'Deleted transaction journal #%d because account #%d was already deleted.',
+                    $transaction->transaction_journal_id,
+                    $transaction->account_id
+                )
+            );
+            $count++;
+        }
+        if (0 === $count) {
+            $this->info('No orphaned accounts.');
         }
     }
 }

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
-
 use Exception;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\TransactionJournalMeta;
@@ -49,7 +48,6 @@ class MigrateJournalNotes extends Command
      */
     protected $signature = 'firefly-iii:migrate-notes {--F|force : Force the execution of this command.}';
 
-
     /**
      * Execute the console command.
      *
@@ -58,13 +56,13 @@ class MigrateJournalNotes extends Command
     public function handle(): int
     {
         $start = microtime(true);
-        // @codeCoverageIgnoreStart
+
         if ($this->isExecuted() && true !== $this->option('force')) {
             $this->warn('This command has already been executed.');
 
             return 0;
         }
-        // @codeCoverageIgnoreEnd
+
         $count = 0;
         /** @noinspection PhpUndefinedMethodInspection */
         $set = TransactionJournalMeta::whereName('notes')->get();
@@ -82,11 +80,11 @@ class MigrateJournalNotes extends Command
             Log::debug(sprintf('Migrated meta note #%d to Note #%d', $meta->id, $note->id));
             try {
                 $meta->delete();
-                // @codeCoverageIgnoreStart
-            } catch (Exception $e) {
+
+            } catch (Exception $e) { // @phpstan-ignore-line
                 Log::error(sprintf('Could not delete old meta entry #%d: %s', $meta->id, $e->getMessage()));
             }
-            // @codeCoverageIgnoreEnd
+
             $count++;
         }
 
@@ -111,12 +109,11 @@ class MigrateJournalNotes extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool) $configVar->data;
+            return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
+        return false; 
     }
-
 
     /**
      *

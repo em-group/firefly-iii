@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Http\Controllers;
-
-
 use Carbon\Carbon;
 use Log;
 
@@ -42,7 +40,7 @@ trait GetConfigurationData
      */
     protected function errorReporting(int $value): string // get configuration
     {
-        $array  = [
+        $array = [
             -1                                                             => 'ALL errors',
             E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED                  => 'E_ALL & ~E_NOTICE & ~E_STRICT & ~E_DEPRECATED',
             E_ALL                                                          => 'E_ALL',
@@ -51,6 +49,7 @@ trait GetConfigurationData
             E_ALL & ~E_NOTICE & ~E_STRICT                                  => 'E_ALL & ~E_NOTICE & ~E_STRICT',
             E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR => 'E_COMPILE_ERROR|E_RECOVERABLE_ERROR|E_ERROR|E_CORE_ERROR',
         ];
+
         return $array[$value] ?? (string)$value;
     }
 
@@ -90,7 +89,7 @@ trait GetConfigurationData
      */
     protected function getDateRangeConfig(): array // get configuration + get preferences.
     {
-        $viewRange = (string) app('preferences')->get('viewRange', '1M')->data;
+        $viewRange = (string)app('preferences')->get('viewRange', '1M')->data;
         /** @var Carbon $start */
         $start = session('start');
         /** @var Carbon $end */
@@ -197,6 +196,7 @@ trait GetConfigurationData
 
         return $steps;
     }
+
     /**
      *
      */
@@ -205,6 +205,7 @@ trait GetConfigurationData
         $config   = app('fireflyconfig')->get('last_rt_job', 0);
         $lastTime = (int)$config->data;
         $now      = time();
+        Log::debug(sprintf('verifyRecurringCronJob: last time is %d ("%s"), now is %d', $lastTime, $config->data, $now));
         if (0 === $lastTime) {
             request()->session()->flash('info', trans('firefly.recurring_never_cron'));
 

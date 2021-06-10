@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * WebhookRepositoryInterface.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,9 +19,13 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Repositories\Webhook;
 
 use FireflyIII\Models\Webhook;
+use FireflyIII\Models\WebhookAttempt;
+use FireflyIII\Models\WebhookMessage;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 
@@ -37,6 +40,42 @@ interface WebhookRepositoryInterface
      * @return Collection
      */
     public function all(): Collection;
+
+    /**
+     * @param Webhook $webhook
+     */
+    public function destroy(Webhook $webhook): void;
+
+    /**
+     * @param WebhookAttempt $attempt
+     */
+    public function destroyAttempt(WebhookAttempt $attempt): void;
+
+    /**
+     * @param WebhookMessage $message
+     */
+    public function destroyMessage(WebhookMessage $message): void;
+
+    /**
+     * @param WebhookMessage $webhookMessage
+     *
+     * @return Collection
+     */
+    public function getAttempts(WebhookMessage $webhookMessage): Collection;
+
+    /**
+     * @param Webhook $webhook
+     *
+     * @return Collection
+     */
+    public function getMessages(Webhook $webhook): Collection;
+
+    /**
+     * @param Webhook $webhook
+     *
+     * @return Collection
+     */
+    public function getReadyMessages(Webhook $webhook): Collection;
 
     /**
      * Set user.
@@ -59,10 +98,5 @@ interface WebhookRepositoryInterface
      * @return Webhook
      */
     public function update(Webhook $webhook, array $data): Webhook;
-
-    /**
-     * @param Webhook $webhook
-     */
-    public function destroy(Webhook $webhook): void;
 
 }

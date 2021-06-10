@@ -25,47 +25,48 @@
     </div>
 
     <vue-typeahead-bootstrap
-        inputName="category[]"
-        v-model="value"
+        v-model="category"
         :data="categories"
-        :placeholder="$t('firefly.category')"
-        :showOnFocus=true
+        :inputClass="errors.length > 0 ? 'is-invalid' : ''"
         :minMatchingChars="3"
+        :placeholder="$t('firefly.category')"
         :serializer="item => item.name"
+        :showOnFocus=true
+        inputName="category[]"
         @hit="selectedCategory = $event"
         @input="lookupCategory"
     >
       <template slot="append">
         <div class="input-group-append">
-          <button v-on:click="clearCategory" class="btn btn-outline-secondary" type="button"><i class="far fa-trash-alt"></i></button>
+          <button class="btn btn-outline-secondary" tabindex="-1" type="button" v-on:click="clearCategory"><i class="far fa-trash-alt"></i></button>
         </div>
       </template>
     </vue-typeahead-bootstrap>
-
+    <span v-if="errors.length > 0">
+      <span v-for="error in errors" class="text-danger small">{{ error }}<br/></span>
+    </span>
   </div>
 </template>
 
 <script>
 
-import {createNamespacedHelpers} from "vuex";
 import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap';
 import {debounce} from "lodash";
 
-const {mapState, mapGetters, mapActions, mapMutations} = createNamespacedHelpers('transactions/create')
-
 export default {
-  props: ['value', 'index'],
+  props: ['value', 'index', 'errors'],
   components: {VueTypeaheadBootstrap},
   name: "TransactionCategory",
   data() {
     return {
       categories: [],
-      initialSet: []
+      initialSet: [],
+      category: this.value
     }
   },
 
   created() {
-
+    //console.log('Created category(' + this.index + ') "' + this.value + '"');
     // initial list of accounts:
     axios.get(this.getACURL(''))
         .then(response => {
@@ -75,21 +76,18 @@ export default {
   },
 
   methods: {
-    ...mapMutations(
-        [
-          'updateField',
-        ],
-    ),
     clearCategory: function () {
-      this.value = '';
+      this.category = '';
     },
     getACURL: function (query) {
       // update autocomplete URL:
+      // console.log('getACURL("' + query + '")');
       return document.getElementsByTagName('base')[0].href + 'api/v1/autocomplete/categories?query=' + query;
     },
     lookupCategory: debounce(function () {
       // update autocomplete URL:
-      axios.get(this.getACURL(this.value))
+      //console.log('Do a search for "'+this.category+'"');
+      axios.get(this.getACURL(this.category))
           .then(response => {
             this.categories = response.data;
           })
@@ -97,22 +95,19 @@ export default {
   },
   watch: {
     value: function (value) {
-      this.updateField({field: 'category', index: this.index, value: value});
+      this.category = value ?? '';
+    },
+    category: function (value) {
+      this.$emit('set-field', {field: 'category', index: this.index, value: value});
     }
   },
   computed: {
-    ...mapGetters(
-        [
-                    'transactionType',
-                    'transactions',
-                  ]
-    ),
     selectedCategory: {
       get() {
         return this.categories[this.index].name;
       },
       set(value) {
-        this.value = value.name;
+        this.category = value.name;
       }
     }
   }

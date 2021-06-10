@@ -27,26 +27,14 @@ use Carbon\Carbon;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Category;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
 use FireflyIII\Repositories\Category\OperationsRepositoryInterface;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  * Class WholePeriodChartGenerator
  */
 class WholePeriodChartGenerator
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param Category $category
      * @param Carbon   $start
@@ -119,8 +107,8 @@ class WholePeriodChartGenerator
                 $earnedInfoKey                                = sprintf('earned-in-%s', $code);
                 $spentAmount                                  = $spent[$key][$currencyId]['sum'] ?? '0';
                 $earnedAmount                                 = $earned[$key][$currencyId]['sum'] ?? '0';
-                $chartData[$spentInfoKey]['entries'][$label]  = round((float) $spentAmount, $currency['currency_decimal_places']);
-                $chartData[$earnedInfoKey]['entries'][$label] = round((float) $earnedAmount, $currency['currency_decimal_places']);
+                $chartData[$spentInfoKey]['entries'][$label]  = round((float)$spentAmount, $currency['currency_decimal_places']);
+                $chartData[$earnedInfoKey]['entries'][$label] = round((float)$earnedAmount, $currency['currency_decimal_places']);
             }
             $current = app('navigation')->addPeriod($current, $step, 0);
         }
@@ -142,13 +130,13 @@ class WholePeriodChartGenerator
         $step   = '1D';
         $months = $start->diffInMonths($end);
         if ($months > 3) {
-            $step = '1W'; // @codeCoverageIgnore
+            $step = '1W'; 
         }
         if ($months > 24) {
-            $step = '1M'; // @codeCoverageIgnore
+            $step = '1M'; 
         }
         if ($months > 100) {
-            $step = '1Y'; // @codeCoverageIgnore
+            $step = '1Y'; 
         }
 
         return $step;

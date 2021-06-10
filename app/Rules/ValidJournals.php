@@ -21,8 +21,6 @@
  */
 
 declare(strict_types=1);
-
-
 namespace FireflyIII\Rules;
 
 use FireflyIII\Models\TransactionJournal;
@@ -31,6 +29,7 @@ use Log;
 
 /**
  * Class ValidJournals
+ *
  * @codeCoverageIgnore
  */
 class ValidJournals implements Rule
@@ -49,7 +48,7 @@ class ValidJournals implements Rule
      * Determine if the validation rule passes.
      *
      * @param string $attribute
-     * @param mixed $value
+     * @param mixed  $value
      *
      * @return bool
      *

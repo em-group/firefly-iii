@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute kisebbnek kell lennie 10,000,000-nél',
     'active_url'                     => ':attribute nem egy érvényes URL.',
     'after'                          => ':attribute egy :date utáni dátum kell legyen.',
+    'date_after'                     => 'The start date must be before the end date.',
     'alpha'                          => ':attribute csak betűket tartalmazhat.',
     'alpha_dash'                     => ':attribute csak számokat, betűket és kötőjeleket tartalmazhat.',
     'alpha_num'                      => ':attribute csak betűket és számokat tartalmazhat.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'The value must start with :values.',
     'unique_webhook'                 => 'You already have a webhook with these values.',
     'unique_existing_webhook'        => 'You already have another webhook with these values.',
+    'same_account_type'              => 'Both accounts must be of the same account type',
+    'same_account_currency'          => 'Both accounts must have the same currency setting',
 
     'secure_password'             => 'Ez nem biztonságos jelszó. Kérlek próbáld meg újra. További információért lásd: https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Érvénytelen ismétléstípus az ismétlődő tranzakciókhoz.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Nem található érvényes forrásszámla ":id" azonosító vagy ":name" név keresésekor.',
     'withdrawal_dest_need_data'   => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
     'withdrawal_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
+
+    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => 'Egy érvényes forrásszámla azonosító és/vagy egy érvényes forrásszámla név kell a folytatáshoz.',
     'deposit_source_bad_data'  => 'Nem található érvényes forrásszámla ":id" azonosító vagy ":name" név keresésekor.',

@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName, journals) }}
@@ -76,10 +76,12 @@
                                             </td>
                                             <td>
                                                 {% for tag in journal.tags %}
-                                                <span style="display: inline;"><a class="label label-success" href="{{ route('tags.show', [tag.name]) }}">
+                                                    {% if 0 != tag.id %}
+                                                <span style="display: inline;"><a class="label label-success" href="{{ route('tags.show', [tag.id]) }}">
                                                         <i class="fa fa-fw fa-tag"></i>
                                                         {{ tag.name }}</a>
                                                 </span>
+                                                    {% endif %}
                                                 {% endfor %}
                                             </td>
                                             <td>
@@ -197,5 +199,5 @@
     <script type="text/javascript" src="v1/js/ff/transactions/mass/edit-bulk.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% endblock %}
 {% block styles %}
-    <link href="v1/css/bootstrap-tagsinput.css?v={{ FF_VERSION }}" type="text/css" rel="stylesheet" media="all">
+    <link href="v1/css/bootstrap-tagsinput.css?v={{ FF_VERSION }}" type="text/css" rel="stylesheet"  media="all" nonce="{{ JS_NONCE }}">
 {% endblock %}

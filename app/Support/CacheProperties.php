@@ -24,17 +24,17 @@ namespace FireflyIII\Support;
 
 use Cache;
 use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Class CacheProperties.
+ *
  * @codeCoverageIgnore
  */
 class CacheProperties
 {
-    /** @var string */
-    protected $hash = '';
-    /** @var Collection */
-    protected $properties;
+    protected string     $hash = '';
+    protected Collection $properties;
 
     /**
      *
@@ -49,8 +49,7 @@ class CacheProperties
     }
 
     /**
-     * @param $property
-     * @param Collection|\Carbon\Carbon|\FireflyIII\Models\Category|array|int|string $property
+     * @param mixed $property
      */
     public function addProperty($property): void
     {
@@ -87,22 +86,27 @@ class CacheProperties
     }
 
     /**
-     * @param $data
-     * @param (array|mixed)[]|Collection|\Carbon\Carbon|string $data
-     */
-    public function store($data): void
-    {
-        Cache::forever($this->hash, $data);
-    }
-
-    /**
+     * @throws JsonException
      */
     private function hash(): void
     {
         $content = '';
         foreach ($this->properties as $property) {
-            $content .= json_encode($property, JSON_THROW_ON_ERROR, 512);
+            try {
+                $content .= json_encode($property, JSON_THROW_ON_ERROR, 512);
+            } catch (JsonException $e) {
+                // @ignoreException
+                $content .= hash('sha256', (string)time());
+            }
         }
         $this->hash = substr(hash('sha256', $content), 0, 16);
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function store($data): void
+    {
+        Cache::forever($this->hash, $data);
     }
 }

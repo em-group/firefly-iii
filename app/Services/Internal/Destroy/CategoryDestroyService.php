@@ -30,20 +30,11 @@ use Log;
 
 /**
  * Class CategoryDestroyService
+ *
  * @codeCoverageIgnore
  */
 class CategoryDestroyService
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param Category $category
      */
@@ -51,8 +42,8 @@ class CategoryDestroyService
     {
         try {
             $category->delete();
-        } catch (Exception $e) { // @codeCoverageIgnore
-            Log::error(sprintf('Could not delete category: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
 
         // also delete all relations between categories and transaction journals:

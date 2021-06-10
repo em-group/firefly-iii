@@ -51,7 +51,6 @@ class BackToJournals extends Command
      */
     protected $signature = 'firefly-iii:back-to-journals {--F|force : Force the execution of this command.}';
 
-
     /**
      * Execute the console command.
      *
@@ -59,20 +58,20 @@ class BackToJournals extends Command
      */
     public function handle(): int
     {
-        // @codeCoverageIgnoreStart
+
         $start = microtime(true);
         if (!$this->isMigrated()) {
             $this->error('Please run firefly-iii:migrate-to-groups first.');
         }
         if ($this->isExecuted() && true !== $this->option('force')) {
-            $this->info('This command has already been executed.');
+            $this->warn('This command has already been executed.');
 
             return 0;
         }
         if (true === $this->option('force')) {
             $this->warn('Forcing the command.');
         }
-        // @codeCoverageIgnoreEnd
+
 
         $this->migrateAll();
         $end = round(microtime(true) - $start, 2);
@@ -83,43 +82,13 @@ class BackToJournals extends Command
     }
 
     /**
-     * @return array
+     * @return bool
      */
-    private function getIdsForBudgets(): array
+    private function isMigrated(): bool
     {
-        $transactions = DB::table('budget_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
-        $array        = [];
-        $chunks       = array_chunk($transactions, 500);
+        $configVar = app('fireflyconfig')->get(MigrateToGroups::CONFIG_NAME, false);
 
-        foreach ($chunks as $chunk) {
-            $set = DB::table('transactions')
-                     ->whereIn('transactions.id', $chunk)
-                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $array = array_merge($array, $set);
-        }
-
-        return $array;
-    }
-
-    /**
-     * @return array
-     */
-    private function getIdsForCategories(): array
-    {
-        $transactions = DB::table('category_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
-        $array        = [];
-        $chunks       = array_chunk($transactions, 500);
-
-        foreach ($chunks as $chunk) {
-            $set = DB::table('transactions')
-                     ->whereIn('transactions.id', $chunk)
-                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $array = array_merge($array, $set);
-        }
-
-        return $array;
+        return (bool)$configVar->data;
     }
 
     /**
@@ -128,32 +97,8 @@ class BackToJournals extends Command
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool) $configVar->data;
-        }
 
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     * @return bool
-     */
-    private function isMigrated(): bool
-    {
-        $configVar = app('fireflyconfig')->get(MigrateToGroups::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool) $configVar->data;
-        }
-
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     *
-     */
-    private function markAsExecuted(): void
-    {
-        app('fireflyconfig')->set(self::CONFIG_NAME, true);
+        return (bool)$configVar->data;
     }
 
     /**
@@ -190,6 +135,23 @@ class BackToJournals extends Command
     }
 
     /**
+     * @return array
+     */
+    private function getIdsForBudgets(): array
+    {
+        $transactions = DB::table('budget_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray(); // @phpstan-ignore-line
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
+
+        foreach ($chunks as $chunk) {
+            $set   = DB::table('transactions')->whereIn('transactions.id', $chunk)->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
+    }
+
+    /**
      * @param TransactionJournal $journal
      */
     private function migrateBudgetsForJournal(TransactionJournal $journal): void
@@ -199,11 +161,11 @@ class BackToJournals extends Command
         /** @var Transaction $transaction */
         $transaction = $journal->transactions->first();
         if (null === $transaction) {
-            // @codeCoverageIgnoreStart
+
             $this->info(sprintf('Transaction journal #%d has no transactions. Will be fixed later.', $journal->id));
 
             return;
-            // @codeCoverageIgnoreEnd
+
         }
         /** @var Budget $budget */
         $budget = $transaction->budgets->first();
@@ -213,7 +175,7 @@ class BackToJournals extends Command
         // both have a budget, but they don't match.
         if (null !== $budget && null !== $journalBudget && $budget->id !== $journalBudget->id) {
             // sync to journal:
-            $journal->budgets()->sync([(int) $budget->id]);
+            $journal->budgets()->sync([(int)$budget->id]);
 
             return;
         }
@@ -221,7 +183,7 @@ class BackToJournals extends Command
         // transaction has a budget, but the journal doesn't.
         if (null !== $budget && null === $journalBudget) {
             // sync to journal:
-            $journal->budgets()->sync([(int) $budget->id]);
+            $journal->budgets()->sync([(int)$budget->id]);
         }
     }
 
@@ -250,6 +212,26 @@ class BackToJournals extends Command
     }
 
     /**
+     * @return array
+     */
+    private function getIdsForCategories(): array
+    {
+        $transactions = DB::table('category_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray(); // @phpstan-ignore-line
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
+
+        foreach ($chunks as $chunk) {
+            $set = DB::table('transactions') // @phpstan-ignore-line
+                     ->whereIn('transactions.id', $chunk)
+                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
+    }
+
+    /**
      * @param TransactionJournal $journal
      */
     private function migrateCategoriesForJournal(TransactionJournal $journal): void
@@ -258,11 +240,11 @@ class BackToJournals extends Command
         /** @var Transaction $transaction */
         $transaction = $journal->transactions->first();
         if (null === $transaction) {
-            // @codeCoverageIgnoreStart
+
             $this->info(sprintf('Transaction journal #%d has no transactions. Will be fixed later.', $journal->id));
 
             return;
-            // @codeCoverageIgnoreEnd
+
         }
         /** @var Category $category */
         $category = $transaction->categories->first();
@@ -272,12 +254,20 @@ class BackToJournals extends Command
         // both have a category, but they don't match.
         if (null !== $category && null !== $journalCategory && $category->id !== $journalCategory->id) {
             // sync to journal:
-            $journal->categories()->sync([(int) $category->id]);
+            $journal->categories()->sync([(int)$category->id]);
         }
 
         // transaction has a category, but the journal doesn't.
         if (null !== $category && null === $journalCategory) {
-            $journal->categories()->sync([(int) $category->id]);
+            $journal->categories()->sync([(int)$category->id]);
         }
+    }
+
+    /**
+     *
+     */
+    private function markAsExecuted(): void
+    {
+        app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
 }

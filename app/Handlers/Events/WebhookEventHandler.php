@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * WebhookEventHandler.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,8 +19,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace FireflyIII\Handlers\Events;
+declare(strict_types=1);
 
+namespace FireflyIII\Handlers\Events;
 
 use FireflyIII\Jobs\SendWebhookMessage;
 use FireflyIII\Models\WebhookMessage;
@@ -40,13 +40,13 @@ class WebhookEventHandler
         // kick off the job!
         $messages = WebhookMessage
             ::where('webhook_messages.sent', 0)
-            ->where('webhook_messages.errored', 0)
+            //->where('webhook_messages.errored', 0)
             ->get(['webhook_messages.*'])
             ->filter(
                 function (WebhookMessage $message) {
                     return $message->webhookAttempts()->count() <= 2;
                 }
-            )->splice(0, 3);
+            )->splice(0, 5);
         Log::debug(sprintf('Found %d webhook message(s) ready to be send.', $messages->count()));
         foreach ($messages as $message) {
             SendWebhookMessage::dispatch($message)->afterResponse();

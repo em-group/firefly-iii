@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
+use FireflyIII\Providers\RouteServiceProvider;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Http\Request;
@@ -53,14 +54,14 @@ class IsDemoUser
         $repository = app(UserRepositoryInterface::class);
         if ($repository->hasRole($user, 'demo')) {
             Log::info('User is a demo user.');
-            $request->session()->flash('info', (string) trans('firefly.not_available_demo_user'));
+            $request->session()->flash('info', (string)trans('firefly.not_available_demo_user'));
             $current  = $request->url();
             $previous = $request->session()->previousUrl();
             if ($current !== $previous) {
                 return response()->redirectTo($previous);
             }
 
-            return response()->redirectTo(route('dashboard')); // @codeCoverageIgnore
+            return response()->redirectTo(route(RouteServiceProvider::HOME)); // @codeCoverageIgnore
         }
 
         return $next($request);

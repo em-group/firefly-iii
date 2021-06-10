@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace FireflyIII\TransactionRules\Actions;
 
+use DB;
 use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
 use Log;
-use DB;
 
 /**
  * Class SetBudget.
@@ -50,12 +50,17 @@ class SetBudget implements ActionInterface
      */
     public function actOnArray(array $journal): bool
     {
-        $user = User::find($journal['user_id']);
+        $user   = User::find($journal['user_id']);
         $search = $this->action->action_value;
 
         $budget = $user->budgets()->where('name', $search)->first();
         if (null === $budget) {
-            Log::debug(sprintf('RuleAction SetBudget could not set budget of journal #%d to "%s" because no such budget exists.', $journal['transaction_journal_id'], $search));
+            Log::debug(
+                sprintf(
+                    'RuleAction SetBudget could not set budget of journal #%d to "%s" because no such budget exists.', $journal['transaction_journal_id'],
+                    $search
+                )
+            );
 
             return false;
         }
@@ -73,7 +78,9 @@ class SetBudget implements ActionInterface
             return true;
         }
 
-        Log::debug(sprintf('RuleAction SetBudget set the budget of journal #%d to budget #%d ("%s").', $journal['transaction_journal_id'], $budget->id, $budget->name));
+        Log::debug(
+            sprintf('RuleAction SetBudget set the budget of journal #%d to budget #%d ("%s").', $journal['transaction_journal_id'], $budget->id, $budget->name)
+        );
 
         DB::table('budget_transaction_journal')->where('transaction_journal_id', '=', $journal['transaction_journal_id'])->delete();
         DB::table('budget_transaction_journal')->insert(['transaction_journal_id' => $journal['transaction_journal_id'], 'budget_id' => $budget->id]);

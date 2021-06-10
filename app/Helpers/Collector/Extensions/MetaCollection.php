@@ -39,84 +39,60 @@ trait MetaCollection
 {
 
     /**
-     * @inheritDoc
+     * Where has no tags.
+     *
+     * @return GroupCollectorInterface
      */
-    public function withNotes(): GroupCollectorInterface
+    public function hasAnyTag(): GroupCollectorInterface
     {
-        if (false === $this->hasNotesInformation) {
-            // join bill table
-            $this->query->leftJoin(
-                'notes',
-                static function (JoinClause $join) {
-                    $join->on('notes.noteable_id', '=', 'transaction_journals.id');
-                    $join->where('notes.noteable_type', '=', 'FireflyIII\Models\TransactionJournal');
-                }
-            );
-            // add fields
-            $this->fields[]            = 'notes.text as notes';
-            $this->hasNotesInformation = true;
-        }
+        $this->withTagInformation();
+        $this->query->whereNotNull('tag_transaction_journal.tag_id');
 
         return $this;
     }
 
-
     /**
      * @param string $value
+     *
      * @return GroupCollectorInterface
      */
     public function notesContain(string $value): GroupCollectorInterface
     {
         $this->withNotes();
         $this->query->where('notes.text', 'LIKE', sprintf('%%%s%%', $value));
+
         return $this;
     }
 
     /**
      * @param string $value
+     *
      * @return GroupCollectorInterface
      */
     public function notesEndWith(string $value): GroupCollectorInterface
     {
         $this->withNotes();
         $this->query->where('notes.text', 'LIKE', sprintf('%%%s', $value));
-        return $this;
-    }
 
-    /**
-     * @return GroupCollectorInterface
-     */
-    public function withoutNotes(): GroupCollectorInterface
-    {
-        $this->withNotes();
-        $this->query->whereNull('notes.text');
-        return $this;
-    }
-
-
-    /**
-     * @return GroupCollectorInterface
-     */
-    public function withAnyNotes(): GroupCollectorInterface
-    {
-        $this->withNotes();
-        $this->query->whereNotNull('notes.text');
         return $this;
     }
 
     /**
      * @param string $value
+     *
      * @return GroupCollectorInterface
      */
     public function notesExactly(string $value): GroupCollectorInterface
     {
         $this->withNotes();
         $this->query->where('notes.text', '=', sprintf('%s', $value));
+
         return $this;
     }
 
     /**
      * @param string $value
+     *
      * @return GroupCollectorInterface
      */
     public function notesStartWith(string $value): GroupCollectorInterface
@@ -124,7 +100,7 @@ trait MetaCollection
         $this->withNotes();
         $this->query->where('notes.text', 'LIKE', sprintf('%s%%', $value));
 
-         return $this;
+        return $this;
     }
 
     /**
@@ -222,6 +198,37 @@ trait MetaCollection
     }
 
     /**
+     * @inheritDoc
+     */
+    public function setExternalId(string $externalId): GroupCollectorInterface
+    {
+        if (false === $this->hasJoinedMetaTables) {
+            $this->hasJoinedMetaTables = true;
+            $this->query->leftJoin('journal_meta', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id');
+        }
+        $this->query->where('journal_meta.name', '=', 'external_id');
+        $this->query->where('journal_meta.data', '=', sprintf('%s', $externalId));
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setInternalReference(string $internalReference): GroupCollectorInterface
+    {
+        if (false === $this->hasJoinedMetaTables) {
+            $this->hasJoinedMetaTables = true;
+            $this->query->leftJoin('journal_meta', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id');
+        }
+
+        $this->query->where('journal_meta.name', '=', 'internal_reference');
+        $this->query->where('journal_meta.data', 'LIKE', sprintf('%%%s%%', $internalReference));
+
+        return $this;
+    }
+
+    /**
      * Limit results to a specific tag.
      *
      * @param Tag $tag
@@ -252,27 +259,25 @@ trait MetaCollection
     }
 
     /**
-     * Where has no tags.
-     *
      * @return GroupCollectorInterface
      */
-    public function withoutTags(): GroupCollectorInterface
+    public function withAnyNotes(): GroupCollectorInterface
     {
-        $this->withTagInformation();
-        $this->query->whereNull('tag_transaction_journal.tag_id');
+        $this->withNotes();
+        $this->query->whereNotNull('notes.text');
 
         return $this;
     }
 
     /**
-     * Where has no tags.
+     * Limit results to transactions without a bill..
      *
      * @return GroupCollectorInterface
      */
-    public function hasAnyTag(): GroupCollectorInterface
+    public function withBill(): GroupCollectorInterface
     {
-        $this->withTagInformation();
-        $this->query->whereNotNull('tag_transaction_journal.tag_id');
+        $this->withBillInformation();
+        $this->query->whereNotNull('transaction_journals.bill_id');
 
         return $this;
     }
@@ -292,6 +297,19 @@ trait MetaCollection
             $this->fields[]           = 'bills.name as bill_name';
             $this->hasBillInformation = true;
         }
+
+        return $this;
+    }
+
+    /**
+     * Limit results to a transactions without a budget..
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withBudget(): GroupCollectorInterface
+    {
+        $this->withBudgetInformation();
+        $this->query->whereNotNull('budget_transaction_journal.budget_id');
 
         return $this;
     }
@@ -318,6 +336,19 @@ trait MetaCollection
     }
 
     /**
+     * Limit results to a transactions without a category.
+     *
+     * @return GroupCollectorInterface
+     */
+    public function withCategory(): GroupCollectorInterface
+    {
+        $this->withCategoryInformation();
+        $this->query->whereNotNull('category_transaction_journal.category_id');
+
+        return $this;
+    }
+
+    /**
      * Will include category ID + name, if any.
      *
      * @return GroupCollectorInterface
@@ -333,6 +364,28 @@ trait MetaCollection
             $this->fields[]          = 'categories.id as category_id';
             $this->fields[]          = 'categories.name as category_name';
             $this->hasCatInformation = true;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function withNotes(): GroupCollectorInterface
+    {
+        if (false === $this->hasNotesInformation) {
+            // join bill table
+            $this->query->leftJoin(
+                'notes',
+                static function (JoinClause $join) {
+                    $join->on('notes.noteable_id', '=', 'transaction_journals.id');
+                    $join->where('notes.noteable_type', '=', 'FireflyIII\Models\TransactionJournal');
+                }
+            );
+            // add fields
+            $this->fields[]            = 'notes.text as notes';
+            $this->hasNotesInformation = true;
         }
 
         return $this;
@@ -357,14 +410,13 @@ trait MetaCollection
     }
 
     /**
-     * Limit results to a transactions without a budget..
+     * Limit results to a transactions without a bill.
      *
      * @return GroupCollectorInterface
      */
-    public function withoutBudget(): GroupCollectorInterface
+    public function withoutBill(): GroupCollectorInterface
     {
-        $this->withBudgetInformation();
-        $this->query->whereNull('budget_transaction_journal.budget_id');
+        $this->query->whereNull('transaction_journals.bill_id');
 
         return $this;
     }
@@ -374,10 +426,10 @@ trait MetaCollection
      *
      * @return GroupCollectorInterface
      */
-    public function withBudget(): GroupCollectorInterface
+    public function withoutBudget(): GroupCollectorInterface
     {
         $this->withBudgetInformation();
-        $this->query->whereNotNull('budget_transaction_journal.budget_id');
+        $this->query->whereNull('budget_transaction_journal.budget_id');
 
         return $this;
     }
@@ -396,14 +448,25 @@ trait MetaCollection
     }
 
     /**
-     * Limit results to a transactions without a category.
+     * @return GroupCollectorInterface
+     */
+    public function withoutNotes(): GroupCollectorInterface
+    {
+        $this->withNotes();
+        $this->query->whereNull('notes.text');
+
+        return $this;
+    }
+
+    /**
+     * Where has no tags.
      *
      * @return GroupCollectorInterface
      */
-    public function withCategory(): GroupCollectorInterface
+    public function withoutTags(): GroupCollectorInterface
     {
-        $this->withCategoryInformation();
-        $this->query->whereNotNull('category_transaction_journal.category_id');
+        $this->withTagInformation();
+        $this->query->whereNull('tag_transaction_journal.tag_id');
 
         return $this;
     }
@@ -420,38 +483,4 @@ trait MetaCollection
             $this->query->leftJoin('tags', 'tag_transaction_journal.tag_id', '=', 'tags.id');
         }
     }
-
-
-    /**
-     * @inheritDoc
-     */
-    public function setExternalId(string $externalId): GroupCollectorInterface
-    {
-        if (false === $this->hasJoinedMetaTables) {
-            $this->hasJoinedMetaTables = true;
-            $this->query->leftJoin('journal_meta', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id');
-        }
-        $this->query->where('journal_meta.name', '=', 'external_id');
-        $this->query->where('journal_meta.data', 'LIKE', sprintf('%%%s%%', $externalId));
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setInternalReference(string $internalReference): GroupCollectorInterface
-    {
-        if (false === $this->hasJoinedMetaTables) {
-            $this->hasJoinedMetaTables = true;
-            $this->query->leftJoin('journal_meta', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id');
-        }
-
-        $this->query->where('journal_meta.name', '=', 'internal_reference');
-        $this->query->where('journal_meta.data', 'LIKE', sprintf('%%%s%%', $internalReference));
-
-        return $this;
-    }
-
-
 }

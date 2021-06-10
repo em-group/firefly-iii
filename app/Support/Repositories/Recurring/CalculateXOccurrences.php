@@ -23,8 +23,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Repositories\Recurring;
-
-
 use Carbon\Carbon;
 
 /**
@@ -60,9 +58,6 @@ trait CalculateXOccurrences
 
         return $return;
     }
-
-
-
     /**
      * Calculates the number of monthly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -99,8 +94,6 @@ trait CalculateXOccurrences
 
         return $return;
     }
-
-
     /**
      * Calculates the number of NDOM occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -138,9 +131,6 @@ trait CalculateXOccurrences
 
         return $return;
     }
-
-
-
     /**
      * Calculates the number of weekly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -182,9 +172,6 @@ trait CalculateXOccurrences
 
         return $return;
     }
-
-
-
     /**
      * Calculates the number of yearly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.

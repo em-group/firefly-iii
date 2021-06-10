@@ -225,6 +225,9 @@ return [
     'advanced_options_explain'                            => 'Alcune pagine in Firefly III hanno opzioni avanzate nascoste dietro questo pulsante. Questa pagina non ha nulla di interessante, ma controlla le altre!',
     'here_be_dragons'                                     => 'Hic sunt dracones',
 
+    // Webhooks
+    'webhooks'                                            => 'Webhook',
+
     // API access
     'authorization_request'                               => 'Firefly III v:version Richiesta Autorizzazione',
     'authorization_request_intro'                         => '<strong>:client</strong> sta richiedendo l\'autorizzazione per accedere alla tua amministrazione finanziaria. Desideri autorizzare <strong>:client</strong> ad accedere a questi record?',
@@ -295,6 +298,8 @@ return [
     'search_modifier_has_any_category'                    => 'La transazione deve avere una (qualsiasi) categoria',
     'search_modifier_has_no_budget'                       => 'La transazione non deve avere un budget',
     'search_modifier_has_any_budget'                      => 'La transazione deve avere un budget (qualsiasi)',
+    'search_modifier_has_no_bill'                         => 'La transazione non deve avere bollette',
+    'search_modifier_has_any_bill'                        => 'La transazione deve avere una (qualsiasi) bolletta',
     'search_modifier_has_no_tag'                          => 'La transazione non deve avere etichette',
     'search_modifier_has_any_tag'                         => 'La transazione deve avere una (qualsiasi) etichetta',
     'search_modifier_notes_contain'                       => 'Le note della transazione contengono ":value"',
@@ -420,7 +425,8 @@ return [
     'apply_rule_selection'                                => 'Applica la regola ":title" a una selezione delle tue transazioni',
     'apply_rule_selection_intro'                          => 'Regole come ":title" sono normalmente applicate solo a transazioni nuove o aggiornate, ma puoi dire a Firefly III di eseguirle su una selezione delle tue transazioni esistenti. Questo può essere utile quando hai aggiornato una regola e hai bisogno che le modifiche vengano applicate a tutte le altre transazioni.',
     'include_transactions_from_accounts'                  => 'Includi transazioni da questi conti',
-    'applied_rule_selection'                              => 'La regola ":title" è stata applicata alla tua selezione.',
+    'include'                                             => 'Includere?',
+    'applied_rule_selection'                              => '{0} Nessuna transazione della selezione è stata cambiata dalla regola ":title".|[1] Una transazione della selezione è stata modificata dalla regola ":title".|[2,*] :count transazioni della selezione sono state modificate dalla regola ":title".',
     'execute'                                             => 'Eseguire',
     'apply_rule_group_selection'                          => 'Applica il gruppo di regole ":title" a una selezione delle tue transazioni',
     'apply_rule_group_selection_intro'                    => 'Gruppi di regole come ":title" sono normalmente applicati solo a transazioni nuove o aggiornate, ma puoi dire a Firefly III di eseguire tutte le regole in questo gruppo su una selezione delle tue transazioni esistenti. Questo può essere utile quando hai aggiornato un gruppo di regole e hai bisogno delle modifiche da applicare a tutte le tue altre transazioni.',
@@ -520,6 +526,10 @@ return [
     'rule_trigger_has_no_budget'                          => 'La transazione non ha un budget',
     'rule_trigger_has_any_budget_choice'                  => 'Ha un (qualsiasi) budget',
     'rule_trigger_has_any_budget'                         => 'La transazione ha un (qualsiasi) budget',
+    'rule_trigger_has_no_bill_choice'                     => 'Non ha bollette',
+    'rule_trigger_has_no_bill'                            => 'La transazione non ha bollette',
+    'rule_trigger_has_any_bill_choice'                    => 'Ha una (qualsiasi) bolletta',
+    'rule_trigger_has_any_bill'                           => 'La transazione ha una (qualsiasi) bolletta',
     'rule_trigger_has_no_tag_choice'                      => 'Non ha etichette',
     'rule_trigger_has_no_tag'                             => 'La transazione non ha etichette',
     'rule_trigger_has_any_tag_choice'                     => 'Ha una o più etichette (qualsiasi)',
@@ -675,7 +685,7 @@ return [
     'pref_optional_fields_transaction'          => 'Campi opzionali per le transazioni',
     'pref_optional_fields_transaction_help'     => 'Come impostazione predefinita, non tutti i campi sono abilitati quando si crea una nuova transazione (per evitare confusione). Di seguito, puoi abilitare questi campi se ritieni che possano esserti utili. Ovviamente, qualsiasi campo che è disabilitato, ma già compilato, sarà visibile indipendentemente dall\'impostazione.',
     'optional_tj_date_fields'                   => 'Campi data',
-    'optional_tj_business_fields'               => 'Campi aziendali',
+    'optional_tj_other_fields'                  => 'Altri campi',
     'optional_tj_attachment_fields'             => 'Campi allegati',
     'pref_optional_tj_interest_date'            => 'Data di valuta',
     'pref_optional_tj_book_date'                => 'Data contabile',
@@ -686,12 +696,14 @@ return [
     'pref_optional_tj_internal_reference'       => 'Riferimento interno',
     'pref_optional_tj_notes'                    => 'Note',
     'pref_optional_tj_attachments'              => 'Allegati',
-    'pref_optional_tj_external_uri'             => 'URI esterno',
+    'pref_optional_tj_external_uri'             => 'URL esterno',
+    'pref_optional_tj_location'                 => 'Posizione',
+    'pref_optional_tj_links'                    => 'Collegamenti della transazione',
     'optional_field_meta_dates'                 => 'Dati',
     'optional_field_meta_business'              => 'Attività commerciale',
     'optional_field_attachments'                => 'Allegati',
     'optional_field_meta_data'                  => 'Metadati opzionali',
-    'external_uri'                              => 'URI esterno',
+    'external_uri'                              => 'URL esterno',
 
     // profile:
     'delete_stuff_header'                       => 'Elimina dati',
@@ -881,6 +893,7 @@ return [
     'create_new_deposit'                        => 'Crea una nuova entrata',
     'create_new_transfer'                       => 'Crea un nuovo trasferimento',
     'create_new_asset'                          => 'Crea un nuovo conto attività',
+    'create_new_liabilities'                    => 'Crea nuova passività',
     'create_new_expense'                        => 'Crea un nuovo conto di spesa',
     'create_new_revenue'                        => 'Crea un nuovo conto entrate',
     'create_new_piggy_bank'                     => 'Crea un nuovo salvadanaio',
@@ -970,7 +983,6 @@ return [
     'available_amount_indication'               => 'Utilizza questi importi per ottenere un\'indicazione di quale potrebbe essere il tuo budget totale.',
     'suggested'                                 => 'Consigliato',
     'average_between'                           => 'Media tra :start e :end',
-    'over_budget_warn'                          => '<i class="fa fa-money"></i> Di solito metti a budget circa :amount al giorno. Questa volta è :over_amount al giorno. Sei sicuro?',
     'transferred_in'                            => 'Trasferito (ingresso)',
     'transferred_away'                          => 'Trasferito (uscita)',
     'auto_budget_none'                          => 'Nessun budget automatico',
@@ -1019,6 +1031,7 @@ return [
     'list_inactive_rule'                        => 'regola inattiva',
     'bill_edit_rules'                           => 'Firefly III tenterà anche di modificare la regola relativa a questa bolletta. Se hai modificato questa regola da solo, Firefly III non cambierà nulla.|Firefly III tenterà anche di modificare le :count regole relative a questa bolletta. Se hai modificato queste regole, Firefly III non cambierà nulla.',
     'bill_expected_date'                        => 'Attesa :date',
+    'bill_paid_on'                              => 'Pagata il {date}',
 
     // accounts:
     'inactive_account_link'                     => 'Hai :count conto inattivo (archiviato), che puoi visualizzare in questa pagina separata.|Hai :count conti inattivi (archiviati), che puoi visualizzare in questa pagina separata.',
@@ -1041,6 +1054,7 @@ return [
     'delete_revenue_account'                    => 'Elimina conto entrate ":name"',
     'delete_liabilities_account'                => 'Elimina passività ":name"',
     'asset_deleted'                             => 'Conto attività ":name" eliminato correttamente',
+    'account_deleted'                           => 'Il conto ":name" è stato eliminato con successo',
     'expense_deleted'                           => 'Conto uscite ":name" eliminato correttamente',
     'revenue_deleted'                           => 'Conto entrate ":name" eliminato correttamente',
     'update_asset_account'                      => 'Aggiorna conto attività',
@@ -1087,7 +1101,9 @@ return [
     'cant_find_redirect_account'                => 'Firefly III ha provato a reindirizzare ma non è riuscito. Ci dispiace. Torna all\'indice.',
     'account_type'                              => 'Tipo conto',
     'save_transactions_by_moving'               => 'Salva questa transazione spostandola in un altro conto:|Salva queste transazioni spostandole in un altro conto:',
+    'save_transactions_by_moving_js'            => 'Nessuna transazione|Salva questa transazione spostandola in un altro conto.|Salva queste transazioni spostandole in un altro conto.',
     'stored_new_account'                        => 'Nuovo conto ":name" stored!',
+    'stored_new_account_js'                     => 'Nuovo conto "<a href="accounts/show/{ID}">{name}</a>" salvato!',
     'updated_account'                           => 'Aggiorna conto ":name"',
     'credit_card_options'                       => 'Opzioni carta di credito',
     'no_transactions_account'                   => 'Non ci sono transazioni (in questo periodo) per il conto attività ":name".',
@@ -1124,7 +1140,11 @@ return [
     'interest_calc_daily'                       => 'Al giorno',
     'interest_calc_monthly'                     => 'Al mese',
     'interest_calc_yearly'                      => 'All\'anno',
+    'interest_calc_weekly'                      => 'Settimanale',
+    'interest_calc_half-year'                   => 'Semestrale',
+    'interest_calc_quarterly'                   => 'Trimestrale',
     'initial_balance_account'                   => 'Saldo iniziale del conto :account',
+    'list_options'                              => 'Lista opzioni',
 
     // categories:
     'new_category'                              => 'Nuova categoria',
@@ -1150,6 +1170,9 @@ return [
     'updated_withdrawal'                        => 'Prelievo ":description" aggiornato',
     'updated_deposit'                           => 'Entrata aggiornata ":description"',
     'updated_transfer'                          => 'Trasferimento ":description" aggiornato',
+    'no_changes_withdrawal'                     => 'La ":description" del prelievo non è stata modificata.',
+    'no_changes_deposit'                        => 'La ":description" del deposito non è stata modificata.',
+    'no_changes_transfer'                       => 'La ":description" del trasferimento non è stata modificata.',
     'delete_withdrawal'                         => 'Elimina prelievo ":description"',
     'delete_deposit'                            => 'Elimina entrata ":description"',
     'delete_transfer'                           => 'Elimina trasferimento ":description"',
@@ -1230,7 +1253,12 @@ return [
     'journal_link_bill'                         => 'Questa transazione è collegata alla bolletta <a href=":route">:name</a>. Per rimuovere il collegamento, deseleziona la casella di controllo. Usa le regole per collegarla ad un\'altra bolletta.',
     'transaction_stored_link'                   => 'La <a href="transactions/show/{ID}">transazione #{ID} ("{title}")</a> è stata salvata.',
     'transaction_new_stored_link'               => 'La <a href="transactions/show/{ID}">transazione #{ID}</a> è stata salvata.',
-    'transaction_updated_link'                  => 'La <a href="transactions/show/{ID}">transazione #{ID}</a> è stata aggiornata.',
+    'transaction_updated_link'                  => 'La <a href="transactions/show/{ID}">transazione #{ID}</a> ("{title}") è stata aggiornata.',
+    'transaction_updated_no_changes'            => 'La <a href="transactions/show/{ID}">transazione #{ID}</a> ("{title}") non ha avuto cambiamenti.',
+    'first_split_decides'                       => 'La prima suddivisione determina il valore di questo campo',
+    'first_split_overrules_source'              => 'La prima suddivisione potrebbe sovrascrivere l\'account di origine',
+    'first_split_overrules_destination'         => 'La prima suddivisione potrebbe sovrascrivere l\'account di destinazione',
+    'spent_x_of_y'                              => 'Spesi {amount} di {total}',
 
     // new user:
     'welcome'                                   => 'Benvenuto in Firefly III!',
@@ -1269,6 +1297,9 @@ return [
     'per_day'                                   => 'Al giorno',
     'left_to_spend_per_day'                     => 'Spese al giorno',
     'bills_paid'                                => 'Bollette pagate',
+    'custom_period'                             => 'Periodo personalizzato',
+    'reset_to_current'                          => 'Ripristina il periodo corrente',
+    'select_period'                             => 'Seleziona il periodo',
 
     // menu and titles, should be recycled as often as possible:
     'currency'                                  => 'Valuta',
@@ -1293,6 +1324,8 @@ return [
     'account_type_Loan'                         => 'Prestito',
     'account_type_Mortgage'                     => 'Mutuo',
     'account_type_Credit card'                  => 'Carta di credito',
+    'liability_direction_credit'                => 'Questo debito mi è dovuto',
+    'liability_direction_debit'                 => 'Devo questo debito a qualcun altro',
     'budgets'                                   => 'Budget',
     'tags'                                      => 'Etichette',
     'reports'                                   => 'Resoconti',
@@ -1337,6 +1370,7 @@ return [
     'automation'                                => 'Automazione',
     'others'                                    => 'Altro',
     'classification'                            => 'Classificazione',
+    'store_transaction'                         => 'Salva transazione',
 
     // reports:
     'report_default'                            => 'Resoconto predefinito delle tue finanze tra :start e :end',
@@ -1827,8 +1861,8 @@ return [
     'edit_object_group'                  => 'Modifica gruppo ":title"',
     'delete_object_group'                => 'Elimina gruppo ":title"',
     'update_object_group'                => 'Aggiorna gruppo',
-    'updated_object_group'               => 'Gruppo ":title" aggiornato con successo',
-    'deleted_object_group'               => 'Gruppo ":title" eliminato con successo',
+    'updated_object_group'               => 'Il gruppo ":title" è stato aggiornato con successo',
+    'deleted_object_group'               => 'Il gruppo ":title" è stato eliminato con successo',
     'object_group'                       => 'Gruppo',
 
 

@@ -31,8 +31,6 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Log;
-
-
 /**
  * Class RemoteUserGuard
  */
@@ -45,11 +43,12 @@ class RemoteUserGuard implements Guard
     /**
      * Create a new authentication guard.
      *
-     * @param \Illuminate\Contracts\Auth\UserProvider $provider
+     * @param UserProvider $provider
      *
      * @return void
      */
-    public function __construct(UserProvider $provider, Application $app)
+    // @phpstan-ignore-next-line
+    public function __construct(UserProvider $provider, Application $app) // @phpstan-ignore-line
     {
         $this->application = $app;
         $this->provider    = $provider;
@@ -79,10 +78,10 @@ class RemoteUserGuard implements Guard
         $retrievedUser = $this->provider->retrieveById($userID);
 
         // store email address if present in header and not already set.
-        $header       = config('auth.guard_email');
+        $header = config('auth.guard_email');
 
         if (null !== $header) {
-            $emailAddress = (string) (request()->server($header) ?? null);
+            $emailAddress = (string)(request()->server($header) ?? null);
             $preference   = app('preferences')->getForUser($retrievedUser, 'remote_guard_alt_email', null);
 
             if (null !== $emailAddress && null === $preference && $emailAddress !== $userID) {

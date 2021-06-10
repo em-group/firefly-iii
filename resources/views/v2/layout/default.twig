@@ -10,10 +10,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     {# favicons #}
-    {% include('partials.layout.favicons') %}
+    {% include('v2.partials.layout.favicons') %}
 
     <title>
-        {% if subTitle %}
+        {% if subTitle|default(false) %}
             {{ subTitle }} »
         {% endif %}
         {% if title != "Firefly III" %}
@@ -23,29 +23,32 @@
         {{ config('app.name') }}
     </title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="v2/plugins/local-fonts/gf-source.css">
-    <link rel="stylesheet" href="v2/css/app.css">
+    <link rel="stylesheet" href="v2/plugins/local-fonts/gf-source.css" nonce="{{ JS_NONCE }}">
+    <link rel="stylesheet" href="v2/css/app.css" nonce="{{ JS_NONCE }}">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed">
 <div class="wrapper">
 
     <!-- Navbar -->
-    {% include('partials.layout.navbar') %}
+    {% include('v2.partials.layout.navbar') %}
 
     <!-- Main Sidebar Container -->
-    {% include('partials.layout.sidebar') %}
+    {% include('v2.partials.layout.sidebar') %}
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <div class="content-header">
             <div class="container-fluid">
+                <!-- flashes -->
+                {% include('v2.partials.layout.flashes') %}
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0 text-dark">{% if mainTitleIcon %}<i class="fa fas {{ mainTitleIcon }}"></i>{% endif %}
+                        <h1 class="m-0 text-dark">
+                            {% if mainTitleIcon|default(false) %}<i class="fa fas {{ mainTitleIcon }}"></i>{% endif %}
                             {{ title }} <small class="text-muted">
-                                {% if subTitleIcon %}<i class="fa fas {{ subTitleIcon }}"></i>{% endif %}
-                                {{ subTitle }}</small></h1>
+                                {% if subTitleIcon|default(false) %}<i class="fa fas {{ subTitleIcon }}"></i>{% endif %}
+                                {{ subTitle|default('') }}</small></h1>
                     </div><!-- /.col -->
                     <div class="col-sm-6">
                         {% block breadcrumbs %}{% endblock %}
@@ -64,7 +67,7 @@
         <!-- /.content -->
     </div>
     <!-- /.content-wrapper -->
-    {% include('partials.layout.footer') %}
+    {% include('v2.partials.layout.footer') %}
 
     <!-- Control Sidebar -->
     <aside class="control-sidebar control-sidebar-dark">
@@ -83,26 +86,10 @@
 </div>
 <!-- ./wrapper -->
 
-<script src="{{ route('javascript.v2.variables') }}?layout=v2" nonce="{{ JS_NONCE }}"></script>
-<script src="v2/js/manifest.js" nonce="{{ JS_NONCE }}"></script>
-<script src="v2/js/vendor.js" nonce="{{ JS_NONCE }}"></script>
+<script src="v2/js/manifest.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+<script src="v2/js/vendor.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% block scripts %}{% endblock %}
 
-<!-- jQuery -->
-<!--<script src="v2/plugins/jquery/jquery.min.js" nonce="{{ JS_NONCE }}"></script>-->
-<!-- jQuery UI 1.11.4 -->
-<!--<script src="v2/plugins/jquery-ui/jquery-ui.min.js" nonce="{{ JS_NONCE }}"></script>-->
-<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<!--<script nonce="{{ JS_NONCE }}">
-    $.widget.bridge('uibutton', $.ui.button)
-</script>
--->
-<!-- Bootstrap 4 -->
-<!--<script src="v2/plugins/bootstrap/js/bootstrap.bundle.min.js" nonce="{{ JS_NONCE }}"></script>-->
-<!-- overlayScrollbars -->
-<!--<script src="v2/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js" nonce="{{ JS_NONCE }}"></script>-->
-<!-- AdminLTE App -->
-<!--<script src="v2/dist/js/adminlte.js" nonce="{{ JS_NONCE }}"></script>-->
 </body>
 </html>
 

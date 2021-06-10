@@ -36,10 +36,8 @@ class StoredTransactionGroup extends Event
 {
     use SerializesModels;
 
-    public bool $applyRules;
+    public bool             $applyRules;
     public TransactionGroup $transactionGroup;
-
-
     /**
      * Create a new event instance.
      *

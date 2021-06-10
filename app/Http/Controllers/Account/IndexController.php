@@ -58,7 +58,7 @@ class IndexController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string) trans('firefly.accounts'));
+                app('view')->share('title', (string)trans('firefly.accounts'));
 
                 $this->repository = app(AccountRepositoryInterface::class);
 
@@ -77,13 +77,13 @@ class IndexController extends Controller
     {
         $objectType   = $objectType ?? 'asset';
         $inactivePage = true;
-        $subTitle     = (string) trans(sprintf('firefly.%s_accounts_inactive', $objectType));
+        $subTitle     = (string)trans(sprintf('firefly.%s_accounts_inactive', $objectType));
         $subTitleIcon = config(sprintf('firefly.subIconsByIdentifier.%s', $objectType));
         $types        = config(sprintf('firefly.accountTypesByIdentifier.%s', $objectType));
         $collection   = $this->repository->getInactiveAccountsByType($types);
         $total        = $collection->count();
-        $page         = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
-        $pageSize     = (int) app('preferences')->get('listPageSize', 50)->data;
+        $page         = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
+        $pageSize     = (int)app('preferences')->get('listPageSize', 50)->data;
         $accounts     = $collection->slice(($page - 1) * $pageSize, $pageSize);
         unset($collection);
         /** @var Carbon $start */
@@ -103,9 +103,9 @@ class IndexController extends Controller
                 $account->startBalance      = $this->isInArray($startBalances, $account->id);
                 $account->endBalance        = $this->isInArray($endBalances, $account->id);
                 $account->difference        = bcsub($account->endBalance, $account->startBalance);
-                $account->interest          = number_format((float) $this->repository->getMetaValue($account, 'interest'), 6, '.', '');
-                $account->interestPeriod    = (string) trans(sprintf('firefly.interest_calc_%s', $this->repository->getMetaValue($account, 'interest_period')));
-                $account->accountTypeString = (string) trans(sprintf('firefly.account_type_%s', $account->accountType->type));
+                $account->interest          = number_format((float)$this->repository->getMetaValue($account, 'interest'), 6, '.', '');
+                $account->interestPeriod    = (string)trans(sprintf('firefly.interest_calc_%s', $this->repository->getMetaValue($account, 'interest_period')));
+                $account->accountTypeString = (string)trans(sprintf('firefly.account_type_%s', $account->accountType->type));
             }
         );
 
@@ -113,7 +113,7 @@ class IndexController extends Controller
         $accounts = new LengthAwarePaginator($accounts, $total, $pageSize, $page);
         $accounts->setPath(route('accounts.inactive.index', [$objectType]));
 
-        return view('accounts.index', compact('objectType', 'inactivePage', 'subTitleIcon', 'subTitle', 'page', 'accounts'));
+        return prefixView('accounts.index', compact('objectType', 'inactivePage', 'subTitleIcon', 'subTitle', 'page', 'accounts'));
 
     }
 
@@ -130,19 +130,16 @@ class IndexController extends Controller
     {
         Log::debug(sprintf('Now at %s', __METHOD__));
         $objectType   = $objectType ?? 'asset';
-        $subTitle     = (string) trans(sprintf('firefly.%s_accounts', $objectType));
+        $subTitle     = (string)trans(sprintf('firefly.%s_accounts', $objectType));
         $subTitleIcon = config(sprintf('firefly.subIconsByIdentifier.%s', $objectType));
         $types        = config(sprintf('firefly.accountTypesByIdentifier.%s', $objectType));
 
-        if (1 === random_int(0, 20)) {
-            Log::debug('Will reset order.');
-            $this->repository->resetAccountOrder($types);
-        }
+        $this->repository->resetAccountOrder();
 
         $collection    = $this->repository->getActiveAccountsByType($types);
         $total         = $collection->count();
-        $page          = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
-        $pageSize      = (int) app('preferences')->get('listPageSize', 50)->data;
+        $page          = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
+        $pageSize      = (int)app('preferences')->get('listPageSize', 50)->data;
         $accounts      = $collection->slice(($page - 1) * $pageSize, $pageSize);
         $inactiveCount = $this->repository->getInactiveAccountsByType($types)->count();
 
@@ -167,9 +164,9 @@ class IndexController extends Controller
                 $account->startBalance      = $this->isInArray($startBalances, $account->id);
                 $account->endBalance        = $this->isInArray($endBalances, $account->id);
                 $account->difference        = bcsub($account->endBalance, $account->startBalance);
-                $account->interest          = number_format((float) $this->repository->getMetaValue($account, 'interest'), 6, '.', '');
-                $account->interestPeriod    = (string) trans(sprintf('firefly.interest_calc_%s', $this->repository->getMetaValue($account, 'interest_period')));
-                $account->accountTypeString = (string) trans(sprintf('firefly.account_type_%s', $account->accountType->type));
+                $account->interest          = number_format((float)$this->repository->getMetaValue($account, 'interest'), 6, '.', '');
+                $account->interestPeriod    = (string)trans(sprintf('firefly.interest_calc_%s', $this->repository->getMetaValue($account, 'interest_period')));
+                $account->accountTypeString = (string)trans(sprintf('firefly.account_type_%s', $account->accountType->type));
                 $account->location          = $this->repository->getLocation($account);
             }
         );
@@ -182,8 +179,6 @@ class IndexController extends Controller
         Log::debug(sprintf('Count of accounts after LAP (1): %d', $accounts->count()));
         Log::debug(sprintf('Count of accounts after LAP (2): %d', $accounts->getCollection()->count()));
 
-        return view('accounts.index', compact('objectType', 'inactiveCount', 'subTitleIcon', 'subTitle', 'page', 'accounts'));
+        return prefixView('accounts.index', compact('objectType', 'inactiveCount', 'subTitleIcon', 'subTitle', 'page', 'accounts'));
     }
-
-
 }

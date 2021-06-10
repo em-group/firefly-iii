@@ -53,7 +53,7 @@ class AuthServiceProvider extends ServiceProvider
     {
         Auth::provider(
             'remote_user_provider', function ($app, array $config) {
-            return new RemoteUserProvider($app, $config);
+            return new RemoteUserProvider;
         }
         );
 
@@ -64,11 +64,7 @@ class AuthServiceProvider extends ServiceProvider
         );
 
         $this->registerPolicies();
-
-
         Passport::routes();
         Passport::tokensExpireIn(now()->addDays(14));
-
-
     }
 }

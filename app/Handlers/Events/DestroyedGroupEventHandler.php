@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * DestroyedGroupEventHandler.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,8 +19,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace FireflyIII\Handlers\Events;
+declare(strict_types=1);
 
+namespace FireflyIII\Handlers\Events;
 
 use FireflyIII\Events\DestroyedTransactionGroup;
 use FireflyIII\Events\RequestedSendWebhookMessages;

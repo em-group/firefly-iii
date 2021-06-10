@@ -32,7 +32,6 @@ use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
-use FireflyIII\Support\Http\Controllers\UserNavigation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -45,8 +44,6 @@ use Throwable;
  */
 class ReconcileController extends Controller
 {
-    use UserNavigation;
-
     private AccountRepositoryInterface  $accountRepos;
     private CurrencyRepositoryInterface $currencyRepos;
     private JournalRepositoryInterface  $repository;
@@ -64,7 +61,7 @@ class ReconcileController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string) trans('firefly.accounts'));
+                app('view')->share('title', (string)trans('firefly.accounts'));
                 $this->repository    = app(JournalRepositoryInterface::class);
                 $this->accountRepos  = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -138,7 +135,7 @@ class ReconcileController extends Controller
         $reconSum = bcadd(bcadd($startBalance, $amount), $clearedAmount);
 
         try {
-            $view = view(
+            $view = prefixView(
                 'accounts.reconcile.overview',
                 compact(
                     'account',
@@ -156,13 +153,11 @@ class ReconcileController extends Controller
                     'selectedIds'
                 )
             )->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('View error: %s', $e->getMessage()));
             $view = sprintf('Could not render accounts.reconcile.overview: %s', $e->getMessage());
         }
-        // @codeCoverageIgnoreEnd
-
 
         $return = [
             'post_uri' => $route,
@@ -172,6 +167,45 @@ class ReconcileController extends Controller
         return response()->json($return);
     }
 
+    /**
+     * @param Account             $account
+     * @param TransactionCurrency $currency
+     * @param array               $journal
+     * @param string              $amount
+     *
+     * @return string
+     */
+    private function processJournal(Account $account, TransactionCurrency $currency, array $journal, string $amount): string
+    {
+        $toAdd = '0';
+        Log::debug(sprintf('User submitted %s #%d: "%s"', $journal['transaction_type_type'], $journal['transaction_journal_id'], $journal['description']));
+
+        // not much magic below we need to cover using tests.
+
+        if ($account->id === $journal['source_account_id']) {
+            if ($currency->id === $journal['currency_id']) {
+                $toAdd = $journal['amount'];
+            }
+            if (null !== $journal['foreign_currency_id'] && $journal['foreign_currency_id'] === $currency->id) {
+                $toAdd = $journal['foreign_amount'];
+            }
+        }
+        if ($account->id === $journal['destination_account_id']) {
+            if ($currency->id === $journal['currency_id']) {
+                $toAdd = bcmul($journal['amount'], '-1');
+            }
+            if (null !== $journal['foreign_currency_id'] && $journal['foreign_currency_id'] === $currency->id) {
+                $toAdd = bcmul($journal['foreign_amount'], '-1');
+            }
+        }
+
+
+        Log::debug(sprintf('Going to add %s to %s', $toAdd, $amount));
+        $amount = bcadd($amount, $toAdd);
+        Log::debug(sprintf('Result is %s', $amount));
+
+        return $amount;
+    }
 
     /**
      * Returns a list of transactions in a modal.
@@ -192,8 +226,8 @@ class ReconcileController extends Controller
         $startDate->subDay();
 
         $currency     = $this->accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
-        $startBalance = round((float) app('steam')->balance($account, $startDate), $currency->decimal_places);
-        $endBalance   = round((float) app('steam')->balance($account, $end), $currency->decimal_places);
+        $startBalance = round((float)app('steam')->balance($account, $startDate), $currency->decimal_places);
+        $endBalance   = round((float)app('steam')->balance($account, $end), $currency->decimal_places);
 
         // get the transactions
         $selectionStart = clone $start;
@@ -212,59 +246,16 @@ class ReconcileController extends Controller
         $journals = $this->processTransactions($account, $array);
 
         try {
-            $html = view(
+            $html = prefixView(
                 'accounts.reconcile.transactions',
                 compact('account', 'journals', 'currency', 'start', 'end', 'selectionStart', 'selectionEnd')
             )->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render: %s', $e->getMessage()));
             $html = sprintf('Could not render accounts.reconcile.transactions: %s', $e->getMessage());
         }
-
-        // @codeCoverageIgnoreEnd
-
         return response()->json(['html' => $html, 'startBalance' => $startBalance, 'endBalance' => $endBalance]);
-    }
-
-    /**
-     * @param Account             $account
-     * @param TransactionCurrency $currency
-     * @param array               $journal
-     * @param string              $amount
-     *
-     * @return string
-     */
-    private function processJournal(Account $account, TransactionCurrency $currency, array $journal, string $amount): string
-    {
-        $toAdd = '0';
-        Log::debug(sprintf('User submitted %s #%d: "%s"', $journal['transaction_type_type'], $journal['transaction_journal_id'], $journal['description']));
-
-        // not much magic below we need to cover using tests.
-        // @codeCoverageIgnoreStart
-        if ($account->id === $journal['source_account_id']) {
-            if ($currency->id === $journal['currency_id']) {
-                $toAdd = $journal['amount'];
-            }
-            if (null !== $journal['foreign_currency_id'] && $journal['foreign_currency_id'] === $currency->id) {
-                $toAdd = $journal['foreign_amount'];
-            }
-        }
-        if ($account->id === $journal['destination_account_id']) {
-            if ($currency->id === $journal['currency_id']) {
-                $toAdd = bcmul($journal['amount'], '-1');
-            }
-            if (null !== $journal['foreign_currency_id'] && $journal['foreign_currency_id'] === $currency->id) {
-                $toAdd = bcmul($journal['foreign_amount'], '-1');
-            }
-        }
-        // @codeCoverageIgnoreEnd
-
-        Log::debug(sprintf('Going to add %s to %s', $toAdd, $amount));
-        $amount = bcadd($amount, $toAdd);
-        Log::debug(sprintf('Result is %s', $amount));
-
-        return $amount;
     }
 
     /**
@@ -272,6 +263,7 @@ class ReconcileController extends Controller
      *
      * @param Account $account
      * @param array   $array
+     *
      * @return array
      */
     private function processTransactions(Account $account, array $array): array
@@ -280,7 +272,7 @@ class ReconcileController extends Controller
         /** @var array $journal */
         foreach ($array as $journal) {
             $inverse = false;
-            // @codeCoverageIgnoreStart
+
             if (TransactionType::DEPOSIT === $journal['transaction_type_type']) {
                 $inverse = true;
             }
@@ -301,10 +293,11 @@ class ReconcileController extends Controller
                     $journal['foreign_amount'] = app('steam')->positive($journal['foreign_amount']);
                 }
             }
-            // @codeCoverageIgnoreEnd
+
 
             $journals[] = $journal;
         }
+
         return $journals;
     }
 }

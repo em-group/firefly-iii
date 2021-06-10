@@ -7,7 +7,7 @@
 <br />
 <p align="center">
   <a href="https://firefly-iii.org/">
-    <img src="https://www.firefly-iii.org/static/img/logo-small-new.png" alt="Logo" width="96" height="96">
+    <img src="https://fireflyiiiwebsite.z6.web.core.windows.net/assets/logo/small.png" alt="Firefly III" width="120" height="178">
   </a>
 </p>
   <h1 align="center">Firefly III</h1>
@@ -15,17 +15,17 @@
   <p align="center">
     A free and open source personal finance manager
     <br />
-    <a href="https://docs.firefly-iii.org/"><strong>Explore the docs »</strong></a>
+    <a href="https://docs.firefly-iii.org/"><strong>Explore the documentation</strong></a>
     <br />
     <br />
-    <a href="https://demo.firefly-iii.org/">View Demo</a>
+    <a href="https://demo.firefly-iii.org/">View the demo</a>
     ·
-    <a href="https://github.com/firefly-iii/firefly-iii/issues">Report Bug</a>
+    <a href="https://github.com/firefly-iii/firefly-iii/issues">Report a bug</a>
     ·
-    <a href="https://github.com/firefly-iii/firefly-iii/issues">Request Feature</a>
+    <a href="https://github.com/firefly-iii/firefly-iii/issues">Request a feature</a>
+    ·
+    <a href="https://github.com/firefly-iii/firefly-iii/discussions">Ask questions</a>
   </p>
-
-[![Travis Build Status][build-shield]][build-url]
 
 <!-- MarkdownTOC autolink="true" -->
 
@@ -76,26 +76,26 @@ Firefly III is pretty feature packed. Some important stuff first:
 
 The most exciting features are:
 
-* Create [recurring transactions to manage your money](https://docs.firefly-iii.org/advanced-concepts/recurring)
-* [Rule based transaction handling](https://docs.firefly-iii.org/advanced-concepts/rules) with the ability to create your own rules
+* Create [recurring transactions to manage your money](https://docs.firefly-iii.org/advanced-concepts/recurring).
+* [Rule based transaction handling](https://docs.firefly-iii.org/advanced-concepts/rules) with the ability to create your own rules.
 
 Then the things that make you go "yeah OK, makes sense".
 
-* A [double-entry](https://en.wikipedia.org/wiki/Double-entry_bookkeeping_system) bookkeeping system
-* Save towards a goal using [piggy banks](https://docs.firefly-iii.org/advanced-concepts/piggies)
-* View [income and expense reports](https://docs.firefly-iii.org/advanced-concepts/reports)
+* A [double-entry](https://en.wikipedia.org/wiki/Double-entry_bookkeeping_system) bookkeeping system.
+* Save towards a goal using [piggy banks](https://docs.firefly-iii.org/advanced-concepts/piggies).
+* View [income and expense reports](https://docs.firefly-iii.org/advanced-concepts/reports).
 
 And the things you would hope for but not expect:
 
-* 2 factor authentication for extra security 🔒
-* Supports [any currency you want](https://docs.firefly-iii.org/concepts/currencies), including crypto currencies such as ₿itcoin and Ξthereum
+* 2 factor authentication for extra security 🔒.
+* Supports [any currency you want](https://docs.firefly-iii.org/concepts/currencies), including crypto currencies such as ₿itcoin and Ξthereum.
 * There is a [Docker image](https://docs.firefly-iii.org/installation/docker) and an [Heroku script](https://docs.firefly-iii.org/installation/third_parties).
 
 And to organise everything:
 
-* Clear views that should show you how you're doing
-* Easy navigation through your records
-* Lots of charts because we all love them
+* Clear views that should show you how you're doing.
+* Easy navigation through your records.
+* Lots of charts because we all love them.
 
 Many more features are listed in the [documentation](https://docs.firefly-iii.org/about-firefly-iii/introduction).
 
@@ -154,6 +154,8 @@ You can contact me at [james@firefly-iii.org](mailto:james@firefly-iii.org), you
 ## Acknowledgements
 
 Over time, [many people have contributed to Firefly III](https://github.com/firefly-iii/firefly-iii/graphs/contributors). I'm grateful for their your support and code contributions.
+
+The Firefly III logo is made by the excellent Cherie Woo.
 
 [packagist-shield]: https://img.shields.io/packagist/v/grumpydictator/firefly-iii.svg?style=flat-square
 [packagist-url]: https://packagist.org/packages/grumpydictator/firefly-iii

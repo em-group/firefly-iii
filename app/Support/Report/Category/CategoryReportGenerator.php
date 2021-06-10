@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * CategoryReportGenerator.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,9 +19,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Support\Report\Category;
-
-
 use Carbon\Carbon;
 use FireflyIII\Repositories\Category\NoCategoryRepositoryInterface;
 use FireflyIII\Repositories\Category\OperationsRepositoryInterface;
@@ -130,7 +129,7 @@ class CategoryReportGenerator
      */
     private function processCategoryRow(int $currencyId, array $currencyRow, int $categoryId, array $categoryRow): void
     {
-        $key                        = sprintf('%s-%s', $currencyId, $categoryId);
+        $key                              = sprintf('%s-%s', $currencyId, $categoryId);
         $this->report['categories'][$key] = $this->report['categories'][$key] ?? [
                 'id'                      => $categoryId,
                 'title'                   => $categoryRow['name'],

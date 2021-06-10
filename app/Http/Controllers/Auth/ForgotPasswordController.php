@@ -72,14 +72,14 @@ class ForgotPasswordController extends Controller
     {
         Log::info('Start of sendResetLinkEmail()');
         $loginProvider = config('firefly.login_provider');
-        // @codeCoverageIgnoreStart
+
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
             Log::error($message);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
-        // @codeCoverageIgnoreEnd
+
 
         $this->validateEmail($request);
 
@@ -88,7 +88,7 @@ class ForgotPasswordController extends Controller
         $user = User::where('email', $request->get('email'))->first();
 
         if (null !== $user && $repository->hasRole($user, 'demo')) {
-            return back()->withErrors(['email' => (string) trans('firefly.cannot_reset_demo_user')]);
+            return back()->withErrors(['email' => (string)trans('firefly.cannot_reset_demo_user')]);
         }
 
         // We will send the password reset link to this user. Once we have attempted
@@ -102,7 +102,7 @@ class ForgotPasswordController extends Controller
             return back()->with('status', trans($response));
         }
 
-        return back()->withErrors(['email' => trans($response)]); // @codeCoverageIgnore
+        return back()->withErrors(['email' => trans($response)]); 
     }
 
     /**
@@ -118,18 +118,18 @@ class ForgotPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
 
         // is allowed to?
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $userCount         = User::count();
         $allowRegistration = true;
-        $pageTitle         = (string) trans('firefly.forgot_pw_page_title');
+        $pageTitle         = (string)trans('firefly.forgot_pw_page_title');
         if (true === $singleUserMode && $userCount > 0) {
             $allowRegistration = false;
         }
 
-        return view('auth.passwords.email')->with(compact('allowRegistration', 'pageTitle'));
+        return prefixView('auth.passwords.email')->with(compact('allowRegistration', 'pageTitle'));
     }
 }

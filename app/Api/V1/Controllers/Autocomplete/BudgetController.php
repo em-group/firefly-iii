@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers\Autocomplete;
 
-
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Autocomplete\AutocompleteRequest;
 use FireflyIII\Models\Budget;
@@ -37,7 +36,6 @@ use Illuminate\Http\JsonResponse;
 class BudgetController extends Controller
 {
     private BudgetRepositoryInterface $repository;
-
 
     /**
      * BudgetController constructor.
@@ -69,7 +67,7 @@ class BudgetController extends Controller
         $filtered = $result->map(
             static function (Budget $item) {
                 return [
-                    'id'   => $item->id,
+                    'id'   => (string)$item->id,
                     'name' => $item->name,
                 ];
             }

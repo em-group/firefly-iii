@@ -46,7 +46,6 @@ class RestoreOAuthKeys extends Command
      */
     protected $signature = 'firefly-iii:restore-oauth-keys';
 
-
     /**
      * Execute the console command.
      *
@@ -57,38 +56,6 @@ class RestoreOAuthKeys extends Command
         $this->restoreOAuthKeys();
 
         return 0;
-    }
-
-    /**
-     *
-     */
-    private function generateKeys(): void
-    {
-        OAuthKeys::generateKeys();
-    }
-
-    /**
-     * @return bool
-     */
-    private function keysInDatabase(): bool
-    {
-        return OAuthKeys::keysInDatabase();
-    }
-
-    /**
-     * @return bool
-     */
-    private function keysOnDrive(): bool
-    {
-        return OAuthKeys::hasKeyFiles();
-    }
-
-    /**
-     *
-     */
-    private function restoreKeysFromDB(): void
-    {
-        OAuthKeys::restoreKeysFromDB();
     }
 
     /**
@@ -123,10 +90,42 @@ class RestoreOAuthKeys extends Command
     }
 
     /**
+     * @return bool
+     */
+    private function keysInDatabase(): bool
+    {
+        return OAuthKeys::keysInDatabase();
+    }
+
+    /**
+     * @return bool
+     */
+    private function keysOnDrive(): bool
+    {
+        return OAuthKeys::hasKeyFiles();
+    }
+
+    /**
+     *
+     */
+    private function generateKeys(): void
+    {
+        OAuthKeys::generateKeys();
+    }
+
+    /**
      *
      */
     private function storeKeysInDB(): void
     {
         OAuthKeys::storeKeysInDB();
+    }
+
+    /**
+     *
+     */
+    private function restoreKeysFromDB(): void
+    {
+        OAuthKeys::restoreKeysFromDB();
     }
 }

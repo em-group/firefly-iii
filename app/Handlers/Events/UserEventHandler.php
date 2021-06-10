@@ -129,6 +129,153 @@ class UserEventHandler
     }
 
     /**
+     * @param DetectedNewIPAddress $event
+     */
+    public function notifyNewIPAddress(DetectedNewIPAddress $event): void
+    {
+        $user      = $event->user;
+        $email     = $user->email;
+        $ipAddress = $event->ipAddress;
+
+        if ($user->hasRole('demo')) {
+            return; // do not email demo user.
+        }
+
+        $list = app('preferences')->getForUser($user, 'login_ip_history', [])->data;
+
+        // see if user has alternative email address:
+        $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+        if (null !== $pref) {
+            $email = $pref->data;
+        }
+
+        /** @var array $entry */
+        foreach ($list as $index => $entry) {
+            if (false === $entry['notified']) {
+                try {
+                    Mail::to($email)->send(new NewIPAddressWarningMail($ipAddress));
+
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    Log::error($e->getMessage());
+                }
+            }
+            $list[$index]['notified'] = true;
+        }
+
+        app('preferences')->setForUser($user, 'login_ip_history', $list);
+    }
+
+    /**
+     * Send email to confirm email change.
+     *
+     * @param UserChangedEmail $event
+     *
+     * @return bool
+     */
+    public function sendEmailChangeConfirmMail(UserChangedEmail $event): bool
+    {
+        $newEmail  = $event->newEmail;
+        $oldEmail  = $event->oldEmail;
+        $user      = $event->user;
+        $ipAddress = $event->ipAddress;
+        $token     = app('preferences')->getForUser($user, 'email_change_confirm_token', 'invalid');
+        $uri       = route('profile.confirm-email-change', [$token->data]);
+        try {
+            Mail::to($newEmail)->send(new ConfirmEmailChangeMail($newEmail, $oldEmail, $uri, $ipAddress));
+
+        } catch (Exception $e) { // @phpstan-ignore-line
+            Log::error($e->getMessage());
+        }
+        return true;
+    }
+
+    /**
+     * Send email to be able to undo email change.
+     *
+     * @param UserChangedEmail $event
+     *
+     * @return bool
+     */
+    public function sendEmailChangeUndoMail(UserChangedEmail $event): bool
+    {
+        $newEmail  = $event->newEmail;
+        $oldEmail  = $event->oldEmail;
+        $user      = $event->user;
+        $ipAddress = $event->ipAddress;
+        $token     = app('preferences')->getForUser($user, 'email_change_undo_token', 'invalid');
+        $hashed    = hash('sha256', sprintf('%s%s', (string)config('app.key'), $oldEmail));
+        $uri       = route('profile.undo-email-change', [$token->data, $hashed]);
+        try {
+            Mail::to($oldEmail)->send(new UndoEmailChangeMail($newEmail, $oldEmail, $uri, $ipAddress));
+
+        } catch (Exception $e) { // @phpstan-ignore-line
+            Log::error($e->getMessage());
+        }
+        return true;
+    }
+
+    /**
+     * Send a new password to the user.
+     *
+     * @param RequestedNewPassword $event
+     *
+     * @return bool
+     */
+    public function sendNewPassword(RequestedNewPassword $event): bool
+    {
+        $email     = $event->user->email;
+        $ipAddress = $event->ipAddress;
+        $token     = $event->token;
+
+        $url = route('password.reset', [$token]);
+
+        // send email.
+        try {
+            Mail::to($email)->send(new RequestedNewPasswordMail($url, $ipAddress));
+
+        } catch (Exception $e) { // @phpstan-ignore-line
+            Log::error($e->getMessage());
+        }
+        return true;
+    }
+
+    /**
+     * This method will send the user a registration mail, welcoming him or her to Firefly III.
+     * This message is only sent when the configuration of Firefly III says so.
+     *
+     * @param RegisteredUser $event
+     *
+     * @return bool
+     */
+    public function sendRegistrationMail(RegisteredUser $event): bool
+    {
+        $sendMail = config('firefly.send_registration_mail');
+        if ($sendMail) {
+            // get the email address
+            $email     = $event->user->email;
+            $uri       = route('index');
+            $ipAddress = $event->ipAddress;
+
+            // see if user has alternative email address:
+            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email', null);
+            if (null !== $pref) {
+                $email = $pref->data;
+            }
+
+            // send email.
+            try {
+                Mail::to($email)->send(new RegisteredUserMail($uri, $ipAddress));
+
+            } catch (Exception $e) { // @phpstan-ignore-line
+                Log::error($e->getMessage());
+            }
+
+        }
+
+        return true;
+    }
+
+    /**
      * @param Login $event
      */
     public function storeUserIPAddress(Login $event): void
@@ -162,8 +309,6 @@ class UserEventHandler
                 'time'     => now(config('app.timezone'))->format('Y-m-d H:i:s'),
                 'notified' => false,
             ];
-
-
         }
         $preference = array_values($preference);
         app('preferences')->setForUser($user, 'login_ip_history', $preference);
@@ -172,161 +317,5 @@ class UserEventHandler
             event(new DetectedNewIPAddress($user, $ip));
         }
 
-    }
-
-    /**
-     * @param DetectedNewIPAddress $event
-     */
-    public function notifyNewIPAddress(DetectedNewIPAddress $event): void
-    {
-        $user      = $event->user;
-        $email     = $user->email;
-        $ipAddress = $event->ipAddress;
-
-        if($user->hasRole('demo')) {
-            return; // do not email demo user.
-        }
-
-        $list      = app('preferences')->getForUser($user, 'login_ip_history', [])->data;
-
-        // see if user has alternative email address:
-        $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
-        if (null !== $pref) {
-            $email = $pref->data;
-        }
-
-        /** @var array $entry */
-        foreach ($list as $index => $entry) {
-            if (false === $entry['notified']) {
-                try {
-                    Mail::to($email)->send(new NewIPAddressWarningMail($ipAddress));
-                    // @codeCoverageIgnoreStart
-                } catch (Exception $e) {
-                    Log::error($e->getMessage());
-                }
-            }
-            $list[$index]['notified'] = true;
-        }
-
-        app('preferences')->setForUser($user, 'login_ip_history', $list);
-    }
-
-    /**
-     * Send email to confirm email change.
-     *
-     * @param UserChangedEmail $event
-     *
-     * @return bool
-     */
-    public function sendEmailChangeConfirmMail(UserChangedEmail $event): bool
-    {
-        $newEmail  = $event->newEmail;
-        $oldEmail  = $event->oldEmail;
-        $user      = $event->user;
-        $ipAddress = $event->ipAddress;
-        $token     = app('preferences')->getForUser($user, 'email_change_confirm_token', 'invalid');
-        $uri       = route('profile.confirm-email-change', [$token->data]);
-        try {
-            Mail::to($newEmail)->send(new ConfirmEmailChangeMail($newEmail, $oldEmail, $uri, $ipAddress));
-            // @codeCoverageIgnoreStart
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return true;
-    }
-
-    /**
-     * Send email to be able to undo email change.
-     *
-     * @param UserChangedEmail $event
-     *
-     * @return bool
-     */
-    public function sendEmailChangeUndoMail(UserChangedEmail $event): bool
-    {
-        $newEmail  = $event->newEmail;
-        $oldEmail  = $event->oldEmail;
-        $user      = $event->user;
-        $ipAddress = $event->ipAddress;
-        $token     = app('preferences')->getForUser($user, 'email_change_undo_token', 'invalid');
-        $hashed    = hash('sha256', sprintf('%s%s', (string) config('app.key'), $oldEmail));
-        $uri       = route('profile.undo-email-change', [$token->data, $hashed]);
-        try {
-            Mail::to($oldEmail)->send(new UndoEmailChangeMail($newEmail, $oldEmail, $uri, $ipAddress));
-            // @codeCoverageIgnoreStart
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return true;
-    }
-
-    /**
-     * Send a new password to the user.
-     *
-     * @param RequestedNewPassword $event
-     *
-     * @return bool
-     */
-    public function sendNewPassword(RequestedNewPassword $event): bool
-    {
-        $email     = $event->user->email;
-        $ipAddress = $event->ipAddress;
-        $token     = $event->token;
-
-        $url = route('password.reset', [$token]);
-
-        // send email.
-        try {
-            Mail::to($email)->send(new RequestedNewPasswordMail($url, $ipAddress));
-            // @codeCoverageIgnoreStart
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return true;
-    }
-
-    /**
-     * This method will send the user a registration mail, welcoming him or her to Firefly III.
-     * This message is only sent when the configuration of Firefly III says so.
-     *
-     * @param RegisteredUser $event
-     *
-     * @return bool
-     */
-    public function sendRegistrationMail(RegisteredUser $event): bool
-    {
-        $sendMail = config('firefly.send_registration_mail');
-        if ($sendMail) {
-            // get the email address
-            $email     = $event->user->email;
-            $uri       = route('index');
-            $ipAddress = $event->ipAddress;
-
-            // see if user has alternative email address:
-            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email', null);
-            if (null !== $pref) {
-                $email = $pref->data;
-            }
-
-            // send email.
-            try {
-                Mail::to($email)->send(new RegisteredUserMail($uri, $ipAddress));
-                // @codeCoverageIgnoreStart
-            } catch (Exception $e) {
-                Log::error($e->getMessage());
-            }
-            // @codeCoverageIgnoreEnd
-        }
-
-        return true;
     }
 }

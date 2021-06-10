@@ -28,6 +28,7 @@ use FireflyIII\Models\TransactionGroup;
 
 /**
  * Class TransactionGroupDestroyService
+ *
  * @codeCoverageIgnore
  */
 class TransactionGroupDestroyService
@@ -45,8 +46,8 @@ class TransactionGroupDestroyService
         }
         try {
             $transactionGroup->delete();
-        } catch (Exception $e) {
-            app('log')->error(sprintf('Could not delete transaction group: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
     }
 

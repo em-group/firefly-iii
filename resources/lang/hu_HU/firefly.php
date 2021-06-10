@@ -225,6 +225,9 @@ return [
     'advanced_options_explain'                            => 'Some pages in Firefly III have advanced options hidden behind this button. This page doesn\'t have anything fancy here, but do check out the others!',
     'here_be_dragons'                                     => 'Hic sunt dracones',
 
+    // Webhooks
+    'webhooks'                                            => 'Webhooks',
+
     // API access
     'authorization_request'                               => 'Firefly III v:version engedély kérelem',
     'authorization_request_intro'                         => '<strong>:client</strong> hozzáférést kért az Ön pénzügyi adminisztrációjához. Szeretne hozzáférést ezekhez adatokhoz <strong>:client</strong> részére?',
@@ -295,6 +298,8 @@ return [
     'search_modifier_has_any_category'                    => 'A tranzakciónak van kategóriája',
     'search_modifier_has_no_budget'                       => 'A tranzakcióhoz nincs költségkeret',
     'search_modifier_has_any_budget'                      => 'A tranzakciónak van költségkerete',
+    'search_modifier_has_no_bill'                         => 'The transaction must have no bill',
+    'search_modifier_has_any_bill'                        => 'The transaction must have a (any) bill',
     'search_modifier_has_no_tag'                          => 'A tranzakcióhoz nincs címke',
     'search_modifier_has_any_tag'                         => 'A tranzakciónak van címkéje',
     'search_modifier_notes_contain'                       => 'Tranzakció megjegyzése tartalmazza ":value"',
@@ -420,7 +425,8 @@ return [
     'apply_rule_selection'                                => '":title" szabály alkalmazása a tranzakciók egy csoportján',
     'apply_rule_selection_intro'                          => 'Az olyan szabályok mint a ":title" normális esetben csak az új vagy a frissített tranzakciókon lesznek alkalmazva, de meg lehet mondani a Firefly III-nak, hogy futtassa le a már létező tranzakciókon. Ez hasznos lehet, ha egy szabály frissítve lett és a módosításokat az összes tranzakción alkalmazni kell.',
     'include_transactions_from_accounts'                  => 'Beleértve a tranzakciókat ezekből a számlákból',
-    'applied_rule_selection'                              => '":title" szabály alkalmazva a kiválasztásra.',
+    'include'                                             => 'Include?',
+    'applied_rule_selection'                              => '{0} No transactions in your selection were changed by rule ":title".|[1] One transaction in your selection was changed by rule ":title".|[2,*] :count transactions in your selection were changed by rule ":title".',
     'execute'                                             => 'Végrehajtás',
     'apply_rule_group_selection'                          => '":title" szabálycsoport alkalmazása a tranzakciók egy csoportján',
     'apply_rule_group_selection_intro'                    => 'Az olyan szabálycsoportok mint a ":title" normális esetben csak az új vagy a frissített tranzakciókon lesznek alkalmazva, de meg lehet mondani a Firefly III-nak, hogy futtassa le a csoportban lévő összes szabályt a már létező tranzakciókon. Ez hasznos lehet, ha egy szabálycsoport frissítve lett és a módosításokat az összes tranzakción alkalmazni kell.',
@@ -520,6 +526,10 @@ return [
     'rule_trigger_has_no_budget'                          => 'Költségkeret nélküli tranzakciók',
     'rule_trigger_has_any_budget_choice'                  => 'Van költségkerete',
     'rule_trigger_has_any_budget'                         => 'Költségkerettel rendelkező tranzakció',
+    'rule_trigger_has_no_bill_choice'                     => 'Has no bill',
+    'rule_trigger_has_no_bill'                            => 'Transaction has no bill',
+    'rule_trigger_has_any_bill_choice'                    => 'Has a (any) bill',
+    'rule_trigger_has_any_bill'                           => 'Transaction has a (any) bill',
     'rule_trigger_has_no_tag_choice'                      => 'Nincsenek címkéi',
     'rule_trigger_has_no_tag'                             => 'Címke nélküli tranzakció',
     'rule_trigger_has_any_tag_choice'                     => 'Van legalább egy címkéje',
@@ -675,7 +685,7 @@ return [
     'pref_optional_fields_transaction'          => 'Tranzakciók választható mezői',
     'pref_optional_fields_transaction_help'     => 'Alapértelmezés szerint új tranzakció létrehozásakor nem minden mező engedélyezett (hogy elkerüljük a túlzsúfoltságot). Ezeket a mezőket lent lehet engedélyezni ha valamelyikre szükség van. Természetesen azok a letiltott mezők amelyek már ki vannak töltve, a beállítástól függetlenül láthatóak lesznek.',
     'optional_tj_date_fields'                   => 'Dátummezők',
-    'optional_tj_business_fields'               => 'Üzleti mezők',
+    'optional_tj_other_fields'                  => 'Other fields',
     'optional_tj_attachment_fields'             => 'Melléklet mezők',
     'pref_optional_tj_interest_date'            => 'Kamatfizetési időpont',
     'pref_optional_tj_book_date'                => 'Könyvelés dátuma',
@@ -686,12 +696,14 @@ return [
     'pref_optional_tj_internal_reference'       => 'Belső hivatkozás',
     'pref_optional_tj_notes'                    => 'Megjegyzések',
     'pref_optional_tj_attachments'              => 'Mellékletek',
-    'pref_optional_tj_external_uri'             => 'Külső hivatkozás',
+    'pref_optional_tj_external_uri'             => 'External URL',
+    'pref_optional_tj_location'                 => 'Location',
+    'pref_optional_tj_links'                    => 'Transaction links',
     'optional_field_meta_dates'                 => 'Dátumok',
     'optional_field_meta_business'              => 'Üzleti',
     'optional_field_attachments'                => 'Mellékletek',
     'optional_field_meta_data'                  => 'Opcionális metaadat',
-    'external_uri'                              => 'Külső hivatkozás',
+    'external_uri'                              => 'External URL',
 
     // profile:
     'delete_stuff_header'                       => 'Adatok törlése',
@@ -881,6 +893,7 @@ return [
     'create_new_deposit'                        => 'Új bevétel létrehozása',
     'create_new_transfer'                       => 'Új átvezetés létrehozása',
     'create_new_asset'                          => 'Új eszközszámla létrehozása',
+    'create_new_liabilities'                    => 'Create new liability',
     'create_new_expense'                        => 'Új költségszámla létrehozása',
     'create_new_revenue'                        => 'Új jövedelemszámla létrehozása',
     'create_new_piggy_bank'                     => 'Új malacpersely létrehozása',
@@ -970,7 +983,6 @@ return [
     'available_amount_indication'               => 'Ezeket az összeget felhasználva lehet megtudni, hogy mekkorának kéne lennie a teljes költségkeretnek.',
     'suggested'                                 => 'Javasolt',
     'average_between'                           => 'Átlag :start és :end között',
-    'over_budget_warn'                          => '<i class="fa fa-money"></i>A költségkeret általában napi :amount körül van. Jelenleg napi :over_amount. Biztos?',
     'transferred_in'                            => 'Átvezetett (be)',
     'transferred_away'                          => '(Máshova) átvezetett',
     'auto_budget_none'                          => 'Nincs auto-költségkeret',
@@ -1019,6 +1031,7 @@ return [
     'list_inactive_rule'                        => 'inaktív szabály',
     'bill_edit_rules'                           => 'A Firefly III megpróbálja szerkeszteni a a számlához kapcsolódó szabályt is. Ha ön már szerkesztette a szabályt, a Firefly III nem fogja módosítani.|A Firefly III megpróbálja szerkeszteni a a számlához kapcsolódó :count szabályt is. Ha ön már szerkesztette a szabályt, a Firefly III nem fogja módosítani.',
     'bill_expected_date'                        => 'Várható dátum :date',
+    'bill_paid_on'                              => 'Paid on {date}',
 
     // accounts:
     'inactive_account_link'                     => 'You have :count inactive (archived) account, which you can view on this separate page.|You have :count inactive (archived) accounts, which you can view on this separate page.',
@@ -1041,6 +1054,7 @@ return [
     'delete_revenue_account'                    => '":name" jövedelemszámla törlése',
     'delete_liabilities_account'                => '":name" kötelezettség törlése',
     'asset_deleted'                             => '":name" eszközszámla sikeresen törölve',
+    'account_deleted'                           => 'Successfully deleted account ":name"',
     'expense_deleted'                           => '":name" költségszámla sikeresen törölve',
     'revenue_deleted'                           => '":name" jövedelemszámla sikeresen törölve',
     'update_asset_account'                      => 'Eszközszámla frissítése',
@@ -1087,7 +1101,9 @@ return [
     'cant_find_redirect_account'                => 'A Firefly III megpróbálkozott az átirányítással de az nem sikerült. Elnézést kérünk. Vissza a kezdőlapra.',
     'account_type'                              => 'Bankszámla típusa',
     'save_transactions_by_moving'               => 'Save this transaction by moving it to another account:|Save these transactions by moving them to another account:',
+    'save_transactions_by_moving_js'            => 'No transactions|Save this transaction by moving it to another account. |Save these transactions by moving them to another account.',
     'stored_new_account'                        => '":name" új számla letárolva!',
+    'stored_new_account_js'                     => 'New account "<a href="accounts/show/{ID}">{name}</a>" stored!',
     'updated_account'                           => '":name" számla frissítve',
     'credit_card_options'                       => 'Hitelkártya opciók',
     'no_transactions_account'                   => 'Nincsenek tranzakciók (ebben az időszakban) az eszközszámlához: ":name".',
@@ -1124,7 +1140,11 @@ return [
     'interest_calc_daily'                       => 'Naponta',
     'interest_calc_monthly'                     => 'Havonta',
     'interest_calc_yearly'                      => 'Évente',
+    'interest_calc_weekly'                      => 'Per week',
+    'interest_calc_half-year'                   => 'Per half year',
+    'interest_calc_quarterly'                   => 'Per quarter',
     'initial_balance_account'                   => ':account kezdeti egyenlegfiókja',
+    'list_options'                              => 'List options',
 
     // categories:
     'new_category'                              => 'Új kategória',
@@ -1150,6 +1170,9 @@ return [
     'updated_withdrawal'                        => 'Költség frissítve ":description"',
     'updated_deposit'                           => '":description" bevétel frissítve',
     'updated_transfer'                          => 'Átvezetés frissítve ":description"',
+    'no_changes_withdrawal'                     => 'Withdrawal ":description" was not changed.',
+    'no_changes_deposit'                        => 'Deposit ":description" was not changed.',
+    'no_changes_transfer'                       => 'Transfer ":description" was not changed.',
     'delete_withdrawal'                         => 'Költség törölve ":description"',
     'delete_deposit'                            => '":description" bevétel törlése',
     'delete_transfer'                           => 'Átvezetés törlése ":description"',
@@ -1230,7 +1253,12 @@ return [
     'journal_link_bill'                         => 'Ez a tranzakció <a href=":route">:name</a> számlához van csatolva. A kapcsolat eltávolításához ki kell venni a jelölést a jelölőnégyzetből. Szabályok használatával másik számlához lehet csatolni.',
     'transaction_stored_link'                   => '<a href="transactions/show/{ID}">Transaction #{ID} ("{title}")</a> mentve.',
     'transaction_new_stored_link'               => '<a href="transactions/show/{ID}">Transaction #{ID}</a> mentve.',
-    'transaction_updated_link'                  => '<a href="transactions/show/{ID}">Transaction #{ID}</a> has been updated.',
+    'transaction_updated_link'                  => '<a href="transactions/show/{ID}">Transaction #{ID}</a> ("{title}") has been updated.',
+    'transaction_updated_no_changes'            => '<a href="transactions/show/{ID}">Transaction #{ID}</a> ("{title}") did not receive any changes.',
+    'first_split_decides'                       => 'The first split determines the value of this field',
+    'first_split_overrules_source'              => 'The first split may overrule the source account',
+    'first_split_overrules_destination'         => 'The first split may overrule the destination account',
+    'spent_x_of_y'                              => 'Spent {amount} of {total}',
 
     // new user:
     'welcome'                                   => 'Üdvözöli a Firefly III!',
@@ -1269,6 +1297,9 @@ return [
     'per_day'                                   => 'Naponta',
     'left_to_spend_per_day'                     => 'Naponta elkölthető',
     'bills_paid'                                => 'Befizetett számlák',
+    'custom_period'                             => 'Custom period',
+    'reset_to_current'                          => 'Reset to current period',
+    'select_period'                             => 'Select a period',
 
     // menu and titles, should be recycled as often as possible:
     'currency'                                  => 'Pénznem',
@@ -1293,6 +1324,8 @@ return [
     'account_type_Loan'                         => 'Hitel',
     'account_type_Mortgage'                     => 'Jelzálog',
     'account_type_Credit card'                  => 'Hitelkártya',
+    'liability_direction_credit'                => 'I am owed this debt',
+    'liability_direction_debit'                 => 'I owe this debt to somebody else',
     'budgets'                                   => 'Költségkeretek',
     'tags'                                      => 'Címkék',
     'reports'                                   => 'Jelentések',
@@ -1337,6 +1370,7 @@ return [
     'automation'                                => 'Automatizálás',
     'others'                                    => 'Egyebek',
     'classification'                            => 'Besorolás',
+    'store_transaction'                         => 'Store transaction',
 
     // reports:
     'report_default'                            => 'Alapértelmezett pénzügyi jelentés :start és :end között',
@@ -1827,8 +1861,8 @@ return [
     'edit_object_group'                  => '":title" csoport szerkesztése',
     'delete_object_group'                => '":title" csoport törlése',
     'update_object_group'                => 'Csoport frissítése',
-    'updated_object_group'               => '":title" csoport sikeresen frissítve',
-    'deleted_object_group'               => '":title" csoport sikeresen törölve',
+    'updated_object_group'               => 'Successfully updated group ":title"',
+    'deleted_object_group'               => 'Successfully deleted group ":title"',
     'object_group'                       => 'Csoport',
 
 

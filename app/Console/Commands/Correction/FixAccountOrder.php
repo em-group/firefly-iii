@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
-use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Console\Command;
@@ -48,7 +47,6 @@ class FixAccountOrder extends Command
 
     private AccountRepositoryInterface $repository;
 
-
     /**
      * Execute the console command.
      *
@@ -62,16 +60,7 @@ class FixAccountOrder extends Command
         $users = User::get();
         foreach ($users as $user) {
             $this->repository->setUser($user);
-            $sets = [
-                [AccountType::DEFAULT, AccountType::ASSET],
-                [AccountType::EXPENSE, AccountType::BENEFICIARY],
-                [AccountType::REVENUE],
-                [AccountType::LOAN, AccountType::DEBT, AccountType::CREDITCARD, AccountType::MORTGAGE],
-                [AccountType::CASH, AccountType::INITIAL_BALANCE, AccountType::IMPORT, AccountType::RECONCILIATION],
-            ];
-            foreach ($sets as $set) {
-                $this->repository->resetAccountOrder($set);
-            }
+            $this->repository->resetAccountOrder();
         }
 
         $end = round(microtime(true) - $start, 2);

@@ -54,43 +54,39 @@ class JournalUpdateService
 {
     use JournalServiceTrait;
 
-    /** @var BillRepositoryInterface */
-    private $billRepository;
-    /** @var CurrencyRepositoryInterface */
-    private $currencyRepository;
-    /** @var array The data to update the journal with. */
-    private $data;
-    /** @var Account The destination account. */
-    private $destinationAccount;
-    /** @var Transaction */
-    private $destinationTransaction;
-    /** @var array All meta values that are dates. */
-    private $metaDate;
-    /** @var array All meta values that are strings. */
-    private $metaString;
-    /** @var Account Source account of the journal */
-    private $sourceAccount;
-    /** @var Transaction Source transaction of the journal. */
-    private $sourceTransaction;
-    /** @var TransactionGroup The parent group. */
-    private $transactionGroup;
-    /** @var TransactionJournal The journal to update. */
-    private $transactionJournal;
+    private BillRepositoryInterface     $billRepository;
+    private CurrencyRepositoryInterface $currencyRepository;
+    private array                       $data;
+    private ?Account                    $destinationAccount;
+    private ?Transaction                $destinationTransaction;
+    private array                       $metaDate;
+    private array                       $metaString;
+    private ?Account                    $sourceAccount;
+    private ?Transaction                $sourceTransaction;
+    private ?TransactionGroup           $transactionGroup;
+    private ?TransactionJournal         $transactionJournal;
 
     /**
      * JournalUpdateService constructor.
      */
     public function __construct()
     {
-        $this->billRepository     = app(BillRepositoryInterface::class);
-        $this->categoryRepository = app(CategoryRepositoryInterface::class);
-        $this->budgetRepository   = app(BudgetRepositoryInterface::class);
-        $this->tagFactory         = app(TagFactory::class);
-        $this->accountRepository  = app(AccountRepositoryInterface::class);
-        $this->currencyRepository = app(CurrencyRepositoryInterface::class);
-        $this->metaString         = ['sepa_cc', 'sepa_ct_op', 'sepa_ct_id', 'sepa_db', 'sepa_country', 'sepa_ep', 'sepa_ci', 'sepa_batch_id', 'recurrence_id',
-                                     'internal_reference', 'bunq_payment_id', 'external_id', 'external_uri'];
-        $this->metaDate           = ['interest_date', 'book_date', 'process_date', 'due_date', 'payment_date', 'invoice_date',];
+        $this->destinationAccount     = null;
+        $this->destinationTransaction = null;
+        $this->sourceAccount          = null;
+        $this->sourceTransaction      = null;
+        $this->transactionGroup       = null;
+        $this->transactionJournal     = null;
+        $this->billRepository         = app(BillRepositoryInterface::class);
+        $this->categoryRepository     = app(CategoryRepositoryInterface::class);
+        $this->budgetRepository       = app(BudgetRepositoryInterface::class);
+        $this->tagFactory             = app(TagFactory::class);
+        $this->accountRepository      = app(AccountRepositoryInterface::class);
+        $this->currencyRepository     = app(CurrencyRepositoryInterface::class);
+        $this->metaString             = ['sepa_cc', 'sepa_ct_op', 'sepa_ct_id', 'sepa_db', 'sepa_country', 'sepa_ep', 'sepa_ci', 'sepa_batch_id',
+                                         'recurrence_id',
+                                         'internal_reference', 'bunq_payment_id', 'external_id', 'external_uri'];
+        $this->metaDate               = ['interest_date', 'book_date', 'process_date', 'due_date', 'payment_date', 'invoice_date',];
     }
 
     /**
@@ -112,6 +108,10 @@ class JournalUpdateService
         $this->budgetRepository->setUser($transactionGroup->user);
         $this->tagFactory->setUser($transactionGroup->user);
         $this->accountRepository->setUser($transactionGroup->user);
+        $this->destinationAccount     = null;
+        $this->destinationTransaction = null;
+        $this->sourceAccount          = null;
+        $this->sourceTransaction      = null;
     }
 
     /**
@@ -130,7 +130,7 @@ class JournalUpdateService
         Log::debug(sprintf('Now in JournalUpdateService for journal #%d.', $this->transactionJournal->id));
         // can we update account data using the new type?
         if ($this->hasValidAccounts()) {
-            Log::info('-- account info is valid, now update.');
+            Log::info('Account info is valid, now update.');
             // update accounts:
             $this->updateAccounts();
 
@@ -145,13 +145,13 @@ class JournalUpdateService
         $this->updateField('description');
         $this->updateField('date');
         $this->updateField('order');
-
         $this->transactionJournal->save();
         $this->transactionJournal->refresh();
 
         $this->updateCategory();
         $this->updateBudget();
         $this->updateTags();
+        $this->updateReconciled();
         $this->updateNotes();
         $this->updateMeta();
         $this->updateCurrency();
@@ -166,47 +166,61 @@ class JournalUpdateService
     }
 
     /**
-     * Get destination transaction.
-     *
-     * @return Transaction
+     * @return bool
      */
-    private function getDestinationTransaction(): Transaction
+    private function hasValidAccounts(): bool
     {
-        if (null === $this->destinationTransaction) {
-            $this->destinationTransaction = $this->transactionJournal->transactions()->where('amount', '>', 0)->first();
-        }
-
-        return $this->destinationTransaction;
+        return $this->hasValidSourceAccount() && $this->hasValidDestinationAccount();
     }
 
     /**
-     * This method returns the current or expected type of the journal (in case of a change) based on the data in the array.
-     *
-     * If the array contains key 'type' and the value is correct, this is returned. Otherwise, the original type is returned.
-     *
-     * @return string
+     * @return bool
      */
-    private function getExpectedType(): string
+    private function hasValidSourceAccount(): bool
     {
-        Log::debug('Now in getExpectedType()');
-        if ($this->hasFields(['type'])) {
-            return ucfirst('opening-balance' === $this->data['type'] ? 'opening balance' : $this->data['type']);
+        Log::debug('Now in hasValidSourceAccount().');
+        $sourceId   = $this->data['source_id'] ?? null;
+        $sourceName = $this->data['source_name'] ?? null;
+
+        if (!$this->hasFields(['source_id', 'source_name'])) {
+            $origSourceAccount = $this->getOriginalSourceAccount();
+            $sourceId          = $origSourceAccount->id;
+            $sourceName        = $origSourceAccount->name;
         }
 
-        return $this->transactionJournal->transactionType->type;
+        // make new account validator.
+        $expectedType = $this->getExpectedType();
+        Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
+
+        // make a new validator.
+        /** @var AccountValidator $validator */
+        $validator = app(AccountValidator::class);
+        $validator->setTransactionType($expectedType);
+        $validator->setUser($this->transactionJournal->user);
+
+        $result = $validator->validateSource($sourceId, $sourceName, null);
+        Log::debug(sprintf('hasValidSourceAccount(%d, "%s") will return %s', $sourceId, $sourceName, var_export($result, true)));
+
+        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+
+        // validate submitted info:
+        return $result;
     }
 
     /**
-     * @return Account
+     * @param array $fields
+     *
+     * @return bool
      */
-    private function getOriginalDestinationAccount(): Account
+    private function hasFields(array $fields): bool
     {
-        if (null === $this->destinationAccount) {
-            $destination              = $this->getSourceTransaction();
-            $this->destinationAccount = $destination->account;
+        foreach ($fields as $field) {
+            if (array_key_exists($field, $this->data)) {
+                return true;
+            }
         }
 
-        return $this->destinationAccount;
+        return false;
     }
 
     /**
@@ -236,37 +250,82 @@ class JournalUpdateService
     }
 
     /**
-     * Does a validation and returns the destination account. This method will break if the dest isn't really valid.
+     * This method returns the current or expected type of the journal (in case of a change) based on the data in the array.
      *
-     * @return Account
+     * If the array contains key 'type' and the value is correct, this is returned. Otherwise, the original type is returned.
+     *
+     * @return string
      */
-    private function getValidDestinationAccount(): Account
+    private function getExpectedType(): string
     {
-        Log::debug('Now in getValidDestinationAccount().');
-
-        if (!$this->hasFields(['destination_id', 'destination_name'])) {
-            return $this->getOriginalDestinationAccount();
+        Log::debug('Now in getExpectedType()');
+        if ($this->hasFields(['type'])) {
+            return ucfirst('opening-balance' === $this->data['type'] ? 'opening balance' : $this->data['type']);
         }
 
-        $destInfo = [
-            'id'     => (int)($this->data['destination_id'] ?? null),
-            'name'   => $this->data['destination_name'] ?? null,
-            'iban'   => $this->data['destination_iban'] ?? null,
-            'number' => $this->data['destination_number'] ?? null,
-            'bic'    => $this->data['destination_bic'] ?? null,
-        ];
+        return $this->transactionJournal->transactionType->type;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasValidDestinationAccount(): bool
+    {
+        Log::debug('Now in hasValidDestinationAccount().');
+        $destId   = $this->data['destination_id'] ?? null;
+        $destName = $this->data['destination_name'] ?? null;
+
+        if (!$this->hasFields(['destination_id', 'destination_name'])) {
+            Log::debug('No destination info submitted, grab the original data.');
+            $destination = $this->getOriginalDestinationAccount();
+            $destId      = $destination->id;
+            $destName    = $destination->name;
+        }
 
         // make new account validator.
         $expectedType = $this->getExpectedType();
         Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
-        try {
-            $result = $this->getAccount($expectedType, 'destination', $destInfo);
-        } catch (FireflyException $e) {
-            Log::error(sprintf('getValidDestinationAccount() threw unexpected error: %s', $e->getMessage()));
-            $result = $this->getOriginalDestinationAccount();
+
+        // make a new validator.
+        /** @var AccountValidator $validator */
+        $validator = app(AccountValidator::class);
+        $validator->setTransactionType($expectedType);
+        $validator->setUser($this->transactionJournal->user);
+        $validator->source = $this->getValidSourceAccount();
+        $result            = $validator->validateDestination($destId, $destName, null);
+        Log::debug(sprintf('hasValidDestinationAccount(%d, "%s") will return %s', $destId, $destName, var_export($result, true)));
+
+        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+
+        // validate submitted info:
+        return $result;
+    }
+
+    /**
+     * @return Account
+     */
+    private function getOriginalDestinationAccount(): Account
+    {
+        if (null === $this->destinationAccount) {
+            $destination              = $this->getDestinationTransaction();
+            $this->destinationAccount = $destination->account;
         }
 
-        return $result;
+        return $this->destinationAccount;
+    }
+
+    /**
+     * Get destination transaction.
+     *
+     * @return Transaction
+     */
+    private function getDestinationTransaction(): Transaction
+    {
+        if (null === $this->destinationTransaction) {
+            $this->destinationTransaction = $this->transactionJournal->transactions()->where('amount', '>', 0)->first();
+        }
+
+        return $this->destinationTransaction;
     }
 
     /**
@@ -305,100 +364,6 @@ class JournalUpdateService
     }
 
     /**
-     * @param array $fields
-     *
-     * @return bool
-     */
-    private function hasFields(array $fields): bool
-    {
-        foreach ($fields as $field) {
-            if (array_key_exists($field, $this->data)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasValidAccounts(): bool
-    {
-        return $this->hasValidSourceAccount() && $this->hasValidDestinationAccount();
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasValidDestinationAccount(): bool
-    {
-        Log::debug('Now in hasValidDestinationAccount().');
-        $destId   = $this->data['destination_id'] ?? null;
-        $destName = $this->data['destination_name'] ?? null;
-
-        if (!$this->hasFields(['destination_id', 'destination_name'])) {
-            $destination = $this->getOriginalDestinationAccount();
-            $destId      = $destination->id;
-            $destName    = $destination->name;
-        }
-
-        // make new account validator.
-        $expectedType = $this->getExpectedType();
-        Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
-
-        // make a new validator.
-        /** @var AccountValidator $validator */
-        $validator = app(AccountValidator::class);
-        $validator->setTransactionType($expectedType);
-        $validator->setUser($this->transactionJournal->user);
-        $validator->source = $this->getValidSourceAccount();
-
-
-        $result = $validator->validateDestination($destId, $destName, null);
-        Log::debug(sprintf('hasValidDestinationAccount(%d, "%s") will return %s', $destId, $destName, var_export($result, true)));
-
-        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
-
-        // validate submitted info:
-        return $result;
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasValidSourceAccount(): bool
-    {
-        Log::debug('Now in hasValidSourceAccount().');
-        $sourceId   = $this->data['source_id'] ?? null;
-        $sourceName = $this->data['source_name'] ?? null;
-
-        if (!$this->hasFields(['source_id', 'source_name'])) {
-            $origSourceAccount = $this->getOriginalSourceAccount();
-            $sourceId          = $origSourceAccount->id;
-            $sourceName        = $origSourceAccount->name;
-        }
-
-        // make new account validator.
-        $expectedType = $this->getExpectedType();
-        Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
-
-        // make a new validator.
-        /** @var AccountValidator $validator */
-        $validator = app(AccountValidator::class);
-        $validator->setTransactionType($expectedType);
-        $validator->setUser($this->transactionJournal->user);
-
-        $result = $validator->validateSource($sourceId, $sourceName, null);
-        Log::debug(sprintf('hasValidSourceAccount(%d, "%s") will return %s', $sourceId, $sourceName, var_export($result, true)));
-
-        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
-
-        // validate submitted info:
-        return $result;
-    }
-
-    /**
      * Will update the source and destination accounts of this journal. Assumes they are valid.
      */
     private function updateAccounts(): void
@@ -424,43 +389,73 @@ class JournalUpdateService
         // refresh transactions.
         $this->sourceTransaction->refresh();
         $this->destinationTransaction->refresh();
-
-
         Log::debug(sprintf('Will set source to #%d ("%s")', $source->id, $source->name));
         Log::debug(sprintf('Will set dest to #%d ("%s")', $destination->id, $destination->name));
     }
 
     /**
+     * Does a validation and returns the destination account. This method will break if the dest isn't really valid.
      *
+     * @return Account
      */
-    private function updateAmount(): void
+    private function getValidDestinationAccount(): Account
     {
-        if (!$this->hasFields(['amount'])) {
-            return;
+        Log::debug('Now in getValidDestinationAccount().');
+
+        if (!$this->hasFields(['destination_id', 'destination_name'])) {
+            return $this->getOriginalDestinationAccount();
         }
 
-        $value = $this->data['amount'] ?? '';
+        $destInfo = [
+            'id'     => (int)($this->data['destination_id'] ?? null),
+            'name'   => $this->data['destination_name'] ?? null,
+            'iban'   => $this->data['destination_iban'] ?? null,
+            'number' => $this->data['destination_number'] ?? null,
+            'bic'    => $this->data['destination_bic'] ?? null,
+        ];
+
+        // make new account validator.
+        $expectedType = $this->getExpectedType();
+        Log::debug(sprintf('Expected type (new or unchanged) is %s', $expectedType));
         try {
-            $amount = $this->getAmount($value);
+            $result = $this->getAccount($expectedType, 'destination', $destInfo);
         } catch (FireflyException $e) {
-            Log::debug(sprintf('getAmount("%s") returns error: %s', $value, $e->getMessage()));
+            Log::error(sprintf('getValidDestinationAccount() threw unexpected error: %s', $e->getMessage()));
+            $result = $this->getOriginalDestinationAccount();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Updates journal transaction type.
+     */
+    private function updateType(): void
+    {
+        Log::debug('Now in updateType()');
+        if ($this->hasFields(['type'])) {
+            $type = 'opening-balance' === $this->data['type'] ? 'opening balance' : $this->data['type'];
+            Log::debug(
+                sprintf(
+                    'Trying to change journal #%d from a %s to a %s.',
+                    $this->transactionJournal->id, $this->transactionJournal->transactionType->type, $type
+                )
+            );
+
+            /** @var TransactionTypeFactory $typeFactory */
+            $typeFactory = app(TransactionTypeFactory::class);
+            $result      = $typeFactory->find($this->data['type']);
+            if (null !== $result) {
+                Log::debug('Changed transaction type!');
+                $this->transactionJournal->transaction_type_id = $result->id;
+                $this->transactionJournal->save();
+
+                return;
+            }
 
             return;
         }
-        $origSourceTransaction         = $this->getSourceTransaction();
-        $origSourceTransaction->amount = app('steam')->negative($amount);
-        $origSourceTransaction->save();
-
-
-        $destTransaction         = $this->getDestinationTransaction();
-        $destTransaction->amount = app('steam')->positive($amount);
-        $destTransaction->save();
-
-
-        // refresh transactions.
-        $this->sourceTransaction->refresh();
-        $this->destinationTransaction->refresh();
-        Log::debug(sprintf('Updated amount to "%s"', $amount));
+        Log::debug('No type field present.');
     }
 
     /**
@@ -484,14 +479,28 @@ class JournalUpdateService
     }
 
     /**
+     * Update journal generic field. Cannot be set to NULL.
      *
+     * @param string $fieldName
      */
-    private function updateBudget(): void
+    private function updateField(string $fieldName): void
     {
-        // update budget
-        if ($this->hasFields(['budget_id', 'budget_name'])) {
-            Log::debug('Will update budget.');
-            $this->storeBudget($this->transactionJournal, new NullArrayObject($this->data));
+        if (array_key_exists($fieldName, $this->data) && '' !== (string)$this->data[$fieldName]) {
+            $value = $this->data[$fieldName];
+
+            if ('date' === $fieldName) {
+                if ($value instanceof Carbon) {
+                    // update timezone.
+                    $value->setTimezone(config('app.timezone'));
+                }
+                if (!($value instanceof Carbon)) {
+                    $value = new Carbon($value);
+                }
+                // do some parsing.
+                Log::debug(sprintf('Create date value from string "%s".', $value));
+            }
+            $this->transactionJournal->$fieldName = $value;
+            Log::debug(sprintf('Updated %s', $fieldName));
         }
     }
 
@@ -505,6 +514,125 @@ class JournalUpdateService
             Log::debug('Will update category.');
 
             $this->storeCategory($this->transactionJournal, new NullArrayObject($this->data));
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateBudget(): void
+    {
+        // update budget
+        if ($this->hasFields(['budget_id', 'budget_name'])) {
+            Log::debug('Will update budget.');
+            $this->storeBudget($this->transactionJournal, new NullArrayObject($this->data));
+        }
+        // is transfer? remove budget
+        if (TransactionType::TRANSFER === $this->transactionJournal->transactionType->type) {
+            $this->transactionJournal->budgets()->sync([]);
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateTags(): void
+    {
+        if ($this->hasFields(['tags'])) {
+            Log::debug('Will update tags.');
+            $tags = $this->data['tags'] ?? null;
+            $this->storeTags($this->transactionJournal, $tags);
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateReconciled(): void
+    {
+        if (array_key_exists('reconciled', $this->data) && is_bool($this->data['reconciled'])) {
+            $this->transactionJournal->transactions()->update(['reconciled' => $this->data['reconciled']]);
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateNotes(): void
+    {
+        // update notes.
+        if ($this->hasFields(['notes'])) {
+            $notes = '' === (string)$this->data['notes'] ? null : $this->data['notes'];
+            $this->storeNotes($this->transactionJournal, $notes);
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateMeta(): void
+    {
+        // update meta fields.
+        // first string
+        if ($this->hasFields($this->metaString)) {
+            Log::debug('Meta string fields are present.');
+            $this->updateMetaFields();
+        }
+
+        // then date fields.
+        if ($this->hasFields($this->metaDate)) {
+            Log::debug('Meta date fields are present.');
+            $this->updateMetaDateFields();
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateMetaFields(): void
+    {
+        /** @var TransactionJournalMetaFactory $factory */
+        $factory = app(TransactionJournalMetaFactory::class);
+
+        foreach ($this->metaString as $field) {
+            if ($this->hasFields([$field])) {
+                $value = '' === $this->data[$field] ? null : $this->data[$field];
+                Log::debug(sprintf('Field "%s" is present ("%s"), try to update it.', $field, $value));
+                $set = [
+                    'journal' => $this->transactionJournal,
+                    'name'    => $field,
+                    'data'    => $value,
+                ];
+                $factory->updateOrCreate($set);
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    private function updateMetaDateFields(): void
+    {
+        /** @var TransactionJournalMetaFactory $factory */
+        $factory = app(TransactionJournalMetaFactory::class);
+
+        foreach ($this->metaDate as $field) {
+            if ($this->hasFields([$field])) {
+                try {
+                    $value = '' === (string)$this->data[$field] ? null : new Carbon($this->data[$field]);
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    Log::debug(sprintf('%s is not a valid date value: %s', $this->data[$field], $e->getMessage()));
+
+                    return;
+                }
+                Log::debug(sprintf('Field "%s" is present ("%s"), try to update it.', $field, $value));
+                $set = [
+                    'journal' => $this->transactionJournal,
+                    'name'    => $field,
+                    'data'    => $value,
+                ];
+                $factory->updateOrCreate($set);
+            }
         }
     }
 
@@ -541,33 +669,33 @@ class JournalUpdateService
     }
 
     /**
-     * Update journal generic field. Cannot be set to NULL.
      *
-     * @param string $fieldName
      */
-    private function updateField(string $fieldName): void
+    private function updateAmount(): void
     {
-        if (array_key_exists($fieldName, $this->data) && '' !== (string)$this->data[$fieldName]) {
-            $value = $this->data[$fieldName];
-
-            if ('date' === $fieldName) {
-                if ($value instanceof Carbon) {
-                    // update timezone.
-                    $value->setTimezone(config('app.timezone'));
-                }
-                if (!($value instanceof Carbon)) {
-                    $value = new Carbon($value);
-                }
-                // do some parsing.
-                Log::debug(sprintf('Create date value from string "%s".', $value));
-            }
-
-
-            $this->transactionJournal->$fieldName = $value;
-            Log::debug(sprintf('Updated %s', $fieldName));
+        if (!$this->hasFields(['amount'])) {
+            return;
         }
-    }
 
+        $value = $this->data['amount'] ?? '';
+        try {
+            $amount = $this->getAmount($value);
+        } catch (FireflyException $e) {
+            Log::debug(sprintf('getAmount("%s") returns error: %s', $value, $e->getMessage()));
+
+            return;
+        }
+        $origSourceTransaction         = $this->getSourceTransaction();
+        $origSourceTransaction->amount = app('steam')->negative($amount);
+        $origSourceTransaction->save();
+        $destTransaction         = $this->getDestinationTransaction();
+        $destTransaction->amount = app('steam')->positive($amount);
+        $destTransaction->save();
+        // refresh transactions.
+        $this->sourceTransaction->refresh();
+        $this->destinationTransaction->refresh();
+        Log::debug(sprintf('Updated amount to "%s"', $amount));
+    }
 
     /**
      *
@@ -602,8 +730,6 @@ class JournalUpdateService
             $source->foreign_currency_id = $foreignCurrency->id;
             $source->foreign_amount      = app('steam')->negative($foreignAmount);
             $source->save();
-
-
             $dest->foreign_currency_id = $foreignCurrency->id;
             $dest->foreign_amount      = app('steam')->positive($foreignAmount);
             $dest->save();
@@ -631,129 +757,5 @@ class JournalUpdateService
         // refresh transactions.
         $this->sourceTransaction->refresh();
         $this->destinationTransaction->refresh();
-    }
-
-    /**
-     *
-     */
-    private function updateMeta(): void
-    {
-        // update meta fields.
-        // first string
-        if ($this->hasFields($this->metaString)) {
-            Log::debug('Meta string fields are present.');
-            $this->updateMetaFields();
-        }
-
-        // then date fields.
-        if ($this->hasFields($this->metaDate)) {
-            Log::debug('Meta date fields are present.');
-            $this->updateMetaDateFields();
-        }
-    }
-
-    /**
-     *
-     */
-    private function updateMetaDateFields(): void
-    {
-        /** @var TransactionJournalMetaFactory $factory */
-        $factory = app(TransactionJournalMetaFactory::class);
-
-        foreach ($this->metaDate as $field) {
-            if ($this->hasFields([$field])) {
-                try {
-                    $value = '' === (string)$this->data[$field] ? null : new Carbon($this->data[$field]);
-                } catch (Exception $e) {
-                    Log::debug(sprintf('%s is not a valid date value: %s', $this->data[$field], $e->getMessage()));
-
-                    return;
-                }
-                Log::debug(sprintf('Field "%s" is present ("%s"), try to update it.', $field, $value));
-                $set = [
-                    'journal' => $this->transactionJournal,
-                    'name'    => $field,
-                    'data'    => $value,
-                ];
-                $factory->updateOrCreate($set);
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    private function updateMetaFields(): void
-    {
-        /** @var TransactionJournalMetaFactory $factory */
-        $factory = app(TransactionJournalMetaFactory::class);
-
-        foreach ($this->metaString as $field) {
-            if ($this->hasFields([$field])) {
-                $value = '' === $this->data[$field] ? null : $this->data[$field];
-                Log::debug(sprintf('Field "%s" is present ("%s"), try to update it.', $field, $value));
-                $set = [
-                    'journal' => $this->transactionJournal,
-                    'name'    => $field,
-                    'data'    => $value,
-                ];
-                $factory->updateOrCreate($set);
-            }
-        }
-    }
-
-    /**
-     *
-     */
-    private function updateNotes(): void
-    {
-        // update notes.
-        if ($this->hasFields(['notes'])) {
-            $notes = '' === (string)$this->data['notes'] ? null : $this->data['notes'];
-            $this->storeNotes($this->transactionJournal, $notes);
-        }
-    }
-
-    /**
-     *
-     */
-    private function updateTags(): void
-    {
-        if ($this->hasFields(['tags'])) {
-            Log::debug('Will update tags.');
-            $tags = $this->data['tags'] ?? null;
-            $this->storeTags($this->transactionJournal, $tags);
-        }
-    }
-
-    /**
-     * Updates journal transaction type.
-     */
-    private function updateType(): void
-    {
-        Log::debug('Now in updateType()');
-        if ($this->hasFields(['type'])) {
-            $type = 'opening-balance' === $this->data['type'] ? 'opening balance' : $this->data['type'];
-            Log::debug(
-                sprintf(
-                    'Trying to change journal #%d from a %s to a %s.',
-                    $this->transactionJournal->id, $this->transactionJournal->transactionType->type, $type
-                )
-            );
-
-            /** @var TransactionTypeFactory $typeFactory */
-            $typeFactory = app(TransactionTypeFactory::class);
-            $result      = $typeFactory->find($this->data['type']);
-            if (null !== $result) {
-                Log::debug('Changed transaction type!');
-                $this->transactionJournal->transaction_type_id = $result->id;
-                $this->transactionJournal->save();
-
-                return;
-            }
-
-            return;
-        }
-        Log::debug('No type field present.');
     }
 }

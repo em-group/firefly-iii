@@ -48,7 +48,7 @@ class AutomationHandler
         $sendReport = config('firefly.send_report_journals');
 
         if (false === $sendReport) {
-            return true; // @codeCoverageIgnore
+            return true; 
         }
 
         Log::debug('In reportJournals.');
@@ -57,7 +57,7 @@ class AutomationHandler
         $user       = $repository->findNull($event->userId);
         if (null !== $user && 0 !== $event->groups->count()) {
 
-            $email     = $user->email;
+            $email = $user->email;
 
             // see if user has alternative email address:
             $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
@@ -66,20 +66,20 @@ class AutomationHandler
             }
 
             // if user is demo user, send to owner:
-            if($user->hasRole('demo')) {
+            if ($user->hasRole('demo')) {
                 $email = config('firefly.site_owner');
             }
 
             try {
                 Log::debug('Trying to mail...');
                 Mail::to($user->email)->send(new ReportNewJournalsMail($email, '127.0.0.1', $event->groups));
-                // @codeCoverageIgnoreStart
-            } catch (Exception $e) {
+
+            } catch (Exception $e) { // @phpstan-ignore-line
                 Log::debug('Send message failed! :(');
                 Log::error($e->getMessage());
                 Log::error($e->getTraceAsString());
             }
-            // @codeCoverageIgnoreEnd
+
             Log::debug('Done!');
         }
 

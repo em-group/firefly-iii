@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Category;
 
-
 use FireflyIII\Helpers\Attachments\AttachmentHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\CategoryFormRequest;
@@ -41,8 +40,8 @@ use Illuminate\View\View;
 class EditController extends Controller
 {
 
-    private CategoryRepositoryInterface $repository;
     private AttachmentHelperInterface   $attachments;
+    private CategoryRepositoryInterface $repository;
 
     /**
      * CategoryController constructor.
@@ -64,7 +63,6 @@ class EditController extends Controller
             }
         );
     }
-
 
     /**
      * Edit a category.
@@ -88,7 +86,7 @@ class EditController extends Controller
             'notes' => $request->old('notes') ?? $this->repository->getNoteText($category),
         ];
 
-        return view('categories.edit', compact('category', 'subTitle', 'preFilled'));
+        return prefixView('categories.edit', compact('category', 'subTitle', 'preFilled'));
     }
 
     /**
@@ -117,18 +115,16 @@ class EditController extends Controller
         }
 
         if (count($this->attachments->getMessages()->get('attachments')) > 0) {
-            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); // @codeCoverageIgnore
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
         }
-
-
         $redirect = redirect($this->getPreviousUri('categories.edit.uri'));
 
         if (1 === (int)$request->get('return_to_edit')) {
-            // @codeCoverageIgnoreStart
+
             $request->session()->put('categories.edit.fromUpdate', true);
 
             $redirect = redirect(route('categories.edit', [$category->id]));
-            // @codeCoverageIgnoreEnd
+
         }
 
         return $redirect;

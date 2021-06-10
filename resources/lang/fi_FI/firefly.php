@@ -225,6 +225,9 @@ return [
     'advanced_options_explain'                            => 'Some pages in Firefly III have advanced options hidden behind this button. This page doesn\'t have anything fancy here, but do check out the others!',
     'here_be_dragons'                                     => 'Hic sunt dracones',
 
+    // Webhooks
+    'webhooks'                                            => 'Webhooks',
+
     // API access
     'authorization_request'                               => 'Firefly III v:version Valtuutus Pyyntö',
     'authorization_request_intro'                         => '<strong>:client</strong> pyytää valtuutustasi nähdäkseen sinun taloushallintosi. Haluatko antaa hänelle pääsyn näihin tietoihin?',
@@ -295,6 +298,8 @@ return [
     'search_modifier_has_any_category'                    => 'The transaction must have a (any) category',
     'search_modifier_has_no_budget'                       => 'The transaction must have no budget',
     'search_modifier_has_any_budget'                      => 'The transaction must have a (any) budget',
+    'search_modifier_has_no_bill'                         => 'The transaction must have no bill',
+    'search_modifier_has_any_bill'                        => 'The transaction must have a (any) bill',
     'search_modifier_has_no_tag'                          => 'The transaction must have no tags',
     'search_modifier_has_any_tag'                         => 'The transaction must have a (any) tag',
     'search_modifier_notes_contain'                       => 'The transaction notes contain ":value"',
@@ -420,7 +425,8 @@ return [
     'apply_rule_selection'                                => 'Aja sääntö ":title" valitsemillesi tapahtumille',
     'apply_rule_selection_intro'                          => 'Säännöt kuten ":title" ajetaan normaalisti ainoastaan uusille tai päivitetyille tapahtumille, mutta voit pyytää Firefly III:a ajamaan sen myös sinun valitsemillesi, jo olemassa oleville tapahtumille. Tämä voi olla kätevää kun päivität sääntöä ja haluat muutosten vaikuttavan jo olemassaoleviin tapahtumiin.',
     'include_transactions_from_accounts'                  => 'Sisällytä tapahtumat näiltä tileiltä',
-    'applied_rule_selection'                              => 'Sääntö ":title" on ajettu valituille tapahtumille.',
+    'include'                                             => 'Include?',
+    'applied_rule_selection'                              => '{0} No transactions in your selection were changed by rule ":title".|[1] One transaction in your selection was changed by rule ":title".|[2,*] :count transactions in your selection were changed by rule ":title".',
     'execute'                                             => 'Suorita',
     'apply_rule_group_selection'                          => 'Aja sääntöryhmä ":title" valituille tapahtumille',
     'apply_rule_group_selection_intro'                    => 'Sääntöryhmät kuten ":title" ajetaan normaalisti ainoastaan uusille tai päivitetyille tapahtumille, mutta voit pyytää Firefly III:a ajamaan kaikki ryhmän säännöt myös sinun valitsemillesi, jo olemassa oleville tapahtumille. Tämä voi olla kätevää kun olet päivittänyt ryhmän sääntöjä ja haluat muutosten vaikuttavan jo olemassaoleviin tapahtumiin.',
@@ -520,6 +526,10 @@ return [
     'rule_trigger_has_no_budget'                          => 'Tapahtumalla ei ole budjettia',
     'rule_trigger_has_any_budget_choice'                  => 'On budjetti (mikä tahansa)',
     'rule_trigger_has_any_budget'                         => 'Tapahtumalla on budjetti (mikä tahansa)',
+    'rule_trigger_has_no_bill_choice'                     => 'Has no bill',
+    'rule_trigger_has_no_bill'                            => 'Transaction has no bill',
+    'rule_trigger_has_any_bill_choice'                    => 'Has a (any) bill',
+    'rule_trigger_has_any_bill'                           => 'Transaction has a (any) bill',
     'rule_trigger_has_no_tag_choice'                      => 'Ei tägejä',
     'rule_trigger_has_no_tag'                             => 'Tapahtumalla ei ole tägejä',
     'rule_trigger_has_any_tag_choice'                     => 'On tägi/tägejä (mitä tahansa)',
@@ -675,7 +685,7 @@ return [
     'pref_optional_fields_transaction'          => 'Tapahtumien valinnaiset kentät',
     'pref_optional_fields_transaction_help'     => 'Yksinkertaisuuden nimissä kaikki kentät eivät alkuun ole näkyvissä luodessasi uusia tapahtumia. Alla voit ottaa käyttöön sinulle hyödyllisiä kenttiä. Asetuksesta huolimatta kaikki kentät joissa jo on sisältöä näytetään - tietenkin.',
     'optional_tj_date_fields'                   => 'Päivämääräkentät',
-    'optional_tj_business_fields'               => 'Yrityskäytön kentät',
+    'optional_tj_other_fields'                  => 'Other fields',
     'optional_tj_attachment_fields'             => 'Liitekentät',
     'pref_optional_tj_interest_date'            => 'Korkopäivä',
     'pref_optional_tj_book_date'                => 'Kirjauspäivä',
@@ -686,12 +696,14 @@ return [
     'pref_optional_tj_internal_reference'       => 'Sisäinen viite',
     'pref_optional_tj_notes'                    => 'Muistiinpanot',
     'pref_optional_tj_attachments'              => 'Liitteet',
-    'pref_optional_tj_external_uri'             => 'External URI',
+    'pref_optional_tj_external_uri'             => 'External URL',
+    'pref_optional_tj_location'                 => 'Location',
+    'pref_optional_tj_links'                    => 'Transaction links',
     'optional_field_meta_dates'                 => 'Päivämäärät',
     'optional_field_meta_business'              => 'Yritys',
     'optional_field_attachments'                => 'Liitteet',
     'optional_field_meta_data'                  => 'Valinnainen metatieto',
-    'external_uri'                              => 'External URI',
+    'external_uri'                              => 'External URL',
 
     // profile:
     'delete_stuff_header'                       => 'Delete data',
@@ -881,6 +893,7 @@ return [
     'create_new_deposit'                        => 'Luo uusi talletus',
     'create_new_transfer'                       => 'Luo uusi siirto',
     'create_new_asset'                          => 'Luo uusi omaisuustili',
+    'create_new_liabilities'                    => 'Create new liability',
     'create_new_expense'                        => 'Luo uusi maksutili',
     'create_new_revenue'                        => 'Luo uusi tuottotili',
     'create_new_piggy_bank'                     => 'Luo uusi säästöpossu',
@@ -970,7 +983,6 @@ return [
     'available_amount_indication'               => 'Käytä näitä arvoja arvioidaksesi kokonaisbudjettiasi.',
     'suggested'                                 => 'Ehdotus',
     'average_between'                           => 'Keskiarvo välillä :start ja :end',
-    'over_budget_warn'                          => '<i class="fa fa-money"></i> Yleensä budjetoit summan :amount päivälle. Tällä kerralla budjetoit :over_amount päivälle. Oletko varma?',
     'transferred_in'                            => 'Siirretty (sisään)',
     'transferred_away'                          => 'Siirretty (ulos)',
     'auto_budget_none'                          => 'Ei automaattibudjettia',
@@ -1019,6 +1031,7 @@ return [
     'list_inactive_rule'                        => 'käytöstä poistettu sääntö',
     'bill_edit_rules'                           => 'Firefly III will attempt to edit the rule related to this bill as well. If you\'ve edited this rule yourself however, Firefly III won\'t change anything.|Firefly III will attempt to edit the :count rules related to this bill as well. If you\'ve edited these rules yourself however, Firefly III won\'t change anything.',
     'bill_expected_date'                        => 'Expected :date',
+    'bill_paid_on'                              => 'Paid on {date}',
 
     // accounts:
     'inactive_account_link'                     => 'You have :count inactive (archived) account, which you can view on this separate page.|You have :count inactive (archived) accounts, which you can view on this separate page.',
@@ -1041,6 +1054,7 @@ return [
     'delete_revenue_account'                    => 'Poista tuottotili ":name"',
     'delete_liabilities_account'                => 'Poista vastuu ":name"',
     'asset_deleted'                             => 'Poistettiin onnistuneesti omaisuustili ":name"',
+    'account_deleted'                           => 'Successfully deleted account ":name"',
     'expense_deleted'                           => 'Poistettiin onnistuneesti kulutustili ":name"',
     'revenue_deleted'                           => 'Poistettiin onnistuneesti tuottotili ":name"',
     'update_asset_account'                      => 'Päivitä omaisuustili',
@@ -1087,7 +1101,9 @@ return [
     'cant_find_redirect_account'                => 'Firefly III yritti tehdä pyytämääsi uudelleenohjausta mutta epäonnistui. Pahoittelut siitä. Takaisin valikkoon.',
     'account_type'                              => 'Tilin tyyppi',
     'save_transactions_by_moving'               => 'Save this transaction by moving it to another account:|Save these transactions by moving them to another account:',
+    'save_transactions_by_moving_js'            => 'No transactions|Save this transaction by moving it to another account. |Save these transactions by moving them to another account.',
     'stored_new_account'                        => 'Uusi tili ":name" tallennettiin!',
+    'stored_new_account_js'                     => 'New account "<a href="accounts/show/{ID}">{name}</a>" stored!',
     'updated_account'                           => 'Tiliä ":name" päivitettiin',
     'credit_card_options'                       => 'Luottokorttivalinnat',
     'no_transactions_account'                   => 'Tilillä ":name" ei ole yhtään tapahtumaa (tässä jaksossa).',
@@ -1124,7 +1140,11 @@ return [
     'interest_calc_daily'                       => 'Päivässä',
     'interest_calc_monthly'                     => 'Kuukaudessa',
     'interest_calc_yearly'                      => 'Vuodessa',
+    'interest_calc_weekly'                      => 'Per week',
+    'interest_calc_half-year'                   => 'Per half year',
+    'interest_calc_quarterly'                   => 'Per quarter',
     'initial_balance_account'                   => 'Alkutasetili :account',
+    'list_options'                              => 'List options',
 
     // categories:
     'new_category'                              => 'Uusi kategoria',
@@ -1150,6 +1170,9 @@ return [
     'updated_withdrawal'                        => 'Päivitettiin nosto ":description"',
     'updated_deposit'                           => 'Päivitettiin talletus ":description"',
     'updated_transfer'                          => 'Päivitettiin siirto ":description"',
+    'no_changes_withdrawal'                     => 'Withdrawal ":description" was not changed.',
+    'no_changes_deposit'                        => 'Deposit ":description" was not changed.',
+    'no_changes_transfer'                       => 'Transfer ":description" was not changed.',
     'delete_withdrawal'                         => 'Poista nosto ":description"',
     'delete_deposit'                            => 'Poista talletus ":description"',
     'delete_transfer'                           => 'Poista siirto ":description"',
@@ -1230,7 +1253,12 @@ return [
     'journal_link_bill'                         => 'Tämä tapahtuma liittyy laskuun <a href=":route">:name</a>. Jos haluat poistaa yhteyden, poista valinta liitos-valintaruudusta. Käytä sääntöjä yhdistääksesi tapahtuma toiseen laskuun.',
     'transaction_stored_link'                   => '<a href="transactions/show/{ID}">Transaction #{ID} ("{title}")</a> has been stored.',
     'transaction_new_stored_link'               => '<a href="transactions/show/{ID}">Transaction #{ID}</a> has been stored.',
-    'transaction_updated_link'                  => '<a href="transactions/show/{ID}">Transaction #{ID}</a> has been updated.',
+    'transaction_updated_link'                  => '<a href="transactions/show/{ID}">Transaction #{ID}</a> ("{title}") has been updated.',
+    'transaction_updated_no_changes'            => '<a href="transactions/show/{ID}">Transaction #{ID}</a> ("{title}") did not receive any changes.',
+    'first_split_decides'                       => 'The first split determines the value of this field',
+    'first_split_overrules_source'              => 'The first split may overrule the source account',
+    'first_split_overrules_destination'         => 'The first split may overrule the destination account',
+    'spent_x_of_y'                              => 'Spent {amount} of {total}',
 
     // new user:
     'welcome'                                   => 'Tervetuloa Firefly III:een!',
@@ -1269,6 +1297,9 @@ return [
     'per_day'                                   => 'Päivässä',
     'left_to_spend_per_day'                     => 'Käytettävissä per päivä',
     'bills_paid'                                => 'Maksetut laskut',
+    'custom_period'                             => 'Custom period',
+    'reset_to_current'                          => 'Reset to current period',
+    'select_period'                             => 'Select a period',
 
     // menu and titles, should be recycled as often as possible:
     'currency'                                  => 'Valuutta',
@@ -1293,6 +1324,8 @@ return [
     'account_type_Loan'                         => 'Laina',
     'account_type_Mortgage'                     => 'Kiinnelaina',
     'account_type_Credit card'                  => 'Luottokortti',
+    'liability_direction_credit'                => 'I am owed this debt',
+    'liability_direction_debit'                 => 'I owe this debt to somebody else',
     'budgets'                                   => 'Budjetit',
     'tags'                                      => 'Tägit',
     'reports'                                   => 'Raportit',
@@ -1337,6 +1370,7 @@ return [
     'automation'                                => 'Automaatio',
     'others'                                    => 'Muut',
     'classification'                            => 'Luokitus',
+    'store_transaction'                         => 'Store transaction',
 
     // reports:
     'report_default'                            => 'Talousraportti välillä :start ja :end',
@@ -1827,8 +1861,8 @@ return [
     'edit_object_group'                  => 'Muokkaa ryhmää ":title"',
     'delete_object_group'                => 'Delete group ":title"',
     'update_object_group'                => 'Päivitä ryhmä',
-    'updated_object_group'               => 'Ryhmän ":title" päivitys onnistui',
-    'deleted_object_group'               => 'Ryhmän ":title" poistaminen onnistui',
+    'updated_object_group'               => 'Successfully updated group ":title"',
+    'deleted_object_group'               => 'Successfully deleted group ":title"',
     'object_group'                       => 'Ryhmä',
 
 

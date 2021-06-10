@@ -68,7 +68,6 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
-
     /**
      * Handle a login request to the application.
      *
@@ -84,7 +83,7 @@ class LoginController extends Controller
         Log::info(sprintf('User is trying to login.'));
         if ('ldap' === config('auth.providers.users.driver')) {
             /** @var Adldap\Connections\Provider $provider */
-            Adldap::getProvider('default');
+            Adldap::getProvider('default'); // @phpstan-ignore-line
         }
 
         Log::info('Validating login');
@@ -99,7 +98,7 @@ class LoginController extends Controller
             Log::channel('audit')->info(sprintf('Login for user "%s" was locked out.', $request->get('email')));
             $this->fireLockoutEvent($request);
 
-            return $this->sendLockoutResponse($request);
+            $this->sendLockoutResponse($request);
         }
 
         Log::info(sprintf('Attempting login - %d bytes mem', memory_get_usage(true)));
@@ -137,79 +136,9 @@ class LoginController extends Controller
     }
 
     /**
-     * Show the application's login form.
-     *
-     * @return Factory|\Illuminate\Http\Response|View
-     */
-    public function showLoginForm(Request $request)
-    {
-        Log::channel('audit')->info('Show login form (1.1).');
-
-        $count         = DB::table('users')->count();
-        $loginProvider = config('firefly.login_provider');
-        $title         = (string)trans('firefly.login_page_title');
-        if (0 === $count && 'eloquent' === $loginProvider) {
-            return redirect(route('register')); // @codeCoverageIgnore
-        }
-
-        // is allowed to?
-        $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
-        $allowRegistration = true;
-        $allowReset        = true;
-        if (true === $singleUserMode && $count > 0) {
-            $allowRegistration = false;
-        }
-
-        // single user mode is ignored when the user is not using eloquent:
-        if ('eloquent' !== $loginProvider) {
-            $allowRegistration = false;
-            $allowReset        = false;
-        }
-
-        $email    = $request->old('email');
-        $remember = $request->old('remember');
-
-        $storeInCookie = config('google2fa.store_in_cookie', false);
-        if (false !== $storeInCookie) {
-            $cookieName = config('google2fa.cookie_name', 'google2fa_token');
-            request()->cookies->set($cookieName, 'invalid');
-        }
-
-
-        return view('auth.login', compact('allowRegistration', 'email', 'remember', 'allowReset', 'title'));
-    }
-
-    protected function credentials(Request $request)
-    {
-        return array_merge($request->only($this->username(), 'password'), ['whitelabel_id' => config('whitelabel.id')]);
-    }
-
-    /**
-     * Get the failed login response instance.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     *
-     * @throws ValidationException
-     */
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        $exception             = ValidationException::withMessages(
-            [
-                $this->username() => [trans('auth.failed')],
-            ]
-        );
-        $exception->redirectTo = route('login');
-
-        throw $exception;
-    }
-
-
-    /**
      * Log the user out of the application.
      *
-     * @param \Illuminate\Http\Request $request
+     * @param Request $request
      *
      * @return \Illuminate\Http\Response
      */
@@ -241,6 +170,74 @@ class LoginController extends Controller
         return $request->wantsJson()
             ? new \Illuminate\Http\Response('', 204)
             : redirect('/');
+    }
+
+    protected function credentials(Request $request)
+    {
+        return array_merge($request->only($this->username(), 'password'), ['whitelabel_id' => config('whitelabel.id')]);
+    }
+
+    /**
+     * Get the failed login response instance.
+     *
+     * @param Request $request
+     *
+     * @return Response
+     *
+     * @throws ValidationException
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        $exception             = ValidationException::withMessages(
+            [
+                $this->username() => [trans('auth.failed')],
+            ]
+        );
+        $exception->redirectTo = route('login');
+
+        throw $exception;
+    }
+
+    /**
+     * Show the application's login form.
+     *
+     * @return Factory|\Illuminate\Http\Response|View
+     */
+    public function showLoginForm(Request $request)
+    {
+        Log::channel('audit')->info('Show login form (1.1).');
+
+        $count         = DB::table('users')->count();
+        $loginProvider = config('firefly.login_provider');
+        $title         = (string)trans('firefly.login_page_title');
+        if (0 === $count && 'eloquent' === $loginProvider) {
+            return redirect(route('register')); 
+        }
+
+        // is allowed to?
+        $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
+        $allowRegistration = true;
+        $allowReset        = true;
+        if (true === $singleUserMode && $count > 0) {
+            $allowRegistration = false;
+        }
+
+        // single user mode is ignored when the user is not using eloquent:
+        if ('eloquent' !== $loginProvider) {
+            $allowRegistration = false;
+            $allowReset        = false;
+        }
+
+        $email    = $request->old('email');
+        $remember = $request->old('remember');
+
+        $storeInCookie = config('google2fa.store_in_cookie', false);
+        if (false !== $storeInCookie) {
+            $cookieName = config('google2fa.cookie_name', 'google2fa_token');
+            request()->cookies->set($cookieName, 'invalid');
+        }
+
+        return prefixView('auth.login', compact('allowRegistration', 'email', 'remember', 'allowReset', 'title'));
     }
 
 }

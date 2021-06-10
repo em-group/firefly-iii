@@ -21,6 +21,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\TransactionRules\Actions;
+
 use DB;
 use FireflyIII\Models\RuleAction;
 use Log;
@@ -30,15 +31,6 @@ use Log;
  */
 class ClearCategory implements ActionInterface
 {
-    /**
-     * TriggerInterface constructor.
-     *
-     * @param RuleAction $action
-     */
-    public function __construct(RuleAction $action)
-    {
-    }
-
     /**
      * @inheritDoc
      */

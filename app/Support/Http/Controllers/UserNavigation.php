@@ -29,6 +29,8 @@ use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Str;
 use Illuminate\Support\ViewErrorBag;
 use Log;
@@ -41,13 +43,40 @@ trait UserNavigation
 {
 
     /**
+     * Functionality:.
+     *
+     * - If the $identifier contains the word "delete" then a remembered uri with the text "/show/" in it will not be returned but instead the index (/)
+     *   will be returned.
+     * - If the remembered uri contains "jscript/" the remembered uri will not be returned but instead the index (/) will be returned.
+     *
+     * @param string $identifier
+     *
+     * @return string
+     */
+    final protected function getPreviousUri(string $identifier): string
+    {
+        Log::debug(sprintf('Trying to retrieve URL stored under "%s"', $identifier));
+        $uri = (string)session($identifier);
+        Log::debug(sprintf('The URI is %s', $uri));
+
+        if (false !== strpos($uri, 'jscript')) {
+            $uri = $this->redirectUri; 
+            Log::debug(sprintf('URI is now %s (uri contains jscript)', $uri));
+        }
+
+        Log::debug(sprintf('Return direct link %s', $uri));
+
+        return $uri;
+    }
+
+    /**
      * Will return false if you cant edit this account type.
      *
      * @param Account $account
      *
      * @return bool
      */
-    protected function isEditableAccount(Account $account): bool
+    final protected function isEditableAccount(Account $account): bool
     {
         $editable = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE];
         $type     = $account->accountType->type;
@@ -60,9 +89,9 @@ trait UserNavigation
      *
      * @return bool
      */
-    protected function isEditableGroup(TransactionGroup $group): bool
+    final protected function isEditableGroup(TransactionGroup $group): bool
     {
-        /** @var TransactionJournal $journal */
+        /** @var TransactionJournal|null $journal */
         $journal = $group->transactionJournals()->first();
         if (null === $journal) {
             return false;
@@ -74,13 +103,48 @@ trait UserNavigation
     }
 
     /**
+     * @param Account $account
+     *
+     * @return RedirectResponse|Redirector
+     */
+    final protected function redirectAccountToAccount(Account $account)
+    {
+        $type = $account->accountType->type;
+        if (AccountType::RECONCILIATION === $type || AccountType::INITIAL_BALANCE === $type) {
+            // reconciliation must be stored somewhere in this account's transactions.
+
+            /** @var Transaction|null $transaction */
+            $transaction = $account->transactions()->first();
+            if (null === $transaction) {
+                Log::error(sprintf('Account #%d has no transactions. Dont know where it belongs.', $account->id));
+                session()->flash('error', trans('firefly.cant_find_redirect_account'));
+
+                return redirect(route('index'));
+            }
+            $journal = $transaction->transactionJournal;
+            /** @var Transaction|null $other */
+            $other = $journal->transactions()->where('id', '!=', $transaction->id)->first();
+            if (null === $other) {
+                Log::error(sprintf('Account #%d has no valid journals. Dont know where it belongs.', $account->id));
+                session()->flash('error', trans('firefly.cant_find_redirect_account'));
+
+                return redirect(route('dashboard'));
+            }
+
+            return redirect(route('accounts.show', [$other->account_id]));
+        }
+
+        return redirect(route('dashboard'));
+    }
+
+    /**
      * @param TransactionGroup $group
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
-    protected function redirectGroupToAccount(TransactionGroup $group)
+    final protected function redirectGroupToAccount(TransactionGroup $group)
     {
-        /** @var TransactionJournal $journal */
+        /** @var TransactionJournal|null $journal */
         $journal = $group->transactionJournals()->first();
         if (null === $journal) {
             Log::error(sprintf('No journals in group #%d', $group->id));
@@ -102,82 +166,21 @@ trait UserNavigation
     }
 
     /**
-     * @param Account $account
-     *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
-     */
-    protected function redirectAccountToAccount(Account $account)
-    {
-        $type = $account->accountType->type;
-        if (AccountType::RECONCILIATION === $type || AccountType::INITIAL_BALANCE === $type) {
-            // reconciliation must be stored somewhere in this account's transactions.
-
-            /** @var Transaction $transaction */
-            $transaction = $account->transactions()->first();
-            if (null === $transaction) {
-                Log::error(sprintf('Account #%d has no transactions. Dont know where it belongs.', $account->id));
-                session()->flash('error', trans('firefly.cant_find_redirect_account'));
-
-                return redirect(route('index'));
-            }
-            $journal = $transaction->transactionJournal;
-            /** @var Transaction $other */
-            $other = $journal->transactions()->where('id', '!=', $transaction->id)->first();
-            if (null === $other) {
-                Log::error(sprintf('Account #%d has no valid journals. Dont know where it belongs.', $account->id));
-                session()->flash('error', trans('firefly.cant_find_redirect_account'));
-
-                return redirect(route('dashboard'));
-            }
-
-            return redirect(route('accounts.show', [$other->account_id]));
-        }
-
-        return redirect(route('dashboard'));
-    }
-
-
-    /**
-     * Functionality:.
-     *
-     * - If the $identifier contains the word "delete" then a remembered uri with the text "/show/" in it will not be returned but instead the index (/)
-     *   will be returned.
-     * - If the remembered uri contains "jscript/" the remembered uri will not be returned but instead the index (/) will be returned.
-     *
-     * @param string $identifier
-     *
-     * @return string
-     */
-    protected function getPreviousUri(string $identifier): string
-    {
-        Log::debug(sprintf('Trying to retrieve URL stored under "%s"', $identifier));
-        $uri = (string)session($identifier);
-        Log::debug(sprintf('The URI is %s', $uri));
-
-        if (false !== strpos($uri, 'jscript')) {
-            $uri = $this->redirectUri; // @codeCoverageIgnore
-            Log::debug(sprintf('URI is now %s (uri contains jscript)', $uri));
-        }
-
-        Log::debug(sprintf('Return direct link %s', $uri));
-        return $uri;
-    }
-
-    /**
      * @param string $identifier
      *
      * @return string|null
      */
-    protected function rememberPreviousUri(string $identifier): ?string
+    final protected function rememberPreviousUri(string $identifier): ?string
     {
         $return = app('url')->previous();
-        /** @var ViewErrorBag $errors */
+        /** @var ViewErrorBag|null $errors */
         $errors    = session()->get('errors');
         $forbidden = ['json', 'debug'];
-        if ((null === $errors || (null !== $errors && 0 === $errors->count())) && !Str::contains($return, $forbidden)) {
+        if ((null === $errors || (0 === $errors->count())) && !Str::contains($return, $forbidden)) {
             Log::debug(sprintf('Saving URL %s under key %s', $return, $identifier));
             session()->put($identifier, $return);
         }
+
         return $return;
     }
 }

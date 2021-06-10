@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * AppendBudgetLimitPeriods.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -19,6 +18,8 @@ declare(strict_types=1);
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -58,7 +59,7 @@ class AppendBudgetLimitPeriods extends Command
 
         $this->theresNoLimit();
 
-         $this->markAsExecuted();
+        $this->markAsExecuted();
 
         $end = round(microtime(true) - $start, 2);
         $this->info(sprintf('Fixed budget limits in %s seconds.', $end));
@@ -72,11 +73,46 @@ class AppendBudgetLimitPeriods extends Command
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool)$configVar->data;
-        }
 
-        return false; // @codeCoverageIgnore
+        return (bool)$configVar->data;
+    }
+
+    /**
+     *
+     */
+    private function theresNoLimit(): void
+    {
+        $limits = BudgetLimit::whereNull('period')->get();
+        /** @var BudgetLimit $limit */
+        foreach ($limits as $limit) {
+            $this->fixLimit($limit);
+        }
+    }
+
+    /**
+     * @param BudgetLimit $limit
+     */
+    private function fixLimit(BudgetLimit $limit)
+    {
+        $period = $this->getLimitPeriod($limit);
+
+        if (null === $period) {
+            $message = sprintf(
+                'Could not guesstimate budget limit #%d (%s - %s) period.', $limit->id, $limit->start_date->format('Y-m-d'), $limit->end_date->format('Y-m-d')
+            );
+            $this->warn($message);
+            Log::warning($message);
+
+            return;
+        }
+        $limit->period = $period;
+        $limit->save();
+
+        $msg = sprintf(
+            'Budget limit #%d (%s - %s) period is "%s".', $limit->id, $limit->start_date->format('Y-m-d'), $limit->end_date->format('Y-m-d'), $period
+        );
+        Log::debug($msg);
+
     }
 
     /**
@@ -138,38 +174,5 @@ class AppendBudgetLimitPeriods extends Command
     private function markAsExecuted(): void
     {
         app('fireflyconfig')->set(self::CONFIG_NAME, true);
-    }
-
-    /**
-     *
-     */
-    private function theresNoLimit(): void
-    {
-        $limits = BudgetLimit::whereNull('period')->get();
-        /** @var BudgetLimit $limit */
-        foreach ($limits as $limit) {
-            $this->fixLimit($limit);
-        }
-    }
-
-    /**
-     * @param BudgetLimit $limit
-     */
-    private function fixLimit(BudgetLimit $limit)
-    {
-        $period = $this->getLimitPeriod($limit);
-
-        if (null === $period) {
-            $message = sprintf('Could not guesstimate budget limit #%d (%s - %s) period.', $limit->id, $limit->start_date->format('Y-m-d'), $limit->end_date->format('Y-m-d'));
-            $this->warn($message);
-            Log::warning($message);
-            return;
-        }
-        $limit->period = $period;
-        $limit->save();
-
-        $msg = sprintf('Budget limit #%d (%s - %s) period is "%s".', $limit->id, $limit->start_date->format('Y-m-d'), $limit->end_date->format('Y-m-d'), $period);
-        Log::debug($msg);
-
     }
 }

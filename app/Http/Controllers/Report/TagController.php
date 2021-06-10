@@ -118,27 +118,23 @@ class TagController extends Controller
                 }
             }
         }
-
-
         // loop income.
         foreach ($earned as $currency) {
             $currencyId = $currency['currency_id'];
 
-            /** @var array $category */
+            /** @var array $tag */
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
-                    $destinationId = $journal['destination_account_id'];
+                    $destinationId                                                                   = $journal['destination_account_id'];
                     $report[$destinationId]['currencies'][$currencyId]
-                                   = $report[$destinationId]['currencies'][$currencyId]
-                                     ?? [
-                                         'currency_id'             => $currency['currency_id'],
-                                         'currency_symbol'         => $currency['currency_symbol'],
-                                         'currency_name'           => $currency['currency_name'],
-                                         'currency_decimal_places' => $currency['currency_decimal_places'],
-                                         'tags'                    => [],
-                                     ];
-
-
+                                                                                                     = $report[$destinationId]['currencies'][$currencyId]
+                                                                                                       ?? [
+                                                                                                           'currency_id'             => $currency['currency_id'],
+                                                                                                           'currency_symbol'         => $currency['currency_symbol'],
+                                                                                                           'currency_name'           => $currency['currency_name'],
+                                                                                                           'currency_decimal_places' => $currency['currency_decimal_places'],
+                                                                                                           'tags'                    => [],
+                                                                                                       ];
                     $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]
                                                                                                      = $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]
                                                                                                        ??
@@ -159,7 +155,7 @@ class TagController extends Controller
             }
         }
 
-        return view('reports.tag.partials.account-per-tag', compact('report', 'tags'));
+        return prefixView('reports.tag.partials.account-per-tag', compact('report', 'tags'));
     }
 
     /**
@@ -263,7 +259,7 @@ class TagController extends Controller
             }
         }
 
-        return view('reports.tag.partials.accounts', compact('sums', 'report'));
+        return prefixView('reports.tag.partials.accounts', compact('sums', 'report'));
     }
 
     /**
@@ -308,9 +304,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.tag.partials.avg-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.avg-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -360,9 +356,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.tag.partials.avg-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.avg-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -475,7 +471,7 @@ class TagController extends Controller
             }
         }
 
-        return view('reports.tag.partials.tags', compact('sums', 'report'));
+        return prefixView('reports.tag.partials.tags', compact('sums', 'report'));
     }
 
     /**
@@ -518,9 +514,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.tag.partials.top-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.top-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -568,9 +564,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.tag.partials.top-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.top-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }

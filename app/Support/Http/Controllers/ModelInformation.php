@@ -48,7 +48,7 @@ trait ModelInformation
     protected function getActionsForBill(Bill $bill): array // get info and augument
     {
         try {
-            $result = view(
+            $result = prefixView(
                 'rules.partials.action',
                 [
                     'oldAction'  => 'link_to_bill',
@@ -57,14 +57,11 @@ trait ModelInformation
                     'count'      => 1,
                 ]
             )->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Throwable was thrown in getActionsForBill(): %s', $e->getMessage()));
             Log::error($e->getTraceAsString());
             $result = 'Could not render view. See log files.';
         }
-
-        // @codeCoverageIgnoreEnd
 
         return [$result];
     }
@@ -86,9 +83,9 @@ trait ModelInformation
         $mortgage = $repository->getAccountTypeByType(AccountType::MORTGAGE);
         /** @noinspection NullPointerExceptionInspection */
         $liabilityTypes = [
-            $debt->id     => (string) trans(sprintf('firefly.account_type_%s', AccountType::DEBT)),
-            $loan->id     => (string) trans(sprintf('firefly.account_type_%s', AccountType::LOAN)),
-            $mortgage->id => (string) trans(sprintf('firefly.account_type_%s', AccountType::MORTGAGE)),
+            $debt->id     => (string)trans(sprintf('firefly.account_type_%s', AccountType::DEBT)),
+            $loan->id     => (string)trans(sprintf('firefly.account_type_%s', AccountType::LOAN)),
+            $mortgage->id => (string)trans(sprintf('firefly.account_type_%s', AccountType::MORTGAGE)),
         ];
         asort($liabilityTypes);
 
@@ -103,7 +100,7 @@ trait ModelInformation
     {
         $roles = [];
         foreach (config('firefly.accountRoles') as $role) {
-            $roles[$role] = (string) trans(sprintf('firefly.account_role_%s', $role));
+            $roles[$role] = (string)trans(sprintf('firefly.account_role_%s', $role));
         }
 
         return $roles;
@@ -124,7 +121,7 @@ trait ModelInformation
         foreach ($operators as $key => $operator) {
             if ('user_action' !== $key && false === $operator['alias']) {
 
-                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
             }
         }
         asort($triggers);
@@ -133,13 +130,13 @@ trait ModelInformation
         $billTriggers = ['currency_is', 'amount_more', 'amount_less', 'description_contains'];
         $values       = [
             $bill->transactionCurrency()->first()->name,
-            round((float) $bill->amount_min, 12),
-            round((float) $bill->amount_max, 12),
+            round((float)$bill->amount_min, 12),
+            round((float)$bill->amount_max, 12),
             $bill->name,
         ];
         foreach ($billTriggers as $index => $trigger) {
             try {
-                $string = view(
+                $string = prefixView(
                     'rules.partials.trigger',
                     [
                         'oldTrigger' => $trigger,
@@ -149,13 +146,11 @@ trait ModelInformation
                         'triggers'   => $triggers,
                     ]
                 )->render();
-                // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
+            } catch (Throwable $e) { // @phpstan-ignore-line
 
                 Log::debug(sprintf('Throwable was thrown in getTriggersForBill(): %s', $e->getMessage()));
                 Log::debug($e->getTraceAsString());
                 $string = '';
-                // @codeCoverageIgnoreEnd
             }
             if ('' !== $string) {
                 $result[] = $string;
@@ -178,7 +173,7 @@ trait ModelInformation
         foreach ($operators as $key => $operator) {
             if ('user_action' !== $key && false === $operator['alias']) {
 
-                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
             }
         }
         asort($triggers);
@@ -189,9 +184,9 @@ trait ModelInformation
         $index           = 0;
         // amount, description, category, budget, tags, source, destination, notes, currency type
         //,type
-        /** @var Transaction $source */
+        /** @var Transaction|null $source */
         $source = $journal->transactions()->where('amount', '<', 0)->first();
-        /** @var Transaction $destination */
+        /** @var Transaction|null $destination */
         $destination = $journal->transactions()->where('amount', '>', 0)->first();
         if (null === $destination || null === $source) {
             return $result;
@@ -257,7 +252,7 @@ trait ModelInformation
 
         foreach ($journalTriggers as $index => $trigger) {
             try {
-                $string = view(
+                $string = prefixView(
                     'rules.partials.trigger',
                     [
                         'oldTrigger' => $trigger,
@@ -267,13 +262,11 @@ trait ModelInformation
                         'triggers'   => $triggers,
                     ]
                 )->render();
-                // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
+            } catch (Throwable $e) { // @phpstan-ignore-line
 
                 Log::debug(sprintf('Throwable was thrown in getTriggersForJournal(): %s', $e->getMessage()));
                 Log::debug($e->getTraceAsString());
                 $string = '';
-                // @codeCoverageIgnoreEnd
             }
             if ('' !== $string) {
                 $result[] = $string;

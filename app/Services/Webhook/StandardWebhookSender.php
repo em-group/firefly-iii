@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * StandardWebhookSender.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,14 +19,15 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Services\Webhook;
 
-use Exception;
 use FireflyIII\Helpers\Webhook\SignatureGeneratorInterface;
 use FireflyIII\Models\WebhookAttempt;
 use FireflyIII\Models\WebhookMessage;
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use JsonException;
 use Log;
 
@@ -45,14 +45,6 @@ class StandardWebhookSender implements WebhookSenderInterface
     public function getVersion(): int
     {
         return $this->version;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setMessage(WebhookMessage $message): void
-    {
-        $this->message = $message;
     }
 
     /**
@@ -99,13 +91,22 @@ class StandardWebhookSender implements WebhookSenderInterface
         try {
             $res                 = $client->request('POST', $this->message->webhook->url, $options);
             $this->message->sent = true;
-        } catch (ClientException | Exception $e) {
+        } catch (RequestException $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
-            //$logs[]           = sprintf('%s: %s', date('Y-m-d H:i:s'), $e->getMessage());
+
+            $logs = sprintf("%s\n%s", $e->getMessage(), $e->getTraceAsString());
+
             $this->message->errored = true;
             $this->message->sent    = false;
             $this->message->save();
+
+            $attempt = new WebhookAttempt;
+            $attempt->webhookMessage()->associate($this->message);
+            $attempt->status_code = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+            $attempt->logs        = $logs;
+            $attempt->save();
+
             return;
         }
         $this->message->save();
@@ -113,5 +114,13 @@ class StandardWebhookSender implements WebhookSenderInterface
         Log::debug(sprintf('Webhook message #%d was sent. Status code %d', $this->message->id, $res->getStatusCode()));
         Log::debug(sprintf('Webhook request body size: %d bytes', strlen($json)));
         Log::debug(sprintf('Response body: %s', $res->getBody()));
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setMessage(WebhookMessage $message): void
+    {
+        $this->message = $message;
     }
 }

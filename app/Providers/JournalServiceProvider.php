@@ -59,20 +59,48 @@ class JournalServiceProvider extends ServiceProvider
     }
 
     /**
-     *
+     * Register repository.
      */
-    private function registerGroupCollector(): void
+    private function registerRepository(): void
     {
         $this->app->bind(
-            GroupCollectorInterface::class,
+            JournalRepositoryInterface::class,
             static function (Application $app) {
-                /** @var GroupCollectorInterface $collector */
-                $collector = app(GroupCollector::class);
-                if ($app->auth->check()) {
-                    $collector->setUser(auth()->user());
+                /** @var JournalRepositoryInterface $repository */
+                $repository = app(JournalRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
                 }
 
-                return $collector;
+                return $repository;
+            }
+        );
+
+        // also bind new API repository
+        $this->app->bind(
+            JournalAPIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalAPIRepositoryInterface $repository */
+                $repository = app(JournalAPIRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        // also bind new CLI repository
+        $this->app->bind(
+            JournalCLIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalCLIRepositoryInterface $repository */
+                $repository = app(JournalCLIRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
             }
         );
     }
@@ -87,7 +115,7 @@ class JournalServiceProvider extends ServiceProvider
             static function (Application $app) {
                 /** @var TransactionGroupRepositoryInterface $repository */
                 $repository = app(TransactionGroupRepository::class);
-                if ($app->auth->check()) {
+                if ($app->auth->check()) { // @phpstan-ignore-line
                     $repository->setUser(auth()->user());
                 }
 
@@ -97,48 +125,20 @@ class JournalServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register repository.
+     *
      */
-    private function registerRepository(): void
+    private function registerGroupCollector(): void
     {
         $this->app->bind(
-            JournalRepositoryInterface::class,
+            GroupCollectorInterface::class,
             static function (Application $app) {
-                /** @var JournalRepositoryInterface $repository */
-                $repository = app(JournalRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
+                /** @var GroupCollectorInterface $collector */
+                $collector = app(GroupCollector::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $collector->setUser(auth()->user());
                 }
 
-                return $repository;
-            }
-        );
-
-        // also bind new API repository
-        $this->app->bind(
-            JournalAPIRepositoryInterface::class,
-            static function (Application $app) {
-                /** @var JournalAPIRepositoryInterface $repository */
-                $repository = app(JournalAPIRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
-                }
-
-                return $repository;
-            }
-        );
-
-        // also bind new CLI repository
-        $this->app->bind(
-            JournalCLIRepositoryInterface::class,
-            static function (Application $app) {
-                /** @var JournalCLIRepositoryInterface $repository */
-                $repository = app(JournalCLIRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
-                }
-
-                return $repository;
+                return $collector;
             }
         );
     }

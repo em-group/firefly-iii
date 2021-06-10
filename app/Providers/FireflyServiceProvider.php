@@ -176,21 +176,17 @@ class FireflyServiceProvider extends ServiceProvider
 
         // chart generator:
         $this->app->bind(GeneratorInterface::class, ChartJsGenerator::class);
-
-
         // other generators
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(TransactionTypeRepositoryInterface::class, TransactionTypeRepository::class);
 
         $this->app->bind(AttachmentHelperInterface::class, AttachmentHelper::class);
-
-
         $this->app->bind(
             ObjectGroupRepositoryInterface::class,
             static function (Application $app) {
                 /** @var ObjectGroupRepository $repository */
                 $repository = app(ObjectGroupRepository::class);
-                if ($app->auth->check()) {
+                if ($app->auth->check()) { // @phpstan-ignore-line
                     $repository->setUser(auth()->user());
                 }
 
@@ -203,7 +199,7 @@ class FireflyServiceProvider extends ServiceProvider
             static function (Application $app) {
                 /** @var WebhookRepository $repository */
                 $repository = app(WebhookRepository::class);
-                if ($app->auth->check()) {
+                if ($app->auth->check()) { // @phpstan-ignore-line
                     $repository->setUser(auth()->user());
                 }
 
@@ -216,7 +212,7 @@ class FireflyServiceProvider extends ServiceProvider
             static function (Application $app) {
                 /** @var SearchRuleEngine $engine */
                 $engine = app(SearchRuleEngine::class);
-                if ($app->auth->check()) {
+                if ($app->auth->check()) { // @phpstan-ignore-line
                     $engine->setUser(auth()->user());
                 }
 
@@ -234,7 +230,7 @@ class FireflyServiceProvider extends ServiceProvider
 
         // webhooks:
         $this->app->bind(MessageGeneratorInterface::class, StandardMessageGenerator::class);
-        $this->app->bind(SignatureGeneratorInterface::class,Sha3SignatureGenerator::class);
+        $this->app->bind(SignatureGeneratorInterface::class, Sha3SignatureGenerator::class);
         $this->app->bind(WebhookSenderInterface::class, StandardWebhookSender::class);
 
         // password verifier thing

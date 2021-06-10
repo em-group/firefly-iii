@@ -40,13 +40,6 @@ interface TagRepositoryInterface
     public function count(): int;
 
     /**
-     * @param Tag $tag
-     *
-     * @return Collection
-     */
-    public function getAttachments(Tag $tag): Collection;
-
-    /**
      * This method destroys a tag.
      *
      * @param Tag $tag
@@ -96,6 +89,13 @@ interface TagRepositoryInterface
      * @return Collection
      */
     public function get(): Collection;
+
+    /**
+     * @param Tag $tag
+     *
+     * @return Collection
+     */
+    public function getAttachments(Tag $tag): Collection;
 
     /**
      * Return location, or NULL.
@@ -156,7 +156,7 @@ interface TagRepositoryInterface
      * Search the users tags.
      *
      * @param string $query
-     * @param int $limit
+     * @param int    $limit
      *
      * @return Collection
      */
@@ -186,16 +186,6 @@ interface TagRepositoryInterface
      * @return array
      */
     public function sumsOfTag(Tag $tag, ?Carbon $start, ?Carbon $end): array;
-
-    /**
-     * Generates a tag cloud.
-     * @deprecated
-     *
-     * @param int|null $year
-     *
-     * @return array
-     */
-    public function tagCloud(?int $year): array;
 
     /**
      * @param Tag    $tag

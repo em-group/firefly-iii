@@ -57,7 +57,6 @@ class TransactionIdentifier extends Command
     /** @var JournalRepositoryInterface */
     private $journalRepository;
 
-
     /**
      * This method gives all transactions which are part of a split journal (so more than 2) a sort of "order" so they are easier
      * to easier to match to their counterpart. When a journal is split, it has two or three transactions: -3, -4 and -5 for example.
@@ -73,7 +72,7 @@ class TransactionIdentifier extends Command
     {
         $this->stupidLaravel();
         $start = microtime(true);
-        // @codeCoverageIgnoreStart
+
         if ($this->isExecuted() && true !== $this->option('force')) {
             $this->warn('This command has already been executed.');
 
@@ -84,7 +83,7 @@ class TransactionIdentifier extends Command
         if (!Schema::hasTable('transaction_journals')) {
             return 0;
         }
-        // @codeCoverageIgnoreEnd
+
         $journals = $this->cliRepository->getSplitJournals();
         /** @var TransactionJournal $journal */
         foreach ($journals as $journal) {
@@ -106,60 +105,6 @@ class TransactionIdentifier extends Command
     }
 
     /**
-     * @param Transaction $transaction
-     * @param array       $exclude
-     *
-     * @return Transaction|null
-     */
-    private function findOpposing(Transaction $transaction, array $exclude): ?Transaction
-    {
-        // find opposing:
-        $amount = bcmul((string) $transaction->amount, '-1');
-
-        try {
-            /** @var Transaction $opposing */
-            $opposing = Transaction::where('transaction_journal_id', $transaction->transaction_journal_id)
-                                   ->where('amount', $amount)->where('identifier', '=', 0)
-                                   ->whereNotIn('id', $exclude)
-                                   ->first();
-            // @codeCoverageIgnoreStart
-        } catch (QueryException $e) {
-            Log::error($e->getMessage());
-            $this->error('Firefly III could not find the "identifier" field in the "transactions" table.');
-            $this->error(sprintf('This field is required for Firefly III version %s to run.', config('firefly.version')));
-            $this->error('Please run "php artisan migrate" to add this field to the table.');
-            $this->info('Then, run "php artisan firefly:upgrade-database" to try again.');
-
-            return null;
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return $opposing;
-    }
-
-    /**
-     * @return bool
-     */
-    private function isExecuted(): bool
-    {
-        $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool) $configVar->data;
-        }
-
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     *
-     */
-    private function markAsExecuted(): void
-    {
-        app('fireflyconfig')->set(self::CONFIG_NAME, true);
-    }
-
-    /**
      * Laravel will execute ALL __construct() methods for ALL commands whenever a SINGLE command is
      * executed. This leads to noticeable slow-downs and class calls. To prevent this, this method should
      * be called from the handle method instead of using the constructor to initialize the command.
@@ -171,6 +116,19 @@ class TransactionIdentifier extends Command
         $this->journalRepository = app(JournalRepositoryInterface::class);
         $this->cliRepository     = app(JournalCLIRepositoryInterface::class);
         $this->count             = 0;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isExecuted(): bool
+    {
+        $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
+        if (null !== $configVar) {
+            return (bool)$configVar->data;
+        }
+
+        return false;
     }
 
     /**
@@ -201,5 +159,43 @@ class TransactionIdentifier extends Command
             ++$identifier;
         }
 
+    }
+
+    /**
+     * @param Transaction $transaction
+     * @param array       $exclude
+     *
+     * @return Transaction|null
+     */
+    private function findOpposing(Transaction $transaction, array $exclude): ?Transaction
+    {
+        // find opposing:
+        $amount = bcmul((string)$transaction->amount, '-1');
+
+        try {
+            /** @var Transaction $opposing */
+            $opposing = Transaction::where('transaction_journal_id', $transaction->transaction_journal_id)
+                                   ->where('amount', $amount)->where('identifier', '=', 0)
+                                   ->whereNotIn('id', $exclude)
+                                   ->first();
+
+        } catch (QueryException $e) {
+            Log::error($e->getMessage());
+            $this->error('Firefly III could not find the "identifier" field in the "transactions" table.');
+            $this->error(sprintf('This field is required for Firefly III version %s to run.', config('firefly.version')));
+            $this->error('Please run "php artisan migrate" to add this field to the table.');
+            $this->info('Then, run "php artisan firefly:upgrade-database" to try again.');
+
+            return null;
+        }
+        return $opposing;
+    }
+
+    /**
+     *
+     */
+    private function markAsExecuted(): void
+    {
+        app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
 }

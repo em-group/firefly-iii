@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
-
-
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -40,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $deleted_at
  * @property int $rt_id
  * @property string $name
- * @property string $value
+ * @property mixed $value
  * @property-read \FireflyIII\Models\RecurrenceTransaction $recurrenceTransaction
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransactionMeta newQuery()

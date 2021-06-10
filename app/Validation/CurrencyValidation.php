@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Validation;
 
-
 use Illuminate\Validation\Validator;
 use Log;
 
@@ -35,13 +34,6 @@ use Log;
  */
 trait CurrencyValidation
 {
-    /**
-     * @param Validator $validator
-     *
-     * @return array
-     */
-    abstract protected function getTransactionsArray(Validator $validator): array;
-
     /**
      * If the transactions contain foreign amounts, there must also be foreign currency information.
      *
@@ -54,21 +46,35 @@ trait CurrencyValidation
 
         foreach ($transactions as $index => $transaction) {
             // if foreign amount is present, then the currency must be as well.
-            if (isset($transaction['foreign_amount']) && !(isset($transaction['foreign_currency_id']) || isset($transaction['foreign_currency_code']))
+            if (array_key_exists('foreign_amount', $transaction)
+                && !(array_key_exists('foreign_currency_id', $transaction)
+                     || array_key_exists(
+                         'foreign_currency_code', $transaction
+                     ))
                 && 0 !== bccomp('0', $transaction['foreign_amount'])
             ) {
                 $validator->errors()->add(
                     'transactions.' . $index . '.foreign_amount',
-                    (string) trans('validation.require_currency_info')
+                    (string)trans('validation.require_currency_info')
                 );
             }
             // if the currency is present, then the amount must be present as well.
-            if ((isset($transaction['foreign_currency_id']) || isset($transaction['foreign_currency_code'])) && !isset($transaction['foreign_amount'])) {
+            if ((array_key_exists('foreign_currency_id', $transaction) || array_key_exists('foreign_currency_code', $transaction))
+                && !array_key_exists(
+                    'foreign_amount', $transaction
+                )) {
                 $validator->errors()->add(
                     'transactions.' . $index . '.foreign_amount',
-                    (string) trans('validation.require_currency_amount')
+                    (string)trans('validation.require_currency_amount')
                 );
             }
         }
     }
+
+    /**
+     * @param Validator $validator
+     *
+     * @return array
+     */
+    abstract protected function getTransactionsArray(Validator $validator): array;
 }

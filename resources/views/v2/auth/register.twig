@@ -1,4 +1,4 @@
-{% extends "./layout/auth" %}
+{% extends './v2/layout/auth' %}
 {% block content %}
     {# alerts here #}
 
@@ -18,15 +18,10 @@
         </div>
 
     {% endif %}
-
-
-
-
     {# default header #}
     <div class="login-box">
         <div class="login-logo">
-            <img src="v2/images/firefly-iii-logo.png" alt="{{ config('app.name') }}" width="40"/>
-            <a href="{{ route('index') }}">{{ config('app.name') }}</a>
+            <img src="v2/images/firefly-iii-logo-new.png" alt="{{ config('app.name') }}" width="90"/><br />
         </div>
 
         <!-- /.login-logo -->
@@ -67,7 +62,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-12">
                             <div class="icheck-primary">
                                 <input id="remember" checked type="checkbox" name="remember" {% if remember %}checked="checked"{% endif %} value="1">
                                 <label for="remember">
@@ -76,8 +71,10 @@
 
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <!-- /.col -->
-                        <div class="col-4">
+                        <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block">{{ 'button_register'|_ }}</button>
                         </div>
                         <!-- /.col -->
@@ -96,6 +93,7 @@
                                 <li>
                                     <a href="{{ route('password.reset.request') }}">{{ 'forgot_my_password'|_ }}</a>
                                 </li>
+                            </ul>
                         </div>
                     </div>
                 </form>
@@ -105,12 +103,12 @@
         </div>
     </div>
 
-    {% include 'partials.auth.password-modal' %}
+    {% include 'v2.partials.auth.password-modal' %}
 
     <!-- /.login-box -->
 {% endblock %}
 {% block scripts %}
-    <script src="v2/js/manifest.js" nonce="{{ JS_NONCE }}"></script>
-    <script src="v2/js/vendor.js" nonce="{{ JS_NONCE }}"></script>
-    <script src="v2/js/register.js" nonce="{{ JS_NONCE }}"></script>
+    <script src="v2/js/manifest.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script src="v2/js/vendor.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script src="v2/js/register.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% endblock %}

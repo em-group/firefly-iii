@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Validation\Account;
 
 use FireflyIII\Models\Account;
+use FireflyIII\Models\AccountType;
 use Log;
 
 /**
@@ -32,20 +33,38 @@ use Log;
 trait WithdrawalValidation
 {
     /**
-     * @param array $accountTypes
+     * @param int|null    $accountId
+     * @param string|null $accountName
      *
      * @return bool
      */
-    abstract protected function canCreateTypes(array $accountTypes): bool;
+    protected function validateGenericSource(?int $accountId, ?string $accountName): bool
+    {
+        Log::debug(sprintf('Now in validateGenericSource(%d, "%s")', $accountId, $accountName));
+        // source can be any of the following types.
+        $validTypes = [AccountType::ASSET, AccountType::REVENUE, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE];
+        if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
+            // if both values are NULL we return TRUE
+            // because we assume the user doesnt want to submit / change anything.
+            $this->sourceError = (string)trans('validation.withdrawal_source_need_data');
+            Log::warning('Not a valid source. Need more data.');
 
-    /**
-     * @param array  $validTypes
-     * @param int    $accountId
-     * @param string $accountName
-     *
-     * @return Account|null
-     */
-    abstract protected function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account;
+            return false;
+        }
+
+        // otherwise try to find the account:
+        $search = $this->findExistingAccount($validTypes, (int)$accountId, (string)$accountName);
+        if (null === $search) {
+            $this->sourceError = (string)trans('validation.withdrawal_source_bad_data', ['id' => $accountId, 'name' => $accountName]);
+            Log::warning('Not a valid source. Cant find it.', $validTypes);
+
+            return false;
+        }
+        $this->source = $search;
+        Log::debug('Valid source account!');
+
+        return true;
+    }
 
     /**
      * @param int|null    $accountId
@@ -61,7 +80,7 @@ trait WithdrawalValidation
         if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
             // if both values are NULL return false,
             // because the destination of a withdrawal can never be created automatically.
-            $this->destError = (string) trans('validation.withdrawal_dest_need_data');
+            $this->destError = (string)trans('validation.withdrawal_dest_need_data');
 
             return false;
         }
@@ -74,7 +93,7 @@ trait WithdrawalValidation
                 if (in_array($type, $validTypes, true)) {
                     return true;
                 }
-                $this->destError = (string) trans('validation.withdrawal_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
+                $this->destError = (string)trans('validation.withdrawal_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
 
                 return false;
             }
@@ -83,6 +102,13 @@ trait WithdrawalValidation
         // if the account can be created anyway don't need to search.
         return true === $this->canCreateTypes($validTypes);
     }
+
+    /**
+     * @param array $accountTypes
+     *
+     * @return bool
+     */
+    abstract protected function canCreateTypes(array $accountTypes): bool;
 
     /**
      * @param int|null    $accountId
@@ -98,16 +124,16 @@ trait WithdrawalValidation
         if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
             // if both values are NULL we return false,
             // because the source of a withdrawal can't be created.
-            $this->sourceError = (string) trans('validation.withdrawal_source_need_data');
+            $this->sourceError = (string)trans('validation.withdrawal_source_need_data');
             Log::warning('Not a valid source. Need more data.');
 
             return false;
         }
 
         // otherwise try to find the account:
-        $search = $this->findExistingAccount($validTypes, (int) $accountId, (string) $accountName);
+        $search = $this->findExistingAccount($validTypes, (int)$accountId, (string)$accountName);
         if (null === $search) {
-            $this->sourceError = (string) trans('validation.withdrawal_source_bad_data', ['id' => $accountId, 'name' => $accountName]);
+            $this->sourceError = (string)trans('validation.withdrawal_source_bad_data', ['id' => $accountId, 'name' => $accountName]);
             Log::warning('Not a valid source. Cant find it.', $validTypes);
 
             return false;
@@ -117,4 +143,13 @@ trait WithdrawalValidation
 
         return true;
     }
+
+    /**
+     * @param array  $validTypes
+     * @param int    $accountId
+     * @param string $accountName
+     *
+     * @return Account|null
+     */
+    abstract protected function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account;
 }

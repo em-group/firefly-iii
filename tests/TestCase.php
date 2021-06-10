@@ -33,7 +33,7 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication, CollectsValues;
 
-    // MocksDefaultValues TestHelpers
+    protected const MAX_ITERATIONS = 2;
 
     /**
      * @return array

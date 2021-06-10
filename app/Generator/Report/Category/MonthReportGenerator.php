@@ -76,12 +76,12 @@ class MonthReportGenerator implements ReportGeneratorInterface
 
         // render!
         try {
-            return view('reports.category.month', compact('accountIds', 'categoryIds', 'reportType', ))
+            return prefixView('reports.category.month', compact('accountIds', 'categoryIds', 'reportType',))
                 ->with('start', $this->start)->with('end', $this->end)
                 ->with('categories', $this->categories)
                 ->with('accounts', $this->accounts)
                 ->render();
-        } catch (Throwable $e) {
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.category.month: %s', $e->getMessage()));
             $result = sprintf('Could not render report view: %s', $e->getMessage());
         }

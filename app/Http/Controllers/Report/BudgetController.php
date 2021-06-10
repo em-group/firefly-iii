@@ -95,7 +95,7 @@ class BudgetController extends Controller
         $generator->accountPerBudget();
         $report = $generator->getReport();
 
-        return view('reports.budget.partials.account-per-budget', compact('report', 'budgets'));
+        return prefixView('reports.budget.partials.account-per-budget', compact('report', 'budgets'));
     }
 
     /**
@@ -151,7 +151,7 @@ class BudgetController extends Controller
             }
         }
 
-        return view('reports.budget.partials.accounts', compact('sums', 'report'));
+        return prefixView('reports.budget.partials.accounts', compact('sums', 'report'));
     }
 
     /**
@@ -196,9 +196,9 @@ class BudgetController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.budget.partials.avg-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.budget.partials.avg-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -265,13 +265,13 @@ class BudgetController extends Controller
                 $total = $sums[$currencyId]['sum'] ?? '0';
                 $pct   = '0';
                 if (0 !== bccomp($sum, '0') && 0 !== bccomp($total, '9')) {
-                    $pct = round((float) bcmul(bcdiv($sum, $total), '100'));
+                    $pct = round((float)bcmul(bcdiv($sum, $total), '100'));
                 }
                 $report[$budgetId]['currencies'][$currencyId]['sum_pct'] = $pct;
             }
         }
 
-        return view('reports.budget.partials.budgets', compact('sums', 'report'));
+        return prefixView('reports.budget.partials.budgets', compact('sums', 'report'));
     }
 
     /**
@@ -296,7 +296,7 @@ class BudgetController extends Controller
         $generator->general();
         $report = $generator->getReport();
 
-        return view('reports.partials.budgets', compact('report'))->render();
+        return prefixView('reports.partials.budgets', compact('report'))->render();
     }
 
     /**
@@ -316,13 +316,11 @@ class BudgetController extends Controller
         $cache->addProperty('budget-period-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
 
         $periods   = app('navigation')->listOfPeriods($start, $end);
         $keyFormat = app('navigation')->preferredCarbonFormat($start, $end);
-
-
         // list expenses for budgets in account(s)
         $expenses = $this->opsRepository->listExpenses($start, $end, $accounts);
 
@@ -353,13 +351,13 @@ class BudgetController extends Controller
             }
         }
         try {
-            $result = view('reports.partials.budget-period', compact('report', 'periods'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.partials.budget-period', compact('report', 'periods'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }
-        // @codeCoverageIgnoreEnd
+
         $cache->store($result);
 
         return $result;
@@ -405,9 +403,9 @@ class BudgetController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.budget.partials.top-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.budget.partials.top-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }

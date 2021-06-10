@@ -25,34 +25,122 @@
     </div>
     <div class="card-body">
       <div>
-        <canvas id="mainAccountsChart" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%;"></canvas>
+        <canvas id="canvas" ref="canvas" width="400" height="400"></canvas>
+      </div>
+      <div v-if="loading && !error" class="text-center">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
+      <div v-if="error" class="text-center">
+        <i class="fas fa-exclamation-triangle text-danger"></i>
       </div>
     </div>
     <div class="card-footer">
-      <a href="./accounts/asset" class="btn btn-default button-sm"><i class="far fa-money-bill-alt"></i> {{ $t('firefly.go_to_asset_accounts') }}</a>
+      <a class="btn btn-default button-sm" href="./accounts/asset"><i class="far fa-money-bill-alt"></i> {{ $t('firefly.go_to_asset_accounts') }}</a>
     </div>
   </div>
 </template>
 
 <script>
+
 import DataConverter from "../charts/DataConverter";
 import DefaultLineOptions from "../charts/DefaultLineOptions";
+import {mapGetters} from "vuex";
+import * as ChartJs from 'chart.js'
+import format from "date-fns/format";
+
+ChartJs.Chart.register.apply(null, Object.values(ChartJs).filter((chartClass) => (chartClass.id)));
+
 
 export default {
   name: "MainAccount",
+  components: {},  // MainAccountChart
+  data() {
+    return {
+      loading: true,
+      error: false,
+      ready: false,
+      initialised: false,
+      dataCollection: {},
+      chartOptions: {},
+      _chart: null,
+    }
+  },
   created() {
-    axios.get('./api/v1/chart/account/overview?start=' + window.sessionStart + '&end=' + window.sessionEnd)
-        .then(response => {
+    this.chartOptions = DefaultLineOptions.methods.getDefaultOptions();
+    this.ready = true;
+  },
+  computed: {
+    ...mapGetters('dashboard/index', ['start', 'end']),
+    'datesReady': function () {
+      return null !== this.start && null !== this.end && this.ready;
+    }
+  },
+  watch: {
+    datesReady: function (value) {
+      if (true === value) {
+        this.initialiseChart();
+      }
+    },
+    start: function () {
+      this.updateChart();
+    },
+    end: function () {
+      this.updateChart();
+    },
+  },
+  methods: {
+    initialiseChart: function () {
+      this.loading = true;
+      this.error = false;
+      //let startStr = this.start.toISOString().split('T')[0];
+      //let endStr = this.end.toISOString().split('T')[0];
+      let startStr = format(this.start, 'y-MM-dd');
+      let endStr = format(this.end, 'y-MM-dd');
+      let url = './api/v1/chart/account/overview?start=' + startStr + '&end=' + endStr;
+      axios.get(url)
+          .then(response => {
+            let chartData = DataConverter.methods.convertChart(response.data);
+            chartData = DataConverter.methods.colorizeLineData(chartData);
 
-          let chartData = DataConverter.methods.convertChart(response.data);
-          chartData = DataConverter.methods.colorizeLineData(chartData);
-          let lineChartCanvas = $('#mainAccountsChart').get(0).getContext('2d');
-          new Chart(lineChartCanvas, {
-            type: 'line',
-            data: chartData,
-            options: DefaultLineOptions.methods.getDefaultOptions()
+            this.dataCollection = chartData;
+            this.loading = false;
+            this.drawChart();
+          })
+          .catch(error => {
+            console.log('Has error!');
+            console.log(error);
+            this.error = true;
           });
-        });
+    },
+    drawChart: function () {
+      //console.log('drawChart');
+      if ('undefined' !== typeof this._chart) {
+        // console.log('update!');
+        this._chart.data = this.dataCollection;
+        this._chart.update();
+        this.initialised = true;
+      }
+
+      if ('undefined' === typeof this._chart) {
+        // console.log('new!');
+        this._chart = new ChartJs.Chart(this.$refs.canvas.getContext('2d'), {
+                                          type: 'line',
+                                          data: this.dataCollection,
+                                          options: this.chartOptions
+                                        }
+        );
+        this.initialised = true;
+      }
+    },
+    updateChart: function () {
+      // console.log('updateChart');
+      if (this.initialised) {
+        // console.log('MUST Update chart!');
+        // reset some vars so it wont trigger again:
+        this.initialised = false;
+        this.initialiseChart();
+      }
+    }
   },
 }
 </script>

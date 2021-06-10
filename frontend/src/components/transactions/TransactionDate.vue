@@ -19,93 +19,76 @@
   -->
 
 <template>
-  <div class="form-group">
+  <div class="form-group" v-if="0===index">
     <div class="text-xs d-none d-lg-block d-xl-block">
       {{ $t('firefly.date_and_time') }}
     </div>
     <div class="input-group">
       <input
-          class="form-control"
-          type="date"
           ref="date"
+          v-model="dateStr"
+          :class="errors.length > 0 ? 'form-control is-invalid' : 'form-control'"
+          :placeholder="dateStr"
           :title="$t('firefly.date')"
-          v-model="localDate"
-          :disabled="index > 0"
           autocomplete="off"
           name="date[]"
-          :placeholder="localDate"
-          v-on:submit.prevent
+          type="date"
       >
       <input
-          class="form-control"
-          type="time"
           ref="time"
+          v-model="timeStr"
+          :class="errors.length > 0 ? 'form-control is-invalid' : 'form-control'"
+          :placeholder="timeStr"
           :title="$t('firefly.time')"
-          v-model="localTime"
-          :disabled="index > 0"
           autocomplete="off"
           name="time[]"
-          :placeholder="localTime"
-          v-on:submit.prevent
+          type="time"
       >
     </div>
+    <span v-if="errors.length > 0">
+      <span v-for="error in errors" class="text-danger small">{{ error }}<br/></span>
+    </span>
+    <span class="text-muted small">{{ localTimeZone }}:{{ systemTimeZone }}</span>
   </div>
 </template>
 
 <script>
 
-import {createNamespacedHelpers} from "vuex";
-
-const {mapState, mapGetters, mapActions, mapMutations} = createNamespacedHelpers('transactions/create')
+import {mapGetters} from "vuex";
 
 export default {
+  props: ['index', 'errors', 'date'],
   name: "TransactionDate",
-  props: ['index'],
-  methods: {
-    ...mapMutations(
-        [
-          'updateField',
-          'setDate'
-        ],
-    ),
+  created() {
+    this.localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    this.systemTimeZone = this.timezone;
+    // console.log('TransactionDate: ' + this.date);
+    // split date and time:
+    let parts = this.date.split('T');
+    this.dateStr = parts[0];
+    this.timeStr = parts[1];
+
   },
-  computed: {
-    ...mapGetters([
-                    'transactionType',
-                    'date'
-                  ]),
-    localDate: {
-      get() {
-        return this.date.toISOString().split('T')[0];
-      },
-      set(value) {
-        // bit of a hack but meh.
-        let newDate = new Date(value);
-        let current = new Date(this.date.getTime());
-        current.setFullYear(newDate.getFullYear());
-        current.setMonth(newDate.getMonth());
-        current.setDate(newDate.getDate());
-        this.setDate({date: current});
-      }
-    },
-    localTime: {
-      get() {
-        return ('0' + this.date.getHours()).slice(-2) + ':' + ('0' + this.date.getMinutes()).slice(-2) + ':' + ('0' + this.date.getSeconds()).slice(-2);
-      },
-      set(value) {
-        // bit of a hack but meh.
-        let current = new Date(this.date.getTime());
-        let parts = value.split(':');
-        current.setHours(parseInt(parts[0]));
-        current.setMinutes(parseInt(parts[1]));
-        current.setSeconds(parseInt(parts[2]));
-        this.setDate({date: current});
-      }
+  data() {
+    return {
+      localDate: this.date,
+      localTimeZone: '',
+      systemTimeZone: '',
+      timeStr: '',
+      dateStr: '',
     }
+  },
+  watch: {
+    dateStr: function (value) {
+      this.$emit('set-date', {date: value + 'T' + this.timeStr});
+    },
+    timeStr: function (value) {
+      this.$emit('set-date', {date: this.dateStr + 'T' + value});
+    }
+  },
+  methods: {},
+  computed: {
+    ...mapGetters('root', ['timezone']),
   }
 }
 </script>
-
-<style scoped>
-
-</style>

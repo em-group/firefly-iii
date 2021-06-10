@@ -39,7 +39,7 @@ class TagList implements BinderInterface
      * @param Route  $route
      *
      * @return Collection
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value, Route $route): Collection
     {
@@ -50,16 +50,14 @@ class TagList implements BinderInterface
                              ->orderBy('tag', 'ASC')
                              ->get();
             }
-
-
             $list = array_unique(array_map('\strtolower', explode(',', $value)));
             Log::debug('List of tags is', $list);
-            // @codeCoverageIgnoreStart
+
             if (0 === count($list)) {
                 Log::error('Tag list is empty.');
                 throw new NotFoundHttpException;
             }
-            // @codeCoverageIgnoreEnd
+
 
             /** @var TagRepositoryInterface $repository */
             $repository = app(TagRepositoryInterface::class);

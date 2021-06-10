@@ -20,28 +20,47 @@
 
 <template>
   <div class="form-group">
-    <div class="text-xs d-none d-lg-block d-xl-block">
-      {{ $t('firefly.' + this.direction + '_account') }}
+    <div v-if="visible" class="text-xs d-none d-lg-block d-xl-block">
+      <span v-if="0 === this.index">{{ $t('firefly.' + this.direction + '_account') }}</span>
+      <span v-if="this.index > 0" class="text-warning">{{ $t('firefly.first_split_overrules_' + this.direction) }}</span>
+      <!--<br><span>{{ selectedAccount }}</span>-->
+    </div>
+    <div v-if="!visible" class="text-xs d-none d-lg-block d-xl-block">
+      &nbsp;
     </div>
     <vue-typeahead-bootstrap
-        v-model="value.name"
+        v-if="visible"
+        v-model="accountName"
         :data="accounts"
-        :showOnFocus=true
+        :inputClass="errors.length > 0 ? 'is-invalid' : ''"
         :inputName="direction + '[]'"
-        :serializer="item => item.name_with_balance"
         :minMatchingChars="3"
-        :placeholder="$t('firefly.' + this.direction + '_account')"
+        :placeholder="$t('firefly.' + direction + '_account')"
+        :serializer="item => item.name_with_balance"
+        :showOnFocus=true
+        aria-autocomplete="none"
+        autocomplete="off"
+        @hit="userSelectedAccount"
         @input="lookupAccount"
-        @hit="selectedAccount = $event"
     >
-      <template slot="append">
-        <div class="input-group-append">
-          <button class="btn btn-outline-secondary" v-on:click="clearAccount" type="button"><i class="far fa-trash-alt"></i></button>
+
+      <template slot="suggestion" slot-scope="{ data, htmlText }">
+        <div :title="data.type" class="d-flex">
+          <span v-html="htmlText"></span><br>
         </div>
       </template>
-
-
+      <template slot="append">
+        <div class="input-group-append">
+          <button class="btn btn-outline-secondary" tabindex="-1" type="button" v-on:click="clearAccount"><i class="far fa-trash-alt"></i></button>
+        </div>
+      </template>
     </vue-typeahead-bootstrap>
+    <div v-if="!visible" class="form-control-static">
+      <span class="small text-muted"><em>{{ $t('firefly.first_split_decides') }}</em></span>
+    </div>
+    <span v-if="errors.length > 0">
+      <span v-for="error in errors" class="text-danger small">{{ error }}<br/></span>
+      </span>
   </div>
 </template>
 
@@ -49,174 +68,226 @@
 
 import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap';
 import {debounce} from 'lodash';
-import {createNamespacedHelpers} from "vuex";
-
-const {mapState, mapGetters, mapActions, mapMutations} = createNamespacedHelpers('transactions/create')
 
 export default {
   name: "TransactionAccount",
   components: {VueTypeaheadBootstrap},
-  props: ['index', 'direction', 'value'],
+  props: {
+    index: {
+      type: Number,
+    },
+    direction: {
+      type: String,
+    },
+    value: {
+      type: Object,
+      default: () => ({})
+    },
+    errors: {
+      type: Array,
+      default: () => ([])
+    },
+    sourceAllowedTypes: {
+      type: Array,
+      default: () => ([])
+    },
+    destinationAllowedTypes: {
+      type: Array,
+      default: () => ([])
+    },
+    transactionType: {
+      type: String,
+      default: 'any'
+    },
+  },
   data() {
     return {
       query: '',
       accounts: [],
       accountTypes: [],
       initialSet: [],
-      selectedAccount: {}
+      selectedAccount: {},
+      accountName: '',
+      selectedAccountTrigger: false,
     }
   },
   created() {
-    this.createInitialSet();
+    this.accountName = this.value.name ?? '';
+    // console.log('TransactionAccount::created() direction=' + this.direction + ', type=' + this.transactionType + ' , name="' + this.accountName + '"');
+    this.selectedAccountTrigger = true;
   },
   methods: {
-    ...mapMutations(
-        [
-          'updateField',
-          'setDestinationAllowedTypes',
-          'setSourceAllowedTypes'
-        ],
-    ),
-    ...mapActions(
-        [
-          'calcTransactionType'
-        ]
-    ),
     getACURL: function (types, query) {
-      return document.getElementsByTagName('base')[0].href + 'api/v1/autocomplete/accounts?types=' + types.join(',') + '&query=' + query;
+      return './api/v1/autocomplete/accounts?types=' + types.join(',') + '&query=' + query;
+    },
+    userSelectedAccount: function (event) {
+      // console.log('userSelectedAccount!');
+      // console.log('To prevent invalid propogation, set selectedAccountTrigger = true');
+      this.selectedAccountTrigger = true;
+      this.selectedAccount = event;
+    },
+    systemReturnedAccount: function (event) {
+      //console.log('systemReturnedAccount!');
+      //console.log('To prevent invalid propogation, set selectedAccountTrigger = false');
+      this.selectedAccountTrigger = false;
+      this.selectedAccount = event;
     },
     clearAccount: function () {
+      //// console.log('TransactionAccount::clearAccount()');
       this.accounts = this.initialSet;
-      this.value = {name: ''};
+      //this.account = {name: '', type: 'no_type', id: null, currency_id: null, currency_code: null, currency_symbol: null};
+      this.accountName = '';
     },
     lookupAccount: debounce(function () {
+      //// console.log('TransactionAccount::lookupAccount()');
+      //// console.log('In lookupAccount()');
       if (0 === this.accountTypes.length) {
         // set the types from the default types for this direction:
         this.accountTypes = 'source' === this.direction ? this.sourceAllowedTypes : this.destinationAllowedTypes;
       }
+      // // console.log(this.direction + ': Will search for types:');
+      // // console.log(this.accountTypes);
 
       // update autocomplete URL:
-      axios.get(this.getACURL(this.accountTypes, this.value.name))
+      axios.get(this.getACURL(this.accountTypes, this.accountName))
           .then(response => {
+            //// console.log('Got a response!');
             this.accounts = response.data;
+            //// console.log(response.data);
           })
     }, 300),
+
     createInitialSet: function () {
+      //// console.log('TransactionAccount::createInitialSet()');
       let types = this.sourceAllowedTypes;
       if ('destination' === this.direction) {
         types = this.destinationAllowedTypes;
       }
+      // // console.log('createInitialSet() direction=' + this.direction + ' resets to these types:');
+      // // console.log(types);
 
       axios.get(this.getACURL(types, ''))
           .then(response => {
-            // console.log('initial set of accounts. ' + this.direction);
             this.accounts = response.data;
             this.initialSet = response.data;
           });
     }
   },
   watch: {
+    sourceAllowedTypes: function (value) {
+      //// console.log('TransactionAccount::sourceAllowedTypes()');
+      // // console.log(this.direction + ' account noticed change in sourceAllowedTypes');
+      // // console.log(value);
+      this.createInitialSet();
+    },
+    destinationAllowedTypes: function (value) {
+      //// console.log('TransactionAccount::destinationAllowedTypes()');
+      // // console.log(this.direction + ' account noticed change in destinationAllowedTypes');
+      // // console.log(value);
+      this.createInitialSet();
+    },
+    /**
+     * Triggered when the user selects an account from the auto-complete.
+     *
+     * @param value
+     */
     selectedAccount: function (value) {
-      this.value = value;
-      this.value.name = this.value.name_with_balance;
+      //console.log('TransactionAccount::watch selectedAccount()');
+      // console.log(value);
+      if (true === this.selectedAccountTrigger) {
+        // console.log('$emit alles!');
+        this.$emit('set-account',
+                   {
+                     index: this.index,
+                     direction: this.direction,
+                     id: value.id,
+                     type: value.type,
+                     name: value.name,
+                     currency_id: value.currency_id,
+                     currency_code: value.currency_code,
+                     currency_symbol: value.currency_symbol,
+                   }
+        );
+        //console.log('watch::selectedAccount() will now set accountName because selectedAccountTrigger = true');
+        this.accountName = value.name;
+      }
+      if (false === this.selectedAccountTrigger) {
+        //console.log('watch::selectedAccount() will NOT set accountName because selectedAccountTrigger = false');
+      }
+      if (false === this.selectedAccountTrigger && this.accountName !== value.name && null !== value.name) {
+        //console.log('watch::selectedAccount() will set accountName. selectedAccountTrigger = false but name is different ("' + this.accountName + '" > "' + value.name + '")');
+        this.selectedAccountTrigger = true;
+        this.accountName = value.name;
+      }
+
+    },
+    accountName: function (value) {
+      // console.log('now at watch accountName("' + value + '")');
+      // console.log(this.selectedAccountTrigger);
+      if (true === this.selectedAccountTrigger) {
+        // console.log('Do nothing because selectedAccountTrigger = true');
+      }
+      if (false === this.selectedAccountTrigger) {
+        // console.log('$emit name from watch::accountName() because selectedAccountTrigger = false');
+        this.$emit('set-account',
+                   {
+                     index: this.index,
+                     direction: this.direction,
+                     id: null,
+                     type: null,
+                     name: value,
+                     currency_id: null,
+                     currency_code: null,
+                     currency_symbol: null,
+                   }
+        );
+        // this.account = {name: value, type: null, id: null, currency_id: null, currency_code: null, currency_symbol: null};
+      }
+      // console.log('set selectedAccountTrigger to be FALSE');
+      this.selectedAccountTrigger = false;
     },
     value: function (value) {
-      this.updateField({field: this.accountKey, index: this.index, value: value});
-      // set the opposing account allowed set.
-      let opposingAccounts = [];
-      let type = value.type ? value.type : 'no_type';
-      if ('undefined' !== typeof this.allowedOpposingTypes[this.direction]) {
-        if ('undefined' !== typeof this.allowedOpposingTypes[this.direction][type]) {
-          opposingAccounts = this.allowedOpposingTypes[this.direction][type];
-        }
-      }
+      //console.log('TransactionAccount(' + this.index + ')::watch value(' + JSON.stringify(value) + ')');
+      this.systemReturnedAccount(value);
 
-      if ('source' === this.direction) {
-        this.setDestinationAllowedTypes(opposingAccounts);
-      }
-      if ('destination' === this.direction) {
-        this.setSourceAllowedTypes(opposingAccounts);
-      }
-
-      this.calcTransactionType();
-    },
-    // account: function (value) {
-    //   //this.value.name = value;
-    //   //console.log('watch account in direction ' + this.direction + ' change to "' + value + '"');
-    //   //   this.account = value ? value.name_with_balance : null;
-    //   //   // console.log('this.account (' + this.direction + ') = "' + this.account + '"');
-    //   //
-    //   //
-    //   //   // set the opposing account allowed set.
-    //   //   // console.log('opposing:');
-    //   //   let opposingAccounts = [];
-    //   //   let type = value.type ? value.type : 'no_type';
-    //   //   if ('undefined' !== typeof this.allowedOpposingTypes[this.direction]) {
-    //   //     if ('undefined' !== typeof this.allowedOpposingTypes[this.direction][type]) {
-    //   //       opposingAccounts = this.allowedOpposingTypes[this.direction][type];
-    //   //     }
-    //   //   }
-    //   //
-    //   //   if ('source' === this.direction) {
-    //   //     this.setDestinationAllowedTypes(opposingAccounts);
-    //   //   }
-    //   //   if ('destination' === this.direction) {
-    //   //     this.setSourceAllowedTypes(opposingAccounts);
-    //   //   }
-    //
-    //
-    //   //
-    //   // this.calcTransactionType();
-    //
-    //
-    // }
-
-    // selectedAccount: function (value) {
-
-    // },
-    // sourceAllowedTypes: function (value) {
-    //   if ('source' === this.direction) {
-    //     // console.log('do update initial set in direction ' + this.direction + ' because allowed types changed');
-    //     // update initial set:
-    //     this.createInitialSet();
-    //   }
-    // },
-    // destinationAllowedTypes: function (value) {
-    //   if ('destination' === this.direction) {
-    //     // console.log('do update initial set in direction ' + this.direction + ' because allowed types changed');
-    //     // update initial set:
-    //     this.createInitialSet();
-    //   }
-    // }
+      // // console.log('Index ' + this.index + ' nwAct: ', value);
+      // // console.log(this.direction + ' account overruled by external forces.');
+      // // console.log(value);
+      //this.account = value;
+      //this.selectedAccountTrigger = true;
+      // this.accountName = value.name ?? '';
+      // if(null !== value.id) {
+      // return;
+      // }
+      // this.selectedAccountTrigger = true;
+      //
+      // // console.log('Set selectedAccountTrigger = true');
+      // this.selectedAccount = value;
+    }
   },
   computed: {
-    ...mapGetters([
-                    'transactionType',
-                    'transactions',
-                    'defaultTransaction',
-                    'sourceAllowedTypes',
-                    'destinationAllowedTypes',
-                    'allowedOpposingTypes'
-                  ]),
     accountKey: {
       get() {
         return 'source' === this.direction ? 'source_account' : 'destination_account';
       }
     },
-    // selectedAccount: {
-    //   get() {
-    //     return this.transactions[this.index][this.accountKey];
-    //   },
-    //   set(value) {
-    //     // console.log('set selectedAccount for ' + this.direction);
-    //     // console.log(value);
-    //     this.updateField({field: this.accountKey, index: this.index, value: value});
-    //   }
-    // }
+    visible: {
+      get() {
+        // index  0 is always visible:
+        if (0 === this.index) {
+          return true;
+        }
+        // // console.log('Direction of account ' + this.index + ' is ' + this.direction + '(' + this.transactionType + ')');
+        // // console.log(this.transactionType);
+        if ('source' === this.direction) {
+          return 'any' === this.transactionType || 'Deposit' === this.transactionType || typeof this.transactionType === 'undefined';
+        }
+        if ('destination' === this.direction) {
+          return 'any' === this.transactionType || 'Withdrawal' === this.transactionType || typeof this.transactionType === 'undefined';
+        }
+        return false;
+      }
+    }
   }
 }
 </script>
-
-<style scoped>
-
-</style>

@@ -55,20 +55,20 @@ class AccountController extends Controller
         $cache->addProperty('account-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
 
         /** @var AccountTaskerInterface $accountTasker */
         $accountTasker = app(AccountTaskerInterface::class);
         $accountReport = $accountTasker->getAccountReport($accounts, $start, $end);
         try {
-            $result = view('reports.partials.accounts', compact('accountReport'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.partials.accounts', compact('accountReport'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.accounts: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }
-        // @codeCoverageIgnoreEnd
+
         $cache->store($result);
 
         return $result;

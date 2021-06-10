@@ -36,37 +36,11 @@ use Throwable;
  */
 trait FormSupport
 {
-
-
     /**
-     * @return AccountRepositoryInterface
-     */
-    protected function getAccountRepository(): AccountRepositoryInterface
-    {
-        return app(AccountRepositoryInterface::class);
-    }
-
-    /**
-     * @return Carbon
-     */
-    protected function getDate(): Carbon
-    {
-        /** @var Carbon $date */
-        $date = null;
-        try {
-            $date = today(config('app.timezone'));
-        } catch (Exception $e) {
-            $e->getMessage();
-        }
-
-        return $date;
-    }
-
-    /**
-     * @param string $name
-     * @param array  $list
-     * @param mixed  $selected
-     * @param array  $options
+     * @param string     $name
+     * @param array|null $list
+     * @param mixed      $selected
+     * @param array|null $options
      *
      * @return string
      */
@@ -79,8 +53,8 @@ trait FormSupport
         $selected = $this->fillFieldValue($name, $selected);
         unset($options['autocomplete'], $options['placeholder']);
         try {
-            $html = view('form.select', compact('classes', 'name', 'label', 'selected', 'options', 'list'))->render();
-        } catch (Throwable $e) {
+            $html = prefixView('form.select', compact('classes', 'name', 'label', 'selected', 'options', 'list'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render select(): %s', $e->getMessage()));
             $html = 'Could not render select.';
         }
@@ -89,9 +63,26 @@ trait FormSupport
     }
 
     /**
-     * @param       $name
-     * @param       $label
-     * @param array $options
+     * @param string     $name
+     * @param array|null $options
+     *
+     * @return string
+     */
+    protected function label(string $name, array $options = null): string
+    {
+        $options = $options ?? [];
+        if (array_key_exists('label', $options)) {
+            return $options['label'];
+        }
+        $name = str_replace('[]', '', $name);
+
+        return (string)trans('form.' . $name);
+    }
+
+    /**
+     * @param string     $name
+     * @param mixed      $label
+     * @param array|null $options
      *
      * @return array
      */
@@ -109,35 +100,6 @@ trait FormSupport
 
     /**
      * @param string $name
-     * @param        $value
-     *
-     * @return mixed
-     */
-    protected function fillFieldValue(string $name, $value = null)
-    {
-        if (app('session')->has('preFilled')) {
-            $preFilled = session('preFilled');
-            $value     = isset($preFilled[$name]) && null === $value ? $preFilled[$name] : $value;
-        }
-
-        try {
-            if (null !== request()->old($name)) {
-                $value = request()->old($name);
-            }
-        } catch (RuntimeException $e) {
-            // don't care about session errors.
-            Log::debug(sprintf('Run time: %s', $e->getMessage()));
-        }
-
-        if ($value instanceof Carbon) {
-            $value = $value->format('Y-m-d');
-        }
-
-        return $value;
-    }
-
-    /**
-     * @param $name
      *
      * @return string
      */
@@ -156,19 +118,55 @@ trait FormSupport
     }
 
     /**
-     * @param $name
-     * @param $options
+     * @param string     $name
+     * @param mixed|null $value
      *
-     * @return string
+     * @return mixed
      */
-    protected function label(string $name, array $options = null): string
+    protected function fillFieldValue(string $name, $value = null)
     {
-        $options = $options ?? [];
-        if (isset($options['label'])) {
-            return $options['label'];
+        if (app('session')->has('preFilled')) {
+            $preFilled = session('preFilled');
+            $value     = array_key_exists($name, $preFilled) && null === $value ? $preFilled[$name] : $value;
         }
-        $name = str_replace('[]', '', $name);
 
-        return (string)trans('form.' . $name);
+        try {
+            if (null !== request()->old($name)) {
+                $value = request()->old($name);
+            }
+        } catch (RuntimeException $e) { // @phpstan-ignore-line
+            // don't care about session errors.
+            Log::debug(sprintf('Run time: %s', $e->getMessage()));
+        }
+
+        if ($value instanceof Carbon) {
+            $value = $value->format('Y-m-d');
+        }
+
+        return $value;
+    }
+
+    /**
+     * @return AccountRepositoryInterface
+     */
+    protected function getAccountRepository(): AccountRepositoryInterface
+    {
+        return app(AccountRepositoryInterface::class);
+    }
+
+    /**
+     * @return Carbon
+     */
+    protected function getDate(): Carbon
+    {
+        /** @var Carbon $date */
+        $date = null;
+        try {
+            $date = today(config('app.timezone'));
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
+        }
+
+        return $date;
     }
 }

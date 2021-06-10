@@ -61,7 +61,6 @@ class CategoryController extends Controller
         $this->generator = app(GeneratorInterface::class);
     }
 
-
     /**
      * Show an overview for a category for all time, per month/week/year.
      * TODO test method, for category refactor.
@@ -77,7 +76,7 @@ class CategoryController extends Controller
         $cache->addProperty('chart.category.all');
         $cache->addProperty($category->id);
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get());
         }
         /** @var CategoryRepositoryInterface $repository */
         $repository = app(CategoryRepositoryInterface::class);
@@ -95,6 +94,20 @@ class CategoryController extends Controller
         return response()->json($data);
     }
 
+    /**
+     * @return Carbon
+     */
+    private function getDate(): Carbon
+    {
+        $carbon = null;
+        try {
+            $carbon = today(config('app.timezone'));
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
+        }
+
+        return $carbon;
+    }
 
     /**
      * Shows the category chart on the front page.
@@ -112,14 +125,12 @@ class CategoryController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.category.frontpage');
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get());
         }
 
         $frontPageGenerator = new FrontpageChartGenerator($start, $end);
-
-
-        $chartData = $frontPageGenerator->generate();
-        $data      = $this->generator->multiSet($chartData);
+        $chartData          = $frontPageGenerator->generate();
+        $data               = $this->generator->multiSet($chartData);
         $cache->store($data);
 
         return response()->json($data);
@@ -145,95 +156,13 @@ class CategoryController extends Controller
         $cache->addProperty($accounts->pluck('id')->toArray());
         $cache->addProperty($category);
         if ($cache->has()) {
-            return response()->json($cache->get());// @codeCoverageIgnore
+            return response()->json($cache->get());
         }
         $data = $this->reportPeriodChart($accounts, $start, $end, $category);
 
         $cache->store($data);
 
         return response()->json($data);
-    }
-
-
-    /**
-     * Chart for period for transactions without a category.
-     * TODO test me.
-     *
-     * @param Collection $accounts
-     * @param Carbon     $start
-     * @param Carbon     $end
-     *
-     * @return JsonResponse
-     */
-    public function reportPeriodNoCategory(Collection $accounts, Carbon $start, Carbon $end): JsonResponse
-    {
-        $cache = new CacheProperties;
-        $cache->addProperty($start);
-        $cache->addProperty($end);
-        $cache->addProperty('chart.category.period.no-cat');
-        $cache->addProperty($accounts->pluck('id')->toArray());
-        if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
-        }
-        $data = $this->reportPeriodChart($accounts, $start, $end, null);
-
-        $cache->store($data);
-
-        return response()->json($data);
-    }
-
-    /**
-     * Chart for a specific period.
-     * TODO test method, for category refactor.
-     *
-     * @param Category                    $category
-     * @param                             $date
-     *
-     * @return JsonResponse
-     */
-    public function specificPeriod(Category $category, Carbon $date): JsonResponse
-    {
-        $range = app('preferences')->get('viewRange', '1M')->data;
-        $start = app('navigation')->startOfPeriod($date, $range);
-        $end   = session()->get('end');
-        if ($end < $start) {
-            [$end, $start] = [$start, $end]; // @codeCoverageIgnore
-        }
-
-        $cache = new CacheProperties;
-        $cache->addProperty($start);
-        $cache->addProperty($end);
-        $cache->addProperty($category->id);
-        $cache->addProperty('chart.category.period-chart');
-
-
-        if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
-        }
-
-        /** @var WholePeriodChartGenerator $chartGenerator */
-        $chartGenerator = app(WholePeriodChartGenerator::class);
-        $chartData      = $chartGenerator->generate($category, $start, $end);
-        $data           = $this->generator->multiSet($chartData);
-
-        $cache->store($data);
-
-        return response()->json($data);
-    }
-
-    /**
-     * @return Carbon
-     */
-    private function getDate(): Carbon
-    {
-        $carbon = null;
-        try {
-            $carbon = today(config('app.timezone'));
-        } catch (Exception $e) {
-            $e->getMessage();
-        }
-
-        return $carbon;
     }
 
     /**
@@ -263,7 +192,7 @@ class CategoryController extends Controller
         if (null !== $category) {
             /** @var OperationsRepositoryInterface $opsRepository */
             $opsRepository = app(OperationsRepositoryInterface::class);
-            $categoryId    = (int) $category->id;
+            $categoryId    = (int)$category->id;
             // this gives us all currencies
             $collection = new Collection([$category]);
             $expenses   = $opsRepository->listExpenses($start, $end, null, $collection);
@@ -282,7 +211,7 @@ class CategoryController extends Controller
             $inKey        = sprintf('%d-in', $currencyId);
             $chartData[$outKey]
                           = [
-                'label'           => sprintf('%s (%s)', (string) trans('firefly.spent'), $currencyInfo['currency_name']),
+                'label'           => sprintf('%s (%s)', (string)trans('firefly.spent'), $currencyInfo['currency_name']),
                 'entries'         => [],
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(219, 68, 55, 0.5)', // red
@@ -290,13 +219,11 @@ class CategoryController extends Controller
 
             $chartData[$inKey]
                 = [
-                'label'           => sprintf('%s (%s)', (string) trans('firefly.earned'), $currencyInfo['currency_name']),
+                'label'           => sprintf('%s (%s)', (string)trans('firefly.earned'), $currencyInfo['currency_name']),
                 'entries'         => [],
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(0, 141, 76, 0.5)', // green
             ];
-
-
             // loop empty periods:
             foreach (array_keys($periods) as $period) {
                 $label                                 = $periods[$period];
@@ -323,5 +250,69 @@ class CategoryController extends Controller
         }
 
         return $this->generator->multiSet($chartData);
+    }
+
+    /**
+     * Chart for period for transactions without a category.
+     * TODO test me.
+     *
+     * @param Collection $accounts
+     * @param Carbon     $start
+     * @param Carbon     $end
+     *
+     * @return JsonResponse
+     */
+    public function reportPeriodNoCategory(Collection $accounts, Carbon $start, Carbon $end): JsonResponse
+    {
+        $cache = new CacheProperties;
+        $cache->addProperty($start);
+        $cache->addProperty($end);
+        $cache->addProperty('chart.category.period.no-cat');
+        $cache->addProperty($accounts->pluck('id')->toArray());
+        if ($cache->has()) {
+            return response()->json($cache->get());
+        }
+        $data = $this->reportPeriodChart($accounts, $start, $end, null);
+
+        $cache->store($data);
+
+        return response()->json($data);
+    }
+
+    /**
+     * Chart for a specific period.
+     * TODO test method, for category refactor.
+     *
+     * @param Category $category
+     * @param Carbon   $date
+     *
+     * @return JsonResponse
+     */
+    public function specificPeriod(Category $category, Carbon $date): JsonResponse
+    {
+        $range = app('preferences')->get('viewRange', '1M')->data;
+        $start = app('navigation')->startOfPeriod($date, $range);
+        $end   = session()->get('end');
+        if ($end < $start) {
+            [$end, $start] = [$start, $end];
+        }
+
+        $cache = new CacheProperties;
+        $cache->addProperty($start);
+        $cache->addProperty($end);
+        $cache->addProperty($category->id);
+        $cache->addProperty('chart.category.period-chart');
+        if ($cache->has()) {
+            return response()->json($cache->get());
+        }
+
+        /** @var WholePeriodChartGenerator $chartGenerator */
+        $chartGenerator = app(WholePeriodChartGenerator::class);
+        $chartData      = $chartGenerator->generate($category, $start, $end);
+        $data           = $this->generator->multiSet($chartData);
+
+        $cache->store($data);
+
+        return response()->json($data);
     }
 }

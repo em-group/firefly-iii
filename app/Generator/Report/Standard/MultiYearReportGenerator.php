@@ -54,11 +54,11 @@ class MultiYearReportGenerator implements ReportGeneratorInterface
         $reportType = 'default';
 
         try {
-            return view(
+            return prefixView(
                 'reports.default.multi-year',
                 compact('accountIds', 'reportType')
             )->with('start', $this->start)->with('end', $this->end)->render();
-        } catch (Throwable $e) {
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.default.multi-year: %s', $e->getMessage()));
             $result = sprintf('Could not render report view: %s', $e->getMessage());
         }

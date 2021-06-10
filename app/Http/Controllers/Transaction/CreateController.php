@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Transaction;
 
+use FireflyIII\Events\StoredTransactionGroup;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
@@ -48,7 +49,7 @@ class CreateController extends Controller
 
         $this->middleware(
             static function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.transactions'));
+                app('view')->share('title', (string)trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -68,12 +69,15 @@ class CreateController extends Controller
         $service  = app(GroupCloneService::class);
         $newGroup = $service->cloneGroup($group);
 
+        // event!
+        event(new StoredTransactionGroup($newGroup, true));
+
         app('preferences')->mark();
 
         $title = $newGroup->title ?? $newGroup->transactionJournals->first()->description;
-        $link = route('transactions.show', [$newGroup->id]);
+        $link  = route('transactions.show', [$newGroup->id]);
         session()->flash('success', trans('firefly.stored_journal', ['description' => $title]));
-        session()->flash('success_uri', $link);
+        session()->flash('success_url', $link);
 
         return redirect(route('transactions.show', [$newGroup->id]));
     }
@@ -81,22 +85,22 @@ class CreateController extends Controller
     /**
      * Create a new transaction group.
      *
-     * @param string|null objectType
+     * @param string|null $objectType
      *
-     * @return Factory|View
+     * @return Factory|\Illuminate\Contracts\View\View
      */
     public function create(?string $objectType)
     {
         app('preferences')->mark();
 
-        $sourceId      = (int) request()->get('source');
-        $destinationId = (int) request()->get('destination');
+        $sourceId      = (int)request()->get('source');
+        $destinationId = (int)request()->get('destination');
 
         /** @var AccountRepositoryInterface $repository */
         $repository           = app(AccountRepositoryInterface::class);
         $cash                 = $repository->getCashAccount();
         $preFilled            = session()->has('preFilled') ? session('preFilled') : [];
-        $subTitle             = (string) trans('breadcrumbs.create_new_transaction');
+        $subTitle             = (string)trans(sprintf('breadcrumbs.create_%s', strtolower((string)$objectType)));
         $subTitleIcon         = 'fa-plus';
         $optionalFields       = app('preferences')->get('transaction_journal_optional_fields', [])->data;
         $allowedOpposingTypes = config('firefly.allowed_opposing_types');
@@ -109,8 +113,7 @@ class CreateController extends Controller
 
         session()->put('preFilled', $preFilled);
 
-
-        return view(
+        return prefixView(
             'transactions.create',
             compact(
                 'subTitleIcon',

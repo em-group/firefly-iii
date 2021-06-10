@@ -53,8 +53,8 @@ use Log;
 class RecurringRepository implements RecurringRepositoryInterface
 {
     use CalculateRangeOccurrences, CalculateXOccurrences, CalculateXOccurrencesSince, FiltersWeekends;
-    private User $user;
 
+    private User $user;
 
     /**
      * Destroy a recurring transaction.
@@ -66,6 +66,14 @@ class RecurringRepository implements RecurringRepositoryInterface
         /** @var RecurrenceDestroyService $service */
         $service = app(RecurrenceDestroyService::class);
         $service->destroy($recurrence);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function destroyAll(): void
+    {
+        $this->user->recurrences()->delete();
     }
 
     /**
@@ -162,7 +170,7 @@ class RecurringRepository implements RecurringRepositoryInterface
             $query->where('transaction_journals.date', '<=', $end->format('Y-m-d 00:00:00'));
         }
 
-        return $query->get(['transaction_journals.*'])->count();
+        return $query->count(['transaction_journals.id']);
     }
 
     /**
@@ -233,7 +241,6 @@ class RecurringRepository implements RecurringRepositoryInterface
         if ('yearly' === $repetition->repetition_type) {
             $occurrences = $this->getYearlyInRange($mutator, $end, $skipMod, $repetition->repetition_moment);
         }
-
 
         // filter out all the weekend days:
         return $this->filterWeekends($repetition, $occurrences);
@@ -327,7 +334,7 @@ class RecurringRepository implements RecurringRepositoryInterface
         foreach ($journalMeta as $journalId) {
             $search[] = (int)$journalId;
         }
-        if (empty($search)) {
+        if (0 === count($search)) {
 
             return new Collection;
         }
@@ -375,6 +382,50 @@ class RecurringRepository implements RecurringRepositoryInterface
 
         // filter out all the weekend days:
         return $this->filterWeekends($repetition, $occurrences);
+    }
+
+    /**
+     * Calculate the next X iterations starting on the date given in $date.
+     * Returns an array of Carbon objects.
+     *
+     * Only returns them of they are after $afterDate
+     *
+     * @param RecurrenceRepetition $repetition
+     * @param Carbon               $date
+     * @param Carbon               $afterDate
+     * @param int                  $count
+     *
+     * @return array
+     * @throws FireflyException
+     */
+    public function getXOccurrencesSince(RecurrenceRepetition $repetition, Carbon $date, Carbon $afterDate, int $count): array
+    {
+        Log::debug('Now in getXOccurrencesSince()');
+        $skipMod     = $repetition->repetition_skip + 1;
+        $occurrences = [];
+        if ('daily' === $repetition->repetition_type) {
+            $occurrences = $this->getXDailyOccurrencesSince($date, $afterDate, $count, $skipMod);
+        }
+        if ('weekly' === $repetition->repetition_type) {
+            $occurrences = $this->getXWeeklyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
+        }
+        if ('monthly' === $repetition->repetition_type) {
+            $occurrences = $this->getXMonthlyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
+        }
+        if ('ndom' === $repetition->repetition_type) {
+            $occurrences = $this->getXNDomOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
+        }
+        if ('yearly' === $repetition->repetition_type) {
+            $occurrences = $this->getXYearlyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
+        }
+
+        // filter out all the weekend days:
+        $occurrences = $this->filterWeekends($repetition, $occurrences);
+
+        // filter out everything if "repeat_until" is set.
+        $repeatUntil = $repetition->recurrence->repeat_until;
+
+        return $this->filterMaxDate($repeatUntil, $occurrences);
     }
 
     /**
@@ -437,6 +488,21 @@ class RecurringRepository implements RecurringRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function searchRecurrence(string $query, int $limit): Collection
+    {
+        $search = $this->user->recurrences();
+        if ('' !== $query) {
+            $search->where('recurrences.title', 'LIKE', sprintf('%%%s%%', $query));
+        }
+        $search
+            ->orderBy('recurrences.title', 'ASC');
+
+        return $search->take($limit)->get(['id', 'title', 'description']);
+    }
+
+    /**
      * Set user for in repository.
      *
      * @param User $user
@@ -466,6 +532,30 @@ class RecurringRepository implements RecurringRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function totalTransactions(Recurrence $recurrence, RecurrenceRepetition $repetition): int
+    {
+        // if repeat = null just return 0.
+        if (null === $recurrence->repeat_until && 0 === (int)$recurrence->repetitions) {
+            return 0;
+        }
+        // expect X transactions then stop. Return that number
+        if (null === $recurrence->repeat_until && 0 !== (int)$recurrence->repetitions) {
+            return (int)$recurrence->repetitions;
+        }
+
+        // need to calculate, this depends on the repetition:
+        if (null !== $recurrence->repeat_until && 0 === (int)$recurrence->repetitions) {
+            $occurrences = $this->getOccurrencesInRange($repetition, $recurrence->first_date ?? today(), $recurrence->repeat_until);
+
+            return count($occurrences);
+        }
+
+        return 0;
+    }
+
+    /**
      * Update a recurring transaction.
      *
      * @param Recurrence $recurrence
@@ -480,49 +570,6 @@ class RecurringRepository implements RecurringRepositoryInterface
         $service = app(RecurrenceUpdateService::class);
 
         return $service->update($recurrence, $data);
-    }
-
-    /**
-     * Calculate the next X iterations starting on the date given in $date.
-     * Returns an array of Carbon objects.
-     *
-     * Only returns them of they are after $afterDate
-     *
-     * @param RecurrenceRepetition $repetition
-     * @param Carbon               $date
-     * @param Carbon               $afterDate
-     * @param int                  $count
-     *
-     * @return array
-     * @throws FireflyException
-     */
-    public function getXOccurrencesSince(RecurrenceRepetition $repetition, Carbon $date, Carbon $afterDate, int $count): array
-    {
-        Log::debug('Now in getXOccurrencesSince()');
-        $skipMod     = $repetition->repetition_skip + 1;
-        $occurrences = [];
-        if ('daily' === $repetition->repetition_type) {
-            $occurrences = $this->getXDailyOccurrencesSince($date, $afterDate, $count, $skipMod);
-        }
-        if ('weekly' === $repetition->repetition_type) {
-            $occurrences = $this->getXWeeklyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
-        }
-        if ('monthly' === $repetition->repetition_type) {
-            $occurrences = $this->getXMonthlyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
-        }
-        if ('ndom' === $repetition->repetition_type) {
-            $occurrences = $this->getXNDomOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
-        }
-        if ('yearly' === $repetition->repetition_type) {
-            $occurrences = $this->getXYearlyOccurrencesSince($date, $afterDate, $count, $skipMod, $repetition->repetition_moment);
-        }
-
-        // filter out all the weekend days:
-        $occurrences = $this->filterWeekends($repetition, $occurrences);
-
-        // filter out everything if "repeat_until" is set.
-        $repeatUntil = $repetition->recurrence->repeat_until;
-        return $this->filterMaxDate($repeatUntil, $occurrences);
     }
 
     /**
@@ -544,37 +591,5 @@ class RecurringRepository implements RecurringRepositoryInterface
         }
 
         return $filtered;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function destroyAll(): void
-    {
-        $this->user->recurrences()->delete();
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function totalTransactions(Recurrence $recurrence, RecurrenceRepetition $repetition): int
-    {
-        // if repeat = null just return 0.
-        if (null === $recurrence->repeat_until && 0 === (int) $recurrence->repetitions) {
-            return 0;
-        }
-        // expect X transactions then stop. Return that number
-        if (null === $recurrence->repeat_until && 0 !== (int) $recurrence->repetitions) {
-            return (int) $recurrence->repetitions;
-        }
-
-        // need to calculate, this depends on the repetition:
-        if (null !== $recurrence->repeat_until && 0 === (int) $recurrence->repetitions) {
-            $occurrences = $this->getOccurrencesInRange($repetition, $recurrence->first_date ?? today(), $recurrence->repeat_until);
-
-            return count($occurrences);
-        }
-
-        return 0;
     }
 }

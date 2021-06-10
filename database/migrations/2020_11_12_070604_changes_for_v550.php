@@ -1,4 +1,25 @@
 <?php
+
+/*
+ * 2020_11_12_070604_changes_for_v550.php
+ * Copyright (c) 2021 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 declare(strict_types=1);
 
 use Illuminate\Database\Migrations\Migration;
@@ -80,6 +101,8 @@ class ChangesForV550 extends Migration
             $table->unsignedInteger('created_at');
         }
         );
+        // drop failed jobs table.
+        Schema::dropIfExists('failed_jobs');
 
         // create new failed_jobs table.
         Schema::create(
@@ -97,8 +120,10 @@ class ChangesForV550 extends Migration
         // update budget / transaction journal table.
         Schema::table(
             'budget_transaction_journal', function (Blueprint $table) {
-            $table->integer('budget_limit_id', false, true)->nullable()->default(null)->after('budget_id');
-            $table->foreign('budget_limit_id', 'budget_id_foreign')->references('id')->on('budget_limits')->onDelete('set null');
+            if (!Schema::hasColumn('budget_transaction_journal', 'budget_limit_id')) {
+                $table->integer('budget_limit_id', false, true)->nullable()->default(null)->after('budget_id');
+                $table->foreign('budget_limit_id', 'budget_id_foreign')->references('id')->on('budget_limits')->onDelete('set null');
+            }
         }
         );
 
@@ -107,63 +132,73 @@ class ChangesForV550 extends Migration
         Schema::table(
             'budget_limits',
             static function (Blueprint $table) {
-                $table->string('period', 12)->nullable();
-                $table->boolean('generated')->default(false);
+                if (!Schema::hasColumn('budget_limits', 'period')) {
+                    $table->string('period', 12)->nullable();
+                }
+                if (!Schema::hasColumn('budget_limits', 'generated')) {
+                    $table->boolean('generated')->default(false);
+                }
             }
         );
 
         // new webhooks table
-        Schema::create(
-            'webhooks',
-            static function (Blueprint $table) {
-                $table->increments('id');
-                $table->timestamps();
-                $table->softDeletes();
-                $table->integer('user_id', false, true);
-                $table->string('title', 512)->index();
-                $table->string('secret', 32)->index();
-                $table->boolean('active')->default(true);
-                $table->unsignedSmallInteger('trigger', false);
-                $table->unsignedSmallInteger('response', false);
-                $table->unsignedSmallInteger('delivery', false);
-                $table->string('url', 1024);
-                $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-                $table->unique(['user_id', 'title']);
-            }
-        );
+        if (!Schema::hasTable('webhooks')) {
+            Schema::create(
+                'webhooks',
+                static function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->timestamps();
+                    $table->softDeletes();
+                    $table->integer('user_id', false, true);
+                    $table->string('title', 255)->index();
+                    $table->string('secret', 32)->index();
+                    $table->boolean('active')->default(true);
+                    $table->unsignedSmallInteger('trigger', false);
+                    $table->unsignedSmallInteger('response', false);
+                    $table->unsignedSmallInteger('delivery', false);
+                    $table->string('url', 1024);
+                    $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+                    $table->unique(['user_id', 'title']);
+                }
+            );
+        }
 
         // new webhook_messages table
-        Schema::create(
-            'webhook_messages',
-            static function (Blueprint $table) {
-                $table->increments('id');
-                $table->timestamps();
-                $table->softDeletes();
-                $table->boolean('sent')->default(false);
-                $table->boolean('errored')->default(false);
+        if (!Schema::hasTable('webhook_messages')) {
+            Schema::create(
+                'webhook_messages',
+                static function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->timestamps();
+                    $table->softDeletes();
+                    $table->boolean('sent')->default(false);
+                    $table->boolean('errored')->default(false);
 
-                $table->integer('webhook_id', false, true);
-                $table->string('uuid', 64);
-                $table->longText('message');
+                    $table->integer('webhook_id', false, true);
+                    $table->string('uuid', 64);
+                    $table->longText('message');
 
-                $table->foreign('webhook_id')->references('id')->on('webhooks')->onDelete('cascade');
-            }
-        );
+                    $table->foreign('webhook_id')->references('id')->on('webhooks')->onDelete('cascade');
+                }
+            );
+        }
 
-        Schema::create(
-            'webhook_attempts',
-            static function (Blueprint $table) {
-                $table->increments('id');
-                $table->timestamps();
-                $table->softDeletes();
-                $table->integer('webhook_message_id', false, true);
-                $table->unsignedSmallInteger('status_code')->default(0);
+        if (!Schema::hasTable('webhook_attempts')) {
+            Schema::create(
+                'webhook_attempts',
+                static function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->timestamps();
+                    $table->softDeletes();
+                    $table->integer('webhook_message_id', false, true);
+                    $table->unsignedSmallInteger('status_code')->default(0);
 
-                $table->longText('logs')->nullable();
-                $table->longText('response')->nullable();
+                    $table->longText('logs')->nullable();
+                    $table->longText('response')->nullable();
 
-                $table->foreign('webhook_message_id')->references('id')->on('webhook_messages')->onDelete('cascade');
-            }
-        );
+                    $table->foreign('webhook_message_id')->references('id')->on('webhook_messages')->onDelete('cascade');
+                }
+            );
+        }
     }
 }

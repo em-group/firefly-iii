@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Form;
-
-
 use FireflyIII\Models\RuleGroup;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use Form;
@@ -36,10 +34,11 @@ use Illuminate\Support\HtmlString;
 class RuleForm
 {
     use FormSupport;
+
     /**
-     * @param string $name
-     * @param mixed $value
-     * @param array $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
      */
@@ -60,8 +59,8 @@ class RuleForm
     }
 
     /**
-     * @param string $name
-     * @param null $value
+     * @param string     $name
+     * @param null       $value
      * @param array|null $options
      *
      * @return HtmlString
@@ -80,7 +79,7 @@ class RuleForm
         ];
         /** @var RuleGroup $group */
         foreach ($list as $group) {
-            if (isset($options['hidden']) && (int)$options['hidden'] !== $group->id) {
+            if (array_key_exists('hidden', $options) && (int)$options['hidden'] !== $group->id) {
                 $array[$group->id] = $group->title;
             }
         }

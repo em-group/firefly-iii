@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Exceptions;
 
-
 use Exception;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Attachment;
@@ -49,38 +48,38 @@ class GracefulNotFoundHandler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param Request   $request
-     * @param Exception $exception
+     * @param Throwable $e
      *
      * @return mixed
-     * @throws Exception
+     * @throws Throwable
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Throwable $e)
     {
         $route = $request->route();
         if (null === $route) {
-            return parent::render($request, $exception);
+            return parent::render($request, $e);
         }
         $name = $route->getName();
         if (!auth()->check()) {
-            return parent::render($request, $exception);
+            return parent::render($request, $e);
         }
 
         switch ($name) {
             default:
                 Log::warning(sprintf('GracefulNotFoundHandler cannot handle route with name "%s"', $name));
 
-                return parent::render($request, $exception);
+                return parent::render($request, $e);
             case 'accounts.show':
             case 'accounts.show.all':
-                return $this->handleAccount($request, $exception);
+                return $this->handleAccount($request, $e);
             case 'transactions.show':
-                return $this->handleGroup($request, $exception);
+                return $this->handleGroup($request, $e);
             case 'attachments.show':
             case 'attachments.edit':
             case 'attachments.download':
             case 'attachments.view':
                 // redirect to original attachment holder.
-                return $this->handleAttachment($request, $exception);
+                return $this->handleAttachment($request, $e);
                 break;
             case 'bills.show':
                 $request->session()->reflash();
@@ -102,19 +101,17 @@ class GracefulNotFoundHandler extends ExceptionHandler
                 $request->session()->reflash();
 
                 return redirect(route('piggy-banks.index'));
-                break;
             case 'recurring.show':
+            case 'recurring.edit':
                 $request->session()->reflash();
 
                 return redirect(route('recurring.index'));
-                break;
             case 'tags.show.all':
             case 'tags.show':
             case 'tags.edit':
                 $request->session()->reflash();
 
                 return redirect(route('tags.index'));
-                break;
             case 'categories.show':
             case 'categories.show.all':
                 $request->session()->reflash();
@@ -130,9 +127,11 @@ class GracefulNotFoundHandler extends ExceptionHandler
             case 'transactions.bulk.edit':
                 if ('POST' === $request->method()) {
                     $request->session()->reflash();
+
                     return redirect(route('index'));
                 }
-                return parent::render($request, $exception);
+
+                return parent::render($request, $e);
         }
 
     }
@@ -142,7 +141,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
      * @param Throwable $exception
      *
      * @return Redirector|Response
-     * @throws Exception
+     * @throws Throwable
      */
     private function handleAccount(Request $request, Throwable $exception)
     {
@@ -150,7 +149,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
         /** @var User $user */
         $user      = auth()->user();
         $route     = $request->route();
-        $accountId = (int) $route->parameter('account');
+        $accountId = (int)$route->parameter('account');
         /** @var Account $account */
         $account = $user->accounts()->with(['accountType'])->withTrashed()->find($accountId);
         if (null === $account) {
@@ -166,11 +165,51 @@ class GracefulNotFoundHandler extends ExceptionHandler
     }
 
     /**
+     * @param Request $request
+     * @param Throwable $exception
+     *
+     * @return RedirectResponse|\Illuminate\Http\Response|Redirector|Response
+     * @throws Throwable
+     */
+    private function handleGroup(Request $request, Throwable $exception)
+    {
+        Log::debug('404 page is probably a deleted group. Redirect to overview of group types.');
+        /** @var User $user */
+        $user    = auth()->user();
+        $route   = $request->route();
+        $groupId = (int)$route->parameter('transactionGroup');
+
+        /** @var TransactionGroup $group */
+        $group = $user->transactionGroups()->withTrashed()->find($groupId);
+        if (null === $group) {
+            Log::error(sprintf('Could not find group %d, so give big fat error.', $groupId));
+
+            return parent::render($request, $exception);
+        }
+        /** @var TransactionJournal $journal */
+        $journal = $group->transactionJournals()->withTrashed()->first();
+        if (null === $journal) {
+            Log::error(sprintf('Could not find journal for group %d, so give big fat error.', $groupId));
+
+            return parent::render($request, $exception);
+        }
+        $type = $journal->transactionType->type;
+        $request->session()->reflash();
+
+        if (TransactionType::RECONCILIATION === $type) {
+            return redirect(route('accounts.index', ['asset']));
+        }
+
+        return redirect(route('transactions.index', [strtolower($type)]));
+
+    }
+
+    /**
      * @param Request   $request
      * @param Throwable $exception
      *
      * @return RedirectResponse|Redirector|Response
-     * @throws Exception
+     * @throws Throwable
      */
     private function handleAttachment(Request $request, Throwable $exception)
     {
@@ -178,7 +217,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
         /** @var User $user */
         $user         = auth()->user();
         $route        = $request->route();
-        $attachmentId = (int) $route->parameter('attachment');
+        $attachmentId = (int)$route->parameter('attachment');
         /** @var Attachment $attachment */
         $attachment = $user->attachments()->withTrashed()->find($attachmentId);
         if (null === $attachment) {
@@ -208,46 +247,6 @@ class GracefulNotFoundHandler extends ExceptionHandler
         Log::error(sprintf('Could not redirect attachment %d, its linked to a %s.', $attachmentId, $attachment->attachable_type));
 
         return parent::render($request, $exception);
-    }
-
-    /**
-     * @param Throwable $request
-     * @param Exception $exception
-     *
-     * @return RedirectResponse|\Illuminate\Http\Response|Redirector|Response
-     * @throws Exception
-     */
-    private function handleGroup(Request $request, Throwable $exception)
-    {
-        Log::debug('404 page is probably a deleted group. Redirect to overview of group types.');
-        /** @var User $user */
-        $user    = auth()->user();
-        $route   = $request->route();
-        $groupId = (int) $route->parameter('transactionGroup');
-
-        /** @var TransactionGroup $group */
-        $group = $user->transactionGroups()->withTrashed()->find($groupId);
-        if (null === $group) {
-            Log::error(sprintf('Could not find group %d, so give big fat error.', $groupId));
-
-            return parent::render($request, $exception);
-        }
-        /** @var TransactionJournal $journal */
-        $journal = $group->transactionJournals()->withTrashed()->first();
-        if (null === $journal) {
-            Log::error(sprintf('Could not find journal for group %d, so give big fat error.', $groupId));
-
-            return parent::render($request, $exception);
-        }
-        $type = $journal->transactionType->type;
-        $request->session()->reflash();
-
-        if (TransactionType::RECONCILIATION === $type) {
-            return redirect(route('accounts.index', ['asset']));
-        }
-
-        return redirect(route('transactions.index', [strtolower($type)]));
-
     }
 
 }

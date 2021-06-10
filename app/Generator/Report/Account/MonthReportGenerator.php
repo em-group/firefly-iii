@@ -52,11 +52,11 @@ class MonthReportGenerator implements ReportGeneratorInterface
         $reportType      = 'account';
         $preferredPeriod = $this->preferredPeriod();
         try {
-            $result = view('reports.double.report', compact('accountIds', 'reportType', 'doubleIds', 'preferredPeriod'))
+            $result = prefixView('reports.double.report', compact('accountIds', 'reportType', 'doubleIds', 'preferredPeriod'))
                 ->with('start', $this->start)->with('end', $this->end)
                 ->with('doubles', $this->expense)
                 ->render();
-        } catch (Throwable $e) {
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.double.report: %s', $e->getMessage()));
             $result = sprintf('Could not render report view: %s', $e->getMessage());
         }

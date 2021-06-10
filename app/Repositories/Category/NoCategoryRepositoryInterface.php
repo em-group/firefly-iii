@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Category;
-
-
 use Carbon\Carbon;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
@@ -87,5 +85,14 @@ interface NoCategoryRepositoryInterface
      */
     public function sumIncome(Carbon $start, Carbon $end, ?Collection $accounts = null): array;
 
-
+    /**
+     * Sum of transfers in period without a category, grouped per currency. Amounts are always positive.
+     *
+     * @param Carbon          $start
+     * @param Carbon          $end
+     * @param Collection|null $accounts
+     *
+     * @return array
+     */
+    public function sumTransfers(Carbon $start, Carbon $end, ?Collection $accounts = null): array;
 }

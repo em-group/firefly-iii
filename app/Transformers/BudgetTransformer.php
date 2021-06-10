@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Models\AutoBudget;
 use FireflyIII\Models\Budget;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
@@ -81,7 +79,7 @@ class BudgetTransformer extends AbstractTransformer
         ];
 
         if (null !== $autoBudget) {
-            $abCurrencyId   = (int)$autoBudget->transactionCurrency->id;
+            $abCurrencyId   = (string)$autoBudget->transactionCurrency->id;
             $abCurrencyCode = $autoBudget->transactionCurrency->code;
             $abType         = $types[$autoBudget->auto_budget_type];
             $abAmount       = number_format((float)$autoBudget->amount, $autoBudget->transactionCurrency->decimal_places, '.', '');
@@ -89,7 +87,7 @@ class BudgetTransformer extends AbstractTransformer
         }
 
         return [
-            'id'                        => (int)$budget->id,
+            'id'                        => (string)$budget->id,
             'created_at'                => $budget->created_at->toAtomString(),
             'updated_at'                => $budget->updated_at->toAtomString(),
             'active'                    => $budget->active,

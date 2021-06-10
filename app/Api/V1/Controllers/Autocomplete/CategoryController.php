@@ -37,7 +37,6 @@ class CategoryController extends Controller
 {
     private CategoryRepositoryInterface $repository;
 
-
     /**
      * CategoryController constructor.
      */
@@ -68,7 +67,7 @@ class CategoryController extends Controller
         $filtered = $result->map(
             static function (Category $item) {
                 return [
-                    'id'   => $item->id,
+                    'id'   => (string)$item->id,
                     'name' => $item->name,
                 ];
             }

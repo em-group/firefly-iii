@@ -41,7 +41,7 @@ class TransactionJournalMetaFactory
      */
     public function updateOrCreate(array $data): ?TransactionJournalMeta
     {
-        Log::debug('In updateOrCreate()');
+        //Log::debug('In updateOrCreate()');
         $value = $data['data'];
         /** @var TransactionJournalMeta $entry */
         $entry = $data['journal']->transactionJournalMeta()->where('name', $data['name'])->first();
@@ -49,8 +49,8 @@ class TransactionJournalMetaFactory
             Log::debug('Value is empty, delete meta value.');
             try {
                 $entry->delete();
-            } catch (Exception $e) { // @codeCoverageIgnore
-                Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); // @codeCoverageIgnore
+            } catch (Exception $e) { // @phpstan-ignore-line
+                Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); 
             }
 
             return null;
@@ -60,15 +60,15 @@ class TransactionJournalMetaFactory
             Log::debug('Is a carbon object.');
             $value = $data['data']->toW3cString();
         }
-        if ('' === (string) $value) {
-            Log::debug('Is an empty string.');
+        if ('' === (string)$value) {
+            // Log::debug('Is an empty string.');
             // don't store blank strings.
             if (null !== $entry) {
                 Log::debug('Will not store empty strings, delete meta value');
                 try {
                     $entry->delete();
-                } catch (Exception $e) { // @codeCoverageIgnore
-                    Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); // @codeCoverageIgnore
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); 
                 }
             }
 

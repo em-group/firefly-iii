@@ -46,13 +46,16 @@ use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Models\TransactionType as TransactionTypeModel;
 use FireflyIII\Models\Whitelabel;
 use FireflyIII\Models\Webhook;
+use FireflyIII\Models\WebhookAttempt;
+use FireflyIII\Models\WebhookMessage;
 use FireflyIII\Support\Binder\AccountList;
 use FireflyIII\Support\Binder\BudgetList;
 use FireflyIII\Support\Binder\CategoryList;
 use FireflyIII\Support\Binder\CLIToken;
-use FireflyIII\Support\Binder\ConfigurationName;
 use FireflyIII\Support\Binder\CurrencyCode;
 use FireflyIII\Support\Binder\Date;
+use FireflyIII\Support\Binder\DynamicConfigKey;
+use FireflyIII\Support\Binder\EitherConfigKey;
 use FireflyIII\Support\Binder\JournalList;
 use FireflyIII\Support\Binder\TagList;
 use FireflyIII\Support\Binder\TagOrId;
@@ -94,14 +97,15 @@ return [
     'frontpage_template'           => env('FRONTPAGE_TEMPLATE'),
     'encryption'                   => null === env('USE_ENCRYPTION') || env('USE_ENCRYPTION') === true,
     'feature_flags' => [
-        'export'    => true,
-        'telemetry' => true,
-        'webhooks'  => false,
+        'export'       => true,
+        'telemetry'    => true,
+        'webhooks'     => false,
+        'handle_debts' => true,
     ],
 
-    'version'                      => '5.5.0-beta.1',
-    'api_version'                  => '1.5.0',
-    'db_version'                   => 15,
+    'version'                      => '5.5.12',
+    'api_version'                  => '1.5.2',
+    'db_version'                   => 16,
     'maxUploadSize'                => 1073741824, // 1 GB
     'send_error_message'           => env('SEND_ERROR_MESSAGE', true),
     'site_owner'                   => env('SITE_OWNER', ''),
@@ -113,6 +117,7 @@ return [
     'demo_password'                => env('DEMO_PASSWORD', ''),
     'fixer_api_key'                => env('FIXER_API_KEY', ''),
     'mapbox_api_key'               => env('MAPBOX_API_KEY', ''),
+    'enable_external_map'          => env('ENABLE_EXTERNAL_MAP', false),
     'trusted_proxies'              => env('TRUSTED_PROXIES', ''),
     'send_report_journals'         => envNonEmpty('SEND_REPORT_JOURNALS', true),
     'tracker_site_id'              => env('TRACKER_SITE_ID', ''),
@@ -122,13 +127,13 @@ return [
     'login_provider'               => envNonEmpty('LOGIN_PROVIDER', 'eloquent'),
     'authentication_guard'         => envNonEmpty('AUTHENTICATION_GUARD', 'web'),
     'custom_logout_uri'            => envNonEmpty('CUSTOM_LOGOUT_URI', ''),
-    'cer_provider'                 => envNonEmpty('CER_PROVIDER', 'fixer'),
+    'ipinfo_token'                 => env('IPINFO_TOKEN', ''),
     'update_endpoint'              => 'https://version.firefly-iii.org/index.json',
     'send_telemetry'               => env('SEND_TELEMETRY', false),
     'allow_webhooks'               => env('ALLOW_WEBHOOKS', false),
     'telemetry_endpoint'           => 'https://telemetry.firefly-iii.org',
     'layout'                       => envNonEmpty('FIREFLY_III_LAYOUT', 'v1'),
-    'update_minimum_age'           => 6,
+    'update_minimum_age'           => 7,
     'default_location'             => [
         'longitude'  => env('MAP_DEFAULT_LONG', '5.916667'),
         'latitude'   => env('MAP_DEFAULT_LAT', '51.983333'),
@@ -206,9 +211,11 @@ return [
         'application/vnd.oasis.opendocument.database',
         'application/vnd.oasis.opendocument.image',
     ],
-    'list_length'                  => 10,
+    'list_length'                  => 10, // to be removed if v1 is cancelled.
     'bill_periods'                 => ['weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
+    'interest_periods'             => ['weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
     'accountRoles'                 => ['defaultAsset', 'sharedAsset', 'savingAsset', 'ccAsset', 'cashWalletAsset'],
+    'valid_liabilities'            => [AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
     'ccTypes'                      => [
         'monthlyFull' => 'Full payment every month',
     ],
@@ -258,6 +265,9 @@ return [
         'initial'     => [AccountType::INITIAL_BALANCE],
         'import'      => [AccountType::IMPORT],
         'reconcile'   => [AccountType::RECONCILIATION],
+        'loan'        => [AccountType::LOAN],
+        'debt'        => [AccountType::DEBT],
+        'mortgage'    => [AccountType::MORTGAGE],
         'liabilities' => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::CREDITCARD],
         'liability'   => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::CREDITCARD],
     ],
@@ -311,7 +321,7 @@ return [
         'nl_NL' => ['name_locale' => 'Nederlands', 'name_english' => 'Dutch'],
         'pl_PL' => ['name_locale' => 'Polski', 'name_english' => 'Polish '],
         'pt_BR' => ['name_locale' => 'Português do Brasil', 'name_english' => 'Portuguese (Brazil)'],
-        // 'pt_PT' => ['name_locale' => 'Portuguese', 'name_english' => 'Portuguese'],
+        'pt_PT' => ['name_locale' => 'Português', 'name_english' => 'Portuguese'],
         'ro_RO' => ['name_locale' => 'Română', 'name_english' => 'Romanian'],
         'ru_RU' => ['name_locale' => 'Русский', 'name_english' => 'Russian'],
         // 'si_LK' => ['name_locale' => 'සිංහල', 'name_english' => 'Sinhala (Sri Lanka)'],
@@ -325,14 +335,6 @@ return [
         'vi_VN' => ['name_locale' => 'Tiếng Việt', 'name_english' => 'Vietnamese'],
         'zh_TW' => ['name_locale' => 'Chinese Traditional', 'name_english' => 'Chinese Traditional'],
         'zh_CN' => ['name_locale' => 'Chinese Simplified', 'name_english' => 'Chinese Simplified'],
-    ],
-    'transactionTypesByWhat'       => [
-        'expenses'   => ['Withdrawal'],
-        'withdrawal' => ['Withdrawal'],
-        'revenue'    => ['Deposit'],
-        'deposit'    => ['Deposit'],
-        'transfer'   => ['Transfer'],
-        'transfers'  => ['Transfer'],
     ],
     'transactionTypesByType'       => [
         'expenses'   => ['Withdrawal'],
@@ -383,6 +385,8 @@ return [
         'user'             => User::class,
         'whitelabel'       => Whitelabel::class,
         'webhook'          => Webhook::class,
+        'webhookMessage'   => WebhookMessage::class,
+        'webhookAttempt'   => WebhookAttempt::class,
 
         // strings
         'currency_code'    => CurrencyCode::class,
@@ -405,7 +409,8 @@ return [
         'toCurrencyCode'   => CurrencyCode::class,
         'cliToken'         => CLIToken::class,
         'tagOrId'          => TagOrId::class,
-        'configName'       => ConfigurationName::class,
+        'dynamicConfigKey' => DynamicConfigKey::class,
+        'eitherConfigKey'  => EitherConfigKey::class,
 
     ],
     'rule-actions'                 => [
@@ -476,6 +481,8 @@ return [
             'has_any_category'                => ['alias' => false, 'needs_context' => false,],
             'has_no_budget'                   => ['alias' => false, 'needs_context' => false,],
             'has_any_budget'                  => ['alias' => false, 'needs_context' => false,],
+            'has_no_bill'                     => ['alias' => false, 'needs_context' => false,],
+            'has_any_bill'                    => ['alias' => false, 'needs_context' => false,],
             'has_no_tag'                      => ['alias' => false, 'needs_context' => false,],
             'has_any_tag'                     => ['alias' => false, 'needs_context' => false,],
             'notes_contain'                   => ['alias' => false, 'needs_context' => true,],
@@ -628,8 +635,7 @@ return [
     'expected_source_types'     => [
         'source'      => [
             TransactionTypeModel::WITHDRAWAL      => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::DEPOSIT         => [AccountType::REVENUE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE,
-                                                      AccountType::INITIAL_BALANCE, AccountType::RECONCILIATION,],
+            TransactionTypeModel::DEPOSIT         => [AccountType::REVENUE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             TransactionTypeModel::TRANSFER        => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             TransactionTypeModel::OPENING_BALANCE => [AccountType::INITIAL_BALANCE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT,
                                                       AccountType::MORTGAGE,],
@@ -842,5 +848,16 @@ return [
         'deliveries'   => [
             Webhook::DELIVERY_JSON => 'DELIVERY_JSON',
         ],
+    ],
+    'can_have_virtual_amounts'  => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE, AccountType::CREDITCARD],
+    'valid_asset_fields'        => ['account_role', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
+    'valid_cc_fields'           => ['account_role', 'cc_monthly_payment_date', 'cc_type', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
+    'valid_account_fields'      => ['account_number', 'currency_id', 'BIC', 'interest', 'interest_period', 'include_net_worth', 'liability_direction'],
+    'default_preferences'       => [
+        'frontPageAccounts'  => [],
+        'listPageSize'       => 50,
+        'currencyPreference' => 'EUR',
+        'language'           => 'en_US',
+        'locale'             => 'equal',
     ],
 ];

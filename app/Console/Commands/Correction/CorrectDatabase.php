@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
-
 use Artisan;
 use Illuminate\Console\Command;
 use Schema;
@@ -47,7 +46,6 @@ class CorrectDatabase extends Command
      * @var string
      */
     protected $signature = 'firefly-iii:correct-database';
-
 
     /**
      * Execute the console command.
@@ -78,6 +76,7 @@ class CorrectDatabase extends Command
             'firefly-iii:fix-recurring-transactions',
             'firefly-iii:restore-oauth-keys',
             'firefly-iii:fix-transaction-types',
+            'firefly-iii:fix-frontpage-accounts'
         ];
         foreach ($commands as $command) {
             $this->line(sprintf('Now executing %s', $command));

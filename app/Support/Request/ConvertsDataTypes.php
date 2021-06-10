@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Support\Request;
 
 use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 use Exception;
 use Log;
 
@@ -32,6 +33,221 @@ use Log;
  */
 trait ConvertsDataTypes
 {
+    /**
+     * @param string|null $string
+     * @param bool        $keepNewlines
+     *
+     * @return string|null
+     */
+    public function clearString(?string $string, bool $keepNewlines = true): ?string
+    {
+        if(null === $string) {
+            return null;
+        }
+        $search       = [
+            "\u{0001}", // start of heading
+            "\u{0002}", // start of text
+            "\u{0003}", // end of text
+            "\u{0004}", // end of transmission
+            "\u{0005}", // enquiry
+            "\u{0006}", // ACK
+            "\u{0007}", // BEL
+            "\u{0008}", // backspace
+            "\u{000E}", // shift out
+            "\u{000F}", // shift in
+            "\u{0010}", // data link escape
+            "\u{0011}", // DC1
+            "\u{0012}", // DC2
+            "\u{0013}", // DC3
+            "\u{0014}", // DC4
+            "\u{0015}", // NAK
+            "\u{0016}", // SYN
+            "\u{0017}", // ETB
+            "\u{0018}", // CAN
+            "\u{0019}", // EM
+            "\u{001A}", // SUB
+            "\u{001B}", // escape
+            "\u{001C}", // file separator
+            "\u{001D}", // group separator
+            "\u{001E}", // record separator
+            "\u{001F}", // unit separator
+            "\u{007F}", // DEL
+            "\u{00A0}", // non-breaking space
+            "\u{1680}", // ogham space mark
+            "\u{180E}", // mongolian vowel separator
+            "\u{2000}", // en quad
+            "\u{2001}", // em quad
+            "\u{2002}", // en space
+            "\u{2003}", // em space
+            "\u{2004}", // three-per-em space
+            "\u{2005}", // four-per-em space
+            "\u{2006}", // six-per-em space
+            "\u{2007}", // figure space
+            "\u{2008}", // punctuation space
+            "\u{2009}", // thin space
+            "\u{200A}", // hair space
+            "\u{200B}", // zero width space
+            "\u{202F}", // narrow no-break space
+            "\u{3000}", // ideographic space
+            "\u{FEFF}", // zero width no -break space
+        ];
+        $replace      = "\x20"; // plain old normal space
+        $string       = str_replace($search, $replace, $string);
+        $secondSearch = $keepNewlines ? ["\r"] : ["\r", "\n", "\t", "\036", "\025"];
+        $string       = str_replace($secondSearch, '', $string);
+
+        return trim($string);
+    }
+
+    /**
+     * Return integer value.
+     *
+     * @param string $field
+     *
+     * @return int
+     */
+    public function integer(string $field): int
+    {
+        return (int)$this->get($field);
+    }
+
+    /**
+     * Return string value.
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    public function string(string $field): string
+    {
+        return $this->clearString((string)($this->get($field) ?? ''), false);
+    }
+
+    /**
+     * Return string value with newlines.
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    public function stringWithNewlines(string $field): string
+    {
+        return $this->clearString((string)($this->get($field) ?? ''));
+    }
+
+    /**
+     * @param mixed $array
+     *
+     * @return array|null
+     */
+    protected function arrayFromValue($array): ?array
+    {
+        if (is_array($array)) {
+            return $array;
+        }
+        if (null === $array) {
+            return null;
+        }
+        if (is_string($array)) {
+            return explode(',', $array);
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
+    protected function convertBoolean(?string $value): bool
+    {
+        if (null === $value) {
+            return false;
+        }
+        if ('' === $value) {
+            return false;
+        }
+        if ('true' === $value) {
+            return true;
+        }
+        if ('yes' === $value) {
+            return true;
+        }
+        if ('1' === $value) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Return date or NULL.
+     *
+     * @param string $field
+     *
+     * @return Carbon|null
+     */
+    protected function date(string $field): ?Carbon
+    {
+        $result = null;
+        try {
+            $result = $this->get($field) ? new Carbon($this->get($field)) : null;
+        } catch (InvalidFormatException $e) {
+            // @ignoreException
+        }
+        if (null === $result) {
+            Log::debug(sprintf('Exception when parsing date "%s".', $this->get($field)));
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string|null $string
+     *
+     * @return Carbon|null
+     */
+    protected function dateFromValue(?string $string): ?Carbon
+    {
+        if (null === $string) {
+            return null;
+        }
+        if ('' === $string) {
+            return null;
+        }
+        $carbon = null;
+        try {
+            $carbon = new Carbon($string);
+        } catch (InvalidFormatException $e) {
+            // @ignoreException
+        }
+        if (null === $carbon) {
+            Log::debug(sprintf('Invalid date: %s', $string));
+
+            return null;
+        }
+        Log::debug(sprintf('Date object: %s (%s)', $carbon->toW3cString(), $carbon->getTimezone()));
+
+        return $carbon;
+    }
+
+    /**
+     * Return floating value.
+     *
+     * @param string $field
+     *
+     * @return float|null
+     */
+    protected function float(string $field): ?float
+    {
+        $res = $this->get($field);
+        if (null === $res) {
+            return null;
+        }
+
+        return (float)$res;
+    }
 
     /**
      * Returns all data in the request, or omits the field if not set,
@@ -55,138 +271,6 @@ trait ConvertsDataTypes
     }
 
     /**
-     * Return date or NULL.
-     *
-     * @param string $field
-     *
-     * @return Carbon|null
-     */
-    protected function date(string $field): ?Carbon
-    {
-        $result = null;
-        try {
-            $result = $this->get($field) ? new Carbon($this->get($field)) : null;
-        } catch (Exception $e) {
-            Log::debug(sprintf('Exception when parsing date. Not interesting: %s', $e->getMessage()));
-        }
-
-        return $result;
-    }
-
-    /**
-     * Return integer value.
-     *
-     * @param string $field
-     *
-     * @return int
-     */
-    public function integer(string $field): int
-    {
-        return (int)$this->get($field);
-    }
-
-
-    /**
-     * Return floating value.
-     *
-     * @param string $field
-     *
-     * @return float|null
-     */
-    protected function float(string $field): ?float
-    {
-        $res = $this->get($field);
-        if (null === $res) {
-            return null;
-        }
-
-        return (float)$res;
-    }
-
-
-    /**
-     * Parse and clean a string, but keep the newlines.
-     *
-     * @param string|null $string
-     *
-     * @return string|null
-     */
-    protected function nlStringFromValue(?string $string): ?string
-    {
-        if (null === $string) {
-            return null;
-        }
-        $result = app('steam')->nlCleanString($string);
-
-        return '' === $result ? null : $result;
-
-    }
-
-    /**
-     * @param $array
-     *
-     * @return array|null
-     */
-    protected function arrayFromValue($array): ?array
-    {
-        if (is_array($array)) {
-            return $array;
-        }
-        if (null === $array) {
-            return null;
-        }
-        if (is_string($array)) {
-            return explode(',', $array);
-        }
-
-        return null;
-    }
-
-
-    /**
-     * @param string|null $string
-     *
-     * @return Carbon|null
-     */
-    protected function dateFromValue(?string $string): ?Carbon
-    {
-        if (null === $string) {
-            return null;
-        }
-        if ('' === $string) {
-            return null;
-        }
-        try {
-            $carbon = new Carbon($string);
-        } catch (Exception $e) {
-            Log::debug(sprintf('Invalid date: %s: %s', $string, $e->getMessage()));
-
-            return null;
-        }
-        Log::debug(sprintf('Date object: %s (%s)', $carbon->toW3cString(), $carbon->getTimezone()));
-
-        return $carbon;
-    }
-
-    /**
-     * Parse and clean a string.
-     *
-     * @param string|null $string
-     *
-     * @return string|null
-     */
-    protected function stringFromValue(?string $string): ?string
-    {
-        if (null === $string) {
-            return null;
-        }
-        $result = app('steam')->cleanString($string);
-
-        return '' === $result ? null : $result;
-    }
-
-
-    /**
      * Parse to integer
      *
      * @param string|null $string
@@ -203,18 +287,6 @@ trait ConvertsDataTypes
         }
 
         return (int)$string;
-    }
-
-    /**
-     * Return string value, but keep newlines.
-     *
-     * @param string $field
-     *
-     * @return string
-     */
-    public function nlString(string $field): string
-    {
-        return app('steam')->nlCleanString((string)($this->get($field) ?? ''));
     }
 
     /**
@@ -238,81 +310,4 @@ trait ConvertsDataTypes
         return (int)$value;
     }
 
-    /**
-     * Return string value, but keep newlines, or NULL if empty.
-     *
-     * @param string $field
-     *
-     * @return string
-     */
-    protected function nullableNlString(string $field): ?string
-    {
-        if (!$this->has($field)) {
-            return null;
-        }
-
-        return app('steam')->nlCleanString((string)($this->get($field) ?? ''));
-    }
-
-
-    /**
-     * @param string $value
-     *
-     * @return bool
-     */
-    protected function convertBoolean(?string $value): bool
-    {
-        if (null === $value) {
-            return false;
-        }
-        if ('true' === $value) {
-            return true;
-        }
-        if ('yes' === $value) {
-            return true;
-        }
-        if (1 === $value) {
-            return true;
-        }
-        if ('1' === $value) {
-            return true;
-        }
-        if (true === $value) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Return string value, or NULL if empty.
-     *
-     * @param string $field
-     *
-     * @return string|null
-     */
-    protected function nullableString(string $field): ?string
-    {
-        if (!$this->has($field)) {
-            return null;
-        }
-        $res = trim(app('steam')->cleanString((string)($this->get($field) ?? '')));
-        if ('' === $res) {
-            return null;
-        }
-
-        return $res;
-    }
-
-    /**
-     * Return string value.
-     *
-     * @param string $field
-     *
-     * @return string
-     */
-    public function string(string $field): string
-    {
-        return app('steam')->cleanString((string)($this->get($field) ?? ''));
-    }
 }

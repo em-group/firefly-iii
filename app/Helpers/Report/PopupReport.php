@@ -31,7 +31,6 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  * Class PopupReport.
@@ -78,10 +77,8 @@ class PopupReport implements PopupReportInterface
         if (null !== $currencyId) {
             /** @var CurrencyRepositoryInterface $repos */
             $repos    = app(CurrencyRepositoryInterface::class);
-            $currency = $repos->find((int) $currencyId);
+            $currency = $repos->find((int)$currencyId);
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector
@@ -115,10 +112,8 @@ class PopupReport implements PopupReportInterface
         if (null !== $currencyId) {
             /** @var CurrencyRepositoryInterface $repos */
             $repos    = app(CurrencyRepositoryInterface::class);
-            $currency = $repos->find((int) $currencyId);
+            $currency = $repos->find((int)$currencyId);
         }
-
-
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setAccounts($attributes['accounts'])
@@ -157,7 +152,7 @@ class PopupReport implements PopupReportInterface
         if (null !== $currencyId) {
             /** @var CurrencyRepositoryInterface $repos */
             $repos    = app(CurrencyRepositoryInterface::class);
-            $currency = $repos->find((int) $currencyId);
+            $currency = $repos->find((int)$currencyId);
         }
 
         /** @var GroupCollectorInterface $collector */
@@ -200,7 +195,7 @@ class PopupReport implements PopupReportInterface
         if (null !== $currencyId) {
             /** @var CurrencyRepositoryInterface $repos */
             $repos    = app(CurrencyRepositoryInterface::class);
-            $currency = $repos->find((int) $currencyId);
+            $currency = $repos->find((int)$currencyId);
         }
 
         /** @var JournalRepositoryInterface $repository */

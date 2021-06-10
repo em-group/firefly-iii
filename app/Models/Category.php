@@ -44,6 +44,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property int $user_id
  * @property string $name
+ * @property Carbon $lastActivity
  * @property bool $encrypted
  * @property-read Collection|\FireflyIII\Models\Attachment[] $attachments
  * @property-read int|null $attachments_count
@@ -121,8 +122,6 @@ class Category extends Model
     {
         return $this->belongsToMany(TransactionJournal::class, 'category_transaction_journal', 'category_id');
     }
-
-
     /**
      * @codeCoverageIgnore
      * @return MorphMany

@@ -22,29 +22,13 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Models\Preference;
-use Log;
 
 /**
  * Class PreferenceTransformer
  */
 class PreferenceTransformer extends AbstractTransformer
 {
-
-    /**
-     * PreferenceTransformer constructor.
-     *
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * Transform the preference
      *

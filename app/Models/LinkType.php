@@ -30,8 +30,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-
-
 /**
  * FireflyIII\Models\LinkType
  *
@@ -42,6 +40,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property string $name
  * @property string $outward
  * @property string $inward
+ * @property int $journalCount
  * @property bool $editable
  * @property-read Collection|\FireflyIII\Models\TransactionJournalLink[] $transactionJournalLinks
  * @property-read int|null $transaction_journal_links_count
@@ -83,7 +82,7 @@ class LinkType extends Model
     /**
      * Route binder. Converts the key in the URL to the specified object (or throw 404).
      *
-     * @param $value
+     * @param string $value
      *
      * @throws NotFoundHttpException
      * @return LinkType

@@ -23,14 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Rule;
 
-
 use Carbon\Carbon;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\SelectTransactionsRequest;
 use FireflyIII\Http\Requests\TestRuleFormRequest;
 use FireflyIII\Models\Rule;
 use FireflyIII\Models\RuleTrigger;
-use FireflyIII\Support\Http\Controllers\RequestInformation;
 use FireflyIII\Support\Http\Controllers\RuleManagement;
 use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
 use FireflyIII\TransactionRules\TransactionMatcher;
@@ -49,7 +47,7 @@ use Throwable;
  */
 class SelectController extends Controller
 {
-    use RuleManagement, RequestInformation;
+    use RuleManagement;
 
     /**
      * RuleController constructor.
@@ -60,7 +58,7 @@ class SelectController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.rules'));
+                app('view')->share('title', (string)trans('firefly.rules'));
                 app('view')->share('mainTitleIcon', 'fa-random');
 
                 return $next($request);
@@ -97,13 +95,12 @@ class SelectController extends Controller
         // set rules:
         $newRuleEngine->setRules(new Collection([$rule]));
         $newRuleEngine->fire();
+        $resultCount = $newRuleEngine->getResults();
 
-        // Tell the user that the job is queued
-        session()->flash('success', (string) trans('firefly.applied_rule_selection', ['title' => $rule->title]));
+        session()->flash('success', (string)trans_choice('firefly.applied_rule_selection', $resultCount, ['title' => $rule->title]));
 
         return redirect()->route('rules.index');
     }
-
 
     /**
      * View to select transactions by a rule.
@@ -116,14 +113,15 @@ class SelectController extends Controller
     {
         if (false === $rule->active) {
             session()->flash('warning', trans('firefly.cannot_fire_inactive_rules'));
+
             return redirect(route('rules.index'));
         }
         // does the user have shared accounts?
         $first    = session('first', Carbon::now()->subYear())->format('Y-m-d');
         $today    = Carbon::now()->format('Y-m-d');
-        $subTitle = (string) trans('firefly.apply_rule_selection', ['title' => $rule->title]);
+        $subTitle = (string)trans('firefly.apply_rule_selection', ['title' => $rule->title]);
 
-        return view('rules.rule.select-transactions', compact('first', 'today', 'rule', 'subTitle'));
+        return prefixView('rules.rule.select-transactions', compact('first', 'today', 'rule', 'subTitle'));
     }
 
     /**
@@ -147,7 +145,7 @@ class SelectController extends Controller
 
         // warn if nothing.
         if (0 === count($textTriggers)) {
-            return response()->json(['html' => '', 'warning' => (string) trans('firefly.warning_no_valid_triggers')]); // @codeCoverageIgnore
+            return response()->json(['html' => '', 'warning' => (string)trans('firefly.warning_no_valid_triggers')]); 
         }
 
         foreach ($textTriggers as $textTrigger) {
@@ -160,6 +158,7 @@ class SelectController extends Controller
         $rule->ruleTriggers = $triggers;
 
         // create new rule engine:
+        /** @var RuleEngineInterface $newRuleEngine */
         $newRuleEngine = app(RuleEngineInterface::class);
 
         // set rules:
@@ -170,22 +169,19 @@ class SelectController extends Controller
         // Warn the user if only a subset of transactions is returned
         $warning = '';
         if (0 === count($collection)) {
-            $warning = (string) trans('firefly.warning_no_matching_transactions'); // @codeCoverageIgnore
+            $warning = (string)trans('firefly.warning_no_matching_transactions'); 
         }
 
         // Return json response
         $view = 'ERROR, see logs.';
         try {
-            $view = view('list.journals-array-tiny', ['groups' => $collection])->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $exception) {
+            $view = prefixView('list.journals-array-tiny', ['groups' => $collection])->render();
+
+        } catch (Throwable $exception) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render view in testTriggers(): %s', $exception->getMessage()));
             Log::error($exception->getTraceAsString());
             $view = sprintf('Could not render list.journals-tiny: %s', $exception->getMessage());
         }
-
-        // @codeCoverageIgnoreEnd
-
         return response()->json(['html' => $view, 'warning' => $warning]);
     }
 
@@ -203,10 +199,8 @@ class SelectController extends Controller
         $triggers = $rule->ruleTriggers;
 
         if (0 === count($triggers)) {
-            return response()->json(['html' => '', 'warning' => (string) trans('firefly.warning_no_valid_triggers')]); // @codeCoverageIgnore
+            return response()->json(['html' => '', 'warning' => (string)trans('firefly.warning_no_valid_triggers')]); 
         }
-
-
         // create new rule engine:
         $newRuleEngine = app(RuleEngineInterface::class);
 
@@ -217,23 +211,18 @@ class SelectController extends Controller
 
         $warning = '';
         if (0 === count($collection)) {
-            $warning = (string) trans('firefly.warning_no_matching_transactions'); // @codeCoverageIgnore
+            $warning = (string)trans('firefly.warning_no_matching_transactions'); 
         }
 
         // Return json response
         $view = 'ERROR, see logs.';
         try {
-            $view = view('list.journals-array-tiny', ['groups' => $collection])->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $exception) {
+            $view = prefixView('list.journals-array-tiny', ['groups' => $collection])->render();
+
+        } catch (Throwable $exception) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render view in testTriggersByRule(): %s', $exception->getMessage()));
             Log::error($exception->getTraceAsString());
         }
-
-        // @codeCoverageIgnoreEnd
-
         return response()->json(['html' => $view, 'warning' => $warning]);
     }
-
-
 }

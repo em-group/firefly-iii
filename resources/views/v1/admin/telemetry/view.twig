@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render }}
@@ -79,7 +79,7 @@
 
 {% endblock %}
 {% block styles %}
-    <style type="text/css">
+    <style type="text/css" nonce="{{ JS_NONCE }}">
         .expando {
             cursor: pointer;
         }

@@ -39,16 +39,6 @@ use Log;
 class JournalDestroyService
 {
     /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
-    /**
      * @param TransactionJournal $journal
      */
     public function destroy(TransactionJournal $journal): void
@@ -106,8 +96,8 @@ class JournalDestroyService
                 }
             }
 
-        } catch (Exception $e) {
-            Log::error(sprintf('Could not delete bill: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
 
     }

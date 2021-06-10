@@ -30,20 +30,11 @@ use Log;
 
 /**
  * Class BudgetDestroyService
+ *
  * @codeCoverageIgnore
  */
 class BudgetDestroyService
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param Budget $budget
      */
@@ -52,8 +43,8 @@ class BudgetDestroyService
 
         try {
             $budget->delete();
-        } catch (Exception $e) { // @codeCoverageIgnore
-            Log::error(sprintf('Could not delete budget: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
 
         // also delete auto budget:

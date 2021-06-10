@@ -43,22 +43,36 @@ class AccountValidator
 {
     use AccountValidatorProperties, WithdrawalValidation, DepositValidation, TransferValidation, ReconciliationValidation, OBValidation;
 
+    public bool                        $createMode;
+    public string                      $destError;
+    public ?Account                    $destination;
+    public ?Account                    $source;
+    public string                      $sourceError;
+    private AccountRepositoryInterface $accountRepository;
+    private array                      $combinations;
+    private string                     $transactionType;
+    private User                       $user;
+
     /**
      * AccountValidator constructor.
      */
     public function __construct()
     {
-        $this->createMode   = false;
-        $this->destError    = 'No error yet.';
-        $this->sourceError  = 'No error yet.';
-        $this->combinations = config('firefly.source_dests');
-
-        /** @var AccountRepositoryInterface accountRepository */
+        $this->createMode        = false;
+        $this->destError         = 'No error yet.';
+        $this->sourceError       = 'No error yet.';
+        $this->combinations      = config('firefly.source_dests');
+        $this->source            = null;
+        $this->destination       = null;
         $this->accountRepository = app(AccountRepositoryInterface::class);
+    }
 
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
+    /**
+     * @return Account|null
+     */
+    public function getSource(): ?Account
+    {
+        return $this->source;
     }
 
     /**
@@ -66,7 +80,7 @@ class AccountValidator
      */
     public function setTransactionType(string $transactionType): void
     {
-        Log::debug(sprintf('Transaction type for validator is now %s', ucfirst($transactionType)));
+        Log::debug(sprintf('Transaction type for validator is now "%s".', ucfirst($transactionType)));
         $this->transactionType = ucfirst($transactionType);
     }
 
@@ -135,9 +149,8 @@ class AccountValidator
         Log::debug(sprintf('Now in AccountValidator::validateSource(%d, "%s", "%s")', $accountId, $accountName, $accountIban));
         switch ($this->transactionType) {
             default:
-                $result            = false;
-                $this->sourceError = trans('validation.invalid_account_info');
-                Log::error(sprintf('AccountValidator::validateSource cannot handle "%s", so it will always return false.', $this->transactionType));
+                Log::error(sprintf('AccountValidator::validateSource cannot handle "%s", so it will do a generic check.', $this->transactionType));
+                $result = $this->validateGenericSource($accountId, $accountName);
                 break;
             case TransactionType::WITHDRAWAL:
                 $result = $this->validateWithdrawalSource($accountId, $accountName);
@@ -158,21 +171,6 @@ class AccountValidator
         }
 
         return $result;
-    }
-
-    /**
-     * @param string $accountType
-     *
-     * @return bool
-     */
-    protected function canCreateType(string $accountType): bool
-    {
-        $canCreate = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::INITIAL_BALANCE];
-        if (in_array($accountType, $canCreate, true)) {
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -197,8 +195,23 @@ class AccountValidator
     }
 
     /**
-     * @param array       $validTypes
-     * @param int $accountId
+     * @param string $accountType
+     *
+     * @return bool
+     */
+    protected function canCreateType(string $accountType): bool
+    {
+        $canCreate = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::INITIAL_BALANCE];
+        if (in_array($accountType, $canCreate, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param array  $validTypes
+     * @param int    $accountId
      * @param string $accountName
      *
      * @return Account|null
@@ -220,6 +233,5 @@ class AccountValidator
 
         return null;
     }
-
 
 }

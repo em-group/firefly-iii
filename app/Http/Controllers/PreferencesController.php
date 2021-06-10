@@ -33,6 +33,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use JsonException;
+use Log;
 
 /**
  * Class PreferencesController.
@@ -50,7 +51,7 @@ class PreferencesController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string) trans('firefly.preferences'));
+                app('view')->share('title', (string)trans('firefly.preferences'));
                 app('view')->share('mainTitleIcon', 'fa-gear');
 
                 return $next($request);
@@ -112,14 +113,14 @@ class PreferencesController extends Controller
             Log::error($e->getMessage());
             $locales = [];
         }
-        $locales = ['equal' => (string) trans('firefly.equal_to_language')] + $locales;
+        $locales = ['equal' => (string)trans('firefly.equal_to_language')] + $locales;
         // an important fallback is that the frontPageAccount array gets refilled automatically
         // when it turns up empty.
         if (0 === count($frontPageAccounts->data)) {
             $frontPageAccounts = $accountIds;
         }
 
-        return view(
+        return prefixView(
             'preferences.index',
             compact(
                 'language',
@@ -152,7 +153,7 @@ class PreferencesController extends Controller
         $frontPageAccounts = [];
         if (is_array($request->get('frontPageAccounts')) && count($request->get('frontPageAccounts')) > 0) {
             foreach ($request->get('frontPageAccounts') as $id) {
-                $frontPageAccounts[] = (int) $id;
+                $frontPageAccounts[] = (int)$id;
             }
             app('preferences')->set('frontPageAccounts', $frontPageAccounts);
         }
@@ -165,14 +166,14 @@ class PreferencesController extends Controller
         session()->forget('range');
 
         // custom fiscal year
-        $customFiscalYear = 1 === (int) $request->get('customFiscalYear');
-        $fiscalYearStart  = date('m-d', strtotime((string) $request->get('fiscalYearStart')));
+        $customFiscalYear = 1 === (int)$request->get('customFiscalYear');
+        $fiscalYearStart  = date('m-d', strtotime((string)$request->get('fiscalYearStart')));
         app('preferences')->set('customFiscalYear', $customFiscalYear);
         app('preferences')->set('fiscalYearStart', $fiscalYearStart);
 
         // save page size:
         app('preferences')->set('listPageSize', 50);
-        $listPageSize = (int) $request->get('listPageSize');
+        $listPageSize = (int)$request->get('listPageSize');
         if ($listPageSize > 0 && $listPageSize < 1337) {
             app('preferences')->set('listPageSize', $listPageSize);
         }
@@ -195,33 +196,36 @@ class PreferencesController extends Controller
             }
         }
         if ($currentLang->data !== $lang) {
+            // this string is untranslated on purpose.
             session()->flash('info', 'All translations are supplied by volunteers. There might be errors and mistakes. I appreciate your feedback.');
         }
 
         // same for locale:
         if (!auth()->user()->hasRole('demo')) {
-            /** @var Preference $currentLocale */
+            /** @var Preference $locale */
             $locale = $request->get('locale');
             app('preferences')->set('locale', $locale);
         }
 
         // optional fields for transactions:
-        $setOptions = $request->get('tj');
+        $setOptions = $request->get('tj') ?? [];
         $optionalTj = [
-            'interest_date'      => isset($setOptions['interest_date']),
-            'book_date'          => isset($setOptions['book_date']),
-            'process_date'       => isset($setOptions['process_date']),
-            'due_date'           => isset($setOptions['due_date']),
-            'payment_date'       => isset($setOptions['payment_date']),
-            'invoice_date'       => isset($setOptions['invoice_date']),
-            'internal_reference' => isset($setOptions['internal_reference']),
-            'notes'              => isset($setOptions['notes']),
-            'attachments'        => isset($setOptions['attachments']),
-            'external_uri'       => isset($setOptions['external_uri']),
+            'interest_date'      => array_key_exists('interest_date', $setOptions),
+            'book_date'          => array_key_exists('book_date', $setOptions),
+            'process_date'       => array_key_exists('process_date', $setOptions),
+            'due_date'           => array_key_exists('due_date', $setOptions),
+            'payment_date'       => array_key_exists('payment_date', $setOptions),
+            'invoice_date'       => array_key_exists('invoice_date', $setOptions),
+            'internal_reference' => array_key_exists('internal_reference', $setOptions),
+            'notes'              => array_key_exists('notes', $setOptions),
+            'attachments'        => array_key_exists('attachments', $setOptions),
+            'external_uri'       => array_key_exists('external_uri', $setOptions),
+            'location'           => array_key_exists('location', $setOptions),
+            'links'              => array_key_exists('links', $setOptions),
         ];
         app('preferences')->set('transaction_journal_optional_fields', $optionalTj);
 
-        session()->flash('success', (string) trans('firefly.saved_preferences'));
+        session()->flash('success', (string)trans('firefly.saved_preferences'));
         app('preferences')->mark();
 
         // telemetry: user language preference + default language.

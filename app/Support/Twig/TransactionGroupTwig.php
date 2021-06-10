@@ -29,7 +29,6 @@ use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
-use Log;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
@@ -52,75 +51,6 @@ class TransactionGroupTwig extends AbstractExtension
             $this->journalGetMetaDate(),
             $this->journalGetMetaField(),
         ];
-    }
-
-    /**
-     * @return TwigFunction
-     */
-    public function journalGetMetaDate(): TwigFunction
-    {
-        return new TwigFunction(
-            'journalGetMetaDate',
-            static function (int $journalId, string $metaField) {
-                if ('testing' === config('app.env')) {
-                    Log::warning('Twig TransactionGroup::journalGetMetaDate should NOT be called in the TEST environment!');
-                }
-                $entry = DB::table('journal_meta')
-                           ->where('name', $metaField)
-                           ->where('transaction_journal_id', $journalId)
-                           ->whereNull('deleted_at')
-                           ->first();
-                if (null === $entry) {
-                    return today(config('app.timezone'));
-                }
-
-                return new Carbon(json_decode($entry->data, false));
-            }
-        );
-    }
-
-    /**
-     * @return TwigFunction
-     */
-    public function journalGetMetaField(): TwigFunction
-    {
-        return new TwigFunction(
-            'journalGetMetaField',
-            static function (int $journalId, string $metaField) {
-                if ('testing' === config('app.env')) {
-                    Log::warning('Twig TransactionGroup::journalGetMetaField should NOT be called in the TEST environment!');
-                }
-                $entry = DB::table('journal_meta')
-                           ->where('name', $metaField)
-                           ->where('transaction_journal_id', $journalId)
-                           ->whereNull('deleted_at')
-                           ->first();
-                if (null === $entry) {
-                    return '';
-                }
-
-                return json_decode($entry->data, true);
-            }
-        );
-    }
-
-    /**
-     * @return TwigFunction
-     */
-    public function journalHasMeta(): TwigFunction
-    {
-        return new TwigFunction(
-            'journalHasMeta',
-            static function (int $journalId, string $metaField) {
-                $count = DB::table('journal_meta')
-                           ->where('name', $metaField)
-                           ->where('transaction_journal_id', $journalId)
-                           ->whereNull('deleted_at')
-                           ->count();
-
-                return 1 === $count;
-            }
-        );
     }
 
     /**
@@ -148,6 +78,88 @@ class TransactionGroupTwig extends AbstractExtension
     }
 
     /**
+     * Generate normal amount for transaction from a transaction group.
+     *
+     * @param array $array
+     *
+     * @return string
+     */
+    private function normalJournalArrayAmount(array $array): string
+    {
+        $type       = $array['transaction_type_type'] ?? TransactionType::WITHDRAWAL;
+        $amount     = $array['amount'] ?? '0';
+        $colored    = true;
+        $sourceType = $array['source_account_type'] ?? 'invalid';
+        $amount     = $this->signAmount($amount, $type, $sourceType);
+
+        if ($type === TransactionType::TRANSFER) {
+            $colored = false;
+        }
+
+        $result = app('amount')->formatFlat($array['currency_symbol'], (int)$array['currency_decimal_places'], $amount, $colored);
+        if ($type === TransactionType::TRANSFER) {
+            $result = sprintf('<span class="text-info">%s</span>', $result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $amount
+     * @param string $transactionType
+     * @param string $sourceType
+     *
+     * @return string
+     */
+    private function signAmount(string $amount, string $transactionType, string $sourceType): string
+    {
+
+        // withdrawals stay negative
+        if ($transactionType !== TransactionType::WITHDRAWAL) {
+            $amount = bcmul($amount, '-1');
+        }
+
+        // opening balance and it comes from initial balance? its expense.
+        if ($transactionType === TransactionType::OPENING_BALANCE && AccountType::INITIAL_BALANCE !== $sourceType) {
+            $amount = bcmul($amount, '-1');
+        }
+
+        // reconciliation and it comes from reconciliation?
+        if ($transactionType === TransactionType::RECONCILIATION && AccountType::RECONCILIATION !== $sourceType) {
+            $amount = bcmul($amount, '-1');
+        }
+
+        return $amount;
+    }
+
+    /**
+     * Generate foreign amount for transaction from a transaction group.
+     *
+     * @param array $array
+     *
+     * @return string
+     */
+    private function foreignJournalArrayAmount(array $array): string
+    {
+        $type    = $array['transaction_type_type'] ?? TransactionType::WITHDRAWAL;
+        $amount  = $array['foreign_amount'] ?? '0';
+        $colored = true;
+
+        $sourceType = $array['source_account_type'] ?? 'invalid';
+        $amount     = $this->signAmount($amount, $type, $sourceType);
+
+        if ($type === TransactionType::TRANSFER) {
+            $colored = false;
+        }
+        $result = app('amount')->formatFlat($array['foreign_currency_symbol'], (int)$array['foreign_currency_decimal_places'], $amount, $colored);
+        if ($type === TransactionType::TRANSFER) {
+            $result = sprintf('<span class="text-info">%s</span>', $result);
+        }
+
+        return $result;
+    }
+
+    /**
      * Shows the amount for a single journal object.
      *
      * @return TwigFunction
@@ -171,30 +183,45 @@ class TransactionGroupTwig extends AbstractExtension
     }
 
     /**
-     * Generate foreign amount for transaction from a transaction group.
+     * Generate normal amount for transaction from a transaction group.
      *
-     * @param array $array
+     * @param TransactionJournal $journal
      *
      * @return string
      */
-    private function foreignJournalArrayAmount(array $array): string
+    private function normalJournalObjectAmount(TransactionJournal $journal): string
     {
-        $type    = $array['transaction_type_type'] ?? TransactionType::WITHDRAWAL;
-        $amount  = $array['foreign_amount'] ?? '0';
-        $colored = true;
+        $type       = $journal->transactionType->type;
+        $first      = $journal->transactions()->where('amount', '<', 0)->first();
+        $currency   = $journal->transactionCurrency;
+        $amount     = $first->amount ?? '0';
+        $colored    = true;
+        $sourceType = $first->account()->first()->accountType()->first()->type;
 
-        $sourceType = $array['source_account_type'] ?? 'invalid';
-        $amount     = $this->signAmount($amount, $type, $sourceType);
+        $amount = $this->signAmount($amount, $type, $sourceType);
 
         if ($type === TransactionType::TRANSFER) {
             $colored = false;
         }
-        $result = app('amount')->formatFlat($array['foreign_currency_symbol'], (int) $array['foreign_currency_decimal_places'], $amount, $colored);
+        $result = app('amount')->formatFlat($currency->symbol, (int)$currency->decimal_places, $amount, $colored);
         if ($type === TransactionType::TRANSFER) {
             $result = sprintf('<span class="text-info">%s</span>', $result);
         }
 
         return $result;
+    }
+
+    /**
+     * @param TransactionJournal $journal
+     *
+     * @return bool
+     */
+    private function journalObjectHasForeign(TransactionJournal $journal): bool
+    {
+        /** @var Transaction $first */
+        $first = $journal->transactions()->where('amount', '<', 0)->first();
+
+        return null !== $first->foreign_amount;
     }
 
     /**
@@ -219,7 +246,7 @@ class TransactionGroupTwig extends AbstractExtension
         if ($type === TransactionType::TRANSFER) {
             $colored = false;
         }
-        $result = app('amount')->formatFlat($currency->symbol, (int) $currency->decimal_places, $amount, $colored);
+        $result = app('amount')->formatFlat($currency->symbol, (int)$currency->decimal_places, $amount, $colored);
         if ($type === TransactionType::TRANSFER) {
             $result = sprintf('<span class="text-info">%s</span>', $result);
         }
@@ -228,97 +255,65 @@ class TransactionGroupTwig extends AbstractExtension
     }
 
     /**
-     * Generate normal amount for transaction from a transaction group.
-     *
-     * @param array $array
-     *
-     * @return string
+     * @return TwigFunction
      */
-    private function normalJournalArrayAmount(array $array): string
+    public function journalHasMeta(): TwigFunction
     {
-        $type       = $array['transaction_type_type'] ?? TransactionType::WITHDRAWAL;
-        $amount     = $array['amount'] ?? '0';
-        $colored    = true;
-        $sourceType = $array['source_account_type'] ?? 'invalid';
-        $amount     = $this->signAmount($amount, $type, $sourceType);
+        return new TwigFunction(
+            'journalHasMeta',
+            static function (int $journalId, string $metaField) {
+                $count = DB::table('journal_meta')
+                           ->where('name', $metaField)
+                           ->where('transaction_journal_id', $journalId)
+                           ->whereNull('deleted_at')
+                           ->count();
 
-        if ($type === TransactionType::TRANSFER) {
-            $colored = false;
-        }
-
-        $result = app('amount')->formatFlat($array['currency_symbol'], (int) $array['currency_decimal_places'], $amount, $colored);
-        if ($type === TransactionType::TRANSFER) {
-            $result = sprintf('<span class="text-info">%s</span>', $result);
-        }
-
-        return $result;
+                return 1 === $count;
+            }
+        );
     }
 
     /**
-     * Generate normal amount for transaction from a transaction group.
-     *
-     * @param TransactionJournal $journal
-     *
-     * @return string
+     * @return TwigFunction
      */
-    private function normalJournalObjectAmount(TransactionJournal $journal): string
+    public function journalGetMetaDate(): TwigFunction
     {
-        $type       = $journal->transactionType->type;
-        $first      = $journal->transactions()->where('amount', '<', 0)->first();
-        $currency   = $journal->transactionCurrency;
-        $amount     = $first->amount ?? '0';
-        $colored    = true;
-        $sourceType = $first->account()->first()->accountType()->first()->type;
+        return new TwigFunction(
+            'journalGetMetaDate',
+            static function (int $journalId, string $metaField) {
+                $entry = DB::table('journal_meta')
+                           ->where('name', $metaField)
+                           ->where('transaction_journal_id', $journalId)
+                           ->whereNull('deleted_at')
+                           ->first();
+                if (null === $entry) {
+                    return today(config('app.timezone'));
+                }
 
-        $amount = $this->signAmount($amount, $type, $sourceType);
-
-        if ($type === TransactionType::TRANSFER) {
-            $colored = false;
-        }
-        $result = app('amount')->formatFlat($currency->symbol, (int) $currency->decimal_places, $amount, $colored);
-        if ($type === TransactionType::TRANSFER) {
-            $result = sprintf('<span class="text-info">%s</span>', $result);
-        }
-
-        return $result;
+                return new Carbon(json_decode($entry->data, false));
+            }
+        );
     }
 
     /**
-     * @param TransactionJournal $journal
-     * @return bool
+     * @return TwigFunction
      */
-    private function journalObjectHasForeign(TransactionJournal $journal): bool
+    public function journalGetMetaField(): TwigFunction
     {
-        /** @var Transaction $first */
-        $first = $journal->transactions()->where('amount', '<', 0)->first();
+        return new TwigFunction(
+            'journalGetMetaField',
+            static function (int $journalId, string $metaField) {
+                $entry = DB::table('journal_meta')
+                           ->where('name', $metaField)
+                           ->where('transaction_journal_id', $journalId)
+                           ->whereNull('deleted_at')
+                           ->first();
+                if (null === $entry) {
+                    return '';
+                }
 
-        return null !== $first->foreign_amount;
-    }
-
-    /**
-     * @param string $amount
-     * @param string $transactionType
-     * @param string $sourceType
-     * @return string
-     */
-    private function signAmount(string $amount, string $transactionType, string $sourceType): string
-    {
-
-        // withdrawals stay negative
-        if ($transactionType !== TransactionType::WITHDRAWAL) {
-            $amount = bcmul($amount, '-1');
-        }
-
-        // opening balance and it comes from initial balance? its expense.
-        if ($transactionType === TransactionType::OPENING_BALANCE && AccountType::INITIAL_BALANCE !== $sourceType) {
-            $amount = bcmul($amount, '-1');
-        }
-
-        // reconciliation and it comes from reconciliation?
-        if ($transactionType === TransactionType::RECONCILIATION && AccountType::RECONCILIATION !== $sourceType) {
-            $amount = bcmul($amount, '-1');
-        }
-
-        return $amount;
+                return json_decode($entry->data, true);
+            }
+        );
     }
 }

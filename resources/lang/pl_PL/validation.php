@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute musi być mniejszy od 10 000 000',
     'active_url'                     => ':attribute nie jest prawidłowym adresem URL.',
     'after'                          => ':attribute musi być datą późniejszą od :date.',
+    'date_after'                     => 'Data rozpoczęcia musi być wcześniejsza niż data zakończenia.',
     'alpha'                          => ':attribute może zawierać tylko litery.',
     'alpha_dash'                     => ':attribute może zawierać litery, cyfry oraz myślniki.',
     'alpha_num'                      => ':attribute może zawierać jedynie litery oraz cyfry.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'Wartość musi zaczynać się od :values.',
     'unique_webhook'                 => 'Masz już webhook z tymi wartościami.',
     'unique_existing_webhook'        => 'Masz już inny webhook z tymi wartościami.',
+    'same_account_type'              => 'Oba konta muszą być tego samego typu',
+    'same_account_currency'          => 'Oba konta muszą mieć to samo ustawienie waluty',
 
     'secure_password'             => 'To nie jest bezpieczne hasło. Proszę spróbować ponownie. Aby uzyskać więcej informacji odwiedź https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Nieprawidłowy typ powtórzeń dla cyklicznych transakcji.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
     'withdrawal_dest_need_data'   => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
     'withdrawal_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+
+    'generic_source_bad_data'  => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
 
     'deposit_source_need_data' => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
     'deposit_source_bad_data'  => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',

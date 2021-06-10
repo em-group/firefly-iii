@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * RuleEngineInterface.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,6 +19,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\TransactionRules\Engine;
 
 use FireflyIII\User;
@@ -31,15 +32,28 @@ use Illuminate\Support\Collection;
 interface RuleEngineInterface
 {
     /**
-     * @param User $user
-     */
-    public function setUser(User $user): void;
-    /**
-     * Add rules for the engine to execute.
+     * Add operators added to each search by the rule engine.
      *
-     * @param Collection $rules
+     * @param array $operator
      */
-    public function setRules(Collection $rules): void;
+    public function addOperator(array $operator): void;
+
+    /**
+     * Find all transactions only, dont apply anything.
+     */
+    public function find(): Collection;
+
+    /**
+     * Fire the rule engine.
+     */
+    public function fire(): void;
+
+    /**
+     * Return the number of changed transactions from the previous "fire" action.
+     *
+     * @return int
+     */
+    public function getResults(): int;
 
     /**
      * Add entire rule groups for the engine to execute.
@@ -49,20 +63,15 @@ interface RuleEngineInterface
     public function setRuleGroups(Collection $ruleGroups): void;
 
     /**
-     * Add operators added to each search by the rule engine.
+     * Add rules for the engine to execute.
      *
-     * @param array $operator
+     * @param Collection $rules
      */
-    public function addOperator(array $operator): void;
+    public function setRules(Collection $rules): void;
 
     /**
-     * Fire the rule engine.
+     * @param User $user
      */
-    public function fire(): void;
-
-    /**
-     * Find all transactions only, dont apply anything.
-     */
-    public function find(): Collection;
+    public function setUser(User $user): void;
 
 }

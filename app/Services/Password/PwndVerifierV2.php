@@ -22,28 +22,19 @@ declare(strict_types=1);
 
 namespace FireflyIII\Services\Password;
 
-use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Log;
 use RuntimeException;
 
 /**
  * Class PwndVerifierV2.
+ *
  * @codeCoverageIgnore
  */
 class PwndVerifierV2 implements Verifier
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * Verify the given password against (some) service.
      *
@@ -60,7 +51,7 @@ class PwndVerifierV2 implements Verifier
         $uri    = sprintf('https://api.pwnedpasswords.com/range/%s', $prefix);
         $opt    = [
             'headers' => [
-                'User-Agent' => 'Firefly III v' . config('firefly.version'),
+                'User-Agent'  => sprintf('Firefly III v%s', config('firefly.version')),
                 'Add-Padding' => 'true',
             ],
             'timeout' => 3.1415];
@@ -71,7 +62,7 @@ class PwndVerifierV2 implements Verifier
         try {
             $client = new Client();
             $res    = $client->request('GET', $uri, $opt);
-        } catch (GuzzleException|Exception $e) {
+        } catch (GuzzleException | RequestException $e) {
             Log::error(sprintf('Could not verify password security: %s', $e->getMessage()));
 
             return true;
@@ -82,7 +73,7 @@ class PwndVerifierV2 implements Verifier
         }
         try {
             $strpos = stripos($res->getBody()->getContents(), $rest);
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not get body from Pwnd result: %s', $e->getMessage()));
             $strpos = false;
         }

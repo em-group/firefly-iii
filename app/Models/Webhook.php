@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * Webhook.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,9 +19,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Models;
-
-
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -63,6 +62,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static \Illuminate\Database\Query\Builder|Webhook withTrashed()
  * @method static \Illuminate\Database\Query\Builder|Webhook withoutTrashed()
  * @mixin \Eloquent
+ * @property string $title
+ * @property string $secret
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereSecret($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Webhook whereTitle($value)
  */
 class Webhook extends Model
 {
@@ -103,11 +106,11 @@ class Webhook extends Model
     public static function routeBinder(string $value): Webhook
     {
         if (auth()->check()) {
-            $budgetId = (int)$value;
+            $webhookId = (int)$value;
             /** @var User $user */
             $user = auth()->user();
             /** @var Webhook $webhook */
-            $webhook = $user->webhooks()->find($budgetId);
+            $webhook = $user->webhooks()->find($webhookId);
             if (null !== $webhook) {
                 return $webhook;
             }

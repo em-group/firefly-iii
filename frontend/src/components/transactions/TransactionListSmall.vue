@@ -23,14 +23,15 @@
     <caption style="display:none;">{{ $t('firefly.transaction_table_description') }}</caption>
     <thead>
     <tr>
-      <th scope="col" class="text-left">{{ $t('firefly.description') }}</th>
-      <th scope="col" class="text-right">{{ $t('firefly.amount') }}</th>
+      <th class="text-left" scope="col">{{ $t('firefly.description') }}</th>
+      <th class="text-right" scope="col">{{ $t('firefly.amount') }}</th>
     </tr>
     </thead>
     <tbody>
     <tr v-for="transaction in this.transactions">
       <td>
-        <a :href="'transactions/show/' + transaction.id " :title="new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(transaction.attributes.transactions[0].date))">
+        <a :href="'transactions/show/' + transaction.id "
+           :title="new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long', day: 'numeric' }).format(new Date(transaction.attributes.transactions[0].date))">
           <span v-if="transaction.attributes.transactions.length > 1">{{ transaction.attributes.group_title }}</span>
           <span v-if="1===transaction.attributes.transactions.length">{{ transaction.attributes.transactions[0].description }}</span>
         </a>
@@ -43,10 +44,10 @@
                     <span v-if="'deposit' === tr.type" class="text-success">
                         {{ Intl.NumberFormat(locale, {style: 'currency', currency: tr.currency_code}).format(tr.amount) }}<br>
                      </span>
-                    <span v-if="'transfer' === tr.type && tr.source_id === account_id" class="text-info">
+                    <span v-if="'transfer' === tr.type && parseInt(tr.source_id) === account_id" class="text-info">
                         {{ Intl.NumberFormat(locale, {style: 'currency', currency: tr.currency_code}).format(tr.amount * -1) }}<br>
                     </span>
-                    <span v-if="'transfer' === tr.type && tr.destination_id === account_id" class="text-info">
+                    <span v-if="'transfer' === tr.type && parseInt(tr.destination_id) === account_id" class="text-info">
                         {{ Intl.NumberFormat(locale, {style: 'currency', currency: tr.currency_code}).format(tr.amount) }}<br>
                     </span>
                 </span>
@@ -67,8 +68,7 @@ export default {
   created() {
     this.locale = localStorage.locale ?? 'en-US';
   },
-  methods: {
-  },
+  methods: {},
   props: {
     transactions: {
       type: Array,

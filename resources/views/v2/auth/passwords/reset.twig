@@ -1,4 +1,4 @@
-{% extends "./layout/auth" %}
+{% extends './v2/layout/auth' %}
 {% block content %}
 
 
@@ -17,14 +17,7 @@
                 </ul>
             </div>
         </div>
-
-
-
     {% endif %}
-
-
-
-
 
 
     {# default header #}
@@ -33,9 +26,6 @@
             <img src="v2/images/firefly-iii-logo.png" alt="{{ config('app.name') }}" width="40"/>
             <a href="{{ route('index') }}">{{ config('app.name') }}</a>
         </div>
-
-
-
         <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
@@ -72,19 +62,8 @@
                             </div>
                         </div>
                     </div>
-
-
-
-
-
-
-
                     <div class="row">
-                        <div class="col-6">
-
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-6">
+                        <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-block">{{ 'button_reset_password'|_ }}</button>
                         </div>
                         <!-- /.col -->

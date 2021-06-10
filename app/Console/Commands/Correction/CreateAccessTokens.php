@@ -46,12 +46,11 @@ class CreateAccessTokens extends Command
      */
     protected $signature = 'firefly-iii:create-access-tokens';
 
-
     /**
      * Execute the console command.
      *
-     * @throws Exception
      * @return int
+     * @throws Exception
      */
     public function handle(): int
     {

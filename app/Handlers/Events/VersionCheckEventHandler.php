@@ -24,14 +24,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Handlers\Events;
 
-
 use FireflyIII\Events\RequestedVersionCheckStatus;
 use FireflyIII\Helpers\Update\UpdateTrait;
 use FireflyIII\Models\Configuration;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
 use Log;
-
 
 /**
  * Class VersionCheckEventHandler
@@ -51,7 +49,7 @@ class VersionCheckEventHandler
 
         // should not check for updates:
         $permission = app('fireflyconfig')->get('permission_update_check', -1);
-        $value      = (int) $permission->data;
+        $value      = (int)$permission->data;
         if (1 !== $value) {
             Log::info('Update check is not enabled.');
             $this->warnToCheckForUpdates($event);
@@ -115,7 +113,7 @@ class VersionCheckEventHandler
         // last check time was more than a week ago.
         Log::debug('Have warned about a new version in four weeks!');
 
-        session()->flash('info', (string) trans('firefly.disabled_but_check'));
+        session()->flash('info', (string)trans('firefly.disabled_but_check'));
         app('fireflyconfig')->set('last_update_warning', time());
     }
 }

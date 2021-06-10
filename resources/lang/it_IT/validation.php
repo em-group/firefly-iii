@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute deve essere minore di 10.000.000',
     'active_url'                     => ':attribute non è un URL valido.',
     'after'                          => ':attribute deve essere una data dopo :date.',
+    'date_after'                     => 'La data iniziale deve essere precedente a quella finale.',
     'alpha'                          => ':attribute può contenere solo lettere.',
     'alpha_dash'                     => ':attribute può contenere solo lettere, numeri e trattini.',
     'alpha_num'                      => ':attribute può contenere solo lettere e numeri.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'Il valore deve iniziare con :values.',
     'unique_webhook'                 => 'Hai già un webhook con questi valori.',
     'unique_existing_webhook'        => 'Hai già un altro webhook con questi valori.',
+    'same_account_type'              => 'Entrambi i conti devono essere dello stesso tipo',
+    'same_account_currency'          => 'Entrambi i conti devono essere impostati sulla stessa valuta',
 
     'secure_password'             => 'Questa non è una password sicura. Riprova. Per maggiori informazioni visita https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Il tipo di ripetizione della transazione ricorrente non è valido.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
     'withdrawal_dest_need_data'   => 'È necessario ottenere un ID e/o un nome del conto di destinazione validi per continuare.',
     'withdrawal_dest_bad_data'    => 'Non è stato possibile trovare un conto di destinazione valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
+
+    'generic_source_bad_data'  => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
 
     'deposit_source_need_data' => 'È necessario ottenere un ID e/o un nome del conto di origine validi per continuare.',
     'deposit_source_bad_data'  => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',

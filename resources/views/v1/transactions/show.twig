@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName, transactionGroup) }}
@@ -382,7 +382,7 @@
                             <h3 class="box-title">{{ 'attachments'|_ }}</h3>
                         </div>
                         <div class="box-body no-padding">
-                            {% include 'list.attachments' with {attachments: attachments[journal.transaction_journal_id]} %}
+                            {% include 'v1.list.attachments' with {attachments: attachments[journal.transaction_journal_id]} %}
                         </div>
                     </div>
                 {% endif %}
@@ -410,15 +410,9 @@
             </div>
         {% endfor %}
     </div>
-
-
-
     {# modal for linking journals. Will be filled by AJAX #}
     <div class="modal fade" tabindex="-1" role="dialog" id="linkJournalModal">
     </div>
-
-
-
 {% endblock %}
 {% block scripts %}
     <script type="text/javascript" nonce="{{ JS_NONCE }}">

@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Models\Account;
 use FireflyIII\Models\ObjectGroup;
 use FireflyIII\Models\PiggyBank;
@@ -36,12 +34,9 @@ use FireflyIII\Repositories\PiggyBank\PiggyBankRepositoryInterface;
  */
 class PiggyBankTransformer extends AbstractTransformer
 {
-    /** @var AccountRepositoryInterface */
-    private $accountRepos;
-    /** @var CurrencyRepositoryInterface */
-    private $currencyRepos;
-    /** @var PiggyBankRepositoryInterface */
-    private $piggyRepos;
+    private AccountRepositoryInterface   $accountRepos;
+    private CurrencyRepositoryInterface  $currencyRepos;
+    private PiggyBankRepositoryInterface $piggyRepos;
 
     /**
      * PiggyBankTransformer constructor.
@@ -54,8 +49,6 @@ class PiggyBankTransformer extends AbstractTransformer
         $this->currencyRepos = app(CurrencyRepositoryInterface::class);
         $this->piggyRepos    = app(PiggyBankRepositoryInterface::class);
     }
-
-
     /**
      * Transform the piggy bank.
      *
@@ -86,46 +79,47 @@ class PiggyBankTransformer extends AbstractTransformer
         /** @var ObjectGroup $objectGroup */
         $objectGroup = $piggyBank->objectGroups->first();
         if (null !== $objectGroup) {
-            $objectGroupId    = (int) $objectGroup->id;
-            $objectGroupOrder = (int) $objectGroup->order;
+            $objectGroupId    = (int)$objectGroup->id;
+            $objectGroupOrder = (int)$objectGroup->order;
             $objectGroupTitle = $objectGroup->title;
         }
 
         // get currently saved amount:
         $currentAmountStr = $this->piggyRepos->getCurrentAmount($piggyBank);
-        $currentAmount    = number_format((float) $currentAmountStr, $currency->decimal_places, '.', '');
+        $currentAmount    = number_format((float)$currentAmountStr, $currency->decimal_places, '.', '');
 
         // left to save:
         $leftToSave = bcsub($piggyBank->targetamount, $currentAmountStr);
-        $startDate  = null === $piggyBank->startdate ? null : $piggyBank->startdate->format('Y-m-d');
-        $targetDate = null === $piggyBank->targetdate ? null : $piggyBank->targetdate->format('Y-m-d');
+        $startDate  = null === $piggyBank->startdate ? null : $piggyBank->startdate->toAtomString();
+        $targetDate = null === $piggyBank->targetdate ? null : $piggyBank->targetdate->toAtomString();
 
         // target and percentage:
         $targetAmount = $piggyBank->targetamount;
-        $targetAmount = 1 === bccomp('0.01', (string) $targetAmount) ? '0.01' : $targetAmount;
-        $percentage   = (int) (0 !== bccomp('0', $currentAmountStr) ? $currentAmountStr / $targetAmount * 100 : 0);
+        $targetAmount = 1 === bccomp('0.01', (string)$targetAmount) ? '0.01' : $targetAmount;
+        $percentage   = (int)(0 !== bccomp('0', $currentAmountStr) ? $currentAmountStr / $targetAmount * 100 : 0);
+
         return [
-            'id'                      => (int) $piggyBank->id,
+            'id'                      => (string)$piggyBank->id,
             'created_at'              => $piggyBank->created_at->toAtomString(),
             'updated_at'              => $piggyBank->updated_at->toAtomString(),
-            'account_id'              => (int) $piggyBank->account_id,
+            'account_id'              => (string)$piggyBank->account_id,
             'account_name'            => $piggyBank->account->name,
             'name'                    => $piggyBank->name,
-            'currency_id'             => (int) $currency->id,
+            'currency_id'             => (string)$currency->id,
             'currency_code'           => $currency->code,
             'currency_symbol'         => $currency->symbol,
-            'currency_decimal_places' => (int) $currency->decimal_places,
-            'target_amount'           => number_format((float) $targetAmount, $currency->decimal_places, '.', ''),
+            'currency_decimal_places' => (int)$currency->decimal_places,
+            'target_amount'           => number_format((float)$targetAmount, $currency->decimal_places, '.', ''),
             'percentage'              => $percentage,
             'current_amount'          => $currentAmount,
-            'left_to_save'            => number_format((float) $leftToSave, $currency->decimal_places, '.', ''),
-            'save_per_month'          => number_format((float) $this->piggyRepos->getSuggestedMonthlyAmount($piggyBank), $currency->decimal_places, '.', ''),
+            'left_to_save'            => number_format((float)$leftToSave, $currency->decimal_places, '.', ''),
+            'save_per_month'          => number_format((float)$this->piggyRepos->getSuggestedMonthlyAmount($piggyBank), $currency->decimal_places, '.', ''),
             'start_date'              => $startDate,
             'target_date'             => $targetDate,
-            'order'                   => (int) $piggyBank->order,
+            'order'                   => (int)$piggyBank->order,
             'active'                  => true,
             'notes'                   => $notes,
-            'object_group_id'         => $objectGroupId,
+            'object_group_id'         => $objectGroupId ? (string)$objectGroupId : null,
             'object_group_order'      => $objectGroupOrder,
             'object_group_title'      => $objectGroupTitle,
             'links'                   => [

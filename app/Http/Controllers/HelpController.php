@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
-use FireflyIII\Support\Http\Controllers\RequestInformation;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -30,12 +29,10 @@ use Illuminate\Http\JsonResponse;
  */
 class HelpController extends Controller
 {
-    use RequestInformation;
-
     /**
      * Show help for a route.
      *
-     * @param   $route
+     * @param string $route
      *
      * @return JsonResponse
      */

@@ -22,8 +22,6 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\CategoryFactory;
@@ -42,14 +40,10 @@ use Log;
  */
 class RecurrenceTransformer extends AbstractTransformer
 {
-    /** @var BudgetRepositoryInterface */
-    private $budgetRepos;
-    /** @var CategoryFactory */
-    private $factory;
-    /** @var PiggyBankRepositoryInterface */
-    private $piggyRepos;
-    /** @var RecurringRepositoryInterface */
-    private $repository;
+    private BudgetRepositoryInterface    $budgetRepos;
+    private CategoryFactory              $factory;
+    private PiggyBankRepositoryInterface $piggyRepos;
+    private RecurringRepositoryInterface $repository;
 
     /**
      * RecurrenceTransformer constructor.
@@ -86,17 +80,18 @@ class RecurrenceTransformer extends AbstractTransformer
         $notes     = $this->repository->getNoteText($recurrence);
         $reps      = 0 === (int)$recurrence->repetitions ? null : (int)$recurrence->repetitions;
         Log::debug('Get basic data.');
+
         // basic data.
         return [
-            'id'                => (int)$recurrence->id,
+            'id'                => (string)$recurrence->id,
             'created_at'        => $recurrence->created_at->toAtomString(),
             'updated_at'        => $recurrence->updated_at->toAtomString(),
             'type'              => $shortType,
             'title'             => $recurrence->title,
             'description'       => $recurrence->description,
-            'first_date'        => $recurrence->first_date->format('Y-m-d'),
-            'latest_date'       => null === $recurrence->latest_date ? null : $recurrence->latest_date->format('Y-m-d'),
-            'repeat_until'      => null === $recurrence->repeat_until ? null : $recurrence->repeat_until->format('Y-m-d'),
+            'first_date'        => $recurrence->first_date->toAtomString(),
+            'latest_date'       => null === $recurrence->latest_date ? null : $recurrence->latest_date->toAtomString(),
+            'repeat_until'      => null === $recurrence->repeat_until ? null : $recurrence->repeat_until->toAtomString(),
             'apply_rules'       => $recurrence->apply_rules,
             'active'            => $recurrence->active,
             'nr_of_repetitions' => $reps,
@@ -127,13 +122,13 @@ class RecurrenceTransformer extends AbstractTransformer
         /** @var RecurrenceRepetition $repetition */
         foreach ($recurrence->recurrenceRepetitions as $repetition) {
             $repetitionArray = [
-                'id'          => (int) $repetition->id,
+                'id'          => (string)$repetition->id,
                 'created_at'  => $repetition->created_at->toAtomString(),
                 'updated_at'  => $repetition->updated_at->toAtomString(),
                 'type'        => $repetition->repetition_type,
                 'moment'      => $repetition->repetition_moment,
-                'skip'        => (int) $repetition->repetition_skip,
-                'weekend'     => (int) $repetition->weekend,
+                'skip'        => (int)$repetition->repetition_skip,
+                'weekend'     => (int)$repetition->weekend,
                 'description' => $this->repository->repetitionDescription($repetition),
                 'occurrences' => [],
             ];
@@ -142,10 +137,98 @@ class RecurrenceTransformer extends AbstractTransformer
             $occurrences = $this->repository->getXOccurrencesSince($repetition, $fromDate, new Carbon, 5);
             /** @var Carbon $carbon */
             foreach ($occurrences as $carbon) {
-                $repetitionArray['occurrences'][] = $carbon->format('Y-m-d');
+                $repetitionArray['occurrences'][] = $carbon->toAtomString();
             }
 
             $return[] = $repetitionArray;
+        }
+
+        return $return;
+    }
+
+    /**
+     * @param Recurrence $recurrence
+     *
+     * @return array
+     * @throws FireflyException
+     */
+    private function getTransactions(Recurrence $recurrence): array
+    {
+        Log::debug(sprintf('Now in %s', __METHOD__));
+        $return = [];
+        // get all transactions:
+        /** @var RecurrenceTransaction $transaction */
+        foreach ($recurrence->recurrenceTransactions()->get() as $transaction) {
+
+            $sourceAccount         = $transaction->sourceAccount;
+            $destinationAccount    = $transaction->destinationAccount;
+            $foreignCurrencyCode   = null;
+            $foreignCurrencySymbol = null;
+            $foreignCurrencyDp     = null;
+            $foreignCurrencyId     = null;
+            if (null !== $transaction->foreign_currency_id) {
+                $foreignCurrencyId     = (int)$transaction->foreign_currency_id;
+                $foreignCurrencyCode   = $transaction->foreignCurrency->code;
+                $foreignCurrencySymbol = $transaction->foreignCurrency->symbol;
+                $foreignCurrencyDp     = (int)$transaction->foreignCurrency->decimal_places;
+            }
+
+            // source info:
+            $sourceName = '';
+            $sourceId   = null;
+            $sourceType = null;
+            $sourceIban = null;
+            if (null !== $sourceAccount) {
+                $sourceName = $sourceAccount->name;
+                $sourceId   = (int)$sourceAccount->id;
+                $sourceType = $sourceAccount->accountType->type;
+                $sourceIban = $sourceAccount->iban;
+            }
+            $destinationName = '';
+            $destinationId   = null;
+            $destinationType = null;
+            $destinationIban = null;
+            if (null !== $destinationAccount) {
+                $destinationName = $destinationAccount->name;
+                $destinationId   = (int)$destinationAccount->id;
+                $destinationType = $destinationAccount->accountType->type;
+                $destinationIban = $destinationAccount->iban;
+            }
+            $amount        = number_format((float)$transaction->amount, $transaction->transactionCurrency->decimal_places, '.', '');
+            $foreignAmount = null;
+            if (null !== $transaction->foreign_currency_id && null !== $transaction->foreign_amount) {
+                $foreignAmount = number_format((float)$transaction->foreign_amount, $foreignCurrencyDp, '.', '');
+            }
+            $transactionArray = [
+                'currency_id'                     => (string)$transaction->transaction_currency_id,
+                'currency_code'                   => $transaction->transactionCurrency->code,
+                'currency_symbol'                 => $transaction->transactionCurrency->symbol,
+                'currency_decimal_places'         => (int)$transaction->transactionCurrency->decimal_places,
+                'foreign_currency_id'             => null === $foreignCurrencyId ? null : (string)$foreignCurrencyId,
+                'foreign_currency_code'           => $foreignCurrencyCode,
+                'foreign_currency_symbol'         => $foreignCurrencySymbol,
+                'foreign_currency_decimal_places' => $foreignCurrencyDp,
+                'source_id'                       => (string)$sourceId,
+                'source_name'                     => $sourceName,
+                'source_iban'                     => $sourceIban,
+                'source_type'                     => $sourceType,
+                'destination_id'                  => (string)$destinationId,
+                'destination_name'                => $destinationName,
+                'destination_iban'                => $destinationIban,
+                'destination_type'                => $destinationType,
+                'amount'                          => $amount,
+                'foreign_amount'                  => $foreignAmount,
+                'description'                     => $transaction->description,
+            ];
+            $transactionArray = $this->getTransactionMeta($transaction, $transactionArray);
+            if (null !== $transaction->foreign_currency_id) {
+                $transactionArray['foreign_currency_code']           = $transaction->foreignCurrency->code;
+                $transactionArray['foreign_currency_symbol']         = $transaction->foreignCurrency->symbol;
+                $transactionArray['foreign_currency_decimal_places'] = $transaction->foreignCurrency->decimal_places;
+            }
+
+            // store transaction in recurrence array.
+            $return[] = $transactionArray;
         }
 
         return $return;
@@ -182,21 +265,28 @@ class RecurrenceTransformer extends AbstractTransformer
                 case 'piggy_bank_id':
                     $piggy = $this->piggyRepos->findNull((int)$transactionMeta->value);
                     if (null !== $piggy) {
-                        $array['piggy_bank_id']   = (int) $piggy->id;
+                        $array['piggy_bank_id']   = (string)$piggy->id;
                         $array['piggy_bank_name'] = $piggy->name;
+                    }
+                    break;
+                case 'category_id':
+                    $category = $this->factory->findOrCreate((int)$transactionMeta->value, null);
+                    if (null !== $category) {
+                        $array['category_id']   = (string)$category->id;
+                        $array['category_name'] = $category->name;
                     }
                     break;
                 case 'category_name':
                     $category = $this->factory->findOrCreate(null, $transactionMeta->value);
                     if (null !== $category) {
-                        $array['category_id']   = (int) $category->id;
+                        $array['category_id']   = (string)$category->id;
                         $array['category_name'] = $category->name;
                     }
                     break;
                 case 'budget_id':
                     $budget = $this->budgetRepos->findNull((int)$transactionMeta->value);
                     if (null !== $budget) {
-                        $array['budget_id']   = (int) $budget->id;
+                        $array['budget_id']   = (string)$budget->id;
                         $array['budget_name'] = $budget->name;
                     }
                     break;
@@ -204,96 +294,6 @@ class RecurrenceTransformer extends AbstractTransformer
         }
 
         return $array;
-    }
-
-    /**
-     * @param Recurrence $recurrence
-     *
-     * @return array
-     * @throws FireflyException
-     */
-    private function getTransactions(Recurrence $recurrence): array
-    {
-        Log::debug(sprintf('Now in %s', __METHOD__));
-        $return = [];
-        // get all transactions:
-        /** @var RecurrenceTransaction $transaction */
-        foreach ($recurrence->recurrenceTransactions()->get() as $transaction) {
-
-            $sourceAccount         = $transaction->sourceAccount;
-            $destinationAccount    = $transaction->destinationAccount;
-            $foreignCurrencyCode   = null;
-            $foreignCurrencySymbol = null;
-            $foreignCurrencyDp     = null;
-            $foreignCurrencyId     = null;
-            if (null !== $transaction->foreign_currency_id) {
-                $foreignCurrencyId     = (int) $transaction->foreign_currency_id;
-                $foreignCurrencyCode   = $transaction->foreignCurrency->code;
-                $foreignCurrencySymbol = $transaction->foreignCurrency->symbol;
-                $foreignCurrencyDp     = (int) $transaction->foreignCurrency->decimal_places;
-            }
-
-            // source info:
-            $sourceName = '';
-            $sourceId   = null;
-            $sourceType = null;
-            $sourceIban = null;
-            if (null !== $sourceAccount) {
-                $sourceName = $sourceAccount->name;
-                $sourceId   = (int) $sourceAccount->id;
-                $sourceType = $sourceAccount->accountType->type;
-                $sourceIban = $sourceAccount->iban;
-            }
-            $destinationName = '';
-            $destinationId   = null;
-            $destinationType = null;
-            $destinationIban = null;
-            if (null !== $destinationAccount) {
-                $destinationName = $destinationAccount->name;
-                $destinationId   = (int) $destinationAccount->id;
-                $destinationType = $destinationAccount->accountType->type;
-                $destinationIban = $destinationAccount->iban;
-            }
-
-
-            $amount        = number_format((float) $transaction->amount, $transaction->transactionCurrency->decimal_places, '.', '');
-            $foreignAmount = null;
-            if (null !== $transaction->foreign_currency_id && null !== $transaction->foreign_amount) {
-                $foreignAmount = number_format((float) $transaction->foreign_amount, $foreignCurrencyDp, '.', '');
-            }
-            $transactionArray = [
-                'currency_id'                     => (int) $transaction->transaction_currency_id,
-                'currency_code'                   => $transaction->transactionCurrency->code,
-                'currency_symbol'                 => $transaction->transactionCurrency->symbol,
-                'currency_decimal_places'         => (int) $transaction->transactionCurrency->decimal_places,
-                'foreign_currency_id'             => $foreignCurrencyId,
-                'foreign_currency_code'           => $foreignCurrencyCode,
-                'foreign_currency_symbol'         => $foreignCurrencySymbol,
-                'foreign_currency_decimal_places' => $foreignCurrencyDp,
-                'source_id'                       => $sourceId,
-                'source_name'                     => $sourceName,
-                'source_iban'                     => $sourceIban,
-                'source_type'                     => $sourceType,
-                'destination_id'                  => $destinationId,
-                'destination_name'                => $destinationName,
-                'destination_iban'                => $destinationIban,
-                'destination_type'                => $destinationType,
-                'amount'                          => $amount,
-                'foreign_amount'                  => $foreignAmount,
-                'description'                     => $transaction->description,
-            ];
-            $transactionArray = $this->getTransactionMeta($transaction, $transactionArray);
-            if (null !== $transaction->foreign_currency_id) {
-                $transactionArray['foreign_currency_code']           = $transaction->foreignCurrency->code;
-                $transactionArray['foreign_currency_symbol']         = $transaction->foreignCurrency->symbol;
-                $transactionArray['foreign_currency_decimal_places'] = $transaction->foreignCurrency->decimal_places;
-            }
-
-            // store transaction in recurrence array.
-            $return[] = $transactionArray;
-        }
-
-        return $return;
     }
 
 }

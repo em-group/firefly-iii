@@ -29,7 +29,6 @@ use FireflyIII\Models\Bill;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  * Class ReportHelper.
@@ -92,7 +91,7 @@ class ReportHelper implements ReportHelperInterface
                 'paid_moments'            => [],
             ];
 
-            /** @var Carbon $start */
+            /** @var Carbon $expectedStart */
             foreach ($expectedDates as $expectedStart) {
                 $expectedEnd = app('navigation')->endOfX($expectedStart, $bill->repeat_freq, null);
 
@@ -129,7 +128,7 @@ class ReportHelper implements ReportHelperInterface
 
         while ($start <= $end) {
             $year = $fiscalHelper->endOfFiscalYear($start)->year; // current year
-            if (!isset($months[$year])) {
+            if (!array_key_exists($year, $months)) {
                 $months[$year] = [
                     'fiscal_start' => $fiscalHelper->startOfFiscalYear($start)->format('Y-m-d'),
                     'fiscal_end'   => $fiscalHelper->endOfFiscalYear($start)->format('Y-m-d'),

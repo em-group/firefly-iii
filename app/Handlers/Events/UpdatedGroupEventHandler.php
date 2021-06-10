@@ -30,7 +30,7 @@ use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\Models\Webhook;
-use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
+use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
 use Illuminate\Support\Collection;
 use Log;
@@ -40,6 +40,60 @@ use Log;
  */
 class UpdatedGroupEventHandler
 {
+    /**
+     * This method will check all the rules when a journal is updated.
+     *
+     * @param UpdatedTransactionGroup $updatedGroupEvent
+     */
+    public function processRules(UpdatedTransactionGroup $updatedGroupEvent): void
+    {
+        if (false === $updatedGroupEvent->applyRules) {
+            Log::info(sprintf('Will not run rules on group #%d', $updatedGroupEvent->transactionGroup->id));
+
+            return;
+        }
+
+        $journals = $updatedGroupEvent->transactionGroup->transactionJournals;
+        $array    = [];
+        /** @var TransactionJournal $journal */
+        foreach ($journals as $journal) {
+            $array[] = $journal->id;
+        }
+        $journalIds = implode(',', $array);
+        Log::debug(sprintf('Add local operator for journal(s): %s', $journalIds));
+
+        // collect rules:
+        $ruleGroupRepository = app(RuleGroupRepositoryInterface::class);
+        $ruleGroupRepository->setUser($updatedGroupEvent->transactionGroup->user);
+
+        $groups = $ruleGroupRepository->getRuleGroupsWithRules('update-journal');
+
+        // file rule engine.
+        $newRuleEngine = app(RuleEngineInterface::class);
+        $newRuleEngine->setUser($updatedGroupEvent->transactionGroup->user);
+        $newRuleEngine->addOperator(['type' => 'journal_id', 'value' => $journalIds]);
+        $newRuleEngine->setRuleGroups($groups);
+        $newRuleEngine->fire();
+    }
+
+    /**
+     * @param UpdatedTransactionGroup $updatedGroupEvent
+     */
+    public function triggerWebhooks(UpdatedTransactionGroup $updatedGroupEvent): void
+    {
+        Log::debug('UpdatedGroupEventHandler:triggerWebhooks');
+        $group = $updatedGroupEvent->transactionGroup;
+        $user  = $group->user;
+        /** @var MessageGeneratorInterface $engine */
+        $engine = app(MessageGeneratorInterface::class);
+        $engine->setUser($user);
+        $engine->setObjects(new Collection([$group]));
+        $engine->setTrigger(Webhook::TRIGGER_UPDATE_TRANSACTION);
+        $engine->generateMessages();
+
+        event(new RequestedSendWebhookMessages);
+    }
+
     /**
      * This method will make sure all source / destination accounts are the same.
      *
@@ -78,58 +132,5 @@ class UpdatedGroupEventHandler
                        ->where('amount', '>', 0)->update(['account_id' => $destAccount->id]);
         }
 
-    }
-
-    /**
-     * This method will check all the rules when a journal is updated.
-     *
-     * @param UpdatedTransactionGroup $updatedGroupEvent
-     */
-    public function processRules(UpdatedTransactionGroup $updatedGroupEvent): void
-    {
-        if (false === $updatedGroupEvent->applyRules) {
-            Log::info(sprintf('Will not run rules on group #%d', $updatedGroupEvent->transactionGroup->id));
-
-            return;
-        }
-
-        $journals = $updatedGroupEvent->transactionGroup->transactionJournals;
-        $array    = [];
-        /** @var TransactionJournal $journal */
-        foreach ($journals as $journal) {
-            $array[] = $journal->id;
-        }
-        $journalIds = implode(',', $array);
-        Log::debug(sprintf('Add local operator for journal(s): %s', $journalIds));
-
-        // collect rules:
-        $ruleRepository = app(RuleRepositoryInterface::class);
-        $ruleRepository->setUser($updatedGroupEvent->transactionGroup->user);
-        $rules = $ruleRepository->getUpdateRules();
-
-        // file rule engine.
-        $newRuleEngine = app(RuleEngineInterface::class);
-        $newRuleEngine->setUser($updatedGroupEvent->transactionGroup->user);
-        $newRuleEngine->addOperator(['type' => 'journal_id', 'value' => $journalIds]);
-        $newRuleEngine->setRules($rules);
-        $newRuleEngine->fire();
-    }
-
-    /**
-     * @param UpdatedTransactionGroup $updatedGroupEvent
-     */
-    public function triggerWebhooks(UpdatedTransactionGroup $updatedGroupEvent): void
-    {
-        Log::debug('UpdatedGroupEventHandler:triggerWebhooks');
-        $group    = $updatedGroupEvent->transactionGroup;
-        $user     = $group->user;
-        /** @var MessageGeneratorInterface $engine */
-        $engine = app(MessageGeneratorInterface::class);
-        $engine->setUser($user);
-        $engine->setObjects(new Collection([$group]));
-        $engine->setTrigger(Webhook::TRIGGER_UPDATE_TRANSACTION);
-        $engine->generateMessages();
-
-        event(new RequestedSendWebhookMessages);
     }
 }

@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName) }}
@@ -32,7 +32,7 @@
 
                         <!-- list of recurring here -->
                         <div style="padding-left:8px;">
-                            {{ paginator.links('pagination.bootstrap-4')|raw }}
+                            {{ paginator.links('v1.pagination.bootstrap-4')|raw }}
                         </div>
                         <table class="table table-responsive  table-hover sortable">
                             <thead>
@@ -130,7 +130,9 @@
                                         <ul>
                                             {% for rep in rt.repetitions %}
                                                 {% for occ in rep.occurrences %}
+                                                    {% if loop.index0 < 2 %}
                                                     <li>{{ occ.formatLocalized(monthAndDayFormat) }}</li>
+                                                    {% endif %}
                                                 {% endfor %}
                                             {% endfor %}
                                         </ul>
@@ -140,7 +142,7 @@
                             </tbody>
                         </table>
                         <div style="padding-left:8px;">
-                            {{ paginator.links('pagination.bootstrap-4')|raw }}
+                            {{ paginator.links('v1.pagination.bootstrap-4')|raw }}
                         </div>
                     </div>
                     <div class="box-footer">
@@ -150,17 +152,13 @@
             </div>
         </div>
     {% endif %}
-
-
-
-
     {% if total == 0 and page == 1 %}
-        {% include 'partials.empty' with {objectType: 'default', type: 'recurring',route: route('recurring.create')} %}
+        {% include 'v1.partials.empty' with {objectType: 'default', type: 'recurring',route: route('recurring.create')} %}
     {% endif %}
 {% endblock %}
 
 {% block styles %}
-    <link rel="stylesheet" href="v1/css/bootstrap-sortable.css?v={{ FF_VERSION }}" type="text/css" media="all"/>
+    <link rel="stylesheet" href="v1/css/bootstrap-sortable.css?v={{ FF_VERSION }}" type="text/css" media="all" nonce="{{ JS_NONCE }}">
 {% endblock %}
 
 {% block scripts %}

@@ -33,6 +33,52 @@ use Log;
 trait DepositValidation
 {
     /**
+     * @param int|null $accountId
+     * @param mixed    $accountName
+     *
+     * @return bool
+     */
+    protected function validateDepositDestination(?int $accountId, $accountName): bool
+    {
+        $result = null;
+        Log::debug(sprintf('Now in validateDepositDestination(%d, "%s")', $accountId, $accountName));
+
+        // source can be any of the following types.
+        $validTypes = $this->combinations[$this->transactionType][$this->source->accountType->type] ?? [];
+        if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
+            // if both values are NULL we return false,
+            // because the destination of a deposit can't be created.
+            $this->destError = (string)trans('validation.deposit_dest_need_data');
+            Log::error('Both values are NULL, cant create deposit destination.');
+            $result = false;
+        }
+        // if the account can be created anyway we don't need to search.
+        if (null === $result && true === $this->canCreateTypes($validTypes)) {
+            Log::debug('Can create some of these types, so return true.');
+            $result = true;
+        }
+
+        if (null === $result) {
+            // otherwise try to find the account:
+            $search = $this->findExistingAccount($validTypes, (int)$accountId, (string)$accountName);
+            if (null === $search) {
+                Log::debug('findExistingAccount() returned NULL, so the result is false.');
+                $this->destError = (string)trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
+                $result          = false;
+            }
+            if (null !== $search) {
+                Log::debug(sprintf('findExistingAccount() returned #%d ("%s"), so the result is true.', $search->id, $search->name));
+                $this->destination = $search;
+                $result            = true;
+            }
+        }
+        $result = $result ?? false;
+        Log::debug(sprintf('validateDepositDestination(%d, "%s") will return %s', $accountId, $accountName, var_export($result, true)));
+
+        return $result;
+    }
+
+    /**
      * @param array $accountTypes
      *
      * @return bool
@@ -47,52 +93,6 @@ trait DepositValidation
      * @return Account|null
      */
     abstract protected function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account;
-
-    /**
-     * @param int|null $accountId
-     * @param          $accountName
-     *
-     * @return bool
-     */
-    protected function validateDepositDestination(?int $accountId, $accountName): bool
-    {
-        $result = null;
-        Log::debug(sprintf('Now in validateDepositDestination(%d, "%s")', $accountId, $accountName));
-
-        // source can be any of the following types.
-        $validTypes = $this->combinations[$this->transactionType][$this->source->accountType->type] ?? [];
-        if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
-            // if both values are NULL we return false,
-            // because the destination of a deposit can't be created.
-            $this->destError = (string) trans('validation.deposit_dest_need_data');
-            Log::error('Both values are NULL, cant create deposit destination.');
-            $result = false;
-        }
-        // if the account can be created anyway we don't need to search.
-        if (null === $result && true === $this->canCreateTypes($validTypes)) {
-            Log::debug('Can create some of these types, so return true.');
-            $result = true;
-        }
-
-        if (null === $result) {
-            // otherwise try to find the account:
-            $search = $this->findExistingAccount($validTypes, (int) $accountId, (string) $accountName);
-            if (null === $search) {
-                Log::debug('findExistingAccount() returned NULL, so the result is false.');
-                $this->destError = (string) trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
-                $result          = false;
-            }
-            if (null !== $search) {
-                Log::debug(sprintf('findExistingAccount() returned #%d ("%s"), so the result is true.', $search->id, $search->name));
-                $this->destination = $search;
-                $result            = true;
-            }
-        }
-        $result = $result ?? false;
-        Log::debug(sprintf('validateDepositDestination(%d, "%s") will return %s', $accountId, $accountName, var_export($result, true)));
-
-        return $result;
-    }
 
     /**
      * @param int|null    $accountId
@@ -110,7 +110,7 @@ trait DepositValidation
             // if both values are NULL return false,
             // because the source of a deposit can't be created.
             // (this never happens).
-            $this->sourceError = (string) trans('validation.deposit_source_need_data');
+            $this->sourceError = (string)trans('validation.deposit_source_need_data');
             $result            = false;
         }
 
@@ -134,6 +134,7 @@ trait DepositValidation
             $account->accountType = $accountType;
             $this->source         = $account;
         }
+
         return $result ?? false;
     }
 }

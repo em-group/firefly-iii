@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
+
 /*
  * NewIPAddressWarningMail.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,8 +20,9 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace FireflyIII\Mail;
+declare(strict_types=1);
 
+namespace FireflyIII\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -34,9 +35,10 @@ class NewIPAddressWarningMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public string $host;
     public string $ipAddress;
     public string $time;
-    public string $host;
+
     /**
      * OAuthTokenCreatedMail constructor.
      *
@@ -57,12 +59,12 @@ class NewIPAddressWarningMail extends Mailable
         // time
         $this->time = now()->formatLocalized((string)trans('config.date_time'));
         $this->host = '';
-        $hostName = gethostbyaddr($this->ipAddress);
-        if($hostName !== $this->ipAddress) {
+        $hostName   = gethostbyaddr($this->ipAddress);
+        if ($hostName !== $this->ipAddress) {
             $this->host = $hostName;
         }
 
         return $this->view('emails.new-ip-html')->text('emails.new-ip-text')
-                    ->subject((string) trans('email.login_from_new_ip'));
+                    ->subject((string)trans('email.login_from_new_ip'));
     }
 }

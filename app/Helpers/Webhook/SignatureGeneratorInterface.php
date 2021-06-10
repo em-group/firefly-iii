@@ -1,8 +1,7 @@
 <?php
-declare(strict_types=1);
 /*
  * SignatureGeneratorInterface.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -20,6 +19,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Helpers\Webhook;
 
 use FireflyIII\Models\WebhookMessage;
@@ -30,16 +31,16 @@ use FireflyIII\Models\WebhookMessage;
 interface SignatureGeneratorInterface
 {
     /**
-     * Return the version of this signature generator.
-     *
-     * @return int
-     */
-    public function getVersion(): int;
-
-    /**
      * @param WebhookMessage $message
      *
      * @return string
      */
     public function generate(WebhookMessage $message): string;
+
+    /**
+     * Return the version of this signature generator.
+     *
+     * @return int
+     */
+    public function getVersion(): int;
 }

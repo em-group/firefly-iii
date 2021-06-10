@@ -74,7 +74,7 @@ class NewUserController extends Controller
             return redirect(route('dashboard'));
         }
 
-        return view('new-user.index', compact('languages'));
+        return prefixView('new-user.index', compact('languages'));
     }
 
     /**

@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace FireflyIII\Jobs;
 
-
 use Carbon\Carbon;
+use Exception;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Telemetry;
 use GuzzleHttp\Client;
@@ -38,7 +38,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Collection;
 use JsonException;
 use Log;
-use Exception;
 
 /**
  * Class SubmitTelemetryData
@@ -47,10 +46,8 @@ class SubmitTelemetryData implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /** @var Carbon The current date */
-    private $date;
-    /** @var bool Force the transaction to be created no matter what. */
-    private $force;
+    private Carbon $date;
+    private bool   $force;
 
     /**
      * Create a new job instance.
@@ -87,7 +84,7 @@ class SubmitTelemetryData implements ShouldQueue
         } catch (JsonException $e) {
             Log::error($e->getMessage());
             Log::error('Could not parse JSON.');
-            throw new FireflyException(sprintf('Could not parse telemetry JSON: %s', $e->getMessage()));
+            throw new FireflyException(sprintf('Could not parse telemetry JSON: %s', $e->getMessage()), 0, $e);
         }
 
         $client  = new Client;
@@ -102,35 +99,19 @@ class SubmitTelemetryData implements ShouldQueue
         ];
         try {
             $result = $client->post($url, $options);
-        } catch (GuzzleException|Exception $e) {
+        } catch (GuzzleException | Exception $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
             Log::error('Could not submit telemetry.');
-            throw new FireflyException(sprintf('Could not submit telemetry: %s', $e->getMessage()));
+            throw new FireflyException(sprintf('Could not submit telemetry: %s', $e->getMessage()), 0, $e);
         }
-        $body       = (string) $result->getBody();
+        $body       = (string)$result->getBody();
         $statusCode = $result->getStatusCode();
         Log::info(sprintf('Result of submission [%d]: %s', $statusCode, $body));
         if (200 === $statusCode) {
             // mark as submitted:
             $this->markAsSubmitted($telemetry);
         }
-    }
-
-    /**
-     * @param Carbon $date
-     */
-    public function setDate(Carbon $date): void
-    {
-        $this->date = $date;
-    }
-
-    /**
-     * @param bool $force
-     */
-    public function setForce(bool $force): void
-    {
-        $this->force = $force;
     }
 
     /**
@@ -142,19 +123,6 @@ class SubmitTelemetryData implements ShouldQueue
         Log::debug(sprintf('Found %d entry(s) to submit', $collection->count()));
 
         return $collection;
-    }
-
-    /**
-     * @param Collection $telemetry
-     */
-    private function markAsSubmitted(Collection $telemetry): void
-    {
-        $telemetry->each(
-            static function (Telemetry $entry) {
-                $entry->submitted = today(config('app.timezone'));
-                $entry->save();
-            }
-        );
     }
 
     /**
@@ -177,6 +145,35 @@ class SubmitTelemetryData implements ShouldQueue
         }
 
         return $array;
+    }
+
+    /**
+     * @param Collection $telemetry
+     */
+    private function markAsSubmitted(Collection $telemetry): void
+    {
+        $telemetry->each(
+            static function (Telemetry $entry) {
+                $entry->submitted = today(config('app.timezone'));
+                $entry->save();
+            }
+        );
+    }
+
+    /**
+     * @param Carbon $date
+     */
+    public function setDate(Carbon $date): void
+    {
+        $this->date = $date;
+    }
+
+    /**
+     * @param bool $force
+     */
+    public function setForce(bool $force): void
+    {
+        $this->force = $force;
     }
 
 }

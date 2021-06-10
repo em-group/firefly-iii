@@ -22,20 +22,20 @@
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
     {# CSS things #}
     {# libraries #}
-    <link href="v1/lib/bs/css/bootstrap.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
-    <link href="v1/lib/fa/css/font-awesome.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
-    <link href="v1/css/daterangepicker.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="v1/lib/bs/css/bootstrap.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}">
+    <link href="v1/lib/fa/css/font-awesome.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}">
+    <link href="v1/css/daterangepicker.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}">
 
     {# the theme #}
-    <link href="v1/lib/adminlte/css/AdminLTE.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
-    <link href="v1/lib/adminlte/css/skins/{{ config('whitelabels.adminlte_skin') }}.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="v1/lib/adminlte/css/AdminLTE.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}"/>
+    <link href="v1/lib/adminlte/css/skins/{{ config('whitelabels.adminlte_skin') }}.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}"/>
 
     {# Firefly III customisations #}
-    <link href="v1/css/firefly.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="v1/css/firefly.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}">
 
     {# Extra CSS for the demo: #}
     {% if not shownDemo %}
-        <link href="v1/lib/intro/introjs.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css"/>
+        <link href="v1/lib/intro/introjs.min.css?v={{ FF_VERSION }}" rel="stylesheet" type="text/css" nonce="{{ JS_NONCE }}">
     {% endif %}
 
     {# Any local custom CSS.  #}
@@ -49,7 +49,7 @@
     <script type="text/javascript" nonce="{{ JS_NONCE }}">var forceDemoOff = false;</script>
 
     {# favicons #}
-    {% include('partials.favicons') %}
+    {% include 'v1.partials.favicons' %}
 
 </head>
 <body class="{{ config('whitelabels.adminlte_skin') }} sidebar-mini hold-transition">
@@ -107,13 +107,13 @@
               </span>
                 </div>
             </form>
-            {% include('partials.menu-sidebar') %}
+            {% include('v1.partials.menu-sidebar') %}
         </section>
     </aside>
 
     <div class="content-wrapper">
         <section class="content-header">
-            {% include('partials.page-header') %}
+            {% include('v1.partials.page-header') %}
             {% block breadcrumbs %}{% endblock %}
         </section>
 
@@ -122,13 +122,13 @@
                 <div class="row no-print">
                     <div class="col-lg-12">
                         <p class="well">
-                            {% include ['demo.' ~ Route.getCurrentRoute.getName, 'demo.no-demo-text'] %}
+                            {% include ['v1.demo.' ~ Route.getCurrentRoute.getName, 'v1.demo.no-demo-text'] %}
                         </p>
                     </div>
                 </div>
             {% endif %}
 
-            {% include('partials.flashes') %}
+            {% include('v1.partials.flashes') %}
 
             {% block content %}{% endblock %}
         </section>
@@ -148,7 +148,7 @@
         <small class="text-muted">&copy; James Cole, <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0-or-later</a>.</small>
     </footer>
 
-    {% include('partials.control-bar') %}
+    {% include('v1.partials.control-bar') %}
 
 </div>
 <div class="modal fade" id="defaultModal" tabindex="-1" role="dialog">

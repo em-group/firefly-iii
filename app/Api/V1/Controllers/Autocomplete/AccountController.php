@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers\Autocomplete;
 
-
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Autocomplete\AutocompleteRequest;
 use FireflyIII\Models\Account;
@@ -42,7 +41,6 @@ class AccountController extends Controller
 
     private array                      $balanceTypes;
     private AccountRepositoryInterface $repository;
-
 
     /**
      * AccountController constructor.
@@ -90,7 +88,7 @@ class AccountController extends Controller
             }
 
             $return[] = [
-                'id'                      => $account->id,
+                'id'                      => (string)$account->id,
                 'name'                    => $account->name,
                 'name_with_balance'       => $nameWithBalance,
                 'type'                    => $account->accountType->type,
@@ -104,8 +102,6 @@ class AccountController extends Controller
 
         // custom order.
         $order = [AccountType::ASSET, AccountType::REVENUE, AccountType::EXPENSE];
-
-
         usort(
             $return, function ($a, $b) use ($order) {
             $pos_a = array_search($a['type'], $order);

@@ -23,12 +23,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Transaction;
 
-
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\Support\Http\Controllers\UserNavigation;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 
 /**
@@ -36,8 +36,6 @@ use Illuminate\View\View;
  */
 class EditController extends Controller
 {
-    use UserNavigation;
-
     /**
      * EditController constructor.
      *
@@ -51,7 +49,7 @@ class EditController extends Controller
         $this->middleware(
             static function ($request, $next) {
 
-                app('view')->share('title', (string) trans('firefly.transactions'));
+                app('view')->share('title', (string)trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -59,18 +57,17 @@ class EditController extends Controller
         );
     }
 
-
     /**
      * @param TransactionGroup $transactionGroup
      *
-     * @return Factory|View|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return Factory|View|RedirectResponse|Redirector
      */
     public function edit(TransactionGroup $transactionGroup)
     {
         app('preferences')->mark();
 
         if (!$this->isEditableGroup($transactionGroup)) {
-            return $this->redirectGroupToAccount($transactionGroup); // @codeCoverageIgnore
+            return $this->redirectGroupToAccount($transactionGroup); 
         }
 
         /** @var AccountRepositoryInterface $repository */
@@ -88,8 +85,7 @@ class EditController extends Controller
         $search          = sprintf('?%s', $parts['query'] ?? '');
         $previousUri     = str_replace($search, '', $previousUri);
 
-
-        return view(
+        return prefixView(
             'transactions.edit',
             compact(
                 'cash', 'allowedSourceDests', 'expectedSourceTypes', 'transactionGroup', 'allowedOpposingTypes', 'accountToTypes', 'defaultCurrency',

@@ -21,8 +21,6 @@
  */
 
 declare(strict_types=1);
-
-
 namespace FireflyIII\Support;
 
 use Carbon\Carbon;
@@ -249,8 +247,6 @@ class ParseDateString
 
         return false;
     }
-
-
     /**
      * @param string $date
      *
@@ -390,7 +386,7 @@ class ParseDateString
             $direction = 0 === strpos($part, '+') ? 1 : 0;
             $period    = $part[strlen($part) - 1];
             $number    = (int) substr($part, 1, -1);
-            if (!isset($functions[$direction][$period])) {
+            if (!array_key_exists($period, $functions[$direction])) {
                 Log::error(sprintf('No method for direction %d and period "%s".', $direction, $period));
                 continue;
             }

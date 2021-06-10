@@ -37,41 +37,6 @@ use Illuminate\Support\Collection;
 interface PiggyBankRepositoryInterface
 {
     /**
-     *
-     */
-    public function destroyAll(): void;
-
-    /**
-     * @param PiggyBank $piggyBank
-     * @param string    $objectGroupTitle
-     *
-     * @return PiggyBank
-     */
-    public function setObjectGroup(PiggyBank $piggyBank, string $objectGroupTitle): PiggyBank;
-
-    /**
-     * @param PiggyBank $piggyBank
-     *
-     * @return PiggyBank
-     */
-    public function removeObjectGroup(PiggyBank $piggyBank): PiggyBank;
-
-    /**
-     * @param PiggyBank $piggyBank
-     * @param string    $amount
-     *
-     * @return PiggyBank
-     */
-    public function setCurrentAmount(PiggyBank $piggyBank, string $amount): PiggyBank;
-
-    /**
-     * @param PiggyBank $piggyBank
-     *
-     * @return Collection
-     */
-    public function getAttachments(PiggyBank $piggyBank): Collection;
-
-    /**
      * @param PiggyBank $piggyBank
      * @param string    $amount
      *
@@ -104,11 +69,6 @@ interface PiggyBankRepositoryInterface
     public function canRemoveAmount(PiggyBank $piggyBank, string $amount): bool;
 
     /**
-     * Correct order of piggies in case of issues.
-     */
-    public function correctOrder(): void;
-
-    /**
      * Create a new event.
      *
      * @param PiggyBank $piggyBank
@@ -137,6 +97,11 @@ interface PiggyBankRepositoryInterface
     public function destroy(PiggyBank $piggyBank): bool;
 
     /**
+     *
+     */
+    public function destroyAll(): void;
+
+    /**
      * Find by name or return NULL.
      *
      * @param string $name
@@ -146,16 +111,6 @@ interface PiggyBankRepositoryInterface
     public function findByName(string $name): ?PiggyBank;
 
     /**
-     * Search for piggy banks.
-     *
-     * @param string $query
-     * @param int    $limit
-     *
-     * @return Collection
-     */
-    public function searchPiggyBank(string $query, int $limit): Collection;
-
-    /**
      * @param int $piggyBankId
      *
      * @return PiggyBank|null
@@ -163,12 +118,19 @@ interface PiggyBankRepositoryInterface
     public function findNull(int $piggyBankId): ?PiggyBank;
 
     /**
-     * @param int|null       $piggyBankId
-     * @param string|null    $piggyBankName
+     * @param int|null    $piggyBankId
+     * @param string|null $piggyBankName
      *
      * @return PiggyBank|null
      */
     public function findPiggyBank(?int $piggyBankId, ?string $piggyBankName): ?PiggyBank;
+
+    /**
+     * @param PiggyBank $piggyBank
+     *
+     * @return Collection
+     */
+    public function getAttachments(PiggyBank $piggyBank): Collection;
 
     /**
      * Get current amount saved in piggy bank.
@@ -264,14 +226,52 @@ interface PiggyBankRepositoryInterface
     public function removeAmount(PiggyBank $piggyBank, string $amount): bool;
 
     /**
+     * @param PiggyBank $piggyBank
+     *
+     * @return PiggyBank
+     */
+    public function removeObjectGroup(PiggyBank $piggyBank): PiggyBank;
+
+    /**
+     * Correct order of piggies in case of issues.
+     */
+    public function resetOrder(): void;
+
+    /**
+     * Search for piggy banks.
+     *
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function searchPiggyBank(string $query, int $limit): Collection;
+
+    /**
+     * @param PiggyBank $piggyBank
+     * @param string    $amount
+     *
+     * @return PiggyBank
+     */
+    public function setCurrentAmount(PiggyBank $piggyBank, string $amount): PiggyBank;
+
+    /**
+     * @param PiggyBank $piggyBank
+     * @param string    $objectGroupTitle
+     *
+     * @return PiggyBank
+     */
+    public function setObjectGroup(PiggyBank $piggyBank, string $objectGroupTitle): PiggyBank;
+
+    /**
      * Set specific piggy bank to specific order.
      *
      * @param PiggyBank $piggyBank
-     * @param int       $order
+     * @param int       $newOrder
      *
      * @return bool
      */
-    public function setOrder(PiggyBank $piggyBank, int $order): bool;
+    public function setOrder(PiggyBank $piggyBank, int $newOrder): bool;
 
     /**
      * @param User $user

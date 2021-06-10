@@ -46,6 +46,133 @@ trait RenderPartialViews
 {
 
     /**
+     * View for transactions in a budget for an account.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    protected function budgetEntry(array $attributes): string // generate view for report.
+    {
+        /** @var PopupReportInterface $popupHelper */
+        $popupHelper = app(PopupReportInterface::class);
+
+        /** @var BudgetRepositoryInterface $budgetRepository */
+        $budgetRepository = app(BudgetRepositoryInterface::class);
+        $budget           = $budgetRepository->findNull((int)$attributes['budgetId']);
+
+        $accountRepos = app(AccountRepositoryInterface::class);
+        $account      = $accountRepos->findNull((int)$attributes['accountId']);
+
+        $journals = $popupHelper->balanceForBudget($budget, $account, $attributes);
+
+        try {
+            $view = prefixView('popup.report.balance-amount', compact('journals', 'budget', 'account'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
+            Log::error(sprintf('Could not render: %s', $e->getMessage()));
+            $view = 'Firefly III could not render the view. Please see the log files.';
+        }
+        return $view;
+    }
+
+    /**
+     * Get options for budget report.
+     *
+     * @return string
+     */
+    protected function budgetReportOptions(): string // render a view
+    {
+        /** @var BudgetRepositoryInterface $repository */
+        $repository = app(BudgetRepositoryInterface::class);
+        $budgets    = $repository->getBudgets();
+
+        try {
+            $result = prefixView('reports.options.budget', compact('budgets'))->render();
+        } catch (Throwable $e) {// @phpstan-ignore-line
+            Log::error(sprintf('Cannot render reports.options.tag: %s', $e->getMessage()));
+            $result = 'Could not render view.';
+        }
+        return $result;
+    }
+
+    /**
+     * View for spent in a single budget.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    protected function budgetSpentAmount(array $attributes): string // generate view for report.
+    {
+        /** @var BudgetRepositoryInterface $budgetRepository */
+        $budgetRepository = app(BudgetRepositoryInterface::class);
+
+        /** @var PopupReportInterface $popupHelper */
+        $popupHelper = app(PopupReportInterface::class);
+
+        $budget = $budgetRepository->findNull((int)$attributes['budgetId']);
+        if (null === $budget) {
+            $budget = new Budget;
+        }
+        $journals = $popupHelper->byBudget($budget, $attributes);
+
+        try {
+            $view = prefixView('popup.report.budget-spent-amount', compact('journals', 'budget'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
+            Log::error(sprintf('Could not render: %s', $e->getMessage()));
+            $view = 'Firefly III could not render the view. Please see the log files.';
+        }
+        return $view;
+    }
+
+    /**
+     * View for transactions in a category.
+     *
+     * @param array $attributes
+     *
+     * @return string
+     */
+    protected function categoryEntry(array $attributes): string // generate view for report.
+    {
+        /** @var PopupReportInterface $popupHelper */
+        $popupHelper = app(PopupReportInterface::class);
+
+        /** @var CategoryRepositoryInterface $categoryRepository */
+        $categoryRepository = app(CategoryRepositoryInterface::class);
+        $category           = $categoryRepository->findNull((int)$attributes['categoryId']);
+        $journals           = $popupHelper->byCategory($category, $attributes);
+
+        try {
+            $view = prefixView('popup.report.category-entry', compact('journals', 'category'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
+            Log::error(sprintf('Could not render: %s', $e->getMessage()));
+            $view = 'Firefly III could not render the view. Please see the log files.';
+        }
+
+        return $view;
+    }
+
+    /**
+     * Get options for category report.
+     *
+     * @return string
+     */
+    protected function categoryReportOptions(): string // render a view
+    {
+        /** @var CategoryRepositoryInterface $repository */
+        $repository = app(CategoryRepositoryInterface::class);
+        $categories = $repository->getCategories();
+
+        try {
+            $result = prefixView('reports.options.category', compact('categories'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
+            Log::error(sprintf('Cannot render reports.options.category: %s', $e->getMessage()));
+            $result = 'Could not render view.';
+        }
+        return $result;
+    }
+
+    /**
      * Get options for double report.
      *
      * @return string
@@ -66,8 +193,7 @@ trait RenderPartialViews
                 if (
                     (
                         ($otherAccount->name === $account->name)
-                        ||
-                        (null !== $account->iban && null !== $otherAccount->iban && $otherAccount->iban === $account->iban)
+                        || (null !== $account->iban && null !== $otherAccount->iban && $otherAccount->iban === $account->iban)
                     )
                     && $otherAccount->id !== $account->id
                 ) {
@@ -76,155 +202,13 @@ trait RenderPartialViews
             }
         }
 
-        // @codeCoverageIgnoreStart
+
         try {
-            $result = view('reports.options.double', compact('set'))->render();
-        } catch (Throwable $e) {
+            $result = prefixView('reports.options.double', compact('set'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.options.tag: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }
-
-        // @codeCoverageIgnoreEnd
-
-        return $result;
-    }
-
-    /**
-     * View for transactions in a budget for an account.
-     *
-     * @param array $attributes
-     *
-     * @return string
-     */
-    protected function budgetEntry(array $attributes): string // generate view for report.
-    {
-        /** @var PopupReportInterface $popupHelper */
-        $popupHelper = app(PopupReportInterface::class);
-
-        /** @var BudgetRepositoryInterface $budgetRepository */
-        $budgetRepository = app(BudgetRepositoryInterface::class);
-        $budget           = $budgetRepository->findNull((int) $attributes['budgetId']);
-
-        $accountRepos = app(AccountRepositoryInterface::class);
-        $account      = $accountRepos->findNull((int) $attributes['accountId']);
-
-        $journals = $popupHelper->balanceForBudget($budget, $account, $attributes);
-        // @codeCoverageIgnoreStart
-        try {
-            $view = view('popup.report.balance-amount', compact('journals', 'budget', 'account'))->render();
-        } catch (Throwable $e) {
-            Log::error(sprintf('Could not render: %s', $e->getMessage()));
-            $view = 'Firefly III could not render the view. Please see the log files.';
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return $view;
-    }
-
-    /**
-     * Get options for budget report.
-     *
-     * @return string
-     */
-    protected function budgetReportOptions(): string // render a view
-    {
-        /** @var BudgetRepositoryInterface $repository */
-        $repository = app(BudgetRepositoryInterface::class);
-        $budgets    = $repository->getBudgets();
-        // @codeCoverageIgnoreStart
-        try {
-            $result = view('reports.options.budget', compact('budgets'))->render();
-        } catch (Throwable $e) {
-            Log::error(sprintf('Cannot render reports.options.tag: %s', $e->getMessage()));
-            $result = 'Could not render view.';
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return $result;
-    }
-
-    /**
-     * View for spent in a single budget.
-     *
-     * @param array $attributes
-     *
-     * @return string
-     */
-    protected function budgetSpentAmount(array $attributes): string // generate view for report.
-    {
-        /** @var BudgetRepositoryInterface $budgetRepository */
-        $budgetRepository = app(BudgetRepositoryInterface::class);
-
-        /** @var PopupReportInterface $popupHelper */
-        $popupHelper = app(PopupReportInterface::class);
-
-        $budget = $budgetRepository->findNull((int) $attributes['budgetId']);
-        if (null === $budget) {
-            $budget = new Budget;
-        }
-        $journals = $popupHelper->byBudget($budget, $attributes);
-        // @codeCoverageIgnoreStart
-        try {
-            $view = view('popup.report.budget-spent-amount', compact('journals', 'budget'))->render();
-        } catch (Throwable $e) {
-            Log::error(sprintf('Could not render: %s', $e->getMessage()));
-            $view = 'Firefly III could not render the view. Please see the log files.';
-        }
-
-        // @codeCoverageIgnoreEnd
-
-        return $view;
-    }
-
-    /**
-     * View for transactions in a category.
-     *
-     * @param array $attributes
-     *
-     * @return string
-     */
-    protected function categoryEntry(array $attributes): string // generate view for report.
-    {
-        /** @var PopupReportInterface $popupHelper */
-        $popupHelper = app(PopupReportInterface::class);
-
-        /** @var CategoryRepositoryInterface $categoryRepository */
-        $categoryRepository = app(CategoryRepositoryInterface::class);
-        $category           = $categoryRepository->findNull((int) $attributes['categoryId']);
-        $journals           = $popupHelper->byCategory($category, $attributes);
-
-        try {
-            $view = view('popup.report.category-entry', compact('journals', 'category'))->render();
-        } catch (Throwable $e) {
-            Log::error(sprintf('Could not render: %s', $e->getMessage()));
-            $view = 'Firefly III could not render the view. Please see the log files.';
-        }
-
-        return $view;
-    }
-
-    /**
-     * Get options for category report.
-     *
-     * @return string
-     */
-    protected function categoryReportOptions(): string // render a view
-    {
-        /** @var CategoryRepositoryInterface $repository */
-        $repository = app(CategoryRepositoryInterface::class);
-        $categories = $repository->getCategories();
-        // @codeCoverageIgnoreStart
-        try {
-            $result = view('reports.options.category', compact('categories'))->render();
-        } catch (Throwable $e) {
-            Log::error(sprintf('Cannot render reports.options.category: %s', $e->getMessage()));
-            $result = 'Could not render view.';
-        }
-
-        // @codeCoverageIgnoreEnd
-
         return $result;
     }
 
@@ -243,23 +227,20 @@ trait RenderPartialViews
         /** @var PopupReportInterface $popupHelper */
         $popupHelper = app(PopupReportInterface::class);
 
-        $account = $accountRepository->findNull((int) $attributes['accountId']);
+        $account = $accountRepository->findNull((int)$attributes['accountId']);
 
         if (null === $account) {
             return 'This is an unknown account. Apologies.';
         }
 
         $journals = $popupHelper->byExpenses($account, $attributes);
-        // @codeCoverageIgnoreStart
+
         try {
-            $view = view('popup.report.expense-entry', compact('journals', 'account'))->render();
-        } catch (Throwable $e) {
+            $view = prefixView('popup.report.expense-entry', compact('journals', 'account'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
-
-        // @codeCoverageIgnoreEnd
-
         return $view;
     }
 
@@ -280,7 +261,7 @@ trait RenderPartialViews
         foreach ($currentActions as $entry) {
             $count = ($index + 1);
             try {
-                $actions[] = view(
+                $actions[] = prefixView(
                     'rules.partials.action',
                     [
                         'oldAction'  => $entry->action_type,
@@ -289,12 +270,12 @@ trait RenderPartialViews
                         'count'      => $count,
                     ]
                 )->render();
-                // @codeCoverageIgnoreStart
-            } catch (Throwable $e) {
+
+            } catch (Throwable $e) { // @phpstan-ignore-line
                 Log::debug(sprintf('Throwable was thrown in getCurrentActions(): %s', $e->getMessage()));
                 Log::error($e->getTraceAsString());
             }
-            // @codeCoverageIgnoreEnd
+
             ++$index;
         }
 
@@ -317,12 +298,10 @@ trait RenderPartialViews
         foreach ($operators as $key => $operator) {
             if ('user_action' !== $key && false === $operator['alias']) {
 
-                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
             }
         }
         asort($triggers);
-
-
         $index           = 0;
         $renderedEntries = [];
         // todo must be repos
@@ -332,7 +311,7 @@ trait RenderPartialViews
             if ('user_action' !== $entry->trigger_type) {
                 $count = ($index + 1);
                 try {
-                    $renderedEntries[] = view(
+                    $renderedEntries[] = prefixView(
                         'rules.partials.trigger',
                         [
                             'oldTrigger' => OperatorQuerySearch::getRootOperator($entry->trigger_type),
@@ -342,12 +321,12 @@ trait RenderPartialViews
                             'triggers'   => $triggers,
                         ]
                     )->render();
-                    // @codeCoverageIgnoreStart
-                } catch (Throwable $e) {
+
+                } catch (Throwable $e) { // @phpstan-ignore-line
                     Log::debug(sprintf('Throwable was thrown in getCurrentTriggers(): %s', $e->getMessage()));
                     Log::error($e->getTraceAsString());
                 }
-                // @codeCoverageIgnoreEnd
+
                 ++$index;
             }
         }
@@ -369,23 +348,20 @@ trait RenderPartialViews
 
         /** @var PopupReportInterface $popupHelper */
         $popupHelper = app(PopupReportInterface::class);
-        $account     = $accountRepository->findNull((int) $attributes['accountId']);
+        $account     = $accountRepository->findNull((int)$attributes['accountId']);
 
         if (null === $account) {
             return 'This is an unknown category. Apologies.';
         }
 
         $journals = $popupHelper->byIncome($account, $attributes);
-        // @codeCoverageIgnoreStart
+
         try {
-            $view = view('popup.report.income-entry', compact('journals', 'account'))->render();
-        } catch (Throwable $e) {
+            $view = prefixView('popup.report.income-entry', compact('journals', 'account'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render: %s', $e->getMessage()));
             $view = 'Firefly III could not render the view. Please see the log files.';
         }
-
-        // @codeCoverageIgnoreEnd
-
         return $view;
     }
 
@@ -396,16 +372,13 @@ trait RenderPartialViews
      */
     protected function noReportOptions(): string // render a view
     {
-        // @codeCoverageIgnoreStart
+
         try {
-            $result = view('reports.options.no-options')->render();
-        } catch (Throwable $e) {
+            $result = prefixView('reports.options.no-options')->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.options.no-options: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }
-
-        // @codeCoverageIgnoreEnd
-
         return $result;
     }
 
@@ -420,16 +393,13 @@ trait RenderPartialViews
         $repository = app(TagRepositoryInterface::class);
         $tags       = $repository->get();
 
-        // @codeCoverageIgnoreStart
+
         try {
-            $result = view('reports.options.tag', compact('tags'))->render();
-        } catch (Throwable $e) {
+            $result = prefixView('reports.options.tag', compact('tags'))->render();
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.options.tag: %s', $e->getMessage()));
             $result = 'Could not render view.';
         }
-
-        // @codeCoverageIgnoreEnd
-
         return $result;
     }
 }

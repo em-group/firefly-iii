@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
-
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\BudgetLimit;
 use Illuminate\Console\Command;
@@ -47,7 +46,6 @@ class BudgetLimitCurrency extends Command
      */
     protected $signature = 'firefly-iii:bl-currency {--F|force : Force the execution of this command.}';
 
-
     /**
      * Execute the console command.
      *
@@ -56,13 +54,13 @@ class BudgetLimitCurrency extends Command
     public function handle(): int
     {
         $start = microtime(true);
-        // @codeCoverageIgnoreStart
+
         if ($this->isExecuted() && true !== $this->option('force')) {
             $this->warn('This command has already been executed.');
 
             return 0;
         }
-        // @codeCoverageIgnoreEnd
+
 
         $count        = 0;
         $budgetLimits = BudgetLimit::get();
@@ -103,12 +101,11 @@ class BudgetLimitCurrency extends Command
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool) $configVar->data;
+            return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
+        return false; 
     }
-
 
     /**
      *

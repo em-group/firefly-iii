@@ -39,14 +39,10 @@ class MailError extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    /** @var string Destination */
-    protected $destination;
-    /** @var array Exception information */
-    protected $exception;
-    /** @var string IP address */
-    protected $ipAddress;
-    /** @var array User information */
-    protected $userData;
+    protected string $destination;
+    protected array $exception;
+    protected string $ipAddress;
+    protected array $userData;
 
     /**
      * MailError constructor.
@@ -72,11 +68,12 @@ class MailError extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $email             = config('firefly.site_owner');
-        $args              = $this->exception;
-        $args['loggedIn']  = $this->userData['id'] > 0;
-        $args['user']      = $this->userData;
-        $args['ipAddress'] = $this->ipAddress;
+        $email            = config('firefly.site_owner');
+        $args             = $this->exception;
+        $args['loggedIn'] = $this->userData['id'] > 0;
+        $args['user']     = $this->userData;
+        $args['ip']       = $this->ipAddress;
+        $args['token']    = config('firefly.ipinfo_token');
         if ($this->attempts() < 3) {
             try {
                 Mail::send(
@@ -88,7 +85,7 @@ class MailError extends Job implements ShouldQueue
                         }
                     }
                 );
-            } catch (Exception $e) {
+            } catch (Exception $e) { // @phpstan-ignore-line
                 Log::error('Exception when mailing: ' . $e->getMessage());
             }
         }

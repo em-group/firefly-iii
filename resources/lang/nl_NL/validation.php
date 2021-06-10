@@ -60,6 +60,7 @@ return [
     'less'                           => ':attribute moet minder zijn dan 10.000.000',
     'active_url'                     => ':attribute is geen geldige URL.',
     'after'                          => ':attribute moet een datum na :date zijn.',
+    'date_after'                     => 'De startdatum moet vóór de einddatum zijn.',
     'alpha'                          => ':attribute mag alleen letters bevatten.',
     'alpha_dash'                     => ':attribute mag alleen letters, nummers, onderstreep(_) en strepen(-) bevatten.',
     'alpha_num'                      => ':attribute mag alleen letters en nummers bevatten.',
@@ -133,6 +134,8 @@ return [
     'starts_with'                    => 'De waarde moet beginnen met :values.',
     'unique_webhook'                 => 'Je hebt al een webhook met deze waarden.',
     'unique_existing_webhook'        => 'Je hebt al een andere webhook met deze waarden.',
+    'same_account_type'              => 'Beide rekeningen moeten van hetzelfde rekeningtype zijn',
+    'same_account_currency'          => 'Beide rekeningen moeten dezelfde valuta hebben',
 
     'secure_password'             => 'Dit is geen veilig wachtwoord. Probeer het nog een keer. Zie ook: https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Dit is geen geldige herhaling voor periodieke transacties.',
@@ -181,6 +184,8 @@ return [
     'withdrawal_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
     'withdrawal_dest_need_data'   => 'Om door te gaan moet een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
     'withdrawal_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+
+    'generic_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
 
     'deposit_source_need_data' => 'Om door te gaan moet een geldige bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
     'deposit_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
