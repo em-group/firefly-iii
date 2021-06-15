@@ -57,7 +57,8 @@ class FixAccountOrder extends Command
         $this->stupidLaravel();
         $start = microtime(true);
 
-        $users = User::get();
+        $users = User::whereHas('accounts')->lazy();
+
         foreach ($users as $user) {
             $this->repository->setUser($user);
             $this->repository->resetAccountOrder();
