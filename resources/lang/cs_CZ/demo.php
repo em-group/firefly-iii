@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III podporuje vícero měn. Ačkoli výchozí je Euro, je možné ho nastavit na americký dolar a mnoho dalších měn. Jak můžete vidět, malá sbírka měn je obsažena a je možné si přidat svou vlastní. Změna výchozí měny se nedotkne té u existujících transakcí: Firefly III podporuje použití vícero měn současně.',
     'transactions-index'     => 'Tyto výdaje, vklady a převody nejsou zvlášť nápadité. Byly vytvořeny automaticky.',
     'piggy-banks-index'      => 'Jak je možné vidět, jsou zde tři pokladničky. Pomocí tlačítek plus a mínus ovlivníte částku v každé z pokladniček. Kliknutí na název pokladničky zobrazí správu pro každou z nich.',
-    'import-index'           => 'Do Firefly III lze importovat libovolný CSV soubor. Také podporuje importování dat z bunq a Specter. Ostatní banky a finanční slučovače budou implementovány v budoucnu. Jako demouživatel můžete v akci vidět pouze podstrčeného poskytovatele. Vytvoří nějaké náhodné transakce pro zobrazení toho, jak proces funguje.',
     'profile-index'          => 'Mějte na paměti, že obsah demostránky je každé čtyři hodny smazán. Přístup může být zrušen kdykoli. Toto se děje automaticky a nejedná se o chybu.',
 ];

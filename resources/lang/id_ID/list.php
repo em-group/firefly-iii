@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Aturan yang relevan',
     'active'                  => 'Aktif?',
     'percentage'              => 'pct.',
+    'recurring_transaction'   => 'Recurring transaction',
     'next_due'                => 'Next due',
     'transaction_type'        => 'Type',
     'lastActivity'            => 'Aktifitas terakhir',
     'balanceDiff'             => 'Perbedaan saldo',
-    'matchesOn'               => 'Cocok di',
     'other_meta_data'         => 'Other meta data',
     'account_type'            => 'Jenis akun',
     'created_at'              => 'Dibuat di',
     'account'                 => 'Akun',
+    'external_uri'            => 'External URI',
     'matchingAmount'          => 'Jumlah',
-    'split_number'            => 'Split #',
     'destination'             => 'Tujuan',
     'source'                  => 'Sumber',
     'next_expected_match'     => 'Transaksi yang diharapkan berikutnya',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Berulang',
     'description'             => 'Deskripsi',
     'amount'                  => 'Jumlah',
-    'internal_reference'      => 'Referensi Internal',
     'date'                    => 'Tanggal',
     'interest_date'           => 'Tanggal Bunga',
     'book_date'               => 'Tanggal Buku',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Tenggat waktu',
     'payment_date'            => 'Tanggal pembayaran',
     'invoice_date'            => 'Tanggal Faktur',
-    'interal_reference'       => 'Referensi Internal',
+    'internal_reference'      => 'Internal reference',
     'notes'                   => 'Catatan',
     'from'                    => 'Dari',
     'piggy_bank'              => 'Celengan',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Jumlah lampiran',
     'bills_count'             => 'Jumlah tagihan',
     'categories_count'        => 'Jumlah kategori',
-    'import_jobs_count'       => 'Jumlah pekerjaan impor',
     'budget_count'            => 'Jumlah anggaran',
     'rule_and_groups_count'   => 'Jumlah aturan dan kelompok aturan',
     'tags_count'              => 'Jumlah label',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Jumlah penarikan',
     'sum_deposits'            => 'Jumlah simpanan',
     'sum_transfers'           => 'Jumlah transfer',
+    'sum_reconciliations'     => 'Sum of reconciliations',
     'reconcile'               => 'Menyesuaikan',
-    'account_on_spectre'      => 'Rekening (Spectre)',
-    'account_on_ynab'         => 'Rekening (YNAB)',
-    'do_import'               => 'Ambil dari rekening ini',
     'sepa_ct_id'              => 'SEPA End to End Identifier',
     'sepa_ct_op'              => 'SEPA Opposing Account Identifier',
     'sepa_db'                 => 'SEPA Mandate Identifier',

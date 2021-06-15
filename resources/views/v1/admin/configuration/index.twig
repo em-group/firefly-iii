@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render }}
@@ -64,11 +64,7 @@
                     <div class="box-body">
                         <p class="text-info">Firefly III version: <strong>{{ config('firefly.version') }}</strong></p>
                         <p class="text-info">
-                            {% if newerRelease %}
-                                Newer version is available: <strong>{{ latestReleaseVersion }}</strong>
-                            {% else %}
-                                Firefly is up-to-date!
-                            {% endif %}
+                            {{ latestReleaseVersion }}
                         </p>
                     </div>
                 </div>

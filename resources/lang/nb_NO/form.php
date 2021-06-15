@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,34 +38,28 @@ return [
     'match'                       => 'Treff på',
     'strict'                      => 'Streng modus',
     'repeat_freq'                 => 'Gjentas',
-    'journal_currency_id'         => 'Valuta',
+    'object_group'                => 'Group',
+    'location'                    => 'Location',
+    'update_channel'              => 'Update channel',
     'currency_id'                 => 'Valuta',
     'transaction_currency_id'     => 'Valuta',
+    'auto_budget_currency_id'     => 'Currency',
     'external_ip'                 => 'Serverens eksterne IP',
     'attachments'                 => 'Vedlegg',
-    'journal_amount'              => 'Beløp',
-    'journal_source_name'         => 'Inntektskonto (kilde)',
-    'keep_bill_id'                => 'Regning',
-    'journal_source_id'           => 'Brukskonto (kilde)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Bekreft passordsikkerhet',
     'source_account'              => 'Kildekonto',
     'destination_account'         => 'Målkonto',
-    'journal_destination_id'      => 'Brukskonto (destinasjon)',
     'asset_destination_account'   => 'Destinasjonskonto',
     'include_net_worth'           => 'Inkluder i formue',
     'asset_source_account'        => 'Kildekonto',
     'journal_description'         => 'Beskrivelse',
     'note'                        => 'Notater',
-    'store_new_transaction'       => 'Store new transaction',
-    'split_journal'               => 'Del opp denne transaksjonen',
-    'split_journal_explanation'   => 'Del denne transaksjonen opp i flere deler',
     'currency'                    => 'Valuta',
     'account_id'                  => 'Aktivakonto',
     'budget_id'                   => 'Busjett',
     'opening_balance'             => 'Opening balance',
     'tagMode'                     => 'Taggmodus',
-    'tag_position'                => 'Stedtagg',
     'virtual_balance'             => 'Virtual balance',
     'targetamount'                => 'Målbeløp',
     'account_role'                => 'Account role',
@@ -80,30 +74,23 @@ return [
     'expense_account'             => 'Utgiftskonto',
     'revenue_account'             => 'Inntektskonto',
     'decimal_places'              => 'Desimaler',
-    'exchange_rate_instruction'   => 'Utenlandske valutaer',
-    'source_amount'               => 'Beløp (kilde)',
     'destination_amount'          => 'Beløp (destinasjon)',
-    'native_amount'               => 'Opprinnelig beløp',
     'new_email_address'           => 'Ny epostadresse',
     'verification'                => 'Bekreftelse',
     'api_key'                     => 'API-nøkkel',
     'remember_me'                 => 'Husk meg',
     'liability_type_id'           => 'Gjeldstype',
+    'liability_type'              => 'Liability type',
     'interest'                    => 'Rente',
     'interest_period'             => 'Renteperiode',
 
-    'source_account_asset'        => 'Kildekonto (aktivakonto)',
-    'destination_account_expense' => 'Destinasjonskonto (utgiftskonto)',
-    'destination_account_asset'   => 'Destinasjonskonto (aktivakonto)',
-    'source_account_revenue'      => 'Kildekonto (inntektskonto)',
-    'type'                        => 'Type',
-    'convert_Withdrawal'          => 'Konverter uttak',
-    'convert_Deposit'             => 'Konverter innskudd',
-    'convert_Transfer'            => 'Konverter overføring',
+    'type'               => 'Type',
+    'convert_Withdrawal' => 'Konverter uttak',
+    'convert_Deposit'    => 'Konverter innskudd',
+    'convert_Transfer'   => 'Konverter overføring',
 
     'amount'                      => 'Beløp',
     'foreign_amount'              => 'Utenlandske beløp',
-    'existing_attachments'        => 'Eksisterende vedlegg',
     'date'                        => 'Dato',
     'interest_date'               => 'Rentedato',
     'book_date'                   => 'Bokføringsdato',
@@ -125,12 +112,6 @@ return [
     'date_format'                 => 'Datoformat',
     'specifix'                    => 'Bank- eller filspesifikke rettelser',
     'attachments[]'               => 'Vedlegg',
-    'store_new_withdrawal'        => 'Lagre nytt uttak',
-    'store_new_deposit'           => 'Lagre nytt innskudd',
-    'store_new_transfer'          => 'Lagre ny overføring',
-    'add_new_withdrawal'          => 'Opprett nytt uttak',
-    'add_new_deposit'             => 'Opprett nytt innskudd',
-    'add_new_transfer'            => 'Opprett ny overføring',
     'title'                       => 'Tittel',
     'notes'                       => 'Notater',
     'filename'                    => 'Filnavn',
@@ -140,8 +121,8 @@ return [
     'stop_processing'             => 'Stopp prosessering',
     'start_date'                  => 'Startgrense',
     'end_date'                    => 'Sluttgrense',
-    'include_attachments'         => 'Ta med opplastede vedlegg',
-    'include_old_uploads'         => 'Ta med importert data',
+    'start'                       => 'Start of range',
+    'end'                         => 'End of range',
     'delete_account'              => 'Slett konto ":name"',
     'delete_bill'                 => 'Slett regning ":name"',
     'delete_budget'               => 'Slett budsjett ":name"',
@@ -157,8 +138,10 @@ return [
     'user_areYouSure'             => 'Hvis du sletter brukeren ":email", vil alt bli borte. Det er ikke mulig å angre eller gjenopprette brukeren. Hvis du sletter din egen bruker, vil du miste tilgangen til Firefly III.',
     'attachment_areYouSure'       => 'Er du sikker på at du vil slette vedlegget ved navn ":name"?',
     'account_areYouSure'          => 'Er du sikker på at du vil slette brukeren ved navn ":name"?',
+    'account_areYouSure_js'       => 'Are you sure you want to delete the account named "{name}"?',
     'bill_areYouSure'             => 'Er du sikker på at du vil slette regningen ved navn ":name"?',
     'rule_areYouSure'             => 'Er du sikker på at du vil slette regelen ved navn ":title"?',
+    'object_group_areYouSure'     => 'Are you sure you want to delete the group titled ":title"?',
     'ruleGroup_areYouSure'        => 'Er du sikker på at du vil slette regelgruppen ved navn ":title"?',
     'budget_areYouSure'           => 'Er du sikker på at du vil slette budsjettet ved navn ":name"?',
     'category_areYouSure'         => 'Er du sikker på at du vil slette kategorien ved navn ":name"?',
@@ -175,15 +158,21 @@ return [
     'delete_all_permanently'      => 'Slett valgte elementer permanent',
     'update_all_journals'         => 'Oppdater disse transaksjonene',
     'also_delete_transactions'    => 'Den ene transaksjonen som er koblet til denne kontoen, vil også bli slettet. | Alle :count transaksjoner som er koblet til denne kontoen, slettes også.',
+    'also_delete_transactions_js' => 'No transactions|The only transaction connected to this account will be deleted as well.|All {count} transactions connected to this account will be deleted as well.',
     'also_delete_connections'     => 'Den ene transaksjonen som er knyttet til denne koblingstypen, vil miste denne forbindelsen. | Alle :count transaksjoner knyttet til denne koblingstypen vil miste forbindelsen.',
     'also_delete_rules'           => 'Den ene regelen som er knyttet til denne regelgruppen, vil også bli slettet. | Alle de :count reglene som er knyttet til denne regelgruppen slettes også.',
     'also_delete_piggyBanks'      => 'Den ene sparegrisen som er koblet til denne kontoen, vil også bli slettet. | Alle de :count sparegrisene knyttet til denne kontoen slettes også.',
+    'also_delete_piggyBanks_js'   => 'No piggy banks|The only piggy bank connected to this account will be deleted as well.|All {count} piggy banks connected to this account will be deleted as well.',
+    'not_delete_piggy_banks'      => 'The piggy bank connected to this group will not be deleted.|The :count piggy banks connected to this group will not be deleted.',
     'bill_keep_transactions'      => 'Ingen transaksjoner knyttet til denne regningen blir slettet.|Ingen av de :count transaksjonene knyttet til denne regningen vil bli slettet.',
     'budget_keep_transactions'    => 'Ingen transaksjoner knyttet til dette budsjettet blir slettet.|Ingen av de :count transaksjonene knyttet til dette budsjettet vil bli slettet.',
     'category_keep_transactions'  => 'Ingen transaksjoner knyttet til denne kategorien blir slettet.|Ingen av de :count transaksjonene knyttet til denne kategorien vil bli slettet.',
     'recurring_keep_transactions' => 'Ingen transaksjoner knyttet til denne gjentakende transaksjonen blir slettet.|Ingen av de :count transaksjonene knyttet til denne gjentakende transaksjonen vil bli slettet.',
     'tag_keep_transactions'       => 'Ingen transaksjoner knyttet til denne tag blir slettet.|Ingen av de :count transaksjonene knyttet til denne tag vil bli slettet.',
     'check_for_updates'           => 'Se etter oppdateringer',
+    'liability_direction'         => 'Liability in/out',
+
+    'delete_object_group' => 'Delete group ":title"',
 
     'email'                 => 'Epostadresse',
     'password'              => 'Passord',
@@ -191,6 +180,7 @@ return [
     'blocked'               => 'Er sperret?',
     'blocked_code'          => 'Årsak til sperring',
     'login_name'            => 'Logg inn',
+    'is_owner'              => 'Is admin?',
 
     // import
     'apply_rules'           => 'Bruk regler',
@@ -205,18 +195,12 @@ return [
     'is_demo_site'          => 'Er demonettsted',
 
     // import
-    'import_file'           => 'Importer fil',
     'configuration_file'    => 'Konfigurasjonsfil',
-    'import_file_type'      => 'Importer filtype',
     'csv_comma'             => 'Et komma (,)',
     'csv_semicolon'         => 'Et semikolon (;)',
     'csv_tab'               => 'En tabulator (usynlig)',
     'csv_delimiter'         => 'CSV-feltskilletegn',
-    'csv_import_account'    => 'Standard importkonto',
-    'csv_config'            => 'CSV-importkonfigurasjon',
     'client_id'             => 'Klient-ID',
-    'service_secret'        => 'Service-hemmelighet',
-    'app_secret'            => 'App-hemmelighet',
     'app_id'                => 'App ID',
     'secret'                => 'Secret',
     'public_key'            => 'Offentlig nøkkel',
@@ -257,5 +241,15 @@ return [
     'deposit_source_id'         => 'Source account',
     'expected_on'               => 'Expected on',
     'paid'                      => 'Paid',
+
+    'auto_budget_type'   => 'Auto-budget',
+    'auto_budget_amount' => 'Auto-budget amount',
+    'auto_budget_period' => 'Auto-budget period',
+
+    'collected' => 'Collected',
+    'submitted' => 'Submitted',
+    'key'       => 'Key',
+    'value'     => 'Content of record',
+
 
 ];

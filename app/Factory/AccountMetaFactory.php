@@ -2,22 +2,22 @@
 
 /**
  * AccountMetaFactory.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -35,27 +35,6 @@ use Log;
 class AccountMetaFactory
 {
     /**
-     * Constructor.
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
-    /**
-     * @param array $data
-     *
-     * @return AccountMeta|null
-     */
-    public function create(array $data): ?AccountMeta
-    {
-        return AccountMeta::create($data);
-    }
-
-    /**
      * Create update or delete meta data.
      *
      * @param Account $account
@@ -68,7 +47,6 @@ class AccountMetaFactory
     {
         /** @var AccountMeta $entry */
         $entry = $account->accountMeta()->where('name', $field)->first();
-
         // must not be an empty string:
         if ('' !== $value) {
 
@@ -89,14 +67,24 @@ class AccountMetaFactory
         if ('' === $value && null !== $entry) {
             try {
                 $entry->delete();
-            } catch (Exception $e) { // @codeCoverageIgnore
-                Log::debug(sprintf('Could not delete entry: %s', $e->getMessage())); // @codeCoverageIgnore
+            } catch (Exception $e) { // @phpstan-ignore-line
+                Log::debug(sprintf('Could not delete entry: %s', $e->getMessage())); 
             }
 
             return null;
         }
 
         return $entry;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return AccountMeta|null
+     */
+    public function create(array $data): ?AccountMeta
+    {
+        return AccountMeta::create($data);
     }
 
 }

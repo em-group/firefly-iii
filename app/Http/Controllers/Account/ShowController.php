@@ -1,22 +1,22 @@
 <?php
 /**
  * ShowController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -31,10 +31,12 @@ use FireflyIII\Models\Account;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\PeriodOverview;
-use FireflyIII\Support\Http\Controllers\UserNavigation;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
-use View;
+use Illuminate\View\View;
 
 /**
  * Class ShowController
@@ -42,15 +44,14 @@ use View;
  */
 class ShowController extends Controller
 {
-    use UserNavigation, PeriodOverview;
+    use PeriodOverview;
 
-    /** @var CurrencyRepositoryInterface The currency repository */
-    private $currencyRepos;
-    /** @var AccountRepositoryInterface The account repository */
-    private $repository;
+    private CurrencyRepositoryInterface $currencyRepos;
+    private AccountRepositoryInterface  $repository;
 
     /**
      * ShowController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -73,22 +74,24 @@ class ShowController extends Controller
         );
     }
 
-
     /**
      * Show an account.
      *
-     * @param Request $request
-     * @param Account $account
+     * @param Request     $request
+     * @param Account     $account
      * @param Carbon|null $start
      * @param Carbon|null $end
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
+     * @return RedirectResponse|Redirector|Factory|View
      * @throws Exception
+     *
      */
     public function show(Request $request, Account $account, Carbon $start = null, Carbon $end = null)
     {
+        $objectType = config(sprintf('firefly.shortNamesByFullName.%s', $account->accountType->type));
+
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+            return $this->redirectAccountToAccount($account); 
         }
 
         /** @var Carbon $start */
@@ -97,11 +100,11 @@ class ShowController extends Controller
         $end = $end ?? session('end');
 
         if ($end < $start) {
-            [$start, $end] = [$end, $start]; // @codeCoverageIgnore
+            [$start, $end] = [$end, $start]; 
         }
-
-        $objectType       = config(sprintf('firefly.shortNamesByFullName.%s', $account->accountType->type));
-        $today            = new Carbon;
+        $location         = $this->repository->getLocation($account);
+        $attachments      = $this->repository->getAttachments($account);
+        $today            = today(config('app.timezone'));
         $subTitleIcon     = config(sprintf('firefly.subIconsByIdentifier.%s', $account->accountType->type));
         $page             = (int)$request->get('page');
         $pageSize         = (int)app('preferences')->get('listPageSize', 50)->data;
@@ -121,14 +124,29 @@ class ShowController extends Controller
             ->setPage($page)->withAccountInformation()->withCategoryInformation()
             ->setRange($start, $end);
         $groups = $collector->getPaginatedGroups();
+
         $groups->setPath(route('accounts.show', [$account->id, $start->format('Y-m-d'), $end->format('Y-m-d')]));
         $showAll = false;
+        $balance = app('steam')->balance($account, $end);
 
-        return view(
+        return prefixView(
             'accounts.show',
             compact(
-                'account', 'showAll', 'objectType', 'currency', 'today', 'periods', 'subTitleIcon', 'groups', 'subTitle', 'start', 'end',
-                'chartUri'
+                'account',
+                'showAll',
+                'objectType',
+                'currency',
+                'today',
+                'periods',
+                'subTitleIcon',
+                'groups',
+                'attachments',
+                'subTitle',
+                'start',
+                'end',
+                'chartUri',
+                'location',
+                'balance'
             )
         );
     }
@@ -138,19 +156,22 @@ class ShowController extends Controller
      *
      * @param Request $request
      * @param Account $account
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
+     *
+     * @return RedirectResponse|Redirector|Factory|View
      * @throws Exception
+     *
      */
     public function showAll(Request $request, Account $account)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+            return $this->redirectAccountToAccount($account); 
         }
-
+        $location     = $this->repository->getLocation($account);
         $isLiability  = $this->repository->isLiability($account);
+        $attachments  = $this->repository->getAttachments($account);
         $objectType   = config(sprintf('firefly.shortNamesByFullName.%s', $account->accountType->type));
-        $end          = new Carbon;
-        $today        = new Carbon;
+        $end          = today(config('app.timezone'));
+        $today        = today(config('app.timezone'));
         $start        = $this->repository->oldestJournalDate($account) ?? Carbon::now()->startOfMonth();
         $subTitleIcon = config('firefly.subIconsByIdentifier.' . $account->accountType->type);
         $page         = (int)$request->get('page');
@@ -165,12 +186,28 @@ class ShowController extends Controller
         $groups->setPath(route('accounts.show.all', [$account->id]));
         $chartUri = route('chart.account.period', [$account->id, $start->format('Y-m-d'), $end->format('Y-m-d')]);
         $showAll  = true;
+        $balance  = app('steam')->balance($account, $end);
 
-        return view(
+        return prefixView(
             'accounts.show',
-            compact('account', 'showAll', 'objectType', 'isLiability', 'currency', 'today',
-                    'chartUri', 'periods', 'subTitleIcon', 'groups', 'subTitle', 'start', 'end')
+            compact(
+                'account',
+                'showAll',
+                'location',
+                'objectType',
+                'isLiability',
+                'attachments',
+                'currency',
+                'today',
+                'chartUri',
+                'periods',
+                'subTitleIcon',
+                'groups',
+                'subTitle',
+                'start',
+                'end',
+                'balance'
+            )
         );
     }
-
 }

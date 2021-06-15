@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,6 +45,7 @@ return [
     'at_least_one_repetition'        => '至少需要一次重複。',
     'require_repeat_until'           => '要嘛重複次數，要嘛結束日期 (repeat_until)，須二擇其一。',
     'require_currency_info'          => '此欄位內容須要貨幣資訊。',
+    'not_transfer_account'           => 'This account is not an account that can be used for transfers.',
     'require_currency_amount'        => '此欄位內容須要外幣資訊。',
     'equal_description'              => '交易描述不應等同全域描述。',
     'file_invalid_mime'              => '檔案 ":name" 類型為 ":mime"，不允許上載。',
@@ -56,10 +57,10 @@ return [
     'at_least_one_action'            => '規則必須至少有一個動作。',
     'base64'                         => '這不是有效的 base64 編碼資料。',
     'model_id_invalid'               => '指定的 ID 對於此模型似乎無效。',
-    'more'                           => ':attribute 必須大於零。',
     'less'                           => ':attribute 必須小於 10,000,000。',
     'active_url'                     => ':attribute 不是有效的 URL。',
     'after'                          => ':attribute 必須是一個在 :date 之後的日期。',
+    'date_after'                     => 'The start date must be before the end date.',
     'alpha'                          => ':attribute 只能包含字母。',
     'alpha_dash'                     => ':attribute 只能包含字母、數字和破折號。',
     'alpha_num'                      => ':attribute 只能包含數字和字母。',
@@ -120,23 +121,31 @@ return [
     'string'                         => ':attribute 必須是字串。',
     'url'                            => ':attribute 格式無效。',
     'timezone'                       => ':attribute 必須是有效的時區。',
-    '2fa_code'                    => '欄位 :attribute 無效。',
-    'dimensions'                  => ':attribute 圖片尺寸無效。',
-    'distinct'                    => '欄位 :attribute 有重複值。',
-    'file'                        => ':attribute 必須是檔案。',
-    'in_array'                    => '欄位 :attribute 不存在於 :other。',
-    'present'                     => ':attribute 欄位必須存在。',
-    'amount_zero'                 => '總金額不能為零。',
-    'current_target_amount'       => 'The current amount must be less than the target amount.',
-    'unique_piggy_bank_for_user'  => '小豬撲滿的名稱必須是獨一無二的。',
+    '2fa_code'                       => '欄位 :attribute 無效。',
+    'dimensions'                     => ':attribute 圖片尺寸無效。',
+    'distinct'                       => '欄位 :attribute 有重複值。',
+    'file'                           => ':attribute 必須是檔案。',
+    'in_array'                       => '欄位 :attribute 不存在於 :other。',
+    'present'                        => ':attribute 欄位必須存在。',
+    'amount_zero'                    => '總金額不能為零。',
+    'current_target_amount'          => 'The current amount must be less than the target amount.',
+    'unique_piggy_bank_for_user'     => '小豬撲滿的名稱必須是獨一無二的。',
+    'unique_object_group'            => 'The group name must be unique',
+    'starts_with'                    => 'The value must start with :values.',
+    'unique_webhook'                 => 'You already have a webhook with these values.',
+    'unique_existing_webhook'        => 'You already have another webhook with these values.',
+    'same_account_type'              => 'Both accounts must be of the same account type',
+    'same_account_currency'          => 'Both accounts must have the same currency setting',
+
     'secure_password'             => '此密碼不安全，請再試一遍。如需更多資訊，請瀏覽 https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => '定期重複交易的重複類型無效。',
     'valid_recurrence_rep_moment' => '重複時刻在此重複類型無效。',
     'invalid_account_info'        => '無效的帳戶資訊。',
-    'attributes'                     => [
+    'attributes'                  => [
         'email'                   => '電子郵件地址',
         'description'             => '描述',
         'amount'                  => '金額',
+        'transactions.*.amount'   => 'transaction amount',
         'name'                    => '名稱',
         'piggy_bank_id'           => '小豬撲滿 ID',
         'targetamount'            => '目標金額',
@@ -171,15 +180,18 @@ return [
     ],
 
     // validation of accounts:
-    'withdrawal_source_need_data'    => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
-    'withdrawal_source_bad_data'     => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的來源帳戶。',
-    'withdrawal_dest_need_data'      => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
-    'withdrawal_dest_bad_data'       => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
+    'withdrawal_source_need_data' => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
+    'withdrawal_source_bad_data'  => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的來源帳戶。',
+    'withdrawal_dest_need_data'   => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
+    'withdrawal_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
+
+    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
     'deposit_source_bad_data'  => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的來源帳戶。',
     'deposit_dest_need_data'   => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
     'deposit_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
+    'deposit_dest_wrong_type'  => 'The submitted destination account is not of the right type.',
 
     'transfer_source_need_data' => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
     'transfer_source_bad_data'  => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的來源帳戶。',
@@ -191,6 +203,16 @@ return [
     'ob_dest_need_data'   => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
     'ob_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
 
-    'generic_invalid_source' => 'You can\'t use this account as the source account.',
+    'generic_invalid_source'      => 'You can\'t use this account as the source account.',
     'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+
+    'gte.numeric' => 'The :attribute must be greater than or equal to :value.',
+    'gt.numeric'  => 'The :attribute must be greater than :value.',
+    'gte.file'    => 'The :attribute must be greater than or equal to :value kilobytes.',
+    'gte.string'  => 'The :attribute must be greater than or equal to :value characters.',
+    'gte.array'   => 'The :attribute must have :value items or more.',
+
+    'amount_required_for_auto_budget' => 'The amount is required.',
+    'auto_budget_amount_positive'     => 'The amount must be more than zero.',
+    'auto_budget_period_mandatory'    => 'The auto budget period is a mandatory field.',
 ];

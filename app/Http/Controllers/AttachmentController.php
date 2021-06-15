@@ -1,22 +1,22 @@
 <?php
 /**
  * AttachmentController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -26,9 +26,12 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Requests\AttachmentFormRequest;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Repositories\Attachment\AttachmentRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response as LaravelResponse;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 /**
  * Class AttachmentController.
@@ -36,11 +39,13 @@ use Illuminate\Http\Response as LaravelResponse;
  */
 class AttachmentController extends Controller
 {
+
     /** @var AttachmentRepositoryInterface Attachment repository */
     private $repository;
 
     /**
      * AttachmentController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -64,7 +69,7 @@ class AttachmentController extends Controller
      *
      * @param Attachment $attachment
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function delete(Attachment $attachment)
     {
@@ -73,16 +78,16 @@ class AttachmentController extends Controller
         // put previous url in session
         $this->rememberPreviousUri('attachments.delete.uri');
 
-        return view('attachments.delete', compact('attachment', 'subTitle'));
+        return prefixView('attachments.delete', compact('attachment', 'subTitle'));
     }
 
     /**
      * Destroy attachment.
      *
-     * @param Request $request
+     * @param Request    $request
      * @param Attachment $attachment
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function destroy(Request $request, Attachment $attachment)
     {
@@ -132,10 +137,10 @@ class AttachmentController extends Controller
     /**
      * Edit an attachment.
      *
-     * @param Request $request
+     * @param Request    $request
      * @param Attachment $attachment
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function edit(Request $request, Attachment $attachment)
     {
@@ -152,13 +157,13 @@ class AttachmentController extends Controller
         ];
         $request->session()->flash('preFilled', $preFilled);
 
-        return view('attachments.edit', compact('attachment', 'subTitleIcon', 'subTitle'));
+        return prefixView('attachments.edit', compact('attachment', 'subTitleIcon', 'subTitle'));
     }
 
     /**
      * Index of all attachments.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -171,15 +176,14 @@ class AttachmentController extends Controller
             }
         );
 
-
-        return view('attachments.index', compact('set'));
+        return prefixView('attachments.index', compact('set'));
     }
 
     /**
      * Update attachment.
      *
      * @param AttachmentFormRequest $request
-     * @param Attachment $attachment
+     * @param Attachment            $attachment
      *
      * @return RedirectResponse
      */
@@ -193,11 +197,11 @@ class AttachmentController extends Controller
 
         $redirect = redirect($this->getPreviousUri('attachments.edit.uri'));
         if (1 === (int)$request->get('return_to_edit')) {
-            // @codeCoverageIgnoreStart
+
             $request->session()->put('attachments.edit.fromUpdate', true);
 
             $redirect = redirect(route('attachments.edit', [$attachment->id]))->withInput(['return_to_edit' => 1]);
-            // @codeCoverageIgnoreEnd
+
         }
 
         // redirect to previous URL.
@@ -222,20 +226,22 @@ class AttachmentController extends Controller
                 "default-src 'none'",
                 "object-src 'none'",
                 "script-src 'none'",
-                "style-src 'none'",
+                "style-src 'self' 'unsafe-inline'",
                 "base-uri 'none'",
                 "font-src 'none'",
                 "connect-src 'none'",
-                "img-src 'none'",
+                "img-src 'self'",
                 "manifest-src 'none'",
             ];
 
             return response()->make(
-                $content, 200, [
-                            'Content-Security-Policy' => implode('; ', $csp),
-                            'Content-Type'        => $attachment->mime,
-                            'Content-Disposition' => 'inline; filename="' . $attachment->filename . '"',
-                        ]
+                $content,
+                200,
+                [
+                    'Content-Security-Policy' => implode('; ', $csp),
+                    'Content-Type'            => $attachment->mime,
+                    'Content-Disposition'     => 'inline; filename="' . $attachment->filename . '"',
+                ]
             );
         }
         throw new FireflyException('Could not find the indicated attachment. The file is no longer there.');

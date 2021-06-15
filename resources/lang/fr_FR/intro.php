@@ -2,22 +2,22 @@
 
 /**
  * intro.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -28,30 +28,15 @@ return [
     'index_accounts-chart'                            => 'Ce tableau montre le solde actuel de vos comptes d\'actifs. Vous pouvez sélectionner les comptes visibles ici dans vos préférences.',
     'index_box_out_holder'                            => 'Cette petite boîte et les cases à côté de celle-ci vous donneront un rapide aperçu de votre situation financière.',
     'index_help'                                      => 'Si vous avez besoin d’aide avec une page ou un formulaire, appuyez sur ce bouton.',
-    'index_outro'                                     => 'La plupart des pages de Firefly III vont commencer avec un petit tour comme celui-ci. Merci de me contacter si vous avez des questions ou des commentaires. Profitez-en !',
-    'index_sidebar-toggle'                            => 'Pour créer de nouvelles transactions, comptes ou autres choses, utilisez le menu sous cette icône.',
-    'index_cash_account'                              => 'Voici les comptes créés jusqu\'ici. Vous pouvez utilier le compte de trésorerie pour faire le suivi de vos dépenses en espèces, mais ce n\'est pas obligatoire, bien sûr.',
+    'index_outro'                                     => 'La plupart des pages de Firefly III vont commencer avec un petit tour comme celui-ci. Merci de me contacter si vous avez des questions ou des commentaires. Profitez-en !',
+    'index_sidebar-toggle'                            => 'Pour créer de nouvelles opérations, comptes ou autres choses, utilisez le menu sous cette icône.',
+    'index_cash_account'                              => 'Voici les comptes créés jusqu\'ici. Vous pouvez utiliser le compte de trésorerie pour faire le suivi de vos dépenses en espèces, mais ce n\'est pas obligatoire, bien sûr.',
 
-    // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Choisissez votre compte d\'actif ou passif préféré à partir de ce menu déroulant.',
-    'transactions_create_withdrawal_destination'      => 'Sélectionnez un compte de dépenses ici. Laissez-le vide si vous voulez faire une dépense en espèces.',
-    'transactions_create_withdrawal_foreign_currency' => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
-    'transactions_create_withdrawal_more_meta'        => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
-    'transactions_create_withdrawal_split_add'        => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
-
-    // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Sélectionnez ou tapez le bénéficiaire dans ce champ. Laissez le champ vide si vous voulez effectuer un dépôt d\'espèces.',
-    'transactions_create_deposit_destination'         => 'Sélectionnez un compte d\'actif ou de passif ici.',
-    'transactions_create_deposit_foreign_currency'    => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
-    'transactions_create_deposit_more_meta'           => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
-    'transactions_create_deposit_split_add'           => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
-
-    // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Sélectionner le compte d\'actif source ici.',
-    'transactions_create_transfer_destination'        => 'Sélectionner le compte d\'actif de destination ici.',
-    'transactions_create_transfer_foreign_currency'   => 'Utilisez ce champ pour définir une devise étrangère et un montant.',
-    'transactions_create_transfer_more_meta'          => 'Beaucoup d\'autres métadonnées que vous avez définies dans ces champs.',
-    'transactions_create_transfer_split_add'          => 'Si vous voulez ventiler une opération ajoutez des parties avec ce bouton',
+    // transactions
+    'transactions_create_basic_info'                  => 'Saisissez les informations de base de votre opération. Source, destination, date et description.',
+    'transactions_create_amount_info'                 => 'Saisissez le montant de l\'opération. Si nécessaire, les champs seront automatiquement mis à jour pour les informations sur la devise étrangère.',
+    'transactions_create_optional_info'               => 'Tous ces champs sont facultatifs. L\'ajout de méta-données ici rendra vos opérations mieux organisées.',
+    'transactions_create_split'                       => 'Si vous voulez ventiler une opération, fractionnez-la avec ce bouton',
 
     // create account:
     'accounts_create_iban'                            => 'Donnez à vos comptes un IBAN valide. Cela pourrait rendre une importation de données très facile à l\'avenir.',
@@ -72,7 +57,7 @@ return [
     'reports_index_intro'                             => 'Utilisez ces rapports pour obtenir des informations détaillées sur vos finances.',
     'reports_index_inputReportType'                   => 'Choisissez un type de rapport. Consultez les pages d\'aide pour voir ce que vous présente chaque rapport.',
     'reports_index_inputAccountsSelect'               => 'Vous pouvez exclure ou inclure les comptes d\'actifs comme bon vous semble.',
-    'reports_index_inputDateRange'                    => 'La plage de dates sélectionnée est entièrement libre : de un jour à 10 ans.',
+    'reports_index_inputDateRange'                    => 'L\'intervalle de dates sélectionné est entièrement libre : de un jour à 10 ans.',
     'reports_index_extra-options-box'                 => 'Selon le rapport que vous avez sélectionné, vous pouvez sélectionner des filtres et options supplémentaires ici. Regardez cette case lorsque vous modifiez les types de rapport.',
 
     // reports (reports)
@@ -84,7 +69,7 @@ return [
     'reports_report_category_pieCharts'              => 'Ces tableaux vous donneront un aperçu des dépenses et du revenu par catégorie ou par compte.',
     'reports_report_category_incomeAndExpensesChart' => 'Ce tableau montre vos dépenses et votre revenu par catégorie.',
 
-    'reports_report_tag_intro'                  => 'Ce rapport vous donnera un aperçu d\'un ou plusieurs tags.',
+    'reports_report_tag_intro'                  => 'Ce rapport vous donnera un aperçu d\'un ou plusieurs mots-clés.',
     'reports_report_tag_pieCharts'              => 'Ces tableaux vous donneront un aperçu des dépenses et du revenu par tag, catégorie, ou budget.',
     'reports_report_tag_incomeAndExpensesChart' => 'Ce tableau montre vos dépenses et votre revenu par tag.',
 
@@ -93,10 +78,10 @@ return [
     'reports_report_budget_incomeAndExpensesChart'            => 'Ce graphique montre vos dépenses par budget.',
 
     // create transaction
-    'transactions_create_switch_box'                          => 'Utilisez ces boutons pour changer rapidement le type de transaction que vous souhaitez enregistrer.',
+    'transactions_create_switch_box'                          => 'Utilisez ces boutons pour changer rapidement le type d\'opération que vous souhaitez enregistrer.',
     'transactions_create_ffInput_category'                    => 'Vous pouvez saisir librement ce champ. Les catégories créées précédemment seront suggérées.',
-    'transactions_create_withdrawal_ffInput_budget'           => 'Reliez votre retrait à un budget pour un meilleur contrôle financier.',
-    'transactions_create_withdrawal_currency_dropdown_amount' => 'Utilisez ce menu déroulant lorsque votre retrait est dans une autre devise.',
+    'transactions_create_withdrawal_ffInput_budget'           => 'Reliez votre dépense à un budget pour un meilleur contrôle financier.',
+    'transactions_create_withdrawal_currency_dropdown_amount' => 'Utilisez ce menu déroulant lorsque votre dépense est dans une autre devise.',
     'transactions_create_deposit_currency_dropdown_amount'    => 'Utilisez ce menu déroulant lorsque votre dépôt est dans une autre devise.',
     'transactions_create_transfer_ffInput_piggy_bank_id'      => 'Sélectionnez une tirelire et reliez ce transfert à vos économies.',
 
@@ -121,8 +106,8 @@ return [
 
     // show bill
     'bills_show_billInfo'                                     => 'Ce tableau présente des informations générales sur cette facture.',
-    'bills_show_billButtons'                                  => 'Utilisez ce bouton pour réexaminer les anciennes transactions afin qu\'elles correspondent à cette facture.',
-    'bills_show_billChart'                                    => 'Ce tableau montre les transactions liées à cette facture.',
+    'bills_show_billButtons'                                  => 'Utilisez ce bouton pour réexaminer les anciennes opérations afin qu\'elles correspondent à cette facture.',
+    'bills_show_billChart'                                    => 'Ce tableau montre les opérations liées à cette facture.',
 
     // create bill
     'bills_create_intro'                                      => 'Utilisez des factures pour suivre les sommes que vous avez à payer à chaque période. Pensez aux dépenses comme le loyer, l\'assurance ou les remboursements d\'emprunts.',
@@ -133,18 +118,18 @@ return [
     'bills_create_skip_holder'                                => 'Si une facture se répète toutes les 2 semaines, le champ "sauter" doit être réglé sur "1" pour sauter une semaine sur deux.',
 
     // rules index
-    'rules_index_intro'                                       => 'Firefly III vous permet de gérer des règles, qui seront automatiquement appliquées à toute transaction que vous créez ou modifiez.',
+    'rules_index_intro'                                       => 'Firefly III vous permet de gérer des règles, qui seront automatiquement appliquées à toute opération que vous créez ou modifiez.',
     'rules_index_new_rule_group'                              => 'Vous pouvez rassembler les règles en groupes pour une gestion plus facile.',
     'rules_index_new_rule'                                    => 'Créez autant de règles que vous le souhaitez.',
     'rules_index_prio_buttons'                                => 'Mettez-les dans l\'ordre que vous jugez convenable.',
-    'rules_index_test_buttons'                                => 'Vous pouvez tester vos règles ou les appliquer aux transactions existantes.',
+    'rules_index_test_buttons'                                => 'Vous pouvez tester vos règles ou les appliquer aux opérations existantes.',
     'rules_index_rule-triggers'                               => 'Les règles ont des "déclencheurs" et des "actions" que vous pouvez ordonner en glisser-déposer.',
     'rules_index_outro'                                       => 'Pensez à consulter les pages d\'aide en utilisant l\'icône (?) en haut à droite !',
 
     // create rule:
     'rules_create_mandatory'                                  => 'Choisissez un titre parlant et définissez quand est-ce que la règle doit être déclenchée.',
     'rules_create_ruletriggerholder'                          => 'Ajoutez autant de déclencheurs que vous le souhaitez, mais n\'oubliez pas que TOUS les déclencheurs doivent correspondre avant que les actions ne soient déclenchées.',
-    'rules_create_test_rule_triggers'                         => 'Utilisez ce bouton pour voir quelles transactions correspondent à votre règle.',
+    'rules_create_test_rule_triggers'                         => 'Utilisez ce bouton pour voir quelles opérations correspondent à votre règle.',
     'rules_create_actions'                                    => 'Définissez autant d\'actions que vous le souhaitez.',
 
     // preferences

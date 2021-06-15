@@ -1,28 +1,27 @@
 <?php
 /**
  * DoubleReportController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Chart;
-
 
 use Carbon\Carbon;
 use FireflyIII\Generator\Chart\Basic\GeneratorInterface;
@@ -90,6 +89,7 @@ class DoubleReportController extends Controller
                 $result[$title]           = $result[$title] ?? [
                         'amount'          => '0',
                         'currency_symbol' => $currency['currency_symbol'],
+                        'currency_code'   => $currency['currency_code'],
                     ];
                 $amount                   = app('steam')->positive($journal['amount']);
                 $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -124,6 +124,7 @@ class DoubleReportController extends Controller
                 $result[$title]           = $result[$title] ?? [
                         'amount'          => '0',
                         'currency_symbol' => $currency['currency_symbol'],
+                        'currency_code'   => $currency['currency_code'],
                     ];
                 $amount                   = app('steam')->positive($journal['amount']);
                 $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -158,6 +159,7 @@ class DoubleReportController extends Controller
                 $result[$title]           = $result[$title] ?? [
                         'amount'          => '0',
                         'currency_symbol' => $currency['currency_symbol'],
+                        'currency_code'   => $currency['currency_code'],
                     ];
                 $amount                   = app('steam')->positive($journal['amount']);
                 $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -196,10 +198,13 @@ class DoubleReportController extends Controller
 
             $chartData[$spentKey] = $chartData[$spentKey] ?? [
                     'label'           => sprintf(
-                        '%s (%s)', (string)trans('firefly.spent_in_specific_double', ['account' => $name]), $currency['currency_name']
+                        '%s (%s)',
+                        (string)trans('firefly.spent_in_specific_double', ['account' => $name]),
+                        $currency['currency_name']
                     ),
                     'type'            => 'bar',
                     'currency_symbol' => $currency['currency_symbol'],
+                    'currency_code'   => $currency['currency_code'],
                     'currency_id'     => $currency['currency_id'],
                     'entries'         => $this->makeEntries($start, $end),
                 ];
@@ -210,7 +215,6 @@ class DoubleReportController extends Controller
                 $chartData[$spentKey]['entries'][$key] = $chartData[$spentKey]['entries'][$key] ?? '0';
                 $chartData[$spentKey]['entries'][$key] = bcadd($chartData[$spentKey]['entries'][$key], $amount);
             }
-
         }
         // loop income.
         foreach ($earned as $currency) {
@@ -220,10 +224,13 @@ class DoubleReportController extends Controller
 
             $chartData[$earnedKey] = $chartData[$earnedKey] ?? [
                     'label'           => sprintf(
-                        '%s (%s)', (string)trans('firefly.earned_in_specific_double', ['account' => $name]), $currency['currency_name']
+                        '%s (%s)',
+                        (string)trans('firefly.earned_in_specific_double', ['account' => $name]),
+                        $currency['currency_name']
                     ),
                     'type'            => 'bar',
                     'currency_symbol' => $currency['currency_symbol'],
+                    'currency_code'   => $currency['currency_code'],
                     'currency_id'     => $currency['currency_id'],
                     'entries'         => $this->makeEntries($start, $end),
                 ];
@@ -241,7 +248,55 @@ class DoubleReportController extends Controller
         return response()->json($data);
     }
 
+    /**
+     * TODO this method is double.
+     *
+     * @param Collection  $accounts
+     * @param int         $id
+     * @param string      $name
+     * @param null|string $iban
+     *
+     * @return string
+     */
+    private function getCounterpartName(Collection $accounts, int $id, string $name, ?string $iban): string
+    {
+        /** @var Account $account */
+        foreach ($accounts as $account) {
+            if ($account->name === $name && $account->id !== $id) {
+                return $account->name;
+            }
+            if (null !== $account->iban && $account->iban === $iban && $account->id !== $id) {
+                return $account->iban;
+            }
+        }
 
+        return $name;
+    }
+
+    /**
+     * TODO duplicate function
+     *
+     * @param Carbon $start
+     * @param Carbon $end
+     *
+     * @return array
+     */
+    private function makeEntries(Carbon $start, Carbon $end): array
+    {
+        $return         = [];
+        $format         = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
+        $preferredRange = app('navigation')->preferredRangeFormat($start, $end);
+        $currentStart   = clone $start;
+        while ($currentStart <= $end) {
+            $currentEnd   = app('navigation')->endOfPeriod($currentStart, $preferredRange);
+            $key          = $currentStart->formatLocalized($format);
+            $return[$key] = '0';
+            $currentStart = clone $currentEnd;
+            $currentStart->addDay()->startOfDay();
+        }
+
+        return $return;
+    }
 
     /**
      * @param Collection $accounts
@@ -272,10 +327,10 @@ class DoubleReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
-
                 }
                 // loop each tag:
                 /** @var array $tag */
@@ -290,6 +345,7 @@ class DoubleReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -331,10 +387,10 @@ class DoubleReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
-
                 }
                 // loop each tag:
                 /** @var array $tag */
@@ -349,6 +405,7 @@ class DoubleReportController extends Controller
                     $result[$title]           = $result[$title] ?? [
                             'amount'          => '0',
                             'currency_symbol' => $currency['currency_symbol'],
+                            'currency_code'   => $currency['currency_code'],
                         ];
                     $amount                   = app('steam')->positive($journal['amount']);
                     $result[$title]['amount'] = bcadd($result[$title]['amount'], $amount);
@@ -360,56 +417,4 @@ class DoubleReportController extends Controller
 
         return response()->json($data);
     }
-
-    /**
-     * TODO this method is double.
-     *
-     * @param Collection $accounts
-     * @param int        $id
-     * @param string     $name
-     * @param string     $iban
-     *
-     * @return string
-     */
-    private function getCounterpartName(Collection $accounts, int $id, string $name, string $iban): string
-    {
-        /** @var Account $account */
-        foreach ($accounts as $account) {
-            if ($account->name === $name && $account->id !== $id) {
-                return $account->name;
-            }
-            if ($account->iban === $iban && $account->id !== $id) {
-                return $account->iban;
-            }
-        }
-
-        return $name;
-    }
-
-    /**
-     * TODO duplicate function
-     *
-     * @param Carbon $start
-     * @param Carbon $end
-     *
-     * @return array
-     */
-    private function makeEntries(Carbon $start, Carbon $end): array
-    {
-        $return         = [];
-        $format         = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
-        $preferredRange = app('navigation')->preferredRangeFormat($start, $end);
-        $currentStart   = clone $start;
-        while ($currentStart <= $end) {
-            $currentEnd   = app('navigation')->endOfPeriod($currentStart, $preferredRange);
-            $key          = $currentStart->formatLocalized($format);
-            $return[$key] = '0';
-            $currentStart = clone $currentEnd;
-            $currentStart->addDay()->startOfDay();
-        }
-
-        return $return;
-    }
-
-
 }

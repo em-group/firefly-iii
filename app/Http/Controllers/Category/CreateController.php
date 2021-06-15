@@ -1,43 +1,49 @@
 <?php
-declare(strict_types=1);
 /**
  * CreateController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Category;
 
-
+use FireflyIII\Helpers\Attachments\AttachmentHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\CategoryFormRequest;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 /**
  * Class CreateController
  */
 class CreateController extends Controller
 {
-    /** @var CategoryRepositoryInterface The category repository */
-    private $repository;
+    private AttachmentHelperInterface   $attachments;
+    private CategoryRepositoryInterface $repository;
 
     /**
      * CategoryController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -47,21 +53,21 @@ class CreateController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('title', (string)trans('firefly.categories'));
-                app('view')->share('mainTitleIcon', 'fa-bar-chart');
-                $this->repository = app(CategoryRepositoryInterface::class);
+                app('view')->share('mainTitleIcon', 'fa-bookmark');
+                $this->repository  = app(CategoryRepositoryInterface::class);
+                $this->attachments = app(AttachmentHelperInterface::class);
 
                 return $next($request);
             }
         );
     }
 
-
     /**
      * Create category.
      *
      * @param Request $request
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function create(Request $request)
     {
@@ -71,16 +77,15 @@ class CreateController extends Controller
         $request->session()->forget('categories.create.fromStore');
         $subTitle = (string)trans('firefly.create_new_category');
 
-        return view('categories.create', compact('subTitle'));
+        return prefixView('categories.create', compact('subTitle'));
     }
-
 
     /**
      * Store new category.
      *
      * @param CategoryFormRequest $request
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function store(CategoryFormRequest $request)
     {
@@ -90,13 +95,26 @@ class CreateController extends Controller
         $request->session()->flash('success', (string)trans('firefly.stored_category', ['name' => $category->name]));
         app('preferences')->mark();
 
+        // store attachment(s):
+        $files = $request->hasFile('attachments') ? $request->file('attachments') : null;
+        if (null !== $files && !auth()->user()->hasRole('demo')) {
+            $this->attachments->saveAttachmentsForModel($category, $files);
+        }
+        if (null !== $files && auth()->user()->hasRole('demo')) {
+            session()->flash('info', (string)trans('firefly.no_att_demo_user'));
+        }
+
+        if (count($this->attachments->getMessages()->get('attachments')) > 0) {
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
+        }
+
         $redirect = redirect(route('categories.index'));
         if (1 === (int)$request->get('create_another')) {
-            // @codeCoverageIgnoreStart
+
             $request->session()->put('categories.create.fromStore', true);
 
             $redirect = redirect(route('categories.create'))->withInput();
-            // @codeCoverageIgnoreEnd
+
         }
 
         return $redirect;

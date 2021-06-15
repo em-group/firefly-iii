@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * EditController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\RuleGroup;
 
@@ -26,18 +27,22 @@ use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\RuleGroupFormRequest;
 use FireflyIII\Models\RuleGroup;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 /**
  * Class EditController
  */
 class EditController extends Controller
 {
-    /** @var RuleGroupRepositoryInterface */
-    private $repository;
+    private RuleGroupRepositoryInterface $repository;
 
     /**
      * EditController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -61,23 +66,27 @@ class EditController extends Controller
      *
      * @param RuleGroup $ruleGroup
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function down(RuleGroup $ruleGroup)
     {
-        $this->repository->moveDown($ruleGroup);
+        $maxOrder = $this->repository->maxOrder();
+        $order    = (int)$ruleGroup->order;
+        if ($order < $maxOrder) {
+            $newOrder = $order + 1;
+            $this->repository->setOrder($ruleGroup, $newOrder);
+        }
 
         return redirect(route('rules.index'));
     }
 
-
     /**
      * Edit a rule group.
      *
-     * @param Request $request
+     * @param Request   $request
      * @param RuleGroup $ruleGroup
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function edit(Request $request, RuleGroup $ruleGroup)
     {
@@ -87,8 +96,6 @@ class EditController extends Controller
         $preFilled   = [
             'active' => $hasOldInput ? (bool)$request->old('active') : $ruleGroup->active,
         ];
-
-
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('rule-groups.edit.fromUpdate')) {
             $this->rememberPreviousUri('rule-groups.edit.uri');
@@ -96,7 +103,7 @@ class EditController extends Controller
         session()->forget('rule-groups.edit.fromUpdate');
         session()->flash('preFilled', $preFilled);
 
-        return view('rules.rule-group.edit', compact('ruleGroup', 'subTitle'));
+        return prefixView('rules.rule-group.edit', compact('ruleGroup', 'subTitle'));
     }
 
     /**
@@ -104,12 +111,16 @@ class EditController extends Controller
      *
      * @param RuleGroup $ruleGroup
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      *
      */
     public function up(RuleGroup $ruleGroup)
     {
-        $this->repository->moveUp($ruleGroup);
+        $order = (int)$ruleGroup->order;
+        if ($order > 1) {
+            $newOrder = $order - 1;
+            $this->repository->setOrder($ruleGroup, $newOrder);
+        }
 
         return redirect(route('rules.index'));
     }
@@ -118,15 +129,15 @@ class EditController extends Controller
      * Update the rule group.
      *
      * @param RuleGroupFormRequest $request
-     * @param RuleGroup $ruleGroup
+     * @param RuleGroup            $ruleGroup
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function update(RuleGroupFormRequest $request, RuleGroup $ruleGroup)
     {
         $data = [
-            'title'       => $request->input('title'),
-            'description' => $request->input('description'),
+            'title'       => $request->string('title'),
+            'description' => $request->stringWithNewlines('description'),
             'active'      => 1 === (int)$request->input('active'),
         ];
 
@@ -136,11 +147,11 @@ class EditController extends Controller
         app('preferences')->mark();
         $redirect = redirect($this->getPreviousUri('rule-groups.edit.uri'));
         if (1 === (int)$request->get('return_to_edit')) {
-            // @codeCoverageIgnoreStart
+
             session()->put('rule-groups.edit.fromUpdate', true);
 
             $redirect = redirect(route('rule-groups.edit', [$ruleGroup->id]))->withInput(['return_to_edit' => 1]);
-            // @codeCoverageIgnoreEnd
+
         }
 
         // redirect to previous URL.

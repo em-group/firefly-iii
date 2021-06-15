@@ -2,22 +2,22 @@
 
 /**
  * IsDateOrTime.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -26,7 +26,6 @@ namespace FireflyIII\Rules;
 
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
-use Exception;
 use Illuminate\Contracts\Validation\Rule;
 use Log;
 
@@ -50,8 +49,8 @@ class IsDateOrTime implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed  $value
      *
      * @return bool
      */
@@ -65,7 +64,7 @@ class IsDateOrTime implements Rule
             // probably a date format.
             try {
                 Carbon::createFromFormat('Y-m-d', $value);
-            } catch (InvalidDateException|Exception $e) {
+            } catch (InvalidDateException $e) {
                 Log::error(sprintf('"%s" is not a valid date: %s', $value, $e->getMessage()));
 
                 return false;
@@ -76,7 +75,7 @@ class IsDateOrTime implements Rule
         // is an atom string, I hope?
         try {
             Carbon::parse($value);
-        } catch (InvalidDateException|Exception $e) {
+        } catch (InvalidDateException $e) {
             Log::error(sprintf('"%s" is not a valid date or time: %s', $value, $e->getMessage()));
 
             return false;

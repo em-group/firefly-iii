@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Relevante regels',
     'active'                  => 'Actief?',
     'percentage'              => 'pct',
+    'recurring_transaction'   => 'Periodieke transactie',
     'next_due'                => 'Volgende',
     'transaction_type'        => 'Type',
     'lastActivity'            => 'Laatste activiteit',
     'balanceDiff'             => 'Saldoverschil',
-    'matchesOn'               => 'Wordt herkend',
     'other_meta_data'         => 'Andere metadata',
     'account_type'            => 'Accounttype',
     'created_at'              => 'Gemaakt op',
     'account'                 => 'Rekening',
+    'external_uri'            => 'Externe URI',
     'matchingAmount'          => 'Bedrag',
-    'split_number'            => 'Split #',
     'destination'             => 'Doel',
     'source'                  => 'Bron',
     'next_expected_match'     => 'Volgende verwachte match',
@@ -55,7 +55,6 @@ return [
     'repeat_freq'             => 'Herhaling',
     'description'             => 'Omschrijving',
     'amount'                  => 'Bedrag',
-    'internal_reference'      => 'Interne referentie',
     'date'                    => 'Datum',
     'interest_date'           => 'Rentedatum',
     'book_date'               => 'Boekdatum',
@@ -63,7 +62,7 @@ return [
     'due_date'                => 'Vervaldatum',
     'payment_date'            => 'Betalingsdatum',
     'invoice_date'            => 'Factuurdatum',
-    'interal_reference'       => 'Interne verwijzing',
+    'internal_reference'      => 'Interne referentie',
     'notes'                   => 'Notities',
     'from'                    => 'Van',
     'piggy_bank'              => 'Spaarpotje',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Aantal bijlagen',
     'bills_count'             => 'Aantal contracten',
     'categories_count'        => 'Aantal categorieën',
-    'import_jobs_count'       => 'Aantal import-jobs',
     'budget_count'            => 'Aantal budgetten',
     'rule_and_groups_count'   => 'Aantal regels en regelgroepen',
     'tags_count'              => 'Aantal tags',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Som van uitgaven',
     'sum_deposits'            => 'Som van inkomsten',
     'sum_transfers'           => 'Som van overschrijvingen',
+    'sum_reconciliations'     => 'Som van afstemmingen',
     'reconcile'               => 'Afstemmen',
-    'account_on_spectre'      => 'Rekening (Spectre)',
-    'account_on_ynab'         => 'Rekening (YNAB)',
-    'do_import'               => 'Importeer van deze rekening',
     'sepa_ct_id'              => 'SEPA end-to-end identificatie',
     'sepa_ct_op'              => 'SEPA identificatie tegenpartij',
     'sepa_db'                 => 'SEPA mandaatidentificatie',

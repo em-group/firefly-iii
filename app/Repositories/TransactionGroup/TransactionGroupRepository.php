@@ -1,36 +1,36 @@
 <?php
 /**
  * TransactionGroupRepository.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\TransactionGroup;
-
-
 use Carbon\Carbon;
 use DB;
 use Exception;
+use FireflyIII\Exceptions\DuplicateTransactionException;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\TransactionGroupFactory;
 use FireflyIII\Models\AccountMeta;
 use FireflyIII\Models\Attachment;
+use FireflyIII\Models\Location;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\PiggyBankEvent;
 use FireflyIII\Models\Transaction;
@@ -44,33 +44,38 @@ use FireflyIII\Services\Internal\Update\GroupUpdateService;
 use FireflyIII\Support\NullArrayObject;
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
+use Log;
 
 /**
  * Class TransactionGroupRepository
  */
 class TransactionGroupRepository implements TransactionGroupRepositoryInterface
 {
-    /** @var User */
-    private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            app('log')->warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
+    private User $user;
 
     /**
      * @param TransactionGroup $group
      */
     public function destroy(TransactionGroup $group): void
     {
-        /** @var TransactionGroupDestroyService $service */
         $service = new TransactionGroupDestroyService;
         $service->destroy($group);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function expandGroup(TransactionGroup $group): array
+    {
+        $result                         = $group->toArray();
+        $result['transaction_journals'] = [];
+        /** @var TransactionJournal $journal */
+        foreach ($group->transactionJournals as $journal) {
+            $result['transaction_journals'][] = $this->expandJournal($journal);
+        }
+
+        return $result;
     }
 
     /**
@@ -97,6 +102,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
         $journals = $group->transactionJournals->pluck('id')->toArray();
         $set      = Attachment::whereIn('attachable_id', $journals)
                               ->where('attachable_type', TransactionJournal::class)
+                              ->where('uploaded', true)
                               ->whereNull('deleted_at')->get();
 
         $result = [];
@@ -106,7 +112,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
             $result[$journalId]       = $result[$journalId] ?? [];
             $current                  = $attachment->toArray();
             $current['file_exists']   = true;
-            $current['journal_title'] = $attachment->attachable->description;
+            $current['journal_title'] = $attachment->attachable->description; // @phpstan-ignore-line
             $result[$journalId][]     = $current;
 
         }
@@ -170,6 +176,17 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getLocation(int $journalId): ?Location
+    {
+        /** @var TransactionJournal $journal */
+        $journal = $this->user->transactionJournals()->find($journalId);
+
+        return $journal->locations()->first();
+    }
+
+    /**
      * Return object with all found meta field things as Carbon objects.
      *
      * @param int   $journalId
@@ -189,7 +206,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
         $return = [];
 
         foreach ($query as $row) {
-            $return[$row->name] = new Carbon(json_decode($row->data));
+            $return[$row->name] = new Carbon(json_decode($row->data, true, 512, JSON_THROW_ON_ERROR));
         }
 
         return new NullArrayObject($return);
@@ -229,7 +246,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
      */
     public function getNoteText(int $journalId): ?string
     {
-        /** @var Note $note */
+        /** @var Note|null $note */
         $note = Note
             ::where('noteable_id', $journalId)
             ->where('noteable_type', TransactionJournal::class)
@@ -252,12 +269,16 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     {
         $return   = [];
         $journals = $group->transactionJournals->pluck('id')->toArray();
+        $currency = app('amount')->getDefaultCurrencyByUser($this->user);
         $data     = PiggyBankEvent
             ::whereIn('transaction_journal_id', $journals)
             ->with('piggyBank', 'piggyBank.account')
             ->get(['piggy_bank_events.*']);
         /** @var PiggyBankEvent $row */
         foreach ($data as $row) {
+            if (null === $row->piggyBank) {
+                continue;
+            }
             // get currency preference.
             $currencyPreference = AccountMeta
                 ::where('account_id', $row->piggyBank->account_id)
@@ -284,6 +305,17 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getTagObjects(int $journalId): Collection
+    {
+        /** @var TransactionJournal $journal */
+        $journal = $this->user->transactionJournals()->find($journalId);
+
+        return $journal->tags()->get();
+    }
+
+    /**
      * Get the tags for a journal (by ID).
      *
      * @param int $journalId
@@ -296,6 +328,7 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
             ::table('tag_transaction_journal')
             ->leftJoin('tags', 'tag_transaction_journal.tag_id', '=', 'tags.id')
             ->where('tag_transaction_journal.transaction_journal_id', $journalId)
+            ->orderBy('tags.tag', 'ASC')
             ->get(['tags.tag']);
 
         return $result->pluck('tag')->toArray();
@@ -313,14 +346,25 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
      * @param array $data
      *
      * @return TransactionGroup
+     * @throws DuplicateTransactionException
+     * @throws FireflyException
      */
     public function store(array $data): TransactionGroup
     {
         /** @var TransactionGroupFactory $factory */
         $factory = app(TransactionGroupFactory::class);
         $factory->setUser($this->user);
-
-        return $factory->create($data);
+        try {
+            return $factory->create($data);
+        } catch (DuplicateTransactionException $e) {
+            Log::warning('Group repository caught group factory with a duplicate exception!');
+            throw new DuplicateTransactionException($e->getMessage(),0, $e);
+        } catch (FireflyException $e) {
+            Log::warning('Group repository caught group factory with an exception!');
+            Log::error($e->getMessage());
+            Log::error($e->getTraceAsString());
+            throw new FireflyException($e->getMessage(),0, $e);
+        }
     }
 
     /**
@@ -337,6 +381,56 @@ class TransactionGroupRepository implements TransactionGroupRepositoryInterface
         $service = app(GroupUpdateService::class);
 
         return $service->update($transactionGroup, $data);
+    }
+
+    /**
+     * @param TransactionJournal $journal
+     *
+     * @return array
+     */
+    private function expandJournal(TransactionJournal $journal): array
+    {
+        $array                      = $journal->toArray();
+        $array['transactions']      = [];
+        $array['meta']              = $journal->transactionJournalMeta->toArray();
+        $array['tags']              = $journal->tags->toArray();
+        $array['categories']        = $journal->categories->toArray();
+        $array['budgets']           = $journal->budgets->toArray();
+        $array['notes']             = $journal->notes->toArray();
+        $array['locations']         = []; // todo
+        $array['attachments']       = $journal->attachments->toArray();
+        $array['links']             = []; // todo
+        $array['piggy_bank_events'] = $journal->piggyBankEvents->toArray();
+
+        /** @var Transaction $transaction */
+        foreach ($journal->transactions as $transaction) {
+            $array['transactions'][] = $this->expandTransaction($transaction);
+        }
+
+        return $array;
+    }
+
+    /**
+     * @param Transaction $transaction
+     *
+     * @return array
+     */
+    private function expandTransaction(Transaction $transaction): array
+    {
+        $array               = $transaction->toArray();
+        $array['account']    = $transaction->account->toArray();
+        $array['budgets']    = [];
+        $array['categories'] = [];
+
+        foreach ($transaction->categories as $category) {
+            $array['categories'][] = $category->toArray();
+        }
+
+        foreach ($transaction->budgets as $budget) {
+            $array['budgets'][] = $budget->toArray();
+        }
+
+        return $array;
     }
 
     /**

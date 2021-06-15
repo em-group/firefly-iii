@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * BackToJournals.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -57,20 +58,20 @@ class BackToJournals extends Command
      */
     public function handle(): int
     {
-        // @codeCoverageIgnoreStart
+
         $start = microtime(true);
         if (!$this->isMigrated()) {
             $this->error('Please run firefly-iii:migrate-to-groups first.');
         }
         if ($this->isExecuted() && true !== $this->option('force')) {
-            $this->info('This command has already been executed.');
+            $this->warn('This command has already been executed.');
 
             return 0;
         }
         if (true === $this->option('force')) {
             $this->warn('Forcing the command.');
         }
-        // @codeCoverageIgnoreEnd
+
 
         $this->migrateAll();
         $end = round(microtime(true) - $start, 2);
@@ -81,43 +82,13 @@ class BackToJournals extends Command
     }
 
     /**
-     * @return array
+     * @return bool
      */
-    private function getIdsForBudgets(): array
+    private function isMigrated(): bool
     {
-        $transactions = DB::table('budget_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
-        $array        = [];
-        $chunks       = array_chunk($transactions, 500);
+        $configVar = app('fireflyconfig')->get(MigrateToGroups::CONFIG_NAME, false);
 
-        foreach ($chunks as $chunk) {
-            $set = DB::table('transactions')
-                     ->whereIn('transactions.id', $chunk)
-                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $array = array_merge($array, $set);
-        }
-
-        return $array;
-    }
-
-    /**
-     * @return array
-     */
-    private function getIdsForCategories(): array
-    {
-        $transactions = DB::table('category_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray();
-        $array        = [];
-        $chunks       = array_chunk($transactions, 500);
-
-        foreach ($chunks as $chunk) {
-            $set   = DB::table('transactions')
-                       ->whereIn('transactions.id', $chunk)
-                       ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
-            /** @noinspection SlowArrayOperationsInLoopInspection */
-            $array = array_merge($array, $set);
-        }
-
-        return $array;
+        return (bool)$configVar->data;
     }
 
     /**
@@ -126,32 +97,8 @@ class BackToJournals extends Command
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool)$configVar->data;
-        }
 
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     * @return bool
-     */
-    private function isMigrated(): bool
-    {
-        $configVar = app('fireflyconfig')->get(MigrateToGroups::CONFIG_NAME, false);
-        if (null !== $configVar) {
-            return (bool)$configVar->data;
-        }
-
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     *
-     */
-    private function markAsExecuted(): void
-    {
-        app('fireflyconfig')->set(self::CONFIG_NAME, true);
+        return (bool)$configVar->data;
     }
 
     /**
@@ -188,6 +135,23 @@ class BackToJournals extends Command
     }
 
     /**
+     * @return array
+     */
+    private function getIdsForBudgets(): array
+    {
+        $transactions = DB::table('budget_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray(); // @phpstan-ignore-line
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
+
+        foreach ($chunks as $chunk) {
+            $set   = DB::table('transactions')->whereIn('transactions.id', $chunk)->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
+    }
+
+    /**
      * @param TransactionJournal $journal
      */
     private function migrateBudgetsForJournal(TransactionJournal $journal): void
@@ -197,11 +161,11 @@ class BackToJournals extends Command
         /** @var Transaction $transaction */
         $transaction = $journal->transactions->first();
         if (null === $transaction) {
-            // @codeCoverageIgnoreStart
+
             $this->info(sprintf('Transaction journal #%d has no transactions. Will be fixed later.', $journal->id));
 
             return;
-            // @codeCoverageIgnoreEnd
+
         }
         /** @var Budget $budget */
         $budget = $transaction->budgets->first();
@@ -248,6 +212,26 @@ class BackToJournals extends Command
     }
 
     /**
+     * @return array
+     */
+    private function getIdsForCategories(): array
+    {
+        $transactions = DB::table('category_transaction')->distinct()->get(['transaction_id'])->pluck('transaction_id')->toArray(); // @phpstan-ignore-line
+        $array        = [];
+        $chunks       = array_chunk($transactions, 500);
+
+        foreach ($chunks as $chunk) {
+            $set = DB::table('transactions') // @phpstan-ignore-line
+                     ->whereIn('transactions.id', $chunk)
+                     ->get(['transaction_journal_id'])->pluck('transaction_journal_id')->toArray();
+            /** @noinspection SlowArrayOperationsInLoopInspection */
+            $array = array_merge($array, $set);
+        }
+
+        return $array;
+    }
+
+    /**
      * @param TransactionJournal $journal
      */
     private function migrateCategoriesForJournal(TransactionJournal $journal): void
@@ -256,11 +240,11 @@ class BackToJournals extends Command
         /** @var Transaction $transaction */
         $transaction = $journal->transactions->first();
         if (null === $transaction) {
-            // @codeCoverageIgnoreStart
+
             $this->info(sprintf('Transaction journal #%d has no transactions. Will be fixed later.', $journal->id));
 
             return;
-            // @codeCoverageIgnoreEnd
+
         }
         /** @var Category $category */
         $category = $transaction->categories->first();
@@ -277,5 +261,13 @@ class BackToJournals extends Command
         if (null !== $category && null === $journalCategory) {
             $journal->categories()->sync([(int)$category->id]);
         }
+    }
+
+    /**
+     *
+     */
+    private function markAsExecuted(): void
+    {
+        app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
 }

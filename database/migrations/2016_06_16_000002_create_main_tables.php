@@ -1,22 +1,22 @@
 <?php
 /**
  * 2016_06_16_000002_create_main_tables.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,7 +24,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
 /**
- * Class CreateMainTables
+ * Class CreateMainTables.
+ *
+ * @codeCoverageIgnore
  */
 class CreateMainTables extends Migration
 {
@@ -84,22 +86,19 @@ class CreateMainTables extends Migration
         $this->createTransactionTables();
     }
 
-    /**
-     *
-     */
     private function createAccountTables(): void
     {
         if (!Schema::hasTable('accounts')) {
             Schema::create(
                 'accounts',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
                     $table->integer('user_id', false, true);
                     $table->integer('account_type_id', false, true);
                     $table->string('name', 1024);
-                    $table->decimal('virtual_balance', 22, 12)->nullable();
+                    $table->decimal('virtual_balance', 36, 24)->nullable();
                     $table->string('iban', 255)->nullable();
                     $table->boolean('active')->default(1);
                     $table->boolean('encrypted')->default(0);
@@ -112,7 +111,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('account_meta')) {
             Schema::create(
                 'account_meta',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('account_id', false, true);
@@ -124,22 +123,57 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
+    private function createPiggyBanksTable(): void
+    {
+        if (!Schema::hasTable('piggy_banks')) {
+            Schema::create(
+                'piggy_banks',
+                static function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->timestamps();
+                    $table->softDeletes();
+                    $table->integer('account_id', false, true);
+                    $table->string('name', 1024);
+                    $table->decimal('targetamount', 36, 24);
+                    $table->date('startdate')->nullable();
+                    $table->date('targetdate')->nullable();
+                    $table->integer('order', false, true)->default(0);
+                    $table->boolean('active')->default(0);
+                    $table->boolean('encrypted')->default(1);
+                    $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+                }
+            );
+        }
+
+        if (!Schema::hasTable('piggy_bank_repetitions')) {
+            Schema::create(
+                'piggy_bank_repetitions',
+                static function (Blueprint $table) {
+                    $table->increments('id');
+                    $table->timestamps();
+                    $table->integer('piggy_bank_id', false, true);
+                    $table->date('startdate')->nullable();
+                    $table->date('targetdate')->nullable();
+                    $table->decimal('currentamount', 36, 24);
+                    $table->foreign('piggy_bank_id')->references('id')->on('piggy_banks')->onDelete('cascade');
+                }
+            );
+        }
+    }
+
     private function createAttachmentsTable(): void
     {
         if (!Schema::hasTable('attachments')) {
             Schema::create(
                 'attachments',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
                     $table->integer('user_id', false, true);
                     $table->integer('attachable_id', false, true);
                     $table->string('attachable_type', 255);
-                    $table->string('md5', 32);
+                    $table->string('md5', 128);
                     $table->string('filename', 1024);
                     $table->string('title', 1024)->nullable();
                     $table->text('description')->nullable();
@@ -155,23 +189,20 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createBillsTable(): void
     {
         if (!Schema::hasTable('bills')) {
             Schema::create(
                 'bills',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
                     $table->integer('user_id', false, true);
                     $table->string('name', 1024);
                     $table->string('match', 1024);
-                    $table->decimal('amount_min', 22, 12);
-                    $table->decimal('amount_max', 22, 12);
+                    $table->decimal('amount_min', 36, 24);
+                    $table->decimal('amount_max', 36, 24);
                     $table->date('date');
                     $table->string('repeat_freq', 30);
                     $table->smallInteger('skip', false, true)->default(0);
@@ -195,7 +226,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budgets')) {
             Schema::create(
                 'budgets',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -210,12 +241,12 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_limits')) {
             Schema::create(
                 'budget_limits',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('budget_id', false, true);
                     $table->date('startdate');
-                    $table->decimal('amount', 22, 12);
+                    $table->decimal('amount', 36, 24);
                     $table->string('repeat_freq', 30);
                     $table->boolean('repeats')->default(0);
                     $table->foreign('budget_id')->references('id')->on('budgets')->onDelete('cascade');
@@ -225,28 +256,25 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('limit_repetitions')) {
             Schema::create(
                 'limit_repetitions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('budget_limit_id', false, true);
                     $table->date('startdate');
                     $table->date('enddate');
-                    $table->decimal('amount', 22, 12);
+                    $table->decimal('amount', 36, 24);
                     $table->foreign('budget_limit_id')->references('id')->on('budget_limits')->onDelete('cascade');
                 }
             );
         }
     }
 
-    /**
-     *
-     */
     private function createCategoriesTable(): void
     {
         if (!Schema::hasTable('categories')) {
             Schema::create(
                 'categories',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -261,15 +289,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createExportJobsTable(): void
     {
         if (!Schema::hasTable('export_jobs')) {
             Schema::create(
                 'export_jobs',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id', false, true);
@@ -283,7 +308,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('import_jobs')) {
             Schema::create(
                 'import_jobs',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id')->unsigned();
@@ -297,56 +322,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
-    private function createPiggyBanksTable(): void
-    {
-        if (!Schema::hasTable('piggy_banks')) {
-            Schema::create(
-                'piggy_banks',
-                function (Blueprint $table) {
-                    $table->increments('id');
-                    $table->timestamps();
-                    $table->softDeletes();
-                    $table->integer('account_id', false, true);
-                    $table->string('name', 1024);
-                    $table->decimal('targetamount', 22, 12);
-                    $table->date('startdate')->nullable();
-                    $table->date('targetdate')->nullable();
-                    $table->integer('order', false, true)->default(0);
-                    $table->boolean('active')->default(0);
-                    $table->boolean('encrypted')->default(1);
-                    $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-                }
-            );
-        }
-
-        if (!Schema::hasTable('piggy_bank_repetitions')) {
-            Schema::create(
-                'piggy_bank_repetitions',
-                function (Blueprint $table) {
-                    $table->increments('id');
-                    $table->timestamps();
-                    $table->integer('piggy_bank_id', false, true);
-                    $table->date('startdate')->nullable();
-                    $table->date('targetdate')->nullable();
-                    $table->decimal('currentamount', 22, 12);
-                    $table->foreign('piggy_bank_id')->references('id')->on('piggy_banks')->onDelete('cascade');
-                }
-            );
-        }
-    }
-
-    /**
-     *
-     */
     private function createPreferencesTable(): void
     {
         if (!Schema::hasTable('preferences')) {
             Schema::create(
                 'preferences',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('user_id', false, true);
@@ -359,15 +340,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createRoleTable(): void
     {
         if (!Schema::hasTable('role_user')) {
             Schema::create(
                 'role_user',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->integer('user_id', false, true);
                     $table->integer('role_id', false, true);
 
@@ -389,7 +367,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_groups')) {
             Schema::create(
                 'rule_groups',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -407,7 +385,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rules')) {
             Schema::create(
                 'rules',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -430,7 +408,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_actions')) {
             Schema::create(
                 'rule_actions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('rule_id', false, true);
@@ -450,7 +428,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('rule_triggers')) {
             Schema::create(
                 'rule_triggers',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('rule_id', false, true);
@@ -469,15 +447,12 @@ class CreateMainTables extends Migration
         }
     }
 
-    /**
-     *
-     */
     private function createTagsTable(): void
     {
         if (!Schema::hasTable('tags')) {
             Schema::create(
                 'tags',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -487,8 +462,8 @@ class CreateMainTables extends Migration
                     $table->string('tagMode', 1024);
                     $table->date('date')->nullable();
                     $table->text('description')->nullable();
-                    $table->decimal('latitude', 24, 12)->nullable();
-                    $table->decimal('longitude', 24, 12)->nullable();
+                    $table->decimal('latitude', 36, 24)->nullable();
+                    $table->decimal('longitude', 36, 24)->nullable();
                     $table->smallInteger('zoomLevel', false, true)->nullable();
 
                     // link user id to users table
@@ -508,7 +483,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('transaction_journals')) {
             Schema::create(
                 'transaction_journals',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
@@ -536,7 +511,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('journal_meta')) {
             Schema::create(
                 'journal_meta',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('transaction_journal_id', false, true);
@@ -551,7 +526,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('tag_transaction_journal')) {
             Schema::create(
                 'tag_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('tag_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -567,7 +542,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_transaction_journal')) {
             Schema::create(
                 'budget_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('budget_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -580,7 +555,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('category_transaction_journal')) {
             Schema::create(
                 'category_transaction_journal',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('category_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
@@ -593,13 +568,13 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('piggy_bank_events')) {
             Schema::create(
                 'piggy_bank_events',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->integer('piggy_bank_id', false, true);
                     $table->integer('transaction_journal_id', false, true)->nullable();
                     $table->date('date');
-                    $table->decimal('amount', 22, 12);
+                    $table->decimal('amount', 36, 24);
 
                     $table->foreign('piggy_bank_id')->references('id')->on('piggy_banks')->onDelete('cascade');
                     $table->foreign('transaction_journal_id')->references('id')->on('transaction_journals')->onDelete('set null');
@@ -610,14 +585,14 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('transactions')) {
             Schema::create(
                 'transactions',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->timestamps();
                     $table->softDeletes();
                     $table->integer('account_id', false, true);
                     $table->integer('transaction_journal_id', false, true);
                     $table->string('description', 1024)->nullable();
-                    $table->decimal('amount', 22, 12);
+                    $table->decimal('amount', 36, 24);
 
                     $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
                     $table->foreign('transaction_journal_id')->references('id')->on('transaction_journals')->onDelete('cascade');
@@ -628,7 +603,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('budget_transaction')) {
             Schema::create(
                 'budget_transaction',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('budget_id', false, true);
                     $table->integer('transaction_id', false, true);
@@ -642,7 +617,7 @@ class CreateMainTables extends Migration
         if (!Schema::hasTable('category_transaction')) {
             Schema::create(
                 'category_transaction',
-                function (Blueprint $table) {
+                static function (Blueprint $table) {
                     $table->increments('id');
                     $table->integer('category_id', false, true);
                     $table->integer('transaction_id', false, true);

@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III støtter flere valutaer. Selv om Euro er standard, kan det settes til norske kroner, eller en av mange andre valutaer. Som du kan se, så er et lite utvalg valutaer allerede lagt inn, men du kan legge til flere hvis du vil. Hvis du endrer standardvalutaen, endres ikke valutaen for eksisterende transaksjoner, men Firefly III støtter bruken av flere valutaer samtidig.',
     'transactions-index'     => 'Disse utgiftene, innskuddene og overføringene er ikke særlig fantasifulle. De har blitt generert automatisk.',
     'piggy-banks-index'      => 'Som du kan se, finnes det tre spargriser. Bruk pluss- og minus-knappene til å påvirke mengden penger i hver sparegris. Klikk på navnet til spargrisen for å administrere hver spargris.',
-    'import-index'           => 'Alle CSV-filer kan importeres til Firefly III. Den støtter også import av data fra bunq og Spectre. Andre banker og finansielle aggregatorer vil bli implementert i fremtiden. Men som en demo-bruker kan du bare se en "falsk"-leverandør i aksjon. Den vil generere noen tilfeldige transaksjoner for å vise hvordan prosessen fungerer.',
     'profile-index'          => 'Vær oppmerksom at demoen tilbakestilles hver fjerde time. Din tilgang kan trekkes tilbake når som helst. Dette skjer automatisk og er ikke en feil.',
 ];

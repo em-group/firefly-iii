@@ -1,21 +1,21 @@
 /*
  * charts.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** global: Chart, defaultChartOptions, accounting, defaultPieOptions, noDataForChart, todayText */
 var allCharts = {};
@@ -45,12 +45,9 @@ var colourSet = [
 ];
 
 var fillColors = [];
-var strokePointHighColors = [];
-
 
 for (var i = 0; i < colourSet.length; i++) {
     fillColors.push("rgba(" + colourSet[i][0] + ", " + colourSet[i][1] + ", " + colourSet[i][2] + ", 0.5)");
-    strokePointHighColors.push("rgba(" + colourSet[i][0] + ", " + colourSet[i][1] + ", " + colourSet[i][2] + ", 0.9)");
 }
 
 Chart.defaults.global.legend.display = false;
@@ -67,11 +64,11 @@ function colorizeData(data) {
     var newData = {};
     newData.datasets = [];
 
-    for (var i = 0; i < data.count; i++) {
+    for (var loop = 0; loop < data.count; loop++) {
         newData.labels = data.labels;
-        var dataset = data.datasets[i];
+        var dataset = data.datasets[loop];
         dataset.fill = false;
-        dataset.backgroundColor = dataset.borderColor = fillColors[i];
+        dataset.backgroundColor = dataset.borderColor = fillColors[loop];
         newData.datasets.push(dataset);
     }
     return newData;
@@ -87,6 +84,73 @@ function lineChart(URI, container) {
 
     var colorData = true;
     var options = $.extend(true, {}, defaultChartOptions);
+    var chartType = 'line';
+
+    drawAChart(URI, container, chartType, options, colorData);
+}
+
+/**
+ * Function to draw a line chart that doesn't start at ZERO.
+ * @param URI
+ * @param container
+ */
+function lineNoStartZeroChart(URI, container) {
+    "use strict";
+
+    var colorData = true;
+    var options = $.extend(true, {}, defaultChartOptions);
+    var chartType = 'line';
+    options.scales.yAxes[0].ticks.beginAtZero = false;
+
+    drawAChart(URI, container, chartType, options, colorData);
+}
+
+/**
+ * Overrules the currency the line chart is drawn in.
+ *
+ * @param URI
+ * @param container
+ */
+function otherCurrencyLineChart(URI, container, currencySymbol) {
+    "use strict";
+
+    var colorData = true;
+
+    var newOpts = {
+        scales: {
+            xAxes: [
+                {
+                    gridLines: {
+                        display: false
+                    },
+                    ticks: {
+                        // break ticks when too long.
+                        callback: function (value, index, values) {
+                            return formatLabel(value, 20);
+                        }
+                    }
+                }
+            ],
+            yAxes: [{
+                display: true,
+                //hello: 'fresh',
+                ticks: {
+                    callback: function (tickValue) {
+                        "use strict";
+                        // use first symbol or null:
+                        return accounting.formatMoney(tickValue);
+
+                    },
+                    beginAtZero: true
+                }
+            }]
+        },
+    };
+
+    //var options = $.extend(true, newOpts, defaultChartOptions);
+    var options = $.extend(true, defaultChartOptions, newOpts);
+
+    console.log(options);
     var chartType = 'line';
 
     drawAChart(URI, container, chartType, options, colorData);
@@ -273,24 +337,6 @@ function multiCurrencyPieChart(URI, container) {
 
 }
 
-
-/**
- *
- * @param URI
- * @param container
- */
-function neutralPieChart(URI, container) {
-    "use strict";
-
-    var colorData = false;
-    var options = $.extend(true, {}, neutralDefaultPieOptions);
-    var chartType = 'pie';
-
-    drawAChart(URI, container, chartType, options, colorData);
-
-}
-
-
 /**
  * @param URI
  * @param container
@@ -305,10 +351,22 @@ function drawAChart(URI, container, chartType, options, colorData) {
         return;
     }
 
-
     $.getJSON(URI).done(function (data) {
         containerObj.removeClass('general-chart-error');
-        if (data.labels.length === 0) {
+
+        // if result is empty array, or the labels array is empty, show error.
+        // console.log(URI);
+        // console.log(data.length);
+        // console.log(typeof data.labels);
+        // console.log(data.labels.length);
+        if (
+            // is undefined
+            typeof data === 'undefined' ||
+            // is empty
+            0 === data.length ||
+            // isn't empty but contains no labels
+            (typeof data === 'object' && typeof data.labels === 'object' && 0 === data.labels.length)
+        ) {
             // remove the chart container + parent
             var holder = $('#' + container).parent().parent();
             if (holder.hasClass('box') || holder.hasClass('box-body')) {
@@ -323,7 +381,6 @@ function drawAChart(URI, container, chartType, options, colorData) {
             }
             return;
         }
-
 
         if (colorData) {
             data = colorizeData(data);

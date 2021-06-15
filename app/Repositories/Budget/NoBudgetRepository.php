@@ -1,36 +1,33 @@
 <?php
 /**
  * NoBudgetRepository.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Budget;
-
-
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  *
@@ -40,17 +37,6 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
 {
     /** @var User */
     private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-            die(get_class($this));
-        }
-    }
 
     /**
      * @param Collection $accounts
@@ -89,7 +75,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
                 ];
             $date              = $journal['date']->format($carbonFormat);
 
-            if (!isset($data[$currencyId]['entries'][$date])) {
+            if (!array_key_exists($date, $data[$currencyId]['entries'])) {
                 $data[$currencyId]['entries'][$date] = '0';
             }
             $data[$currencyId]['entries'][$date] = bcadd($data[$currencyId]['entries'][$date], $journal['amount']);
@@ -132,7 +118,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
         /** @var array $journal */
         foreach ($journals as $journal) {
             $code = $journal['currency_code'];
-            if (!isset($currencies[$code])) {
+            if (!array_key_exists($code, $currencies)) {
                 $currencies[$code] = [
                     'id'             => $journal['currency_id'],
                     'name'           => $journal['currency_name'],
@@ -140,18 +126,18 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
                     'decimal_places' => $journal['currency_decimal_places'],
                 ];
             }
-            $total[$code] = isset($total[$code]) ? bcadd($total[$code], $journal['amount']) : $journal['amount'];
+            $total[$code] = array_key_exists($code, $total) ? bcadd($total[$code], $journal['amount']) : $journal['amount'];
         }
         foreach ($total as $code => $spent) {
             /** @var TransactionCurrency $currency */
             $currency = $currencies[$code];
             $return[] = [
-                'currency_id'             => $currency['id'],
+                'currency_id'             => (string)$currency['id'],
                 'currency_code'           => $code,
                 'currency_name'           => $currency['name'],
                 'currency_symbol'         => $currency['symbol'],
                 'currency_decimal_places' => $currency['decimal_places'],
-                'amount'                  => $spent,
+                'amount'                  => number_format((float)$spent, $currency['decimal_places'], '.', ''),
             ];
         }
 
@@ -160,6 +146,9 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
 
     /** @noinspection MoreThanThreeArgumentsInspection */
     /**
+     * TODO this method does not include foreign amount transactions. It only sums up "amount".
+     * TODO this probably also applies to the other "sumExpenses" methods.
+     *
      * @param Carbon                   $start
      * @param Carbon                   $end
      * @param Collection|null          $accounts
@@ -196,6 +185,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
                     'currency_decimal_places' => $journal['currency_decimal_places'],
                 ];
             $array[$currencyId]['sum'] = bcadd($array[$currencyId]['sum'], app('steam')->negative($journal['amount']));
+
         }
 
         return $array;

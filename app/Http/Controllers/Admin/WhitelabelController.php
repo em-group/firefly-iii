@@ -34,7 +34,7 @@ class WhitelabelController extends Controller
         $subTitleIcon = 'fa-globe';
         $whitelabels = $this->repository->all();
 
-        return view('admin.whitelabels.index', compact('subTitle', 'subTitleIcon', 'whitelabels'));
+        return prefixView('admin.whitelabels.index', compact('subTitle', 'subTitleIcon', 'whitelabels'));
     }
 
     public function edit(Request $request, Whitelabel $whitelabel)
@@ -66,7 +66,7 @@ class WhitelabelController extends Controller
         }
         $request->session()->forget('link-types.edit.fromUpdate');
 
-        return view('admin.whitelabels.edit', compact('subTitle', 'subTitleIcon', 'whitelabel', 'configs'));
+        return prefixView('admin.whitelabels.edit', compact('subTitle', 'subTitleIcon', 'whitelabel', 'configs'));
     }
 
     public function update(WhitelabelFormRequest $request, Whitelabel $whitelabel)
@@ -102,7 +102,7 @@ class WhitelabelController extends Controller
             $this->rememberPreviousUri('whitelabels.create.uri');
         }
 
-        return view('admin.whitelabels.create', compact('subTitle', 'subTitleIcon', 'configs'));
+        return prefixView('admin.whitelabels.create', compact('subTitle', 'subTitleIcon', 'configs'));
     }
 
     public function store(WhitelabelFormRequest $request)

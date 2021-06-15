@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -37,17 +37,17 @@ return [
     'linked_to_rules'         => 'Regole rilevanti',
     'active'                  => 'Attivo',
     'percentage'              => 'perc.',
+    'recurring_transaction'   => 'Transazione ricorrente',
     'next_due'                => 'Prossimo scadenza',
     'transaction_type'        => 'Tipo',
     'lastActivity'            => 'Ultima attività',
     'balanceDiff'             => 'Differenze saldi',
-    'matchesOn'               => 'Abbinato con',
     'other_meta_data'         => 'Altri meta dati',
     'account_type'            => 'Tipo conto',
     'created_at'              => 'Creato il',
     'account'                 => 'Conto',
+    'external_uri'            => 'URI esterno',
     'matchingAmount'          => 'Importo',
-    'split_number'            => 'Divisione #',
     'destination'             => 'Destinazione',
     'source'                  => 'Origine',
     'next_expected_match'     => 'Prossimo abbinamento previsto',
@@ -55,15 +55,14 @@ return [
     'repeat_freq'             => 'Si ripete',
     'description'             => 'Descrizione',
     'amount'                  => 'Importo',
-    'internal_reference'      => 'Riferimento interno',
     'date'                    => 'Data',
-    'interest_date'           => 'Data interessi',
+    'interest_date'           => 'Data di valuta',
     'book_date'               => 'Data contabile',
     'process_date'            => 'Data lavorazione',
     'due_date'                => 'Data scadenza',
     'payment_date'            => 'Data pagamento',
     'invoice_date'            => 'Data fatturazione',
-    'interal_reference'       => 'Riferimento interno',
+    'internal_reference'      => 'Riferimento interno',
     'notes'                   => 'Note',
     'from'                    => 'Da',
     'piggy_bank'              => 'Salvadanaio',
@@ -91,7 +90,6 @@ return [
     'attachments_count'       => 'Numero di allegati',
     'bills_count'             => 'Numero di bollette',
     'categories_count'        => 'Numero di categorie',
-    'import_jobs_count'       => 'Numero delle operazioni di importazione',
     'budget_count'            => 'Numero di budget',
     'rule_and_groups_count'   => 'Numero di regole e gruppi di regole',
     'tags_count'              => 'Numero di etichette',
@@ -105,10 +103,8 @@ return [
     'sum_withdrawals'         => 'Somma dei prelievi',
     'sum_deposits'            => 'Somma versamenti',
     'sum_transfers'           => 'Somma dei trasferimenti',
+    'sum_reconciliations'     => 'Somma delle riconciliazioni',
     'reconcile'               => 'Riconcilia',
-    'account_on_spectre'      => 'Conto (Spectre)',
-    'account_on_ynab'         => 'Conto (YNAB)',
-    'do_import'               => 'Importo da questo conto',
     'sepa_ct_id'              => 'Identificativo End-To-End SEPA',
     'sepa_ct_op'              => 'Identificativo SEPA Conto Controparte',
     'sepa_db'                 => 'Identificativo Mandato SEPA',

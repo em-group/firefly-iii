@@ -1,52 +1,50 @@
 <?php
 /**
  * Translation.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Twig;
 
-use Twig_Extension;
-use Twig_SimpleFilter;
-use Twig_SimpleFunction;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 /**
  * Class Budget.
  */
-class Translation extends Twig_Extension
+class Translation extends AbstractExtension
 {
     /**
      * @return array
      */
     public function getFilters(): array
     {
-        $filters = [];
-
-        $filters[] = new Twig_SimpleFilter(
-            '_',
-            function ($name) {
-                return (string)trans(sprintf('firefly.%s', $name));
-            },
-            ['is_safe' => ['html']]
-        );
-
-        return $filters;
+        return [
+            new TwigFilter(
+                '_',
+                static function ($name) {
+                    return (string)trans(sprintf('firefly.%s', $name));
+                },
+                ['is_safe' => ['html']]
+            ),
+        ];
     }
 
     /**
@@ -60,13 +58,13 @@ class Translation extends Twig_Extension
     }
 
     /**
-     * @return Twig_SimpleFunction
+     * @return TwigFunction
      */
-    public function journalLinkTranslation(): Twig_SimpleFunction
+    public function journalLinkTranslation(): TwigFunction
     {
-        return new Twig_SimpleFunction(
+        return new TwigFunction(
             'journalLinkTranslation',
-            function (string $direction, string $original) {
+            static function (string $direction, string $original) {
                 $key         = sprintf('firefly.%s_%s', $original, $direction);
                 $translation = trans($key);
                 if ($key === $translation) {

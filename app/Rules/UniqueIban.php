@@ -1,22 +1,22 @@
 <?php
 /**
  * UniqueIban.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,11 +33,8 @@ use Log;
  */
 class UniqueIban implements Rule
 {
-    /** @var Account */
-    private $account;
-
-    /** @var string */
-    private $expectedType;
+    private ?Account $account;
+    private ?string  $expectedType;
 
     /**
      * Create a new rule instance.
@@ -51,6 +48,16 @@ class UniqueIban implements Rule
     {
         $this->account      = $account;
         $this->expectedType = $expectedType;
+        // a very basic fix to make sure we get the correct account type:
+        if ('expense' === $expectedType) {
+            $this->expectedType = AccountType::EXPENSE;
+        }
+        if ('revenue' === $expectedType) {
+            $this->expectedType = AccountType::REVENUE;
+        }
+        if ('asset' === $expectedType) {
+            $this->expectedType = AccountType::ASSET;
+        }
     }
 
     /**
@@ -68,8 +75,8 @@ class UniqueIban implements Rule
     /**
      * Determine if the validation rule passes.
      *
-     * @param  string $attribute
-     * @param  mixed  $value
+     * @param string $attribute
+     * @param mixed  $value
      *
      * @return bool
      *
@@ -77,10 +84,10 @@ class UniqueIban implements Rule
     public function passes($attribute, $value): bool
     {
         if (!auth()->check()) {
-            return true; // @codeCoverageIgnore
+            return true; 
         }
         if (null === $this->expectedType) {
-            return true; // @codeCoverageIgnore
+            return true; 
         }
         $maxCounts = $this->getMaxOccurrences();
 
@@ -103,6 +110,32 @@ class UniqueIban implements Rule
     }
 
     /**
+     * @return array
+     *
+     */
+    private function getMaxOccurrences(): array
+    {
+        $maxCounts = [
+            AccountType::ASSET   => 0,
+            AccountType::EXPENSE => 0,
+            AccountType::REVENUE => 0,
+        ];
+
+        if ('expense' === $this->expectedType || AccountType::EXPENSE === $this->expectedType) {
+            // IBAN should be unique amongst expense and asset accounts.
+            // may appear once in revenue accounts
+            $maxCounts[AccountType::REVENUE] = 1;
+        }
+        if ('revenue' === $this->expectedType || AccountType::REVENUE === $this->expectedType) {
+            // IBAN should be unique amongst revenue and asset accounts.
+            // may appear once in expense accounts
+            $maxCounts[AccountType::EXPENSE] = 1;
+        }
+
+        return $maxCounts;
+    }
+
+    /**
      * @param string $type
      * @param string $iban
      *
@@ -122,31 +155,5 @@ class UniqueIban implements Rule
         }
 
         return $query->count();
-    }
-
-    /**
-     * @return array
-     *
-     */
-    private function getMaxOccurrences(): array
-    {
-        $maxCounts = [
-            AccountType::ASSET   => 0,
-            AccountType::EXPENSE => 0,
-            AccountType::REVENUE => 0,
-        ];
-
-        if ('expense' === $this->expectedType || AccountType::EXPENSE === $this->expectedType) {
-            // IBAN should be unique amongst expense and asset accounts.
-            // may appear once in revenue accounts
-            $maxCounts[AccountType::REVENUE] = 1;
-        }
-        if ('revenue' === $this->expectedType || AccountType::EXPENSE === $this->expectedType) {
-            // IBAN should be unique amongst revenue and asset accounts.
-            // may appear once in expense accounts
-            $maxCounts[AccountType::EXPENSE] = 1;
-        }
-
-        return $maxCounts;
     }
 }

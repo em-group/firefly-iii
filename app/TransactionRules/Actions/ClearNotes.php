@@ -1,29 +1,28 @@
 <?php
 /**
  * ClearNotes.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\TransactionRules\Actions;
 
-use Exception;
-use FireflyIII\Models\Note;
+use DB;
 use FireflyIII\Models\RuleAction;
 use FireflyIII\Models\TransactionJournal;
 use Log;
@@ -34,31 +33,15 @@ use Log;
 class ClearNotes implements ActionInterface
 {
     /**
-     * TriggerInterface constructor.
-     *
-     * @param RuleAction $action
+     * @inheritDoc
      */
-    public function __construct(RuleAction $action)
+    public function actOnArray(array $journal): bool
     {
-    }
-
-    /**
-     * Remove notes
-     *
-     * @param TransactionJournal $journal
-     *
-     * @return bool
-     * @throws Exception
-     */
-    public function act(TransactionJournal $journal): bool
-    {
+        DB::table('notes')
+          ->where('noteable_id', $journal['transaction_journal_id'])
+          ->where('noteable_type', TransactionJournal::class)
+          ->delete();
         Log::debug(sprintf('RuleAction ClearNotes removed all notes.'));
-        $notes = $journal->notes()->get();
-        /** @var Note $note */
-        foreach ($notes as $note) {
-            $note->delete();
-        }
-        $journal->touch();
 
         return true;
     }

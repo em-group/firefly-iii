@@ -25,8 +25,8 @@
 
 {{ terms | raw }}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
+<script nonce="{{ JS_NONCE }}">
 
     $(function(){
         window.gotoSection = function(section){

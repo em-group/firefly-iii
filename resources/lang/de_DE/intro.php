@@ -2,22 +2,22 @@
 
 /**
  * intro.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -32,26 +32,11 @@ return [
     'index_sidebar-toggle'                            => 'Um neue Transaktionen, Konten oder andere Dinge zu erstellen, verwenden Sie das Menü unter diesem Symbol.',
     'index_cash_account'                              => 'Dies sind die bisher angelegten Konten. Sie können das Geldkonto verwenden, um die Barausgaben zu verfolgen, aber es ist natürlich nicht zwingend erforderlich.',
 
-    // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Wählen Sie aus dieser Auswahlliste Ihr bevorzugtes Anlagenkonto oder Ihre bevorzugte Verbindlichkeit aus.',
-    'transactions_create_withdrawal_destination'      => 'Wählen Sie hier ein Aufwandskonto. Lassen Sie es leer, wenn Sie eine Barauslage buchen möchten.',
-    'transactions_create_withdrawal_foreign_currency' => 'Verwenden Sie dieses Feld, um eine Fremdwährung und einen Betrag festzulegen.',
-    'transactions_create_withdrawal_more_meta'        => 'Viele weitere Metadaten, die Sie in diesen Feldern festlegen.',
-    'transactions_create_withdrawal_split_add'        => 'Wenn Sie eine Buchung aufteilen möchten, können Sie mit dieser Schaltfläche weitere Aufteilungen hinzufügen',
-
-    // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Zahlungsempfänger in dieser Auswahlliste/Textbox für das automatische Vervollständigen auswählen oder eingeben. Leer lassen, wenn Sie eine Bareinzahlung buchen möchten.',
-    'transactions_create_deposit_destination'         => 'Wählen Sie hier ein Aktiv- oder Passivkonto aus.',
-    'transactions_create_deposit_foreign_currency'    => 'Verwenden Sie dieses Feld, um eine Fremdwährung und einen Betrag festzulegen.',
-    'transactions_create_deposit_more_meta'           => 'Viele weitere Metadaten, die Sie in diesen Feldern festlegen.',
-    'transactions_create_deposit_split_add'           => 'Wenn Sie eine Buchung aufteilen möchten, können Sie mit dieser Schaltfläche weitere Aufteilungen hinzufügen',
-
-    // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Wählen Sie hier das Quell-Anlagenkonto aus.',
-    'transactions_create_transfer_destination'        => 'Wählen Sie hier das Ziel-Anlagenkonto aus.',
-    'transactions_create_transfer_foreign_currency'   => 'Verwenden Sie dieses Feld, um eine Fremdwährung und einen Betrag festzulegen.',
-    'transactions_create_transfer_more_meta'          => 'Viele weitere Metadaten, die Sie in diesen Feldern festlegen.',
-    'transactions_create_transfer_split_add'          => 'Wenn Sie eine Buchung aufteilen möchten, können Sie mit dieser Schaltfläche weitere Aufteilungen hinzufügen',
+    // transactions
+    'transactions_create_basic_info'                  => 'Geben Sie die wesentlichen Informationen zu Ihrer Buchung ein. Quelle, Ziel, Datum und Beschreibung.',
+    'transactions_create_amount_info'                 => 'Geben Sie den Betrag der Buchung ein. Falls erforderlich, werden die Felder für Auslandsbetragsinformationen automatisch aktualisiert.',
+    'transactions_create_optional_info'               => 'Alle diese Felder sind optional. Wenn Sie hier zusätzlich Informationen eingeben, werden Ihre Buchungen besser organisiert.',
+    'transactions_create_split'                       => 'Wenn Sie eine Buchung aufteilen möchten, fügen Sie mit dieser Schaltfläche weitere Aufteilungen hinzu',
 
     // create account:
     'accounts_create_iban'                            => 'Geben Sie Ihren Konten eine gültige IBAN. Dies könnte einen Datenimport in Zukunft sehr einfach machen.',
@@ -76,7 +61,7 @@ return [
     'reports_index_extra-options-box'                 => 'Abhängig von dem ausgewählten Bericht können Sie hier zusätzliche Filter und Optionen auswählen. Sehen Sie sich dieses Feld an, wenn Sie Berichtstypen ändern.',
 
     // reports (reports)
-    'reports_report_default_intro'                    => 'Dieser Bericht gibt Ihnen einen schnellen und umfassenden Überblick über Ihre Finanzen. Wenn Sie etwas anderes sehen möchten, kontaktieren Sie mich bitte nicht!',
+    'reports_report_default_intro'                    => 'Dieser Bericht gibt Ihnen einen schnellen und umfassenden Überblick über Ihre Finanzen. Kontaktieren Sie mich bitte, wenn Sie Ideen für Ergänzungen haben!',
     'reports_report_audit_intro'                      => 'In diesem Bericht erhalten Sie detaillierte Einblicke in Ihre Bestandskonten.',
     'reports_report_audit_optionsBox'                 => 'Verwenden Sie diese Kontrollkästchen, um die Spalten anzuzeigen oder auszublenden, an denen Sie interessiert sind.',
 

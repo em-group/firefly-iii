@@ -1,39 +1,37 @@
 <?php
 /**
  * app.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org.
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
 
 declare(strict_types=1);
 
-use FireflyIII\Providers\ImportServiceProvider;
-
+use FireflyIII\Support\Facades\Telemetry;
 
 return [
     'unsubscribe_email_notifications' => env('UNSUBSCRIBE_EMAIL_NOTIFICATIONS', null),
 
     'name'            => envNonEmpty('APP_NAME', 'Firefly III'),
-    'env'             => envNonEmpty('APP_ENV', 'production'),
+    'env'             => envNonEmpty('APP_ENV', 'local'),
     'debug'           => env('APP_DEBUG', false),
     'url'             => envNonEmpty('APP_URL', 'http://localhost'),
     'timezone'        => envNonEmpty('TZ', 'UTC'),
-    'locale'          => 'en_US',
+    'locale'          => envNonEmpty('DEFAULT_LANGUAGE', 'en_US'),
     'fallback_locale' => 'en_US',
     'key'             => env('APP_KEY'),
     'cipher'          => 'AES-256-CBC',
@@ -79,9 +77,8 @@ return [
         FireflyIII\Providers\RouteServiceProvider::class,
 
         // own stuff:
-//        TwigBridge\ServiceProvider::class,
         PragmaRX\Google2FALaravel\ServiceProvider::class,
-
+        TwigBridge\ServiceProvider::class,
 
         /*
          * More service providers.
@@ -107,8 +104,6 @@ return [
 
         Sentry\Laravel\ServiceProvider::class,
 
-
-        ImportServiceProvider::class,
     ],
     'aliases'         => [
         'App'           => Illuminate\Support\Facades\App::class,
@@ -144,7 +139,6 @@ return [
         'URL'           => Illuminate\Support\Facades\URL::class,
         'Validator'     => Illuminate\Support\Facades\Validator::class,
         'View'          => Illuminate\Support\Facades\View::class,
-        //'Twig'          => TwigBridge\Facade\Twig::class,
         'Form'          => Collective\Html\FormFacade::class,
         'Html'          => Collective\Html\HtmlFacade::class,
         'Preferences'   => \FireflyIII\Support\Facades\Preferences::class,
@@ -157,9 +151,30 @@ return [
         'AccountForm'   => \FireflyIII\Support\Facades\AccountForm::class,
         'PiggyBankForm' => \FireflyIII\Support\Facades\PiggyBankForm::class,
         'RuleForm'      => \FireflyIII\Support\Facades\RuleForm::class,
+        'Telemetry'     => Telemetry::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
         'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class,
-        'Sentry'        => Sentry\Laravel\ServiceProvider::class
+        'Sentry'        => Sentry\Laravel\ServiceProvider::class,
+        'Twig'          => TwigBridge\Facade\Twig::class,
+
+        'Arr' => Illuminate\Support\Arr::class,
+        'Http' => Illuminate\Support\Facades\Http::class,
+        'Str' => Illuminate\Support\Str::class,
     ],
+
+    'asset_url' => env('ASSET_URL', null),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Faker Locale
+    |--------------------------------------------------------------------------
+    |
+    | This locale will be used by the Faker PHP library when generating fake
+    | data for your database seeds. For example, this will be used to get
+    | localized telephone numbers, street address information and more.
+    |
+    */
+
+    'faker_locale' => 'en_US',
 
 ];

@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * WholePeriodChartGenerator.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Support\Chart\Category;
 
@@ -26,26 +27,14 @@ use Carbon\Carbon;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Category;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
-use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
 use FireflyIII\Repositories\Category\OperationsRepositoryInterface;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  * Class WholePeriodChartGenerator
  */
 class WholePeriodChartGenerator
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param Category $category
      * @param Carbon   $start
@@ -56,8 +45,6 @@ class WholePeriodChartGenerator
     public function generate(Category $category, Carbon $start, Carbon $end): array
     {
         $collection = new Collection([$category]);
-        /** @var CategoryRepositoryInterface $repository */
-        $repository = app(CategoryRepositoryInterface::class);
 
         /** @var OperationsRepositoryInterface $opsRepository */
         $opsRepository = app(OperationsRepositoryInterface::class);
@@ -120,8 +107,8 @@ class WholePeriodChartGenerator
                 $earnedInfoKey                                = sprintf('earned-in-%s', $code);
                 $spentAmount                                  = $spent[$key][$currencyId]['sum'] ?? '0';
                 $earnedAmount                                 = $earned[$key][$currencyId]['sum'] ?? '0';
-                $chartData[$spentInfoKey]['entries'][$label]  = round($spentAmount, $currency['currency_decimal_places']);
-                $chartData[$earnedInfoKey]['entries'][$label] = round($earnedAmount, $currency['currency_decimal_places']);
+                $chartData[$spentInfoKey]['entries'][$label]  = round((float)$spentAmount, $currency['currency_decimal_places']);
+                $chartData[$earnedInfoKey]['entries'][$label] = round((float)$earnedAmount, $currency['currency_decimal_places']);
             }
             $current = app('navigation')->addPeriod($current, $step, 0);
         }
@@ -143,13 +130,13 @@ class WholePeriodChartGenerator
         $step   = '1D';
         $months = $start->diffInMonths($end);
         if ($months > 3) {
-            $step = '1W'; // @codeCoverageIgnore
+            $step = '1W'; 
         }
         if ($months > 24) {
-            $step = '1M'; // @codeCoverageIgnore
+            $step = '1M'; 
         }
         if ($months > 100) {
-            $step = '1Y'; // @codeCoverageIgnore
+            $step = '1Y'; 
         }
 
         return $step;

@@ -1,45 +1,41 @@
 <?php
 /**
  * AccountFormRequest.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Requests;
 
 use FireflyIII\Models\Account;
+use FireflyIII\Models\Location;
 use FireflyIII\Rules\UniqueIban;
+use FireflyIII\Support\Request\AppendsLocationData;
+use FireflyIII\Support\Request\ChecksLogin;
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * Class AccountFormRequest.
  */
-class AccountFormRequest extends Request
+class AccountFormRequest extends FormRequest
 {
-    /**
-     * Verify the request.
-     *
-     * @return bool
-     */
-    public function authorize(): bool
-    {
-        // Only allow logged in users
-        return auth()->check();
-    }
+    use ConvertsDataTypes, AppendsLocationData, ChecksLogin;
 
     /**
      * Get all data.
@@ -51,8 +47,7 @@ class AccountFormRequest extends Request
         $data = [
             'name'                    => $this->string('name'),
             'active'                  => $this->boolean('active'),
-            'account_type'            => $this->string('objectType'),
-            'account_type_id'         => 0,
+            'account_type_name'       => $this->string('objectType'),
             'currency_id'             => $this->integer('currency_id'),
             'virtual_balance'         => $this->string('virtual_balance'),
             'iban'                    => $this->string('iban'),
@@ -63,20 +58,22 @@ class AccountFormRequest extends Request
             'opening_balance_date'    => $this->date('opening_balance_date'),
             'cc_type'                 => $this->string('cc_type'),
             'cc_monthly_payment_date' => $this->string('cc_monthly_payment_date'),
-            'notes'                   => $this->string('notes'),
+            'notes'                   => $this->stringWithNewlines('notes'),
             'interest'                => $this->string('interest'),
             'interest_period'         => $this->string('interest_period'),
             'include_net_worth'       => '1',
         ];
+
+        $data = $this->appendLocationData($data, 'location');
         if (false === $this->boolean('include_net_worth')) {
             $data['include_net_worth'] = '0';
         }
 
         // if the account type is "liabilities" there are actually four types of liability
         // that could have been selected.
-        if ('liabilities' === $data['account_type']) {
-            $data['account_type']    = null;
-            $data['account_type_id'] = $this->integer('liability_type_id');
+        if ('liabilities' === $data['account_type_name']) {
+            $data['account_type_name'] = null;
+            $data['account_type_id']   = $this->integer('liability_type_id');
         }
 
         return $data;
@@ -109,9 +106,10 @@ class AccountFormRequest extends Request
             'what'                               => 'in:' . $types,
             'interest_period'                    => 'in:daily,monthly,yearly',
         ];
+        $rules          = Location::requestRules($rules);
 
         if ('liabilities' === $this->get('objectType')) {
-            $rules['opening_balance']      = ['numeric', 'required','max:1000000000'];
+            $rules['opening_balance']      = ['numeric', 'required', 'max:1000000000'];
             $rules['opening_balance_date'] = 'date|required';
         }
 

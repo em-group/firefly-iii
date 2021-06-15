@@ -1,22 +1,22 @@
 <?php
 /**
  * OperationsRepository.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -25,12 +25,9 @@ namespace FireflyIII\Repositories\Budget;
 
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
-use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Budget;
-use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionType;
-use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 use Log;
@@ -41,19 +38,7 @@ use Log;
  */
 class OperationsRepository implements OperationsRepositoryInterface
 {
-    /** @var User */
-    private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-            die(get_class($this));
-        }
-    }
+    private User $user;
 
     /**
      * A method that returns the amount of money budgeted per day for this budget,
@@ -87,53 +72,6 @@ class OperationsRepository implements OperationsRepositoryInterface
     }
 
     /**
-     * This method collects various info on budgets, used on the budget page and on the index.
-     *
-     * @param Collection $budgets
-     * @param Carbon     $start
-     * @param Carbon     $end
-     *
-     * @return array
-     * @deprecated
-     *
-     */
-    public function collectBudgetInformation(Collection $budgets, Carbon $start, Carbon $end): array
-    {
-        // get account information
-        /** @var AccountRepositoryInterface $accountRepository */
-        $accountRepository = app(AccountRepositoryInterface::class);
-        $accounts          = $accountRepository->getAccountsByType([AccountType::DEFAULT, AccountType::ASSET]);
-        $defaultCurrency   = app('amount')->getDefaultCurrency();
-        $return            = [];
-        /** @var Budget $budget */
-        foreach ($budgets as $budget) {
-            $budgetId          = $budget->id;
-            $return[$budgetId] = [
-                'spent'    => $this->spentInPeriod(new Collection([$budget]), $accounts, $start, $end),
-                'budgeted' => '0',
-            ];
-            $budgetLimits      = $this->getBudgetLimits($budget, $start, $end);
-            $otherLimits       = new Collection;
-
-            // get all the budget limits relevant between start and end and examine them:
-            /** @var BudgetLimit $limit */
-            foreach ($budgetLimits as $limit) {
-                if ($limit->start_date->isSameDay($start) && $limit->end_date->isSameDay($end)
-                ) {
-                    $return[$budgetId]['currentLimit'] = $limit;
-                    $return[$budgetId]['budgeted']     = round($limit->amount, $defaultCurrency->decimal_places);
-                    continue;
-                }
-                // otherwise it's just one of the many relevant repetitions:
-                $otherLimits->push($limit);
-            }
-            $return[$budgetId]['otherLimits'] = $otherLimits;
-        }
-
-        return $return;
-    }
-
-    /**
      * This method is being used to generate the budget overview in the year/multi-year report. Its used
      * in both the year/multi-year budget overview AND in the accompanying chart.
      *
@@ -149,8 +87,6 @@ class OperationsRepository implements OperationsRepositoryInterface
     {
         $carbonFormat = app('navigation')->preferredCarbonFormat($start, $end);
         $data         = [];
-
-
         // get all transactions:
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
@@ -245,8 +181,6 @@ class OperationsRepository implements OperationsRepositoryInterface
             // add journal to array:
             // only a subset of the fields.
             $journalId = (int)$journal['transaction_journal_id'];
-
-
             $array[$currencyId]['budgets'][$budgetId]['transaction_journals'][$journalId] = [
                 'amount'                   => app('steam')->negative($journal['amount']),
                 'destination_account_id'   => $journal['destination_account_id'],
@@ -270,30 +204,6 @@ class OperationsRepository implements OperationsRepositoryInterface
     public function setUser(User $user): void
     {
         $this->user = $user;
-    }
-
-    /**
-     * @param Collection $budgets
-     * @param Collection $accounts
-     * @param Carbon     $start
-     * @param Carbon     $end
-     *
-     * @return string
-     * @deprecated
-     */
-    public function spentInPeriod(Collection $budgets, Collection $accounts, Carbon $start, Carbon $end): string
-    {
-        /** @var GroupCollectorInterface $collector */
-        $collector = app(GroupCollectorInterface::class);
-
-        $collector->setUser($this->user);
-        $collector->setRange($start, $end)->setBudgets($budgets)->withBudgetInformation();
-
-        if ($accounts->count() > 0) {
-            $collector->setAccounts($accounts);
-        }
-
-        return $collector->getSum();
     }
 
     /** @noinspection MoreThanThreeArgumentsInspection */
@@ -327,7 +237,7 @@ class OperationsRepository implements OperationsRepositoryInterface
             /** @var array $transaction */
             foreach ($group['transactions'] as $transaction) {
                 $code = $transaction['currency_code'];
-                if (!isset($currencies[$code])) {
+                if (!array_key_exists($code, $currencies)) {
                     $currencies[$code] = [
                         'id'             => $transaction['currency_id'],
                         'decimal_places' => $transaction['currency_decimal_places'],
@@ -336,7 +246,7 @@ class OperationsRepository implements OperationsRepositoryInterface
                         'symbol'         => $transaction['currency_symbol'],
                     ];
                 }
-                $total[$code] = isset($total[$code]) ? bcadd($total[$code], $transaction['amount']) : $transaction['amount'];
+                $total[$code] = array_key_exists($code, $total) ? bcadd($total[$code], $transaction['amount']) : $transaction['amount'];
             }
         }
         /**
@@ -347,12 +257,12 @@ class OperationsRepository implements OperationsRepositoryInterface
             /** @var TransactionCurrency $currency */
             $currency = $currencies[$code];
             $return[] = [
-                'currency_id'             => $currency['id'],
+                'currency_id'             => (string)$currency['id'],
                 'currency_code'           => $code,
                 'currency_name'           => $currency['name'],
                 'currency_symbol'         => $currency['symbol'],
                 'currency_decimal_places' => $currency['decimal_places'],
-                'amount'                  => $spent,
+                'amount'                  => number_format((float)$spent, $currency['decimal_places'], '.', ''),
             ];
         }
 
@@ -370,24 +280,42 @@ class OperationsRepository implements OperationsRepositoryInterface
      */
     public function sumExpenses(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $budgets = null, ?TransactionCurrency $currency = null
     ): array {
-
+        Log::debug(sprintf('Now in %s', __METHOD__));
+        $start->startOfDay();
+        $end->endOfDay();
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
         $collector->setUser($this->user)->setRange($start, $end)->setTypes([TransactionType::WITHDRAWAL]);
 
-        if (null !== $accounts && $accounts->count() > 0) {
+        if (null !== $accounts) {
             $collector->setAccounts($accounts);
         }
-        if (null === $budgets || (null !== $budgets && 0 === $budgets->count())) {
+        if (null === $budgets) {
             $budgets = $this->getBudgets();
         }
         if (null !== $currency) {
             $collector->setCurrency($currency);
         }
         $collector->setBudgets($budgets);
-        $collector->withBudgetInformation();
         $journals = $collector->getExtractedJournals();
-        $array    = [];
+
+        // same but for foreign currencies:
+        if (null !== $currency) {
+            Log::debug(sprintf('Currency is "%s".', $currency->name));
+            /** @var GroupCollectorInterface $collector */
+            $collector = app(GroupCollectorInterface::class);
+            $collector->setUser($this->user)->setRange($start, $end)->setTypes([TransactionType::WITHDRAWAL])
+                      ->setForeignCurrency($currency)->setBudgets($budgets);
+
+            if (null !== $accounts) {
+                $collector->setAccounts($accounts);
+            }
+            $result = $collector->getExtractedJournals();
+            Log::debug(sprintf('Found %d journals with currency %s.', count($result), $currency->code));
+            // do not use array_merge because you want keys to overwrite (otherwise you get double results):
+            $journals = $result + $journals;
+        }
+        $array = [];
 
         foreach ($journals as $journal) {
             $currencyId                = (int)$journal['currency_id'];
@@ -400,9 +328,33 @@ class OperationsRepository implements OperationsRepositoryInterface
                     'currency_decimal_places' => $journal['currency_decimal_places'],
                 ];
             $array[$currencyId]['sum'] = bcadd($array[$currencyId]['sum'], app('steam')->negative($journal['amount']));
-        }
 
+            // also do foreign amount:
+            $foreignId = (int)$journal['foreign_currency_id'];
+            if (0 !== $foreignId) {
+                $array[$foreignId]        = $array[$foreignId] ?? [
+                        'sum'                     => '0',
+                        'currency_id'             => $foreignId,
+                        'currency_name'           => $journal['foreign_currency_name'],
+                        'currency_symbol'         => $journal['foreign_currency_symbol'],
+                        'currency_code'           => $journal['foreign_currency_code'],
+                        'currency_decimal_places' => $journal['foreign_currency_decimal_places'],
+                    ];
+                $array[$foreignId]['sum'] = bcadd($array[$foreignId]['sum'], app('steam')->negative($journal['foreign_amount']));
+            }
+        }
         return $array;
+    }
+
+    /**
+     * @return Collection
+     */
+    private function getBudgets(): Collection
+    {
+        /** @var BudgetRepositoryInterface $repos */
+        $repos = app(BudgetRepositoryInterface::class);
+
+        return $repos->getActiveBudgets();
     }
 
     /**
@@ -421,16 +373,5 @@ class OperationsRepository implements OperationsRepositoryInterface
         $blRepository = app(BudgetLimitRepositoryInterface::class);
 
         return $blRepository->getBudgetLimits($budget, $start, $end);
-    }
-
-    /**
-     * @return Collection
-     */
-    private function getBudgets(): Collection
-    {
-        /** @var BudgetRepositoryInterface $repos */
-        $repos = app(BudgetRepositoryInterface::class);
-
-        return $repos->getActiveBudgets();
     }
 }

@@ -1,32 +1,29 @@
 <?php
 /**
  * UserTransformer.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
-
-
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
-use Log;
 
 /**
  * Class UserTransformer
@@ -34,20 +31,7 @@ use Log;
 class UserTransformer extends AbstractTransformer
 {
     /** @var UserRepositoryInterface */
-    private $repository;
-
-    /**
-     * UserTransformer constructor.
-     *
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        $this->repository = app(UserRepositoryInterface::class);
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
+    private UserRepositoryInterface $repository;
 
     /**
      * Transform user.
@@ -58,6 +42,8 @@ class UserTransformer extends AbstractTransformer
      */
     public function transform(User $user): array
     {
+        $this->repository = $this->repository ?? app(UserRepositoryInterface::class);
+
         return [
             'id'           => (int)$user->id,
             'created_at'   => $user->created_at->toAtomString(),

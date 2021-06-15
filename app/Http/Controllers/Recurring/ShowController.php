@@ -1,28 +1,27 @@
 <?php
 /**
  * ShowController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Recurring;
-
 
 use Carbon\Carbon;
 use FireflyIII\Exceptions\FireflyException;
@@ -31,6 +30,8 @@ use FireflyIII\Models\Recurrence;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\GetConfigurationData;
 use FireflyIII\Transformers\RecurrenceTransformer;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -40,11 +41,13 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 class ShowController extends Controller
 {
     use GetConfigurationData;
+
     /** @var RecurringRepositoryInterface Recurring repository */
     private $recurring;
 
     /**
      * IndexController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -65,13 +68,12 @@ class ShowController extends Controller
         );
     }
 
-
     /**
      * Show a single recurring transaction.
      *
      * @param Recurrence $recurrence
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      * @throws FireflyException
      */
     public function show(Recurrence $recurrence)
@@ -80,8 +82,10 @@ class ShowController extends Controller
         $transformer = app(RecurrenceTransformer::class);
         $transformer->setParameters(new ParameterBag);
 
-        $array  = $transformer->transform($recurrence);
-        $groups = $this->recurring->getTransactions($recurrence);
+        $array                 = $transformer->transform($recurrence);
+        $groups                = $this->recurring->getTransactions($recurrence);
+        $today                 = today(config('app.timezone'));
+        $array['repeat_until'] = null !== $array['repeat_until'] ? new Carbon($array['repeat_until']) : null;
 
         // transform dates back to Carbon objects:
         foreach ($array['repetitions'] as $index => $repetition) {
@@ -92,6 +96,6 @@ class ShowController extends Controller
 
         $subTitle = (string)trans('firefly.overview_for_recurrence', ['title' => $recurrence->title]);
 
-        return view('recurring.show', compact('recurrence', 'subTitle', 'array', 'groups'));
+        return prefixView('recurring.show', compact('recurrence', 'subTitle', 'array', 'groups', 'today'));
     }
 }

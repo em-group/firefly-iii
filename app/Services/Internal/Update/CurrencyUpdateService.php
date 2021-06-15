@@ -1,22 +1,22 @@
 <?php
 /**
  * CurrencyUpdateService.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,24 +24,14 @@ declare(strict_types=1);
 namespace FireflyIII\Services\Internal\Update;
 
 use FireflyIII\Models\TransactionCurrency;
-use Log;
 
 /**
  * Class CurrencyUpdateService
+ *
  * @codeCoverageIgnore
  */
 class CurrencyUpdateService
 {
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
     /**
      * @param TransactionCurrency $currency
      * @param array               $data
@@ -50,11 +40,26 @@ class CurrencyUpdateService
      */
     public function update(TransactionCurrency $currency, array $data): TransactionCurrency
     {
-        $currency->code           = $data['code'];
-        $currency->symbol         = $data['symbol'];
-        $currency->name           = $data['name'];
-        $currency->enabled        = $data['enabled'];
-        $currency->decimal_places = $data['decimal_places'];
+        if (array_key_exists('code', $data) && '' !== (string)$data['code']) {
+            $currency->code = $data['code'];
+        }
+
+        if (array_key_exists('symbol', $data) && '' !== (string)$data['symbol']) {
+            $currency->symbol = $data['symbol'];
+        }
+
+        if (array_key_exists('name', $data) && '' !== (string)$data['name']) {
+            $currency->name = $data['name'];
+        }
+
+        if (array_key_exists('enabled', $data) && is_bool($data['enabled'])) {
+            $currency->enabled = $data['enabled'];
+        }
+
+        if (array_key_exists('decimal_places', $data) && is_int($data['decimal_places'])) {
+            $currency->decimal_places = $data['decimal_places'];
+        }
+
         $currency->save();
 
         return $currency;

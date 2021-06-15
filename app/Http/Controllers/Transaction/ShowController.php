@@ -1,35 +1,38 @@
 <?php
 /**
- * ViewController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * ShowController.php
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Transaction;
 
-
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\TransactionGroup\TransactionGroupRepositoryInterface;
 use FireflyIII\Transformers\TransactionGroupTransformer;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -37,8 +40,7 @@ use Symfony\Component\HttpFoundation\ParameterBag;
  */
 class ShowController extends Controller
 {
-    /** @var TransactionGroupRepositoryInterface */
-    private $repository;
+    private TransactionGroupRepositoryInterface $repository;
 
     /**
      * ShowController constructor.
@@ -63,14 +65,30 @@ class ShowController extends Controller
     /**
      * @param TransactionGroup $transactionGroup
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return JsonResponse
+     */
+    public function debugShow(TransactionGroup $transactionGroup)
+    {
+        return response()->json($this->repository->expandGroup($transactionGroup));
+    }
+
+    /**
+     * @param TransactionGroup $transactionGroup
+     *
+     * @return Factory|View
+     * @throws FireflyException
      */
     public function show(Request $request, TransactionGroup $transactionGroup)
     {
         /** @var TransactionJournal $first */
-        $first    = $transactionGroup->transactionJournals->first();
-        $splits   = $transactionGroup->transactionJournals->count();
-        $type     = $first->transactionType->type;
+        $first  = $transactionGroup->transactionJournals()->first(['transaction_journals.*']);
+        $splits = $transactionGroup->transactionJournals()->count();
+
+        if (null === $first) {
+            throw new FireflyException('This transaction is broken :(.');
+        }
+
+        $type     = (string)trans(sprintf('firefly.%s', $first->transactionType->type));
         $title    = 1 === $splits ? $first->description : $transactionGroup->title;
         $subTitle = sprintf('%s: "%s"', $type, $title);
 
@@ -79,24 +97,39 @@ class ShowController extends Controller
         $transformer->setParameters(new ParameterBag);
         $groupArray = $transformer->transformObject($transactionGroup);
 
-        // do some amount calculations:
-        $amounts = $this->getAmounts($groupArray);
+        // do some calculations:
+        $amounts  = $this->getAmounts($groupArray);
+        $accounts = $this->getAccounts($groupArray);
 
+        foreach ($groupArray['transactions'] as $index => $transaction) {
+            $groupArray['transactions'][$index]['tags'] = $this->repository->getTagObjects($groupArray['transactions'][$index]['transaction_journal_id']);
+        }
 
         $events      = $this->repository->getPiggyEvents($transactionGroup);
         $attachments = $this->repository->getAttachments($transactionGroup);
         $links       = $this->repository->getLinks($transactionGroup);
 
-        return view(
-            'transactions.show', compact(
-                                   'transactionGroup', 'amounts', 'first', 'type', 'subTitle', 'splits', 'groupArray',
-                                   'events', 'attachments', 'links'
-                               )
+        return prefixView(
+            'transactions.show',
+            compact(
+                'transactionGroup',
+                'amounts',
+                'first',
+                'type',
+                'subTitle',
+                'splits',
+                'groupArray',
+                'events',
+                'attachments',
+                'links',
+                'accounts',
+            )
         );
     }
 
     /**
      * @param array $group
+     *
      * @return array
      */
     private function getAmounts(array $group): array
@@ -104,7 +137,7 @@ class ShowController extends Controller
         $amounts = [];
         foreach ($group['transactions'] as $transaction) {
             $symbol = $transaction['currency_symbol'];
-            if (!isset($amounts[$symbol])) {
+            if (!array_key_exists($symbol, $amounts)) {
                 $amounts[$symbol] = [
                     'amount'         => '0',
                     'symbol'         => $symbol,
@@ -115,7 +148,7 @@ class ShowController extends Controller
             if (null !== $transaction['foreign_amount']) {
                 // same for foreign currency:
                 $foreignSymbol = $transaction['foreign_currency_symbol'];
-                if (!isset($amounts[$foreignSymbol])) {
+                if (!array_key_exists($foreignSymbol, $amounts)) {
                     $amounts[$foreignSymbol] = [
                         'amount'         => '0',
                         'symbol'         => $foreignSymbol,
@@ -127,5 +160,33 @@ class ShowController extends Controller
         }
 
         return $amounts;
+    }
+
+    /**
+     * @param array $group
+     *
+     * @return array
+     */
+    private function getAccounts(array $group): array
+    {
+        $accounts = [];
+
+        foreach ($group['transactions'] as $transaction) {
+            $accounts['source'][]      = [
+                'type' => $transaction['source_type'],
+                'id'   => $transaction['source_id'],
+                'name' => $transaction['source_name'],
+                'iban' => $transaction['source_iban']];
+            $accounts['destination'][] = [
+                'type' => $transaction['destination_type'],
+                'id'   => $transaction['destination_id'],
+                'name' => $transaction['destination_name'],
+                'iban' => $transaction['destination_iban']];
+        }
+
+        $accounts['source']      = array_unique($accounts['source'], SORT_REGULAR);
+        $accounts['destination'] = array_unique($accounts['destination'], SORT_REGULAR);
+
+        return $accounts;
     }
 }

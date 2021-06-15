@@ -2,22 +2,22 @@
 
 /**
  * form.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -38,40 +38,34 @@ return [
     'match'                       => 'Se potrivește',
     'strict'                      => 'Modul strict',
     'repeat_freq'                 => 'Repetă',
-    'journal_currency_id'         => 'Monedă',
+    'object_group'                => 'Grup',
+    'location'                    => 'Locație',
+    'update_channel'              => 'Actualizare canal',
     'currency_id'                 => 'Monedă',
     'transaction_currency_id'     => 'Monedă',
+    'auto_budget_currency_id'     => 'Monedă',
     'external_ip'                 => 'IP-ul extern al serverului dvs.',
     'attachments'                 => 'Fișiere atașate',
-    'journal_amount'              => 'Suma',
-    'journal_source_name'         => 'Contul de venituri (sursă)',
-    'keep_bill_id'                => 'Factură',
-    'journal_source_id'           => 'Cont activ (sursă)',
     'BIC'                         => 'BIC',
     'verify_password'             => 'Verificați securitatea parolei',
     'source_account'              => 'Contul sursă',
     'destination_account'         => 'Contul destinației',
-    'journal_destination_id'      => 'Cont de active (destinație)',
     'asset_destination_account'   => 'Contul destinației',
     'include_net_worth'           => 'Includeți în valoare netă',
     'asset_source_account'        => 'Contul sursă',
     'journal_description'         => 'Descriere',
     'note'                        => 'Notițe',
-    'store_new_transaction'       => 'Store new transaction',
-    'split_journal'               => 'Împărțiți această tranzacție',
-    'split_journal_explanation'   => 'Împărțiți această tranzacție în mai multe părți',
     'currency'                    => 'Monedă',
     'account_id'                  => 'Cont de active',
     'budget_id'                   => 'Buget',
-    'opening_balance'             => 'Opening balance',
+    'opening_balance'             => 'Soldul de deschidere',
     'tagMode'                     => 'Mod de etichetare',
-    'tag_position'                => 'Locația etichetei',
-    'virtual_balance'             => 'Virtual balance',
+    'virtual_balance'             => 'Soldul virtual',
     'targetamount'                => 'Sumă țintă',
-    'account_role'                => 'Account role',
-    'opening_balance_date'        => 'Opening balance date',
-    'cc_type'                     => 'Credit card payment plan',
-    'cc_monthly_payment_date'     => 'Credit card monthly payment date',
+    'account_role'                => 'Rolul contului',
+    'opening_balance_date'        => 'Data soldului de deschidere',
+    'cc_type'                     => 'Plan de plată cu card de credit',
+    'cc_monthly_payment_date'     => 'Data plății lunare cu cartea de credit',
     'piggy_bank_id'               => 'Pușculită',
     'returnHere'                  => 'Întoarce-te aici',
     'returnHereExplanation'       => 'După salvare, reveniți aici pentru a crea alta.',
@@ -80,30 +74,23 @@ return [
     'expense_account'             => 'Cont de cheltuieli',
     'revenue_account'             => 'Contul de venituri',
     'decimal_places'              => 'Zecimale',
-    'exchange_rate_instruction'   => 'Monede străine',
-    'source_amount'               => 'Sumă (sursă)',
     'destination_amount'          => 'Sumă (destinație)',
-    'native_amount'               => 'Valoare nativă',
     'new_email_address'           => 'Adresă de email nouă',
     'verification'                => 'Verificare',
     'api_key'                     => 'Cheie API',
     'remember_me'                 => 'Ține-mă minte',
     'liability_type_id'           => 'Tipul de provizion',
+    'liability_type'              => 'Tipul de provizion',
     'interest'                    => 'Interes',
     'interest_period'             => 'Perioadă de interes',
 
-    'source_account_asset'        => 'Contul sursă (asset account)',
-    'destination_account_expense' => 'Contul destinației (expense account)',
-    'destination_account_asset'   => 'Contul destinației (asset account)',
-    'source_account_revenue'      => 'Contul sursă (cont de venituri)',
-    'type'                        => 'Tip',
-    'convert_Withdrawal'          => 'Convertește retragere',
-    'convert_Deposit'             => 'Convertește depozit',
-    'convert_Transfer'            => 'Convertește transfer',
+    'type'               => 'Tip',
+    'convert_Withdrawal' => 'Convertește retragere',
+    'convert_Deposit'    => 'Convertește depozit',
+    'convert_Transfer'   => 'Convertește transfer',
 
     'amount'                      => 'Sumă',
     'foreign_amount'              => 'Sumă străină',
-    'existing_attachments'        => 'Atașamentele existente',
     'date'                        => 'Dată',
     'interest_date'               => 'Data de interes',
     'book_date'                   => 'Rezervă dată',
@@ -119,18 +106,12 @@ return [
     'symbol'                      => 'Simbol',
     'code'                        => 'Cod',
     'iban'                        => 'IBAN',
-    'account_number'              => 'Account number',
+    'account_number'              => 'Număr de cont',
     'creditCardNumber'            => 'Numărul cărții de credit',
     'has_headers'                 => 'Antet',
     'date_format'                 => 'Formatul datei',
     'specifix'                    => 'Fișiere specifice băncii',
     'attachments[]'               => 'Atașamente',
-    'store_new_withdrawal'        => 'Stocați retragere nouă',
-    'store_new_deposit'           => 'Stocați depozit nou',
-    'store_new_transfer'          => 'Stocați transfer nou',
-    'add_new_withdrawal'          => 'Adăugați o nouă retragere',
-    'add_new_deposit'             => 'Adăugați un nou depozit',
-    'add_new_transfer'            => 'Adăugați un nou transfer',
     'title'                       => 'Titlu',
     'notes'                       => 'Notițe',
     'filename'                    => 'Nume de fișier',
@@ -140,8 +121,8 @@ return [
     'stop_processing'             => 'Opriți procesarea',
     'start_date'                  => 'Start de interval',
     'end_date'                    => 'Șfârșit de interval',
-    'include_attachments'         => 'Includeți atașamente încărcate',
-    'include_old_uploads'         => 'Includeți datele importate',
+    'start'                       => 'Începutul intervalului',
+    'end'                         => 'Sfârșit de interval',
     'delete_account'              => 'Șterge cont ":name"',
     'delete_bill'                 => 'Șterge factură ":name"',
     'delete_budget'               => 'Șterge buget ":name"',
@@ -157,8 +138,10 @@ return [
     'user_areYouSure'             => 'Dacă ștergeți utilizatorul ":email", totul va dispărea. Nu există nici o undo (anulare), anulare ștergere sau orice altceva. Dacă vă ștergeți, veți pierde accesul la aplicație.',
     'attachment_areYouSure'       => 'Sunteți sigur că doriți să ștergeți atașamentul ":name"?',
     'account_areYouSure'          => 'Sunteți sigur că doriți să ștergeți contul ":name"?',
+    'account_areYouSure_js'       => 'Sunteţi sigur că doriţi să ştergeţi contul numit "{name}"?',
     'bill_areYouSure'             => 'Sunteți sigur că doriți să ștergeți factura ":name"?',
     'rule_areYouSure'             => 'Sunteți sigur că doriți să ștergeți regula ":title"?',
+    'object_group_areYouSure'     => 'Sigur doriți să ștergeți grupul ":title"?',
     'ruleGroup_areYouSure'        => 'Sunteți sigur că doriți să ștergeți grupul de reguli ":title"?',
     'budget_areYouSure'           => 'Sunteți sigur că doriți să ștergeți bugetul ":name"?',
     'category_areYouSure'         => 'Sunteți sigur că doriți să ștergeți categoria ":name"?',
@@ -175,15 +158,21 @@ return [
     'delete_all_permanently'      => 'Ștergeți selectat definitiv',
     'update_all_journals'         => 'Actualizați aceste tranzacții',
     'also_delete_transactions'    => 'Singura tranzacție conectată la acest cont va fi, de asemenea, ștearsă.|Toate cele :count tranzacții conectate la acest cont vor fi șterse.',
+    'also_delete_transactions_js' => 'Nicio tranzacție | Singura tranzacție conectată la acest cont va fi de asemenea ștearsă. | Toate cele {count} tranzacții conectate la acest cont vor fi șterse, de asemenea.',
     'also_delete_connections'     => 'Singura tranzacție legată de acest tip de legătură va pierde această conexiune.|Toate cele :count tranzacții legate de acest tip de legătură vor pierde conexiunea.',
     'also_delete_rules'           => 'Singura regulă legată de acest grup de reguli va fi ștersă, de asemenea.|Toate cele :count reguli conectate la acest grup de reguli vor fi șterse, de asemenea.',
     'also_delete_piggyBanks'      => 'Singura pușculita conectată la acest cont va fi ștersă.|Toate cele :count pușculițe conectate la acest cont vor fi șterse, de asemenea.',
+    'also_delete_piggyBanks_js'   => 'Nici o pușculiță | Singura pușculiță conectată la acest cont va fi de asemenea ștearsă. Toate cele {count} pușculițe conectate la acest cont vor fi șterse, de asemenea.',
+    'not_delete_piggy_banks'      => 'Pușculița conectată la acest grup nu va fi ștearsă. | Pușculița :count conectată la acest grup nu va fi ștearsă.',
     'bill_keep_transactions'      => 'Singura tranzacție conectată la această factură nu va fi ștearsă.|Toate cele :count tranzacții conectate la această factură vor fi scutite de ștergere.',
     'budget_keep_transactions'    => 'Singura tranzacție conectată la acest buget nu va fi ștearsă.|Toate cele :count tranzacții conectate la acest budet vor fi scutite de ștergere.',
     'category_keep_transactions'  => 'Singura tranzacție conectată la această categorie nu va fi ștearsă.|Toate cele :count tranzacții conectate la această categorie vor fi scutite de ștergere.',
     'recurring_keep_transactions' => 'Singura tranzacție creată de această tranzacție recurentă nu va fi ștearsă.|Toate cele :count tranzacții create de această tranzacție recurente vor fi scutite de ștergere.',
     'tag_keep_transactions'       => 'Singura tranzacție conectată la this tag nu va fi ștearsă.|Toate cele :count tranzacții conectate la această etichetă vor fi scutite de ștergere.',
     'check_for_updates'           => 'Verifică pentru actualizări',
+    'liability_direction'         => 'Răspundere în/afară',
+
+    'delete_object_group' => 'Șterge grup ":title"',
 
     'email'                 => 'Email',
     'password'              => 'Parolă',
@@ -191,6 +180,7 @@ return [
     'blocked'               => 'Este blocat?',
     'blocked_code'          => 'Motiv pentru blocare',
     'login_name'            => 'Logare',
+    'is_owner'              => 'Este administrator?',
 
     // import
     'apply_rules'           => 'Aplică reguli',
@@ -205,18 +195,12 @@ return [
     'is_demo_site'          => 'Este un site demo',
 
     // import
-    'import_file'           => 'Fișier de import',
     'configuration_file'    => 'Fișier de configurare',
-    'import_file_type'      => 'Importați tipul de fișier',
     'csv_comma'             => 'O virgulă (,)',
     'csv_semicolon'         => 'Un punct și virgulă (;)',
     'csv_tab'               => 'O filă (invizibilă)',
     'csv_delimiter'         => 'Delimitator CSV',
-    'csv_import_account'    => 'Contul de import implicit',
-    'csv_config'            => 'Configurare import CSV',
     'client_id'             => 'ID Client',
-    'service_secret'        => 'Serviciu secret',
-    'app_secret'            => 'Secret Aplicație',
     'app_id'                => 'ID Aplicație',
     'secret'                => 'Secret',
     'public_key'            => 'Cheie publică',
@@ -253,9 +237,19 @@ return [
     'weekend'                 => 'Sfârșit de săptămână',
     'client_secret'           => 'Codul secret al clientului',
 
-    'withdrawal_destination_id' => 'Destination account',
-    'deposit_source_id'         => 'Source account',
-    'expected_on'               => 'Expected on',
-    'paid'                      => 'Paid',
+    'withdrawal_destination_id' => 'Contul de destinație',
+    'deposit_source_id'         => 'Contul sursă',
+    'expected_on'               => 'Așteptat pe',
+    'paid'                      => 'Plătit',
+
+    'auto_budget_type'   => 'Auto-buget',
+    'auto_budget_amount' => 'Suma auto-bugetului',
+    'auto_budget_period' => 'Perioadă auto-buget',
+
+    'collected' => 'Colectat',
+    'submitted' => 'Trimis',
+    'key'       => 'Cheie',
+    'value'     => 'Conținutul înregistrării',
+
 
 ];

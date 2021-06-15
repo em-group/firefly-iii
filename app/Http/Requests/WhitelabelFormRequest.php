@@ -5,8 +5,12 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Requests;
 
 
-class WhitelabelFormRequest extends Request
+use FireflyIII\Support\Request\ConvertsDataTypes;
+use Illuminate\Foundation\Http\FormRequest;
+
+class WhitelabelFormRequest extends FormRequest
 {
+    use ConvertsDataTypes;
 
     public function authorize(): bool
     {

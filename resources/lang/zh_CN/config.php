@@ -2,46 +2,49 @@
 
 /**
  * config.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 return [
-    'html_language'           => 'zh',
-    'locale'                  => 'zh_CN.utf8,zh_CN.UTF-8',
-    'month'                   => '%Y 年 %B',
-    'month_and_day'           => '%Y年 %B %e日',
-    'month_and_day_moment_js' => 'MMM D, YYYY',
-    'month_and_date_day'      => '%Y 年 %B %e 日 %A',
-    'month_and_day_no_year'   => '%B %e 日',
-    'date_time'               => '%Y 年 %B %e 日, @ %T',
-    'specific_day'            => '%Y 年 %B %e 日',
-    'week_in_year'            => '%Y 年第 %W 周',
-    'year'                    => '%Y 年',
-    'half_year'               => '%Y 年 %B',
-    'month_js'                => 'MMMM YYYY',
-    'month_and_day_js'        => 'YYYY MMMM Do',
-    'date_time_js'            => 'YYYY MMMM Do,@ HH:mm:ss',
-    'specific_day_js'         => 'YYYY MMMM D',
-    'week_in_year_js'         => 'YYYY年, w [Week]',
+    'html_language'           => 'zh-cn',
+    'locale'                  => 'zh_CN.utf8, zh_CN.UTF-8',
+    'month'                   => '%Y年%B',
+    'month_and_day'           => '%Y年%B%e日',
+    'month_and_day_moment_js' => 'YYYY年M月D日',
+    'month_and_date_day'      => '%Y年%B%e日 %A',
+    'month_and_day_no_year'   => '%B%e日',
+    'date_time'               => '%Y年%B%e日 %T',
+    'specific_day'            => '%Y年%B%e日',
+    'week_in_year'            => '%G年 第%V周',
+    'year'                    => '%Y年',
+    'half_year'               => '%Y年%B',
+    'month_js'                => 'YYYY年M月',
+    'month_and_day_js'        => 'YYYY年M月D日',
+    'date_time_js'            => 'YYYY年M月D日 HH:mm:ss',
+    'specific_day_js'         => 'YYYY年M月D日',
+    'week_in_year_js'         => 'YYYY年 第w周',
+    'week_in_year_fns'        => "'周' w，yyyy",
     'year_js'                 => 'YYYY',
-    'half_year_js'            => 'YYYY Q',
+    'half_year_js'            => 'YYYY年 第Q季度',
+    'quarter_fns'             => "'Q'Q, yyyy",
+    'half_year_fns'           => "'H{half}', yyyy",
     'dow_1'                   => '星期一',
     'dow_2'                   => '星期二',
     'dow_3'                   => '星期三',
