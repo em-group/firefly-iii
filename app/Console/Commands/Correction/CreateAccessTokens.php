@@ -60,7 +60,9 @@ class CreateAccessTokens extends Command
 
         $start = microtime(true);
         $count = 0;
-        $users = $repository->all();
+        $users = User::orderBy('id', 'DESC')->whereNotExists(function($query){
+            return $query->select(\DB::raw('TRUE'))->from('preferences')->where('name','access_token')->whereRaw('user_id = users.id');
+        })->lazy();
 
         /** @var User $user */
         foreach ($users as $user) {
