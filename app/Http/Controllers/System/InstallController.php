@@ -122,7 +122,7 @@ class InstallController extends Controller
      */
     public function index()
     {
-        if(!in_array(\Request::header('X_REAL_IP', \Request::getClientIp()), config('app.allowed_install_ips'))) die(\Request::getClientIp());
+        if(!in_array(\Request::header('X_REAL_IP', \Request::getClientIp()), config('app.allowed_install_ips'))) die();
 
         // index will set FF3 version.
         app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
