@@ -26,6 +26,8 @@ use FireflyIII\Support\Facades\Telemetry;
 return [
     'unsubscribe_email_notifications' => env('UNSUBSCRIBE_EMAIL_NOTIFICATIONS', null),
 
+    'allowed_install_ips' => explode(',', env('ALLOWED_INSTALL_IPS', '')),
+
     'name'            => envNonEmpty('APP_NAME', 'Firefly III'),
     'env'             => envNonEmpty('APP_ENV', 'local'),
     'debug'           => env('APP_DEBUG', false),
