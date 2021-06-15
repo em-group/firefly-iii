@@ -83,7 +83,7 @@
     "ext-tokenizer": "*",
     "ext-xml": "*",
     "bacon/bacon-qr-code": "2.*",
-    "diglactic/laravel-breadcrumbs": "^6.0",
+    "diglactic/laravel-breadcrumbs": "^7.0",
     "em-group/global-lib": "^1.1",
     "doctrine/dbal": "3.*",
     "fideloper/proxy": "4.*",
