@@ -1,37 +1,40 @@
 <?php
 /**
  * EditController.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Account;
 
-
+use FireflyIII\Helpers\Attachments\AttachmentHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\AccountFormRequest;
 use FireflyIII\Models\Account;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\ModelInformation;
-use FireflyIII\Support\Http\Controllers\UserNavigation;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 /**
  *
@@ -39,7 +42,9 @@ use Illuminate\Http\Request;
  */
 class EditController extends Controller
 {
-    use ModelInformation, UserNavigation;
+    use ModelInformation;
+
+    private AttachmentHelperInterface $attachments;
     /** @var CurrencyRepositoryInterface The currency repository */
     private $currencyRepos;
     /** @var AccountRepositoryInterface The account repository */
@@ -60,6 +65,7 @@ class EditController extends Controller
 
                 $this->repository    = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
+                $this->attachments   = app(AttachmentHelperInterface::class);
 
                 return $next($request);
             }
@@ -69,17 +75,16 @@ class EditController extends Controller
     /**
      * Edit account overview.
      *
-     * @param Request $request
-     * @param Account $account
+     * @param Request                    $request
+     * @param Account                    $account
      * @param AccountRepositoryInterface $repository
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     *
+     * @return Factory|RedirectResponse|Redirector|View
      */
     public function edit(Request $request, Account $account, AccountRepositoryInterface $repository)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+            return $this->redirectAccountToAccount($account); 
         }
 
         $objectType     = config('firefly.shortNamesByFullName')[$account->accountType->type];
@@ -87,6 +92,19 @@ class EditController extends Controller
         $subTitleIcon   = config(sprintf('firefly.subIconsByIdentifier.%s', $objectType));
         $roles          = $this->getRoles();
         $liabilityTypes = $this->getLiabilityTypes();
+        $location       = $repository->getLocation($account);
+        $latitude       = $location ? $location->latitude : config('firefly.default_location.latitude');
+        $longitude      = $location ? $location->longitude : config('firefly.default_location.longitude');
+        $zoomLevel      = $location ? $location->zoom_level : config('firefly.default_location.zoom_level');
+        $hasLocation    = null !== $location;
+        $locations      = [
+            'location' => [
+                'latitude'     => old('location_latitude') ?? $latitude,
+                'longitude'    => old('location_longitude') ?? $longitude,
+                'zoom_level'   => old('location_zoom_level') ?? $zoomLevel,
+                'has_location' => $hasLocation || 'true' === old('location_has_location'),
+            ],
+        ];
 
         // interest calculation periods:
         $interestPeriods = [
@@ -131,32 +149,56 @@ class EditController extends Controller
 
         $request->session()->flash('preFilled', $preFilled);
 
-        return view(
-            'accounts.edit', compact('account', 'currency', 'subTitle', 'subTitleIcon', 'objectType', 'roles', 'preFilled', 'liabilityTypes', 'interestPeriods')
+        return prefixView(
+            'accounts.edit',
+            compact(
+                'account',
+                'currency',
+                'subTitle',
+                'subTitleIcon',
+                'locations',
+                'objectType',
+                'roles',
+                'preFilled',
+                'liabilityTypes',
+                'interestPeriods'
+            )
         );
     }
-
 
     /**
      * Update the account.
      *
      * @param AccountFormRequest $request
-     * @param Account $account
+     * @param Account            $account
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function update(AccountFormRequest $request, Account $account)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); // @codeCoverageIgnore
+            return $this->redirectAccountToAccount($account); 
         }
 
         $data = $request->getAccountData();
         $this->repository->update($account, $data);
 
         $request->session()->flash('success', (string)trans('firefly.updated_account', ['name' => $account->name]));
-        app('preferences')->mark();
 
+        // store new attachment(s):
+        $files = $request->hasFile('attachments') ? $request->file('attachments') : null;
+        if (null !== $files && !auth()->user()->hasRole('demo')) {
+            $this->attachments->saveAttachmentsForModel($account, $files);
+        }
+        if (null !== $files && auth()->user()->hasRole('demo')) {
+            session()->flash('info', (string)trans('firefly.no_att_demo_user'));
+        }
+
+        if (count($this->attachments->getMessages()->get('attachments')) > 0) {
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
+        }
+
+        // redirect
         $redirect = redirect($this->getPreviousUri('accounts.edit.uri'));
         if (1 === (int)$request->get('return_to_edit')) {
             // set value so edit routine will not overwrite URL:
@@ -164,8 +206,8 @@ class EditController extends Controller
 
             $redirect = redirect(route('accounts.edit', [$account->id]))->withInput(['return_to_edit' => 1]);
         }
+        app('preferences')->mark();
 
         return $redirect;
     }
-
 }

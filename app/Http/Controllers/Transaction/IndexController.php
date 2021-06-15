@@ -1,35 +1,37 @@
 <?php
 /**
  * IndexController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Transaction;
 
-
 use Carbon\Carbon;
+use Exception;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\PeriodOverview;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * Class IndexController
@@ -38,11 +40,11 @@ class IndexController extends Controller
 {
     use PeriodOverview;
 
-    /** @var JournalRepositoryInterface */
-    private $repository;
+    private JournalRepositoryInterface $repository;
 
     /**
      * IndexController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -52,8 +54,8 @@ class IndexController extends Controller
         // translations:
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string)trans('firefly.accounts'));
+                app('view')->share('mainTitleIcon', 'fa-exchange');
+                app('view')->share('title', (string)trans('firefly.transactions'));
 
                 $this->repository = app(JournalRepositoryInterface::class);
 
@@ -65,16 +67,20 @@ class IndexController extends Controller
     /**
      * Index for a range of transactions.
      *
-     * @param Request $request
-     * @param string $objectType
+     * @param Request     $request
+     * @param string      $objectType
      * @param Carbon|null $start
      * @param Carbon|null $end
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
+     * @return Factory|View
+     * @throws Exception
      */
     public function index(Request $request, string $objectType, Carbon $start = null, Carbon $end = null)
     {
+        if('transfers' === $objectType) {
+            $objectType = 'transfer';
+        }
+
         $subTitleIcon = config('firefly.transactionIconsByType.' . $objectType);
         $types        = config('firefly.transactionTypesByType.' . $objectType);
         $page         = (int)$request->get('page');
@@ -84,7 +90,9 @@ class IndexController extends Controller
             $end   = session('end');
         }
         if (null === $end) {
-            $end = session('end'); // @codeCoverageIgnore
+            // get last transaction ever?
+            $last = $this->repository->getLast();
+            $end  = $last ? $last->date : session('end');
         }
 
         [$start, $end] = $end < $start ? [$end, $start] : [$start, $end];
@@ -107,35 +115,34 @@ class IndexController extends Controller
                   ->setPage($page)
                   ->withBudgetInformation()
                   ->withCategoryInformation()
-                  ->withAccountInformation();
+                  ->withAccountInformation()
+                  ->withAttachmentInformation();
         $groups = $collector->getPaginatedGroups();
         $groups->setPath($path);
 
-        return view('transactions.index', compact('subTitle', 'objectType', 'subTitleIcon', 'groups', 'periods', 'start', 'end'));
+        return prefixView('transactions.index', compact('subTitle', 'objectType', 'subTitleIcon', 'groups', 'periods', 'start', 'end'));
     }
 
     /**
      * Index for ALL transactions.
      *
      * @param Request $request
-     * @param string $objectType
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     * @throws \Exception
+     * @param string  $objectType
+     *
+     * @return Factory|View
+     * @throws Exception
      */
     public function indexAll(Request $request, string $objectType)
     {
-        /** @var JournalRepositoryInterface $repository */
-        $repository = app(JournalRepositoryInterface::class);
-
-
-        $subTitleIcon = config('firefly.transactionIconsByWhat.' . $objectType);
-        $types        = config('firefly.transactionTypesByWhat.' . $objectType);
+        $subTitleIcon = config('firefly.transactionIconsByType.' . $objectType);
+        $types        = config('firefly.transactionTypesByType.' . $objectType);
         $page         = (int)$request->get('page');
         $pageSize     = (int)app('preferences')->get('listPageSize', 50)->data;
         $path         = route('transactions.index.all', [$objectType]);
-        $first        = $repository->firstNull();
+        $first        = $this->repository->firstNull();
         $start        = null === $first ? new Carbon : $first->date;
-        $end          = new Carbon;
+        $last         = $this->repository->getLast();
+        $end          = $last ? $last->date : today(config('app.timezone'));
         $subTitle     = (string)trans('firefly.all_' . $objectType);
 
         /** @var GroupCollectorInterface $collector */
@@ -147,10 +154,11 @@ class IndexController extends Controller
                   ->setPage($page)
                   ->withAccountInformation()
                   ->withBudgetInformation()
-                  ->withCategoryInformation();
+                  ->withCategoryInformation()
+                  ->withAttachmentInformation();
         $groups = $collector->getPaginatedGroups();
         $groups->setPath($path);
 
-        return view('transactions.index', compact('subTitle', 'objectType', 'subTitleIcon', 'groups', 'start', 'end'));
+        return prefixView('transactions.index', compact('subTitle', 'objectType', 'subTitleIcon', 'groups', 'start', 'end'));
     }
 }

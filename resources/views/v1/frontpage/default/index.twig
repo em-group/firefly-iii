@@ -36,12 +36,12 @@
     {# Any local custom CSS.  #}
     {% block styles %}{% endblock %}
     <!--[if lt IE 9]>
-    <script src="v1/js/lib/html5shiv.min.js?v={{ FF_VERSION }}"></script>
-    <script src="v1/js/lib/respond.min.js?v={{ FF_VERSION }}"></script>
+    <script src="v1/js/lib/html5shiv.min.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
+    <script src="v1/js/lib/respond.min.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
     <![endif]-->
 
     {# favicons #}
-    {% include('partials.favicons') %}
+    {% include('v1.partials.favicons') %}
 </head>
 <body class="{{ config('whitelabels.adminlte_skin') }} sidebar-mini hold-transition">
     <h1>Welcome to {{ config('app.name') }}!</h1>

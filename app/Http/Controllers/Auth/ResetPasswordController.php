@@ -1,33 +1,39 @@
 <?php
 /**
  * ResetPasswordController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection PhpDynamicAsStaticMethodCallInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\User;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 
 /**
  * Class ResetPasswordController
@@ -56,15 +62,23 @@ class ResetPasswordController extends Controller
     {
         parent::__construct();
         $this->middleware('guest');
+
+        $loginProvider = config('firefly.login_provider');
+        $authGuard     = config('firefly.authentication_guard');
+
+        if ('eloquent' !== $loginProvider || 'web' !== $authGuard) {
+            throw new FireflyException('Using external identity provider. Cannot continue.');
+        }
     }
 
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @return Factory|JsonResponse|RedirectResponse|View
+     * @throws ValidationException
+     *
      */
     public function reset(Request $request)
     {
@@ -72,13 +86,13 @@ class ResetPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
 
         $rules = [
             'token'    => 'required',
             'email'    => 'required|email',
-            'password' => 'required|confirmed|min:6|secure_password',
+            'password' => 'required|confirmed|min:16|secure_password',
         ];
 
         $this->validate($request, $rules, $this->validationErrorMessages());
@@ -87,9 +101,10 @@ class ResetPasswordController extends Controller
         // will update the password on an actual user model and persist it to the
         // database. Otherwise we will parse the error and return the response.
         $response = $this->broker()->reset(
-            $this->credentials($request), function ($user, $password) {
-            $this->resetPassword($user, $password);
-        }
+            $this->credentials($request),
+            function ($user, $password) {
+                $this->resetPassword($user, $password);
+            }
         );
 
         // If the password was successfully reset, we will redirect the user back to
@@ -105,10 +120,10 @@ class ResetPasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param  Request     $request
-     * @param  string|null $token
+     * @param Request     $request
+     * @param string|null $token
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function showResetForm(Request $request, $token = null)
     {
@@ -116,7 +131,7 @@ class ResetPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return view('error', compact('message'));
+            return prefixView('error', compact('message'));
         }
 
         // is allowed to register?
@@ -129,7 +144,7 @@ class ResetPasswordController extends Controller
         }
 
         /** @noinspection PhpUndefinedFieldInspection */
-        return view('auth.passwords.reset')->with(
+        return prefixView('auth.passwords.reset')->with(
             ['token' => $token, 'email' => $request->email, 'allowRegistration' => $allowRegistration, 'pageTitle' => $pageTitle]
         );
     }

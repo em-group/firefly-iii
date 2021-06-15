@@ -2,22 +2,22 @@
 
 /**
  * demo.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -33,6 +33,5 @@ return [
     'currencies-index'       => 'Firefly III supporta più valute. Sebbene sia impostato su Euro, può essere impostato sul dollaro USA e su molte altre valute. Come puoi vedere, è stata inclusa una piccola selezione di valute, ma puoi aggiungere la tua se lo desideri. Tuttavia, la modifica della valuta predefinita non cambierà la valuta delle transazioni esistenti: Firefly III supporta un uso di più valute allo stesso tempo.',
     'transactions-index'     => 'Queste spese, depositi e trasferimenti non sono particolarmente fantasiosi. Sono stati generati automaticamente.',
     'piggy-banks-index'      => 'Come puoi vedere, ci sono tre salvadanai. Utilizzare i pulsanti più e meno per influenzare la quantità di denaro in ogni salvadanaio. Fare clic sul nome del salvadanaio per visualizzare la gestione per ciascun salvadanaio.',
-    'import-index'           => 'Qualsiasi file CSV può essere importato in Firefly III. Supporta anche l\'importazione di dati da bunq e Spectre. Altre banche e aggregatori finanziari saranno implementati in futuro. Tuttavia, come utente demo, puoi vedere solo il provider "fittizio" in azione. Genererà alcune transazioni casuali per mostrarti come funziona il processo.',
     'profile-index'          => 'Tieni a mente che il sito demo viene reimpostato ogni quattro ore. L\'acceso può essere revocato in qualsiasi momento. Questo avviene automaticamente e non è un bug.',
 ];

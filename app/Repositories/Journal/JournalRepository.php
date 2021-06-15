@@ -1,28 +1,30 @@
 <?php
 /**
  * JournalRepository.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Journal;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\Account;
 use FireflyIII\Models\Note;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionGroup;
@@ -35,44 +37,14 @@ use FireflyIII\Services\Internal\Update\JournalUpdateService;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  * Class JournalRepository.
  */
 class JournalRepository implements JournalRepositoryInterface
 {
-
-
     /** @var User */
     private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
-    /**
-     * Search in journal descriptions.
-     *
-     * @param string $search
-     * @return Collection
-     */
-    public function searchJournalDescriptions(string $search): Collection
-    {
-        $query = $this->user->transactionJournals()
-                            ->orderBy('date', 'DESC');
-        if ('' !== $query) {
-            $query->where('description', 'LIKE', sprintf('%%%s%%', $search));
-        }
-
-        return $query->get();
-    }
 
     /**
      * @param TransactionGroup $transactionGroup
@@ -97,29 +69,15 @@ class JournalRepository implements JournalRepositoryInterface
     }
 
     /**
-     * Find a journal by its hash.
-     *
-     * @param string $hash
-     *
-     * @return TransactionJournalMeta|null
+     * @inheritDoc
      */
-    public function findByHash(string $hash): ?TransactionJournalMeta
+    public function findByType(array $types): Collection
     {
-        $jsonEncode = json_encode($hash);
-        $hashOfHash = hash('sha256', $jsonEncode);
-        Log::debug(sprintf('JSON encoded hash is: %s', $jsonEncode));
-        Log::debug(sprintf('Hash of hash is: %s', $hashOfHash));
-
-        $result = TransactionJournalMeta::withTrashed()
-                                        ->leftJoin('transaction_journals', 'transaction_journals.id', '=', 'journal_meta.transaction_journal_id')
-                                        ->where('hash', $hashOfHash)
-                                        ->where('name', 'import_hash_v2')
-                                        ->first(['journal_meta.*']);
-        if (null === $result) {
-            Log::debug('Result is null');
-        }
-
-        return $result;
+        return $this->user
+            ->transactionJournals()
+            ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transaction_journals.transaction_type_id')
+            ->whereIn('transaction_types.type', $types)
+            ->get(['transaction_journals.*']);
     }
 
     /**
@@ -152,10 +110,24 @@ class JournalRepository implements JournalRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getDestinationAccount(TransactionJournal $journal): Account
+    {
+        /** @var Transaction $transaction */
+        $transaction = $journal->transactions()->with('account')->where('amount', '>', 0)->first();
+        if (null === $transaction) {
+            throw new FireflyException(sprintf('Your administration is broken. Transaction journal #%d has no destination transaction.', $journal->id));
+        }
+
+        return $transaction->account;
+    }
+
+    /**
      * Return a list of all destination accounts related to journal.
      *
      * @param TransactionJournal $journal
-     * @param bool $useCache
+     * @param bool               $useCache
      *
      * @return Collection
      */
@@ -165,7 +137,7 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->addProperty($journal->id);
         $cache->addProperty('destination-account-list');
         if ($useCache && $cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
         $transactions = $journal->transactions()->where('amount', '>', 0)->orderBy('transactions.account_id')->with('account')->get();
         $list         = new Collection;
@@ -183,7 +155,7 @@ class JournalRepository implements JournalRepositoryInterface
      * Return a list of all source accounts related to journal.
      *
      * @param TransactionJournal $journal
-     * @param bool $useCache
+     * @param bool               $useCache
      *
      * @return Collection
      */
@@ -193,7 +165,7 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->addProperty($journal->id);
         $cache->addProperty('source-account-list');
         if ($useCache && $cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
         $transactions = $journal->transactions()->where('amount', '<', 0)->orderBy('transactions.account_id')->with('account')->get();
         $list         = new Collection;
@@ -220,7 +192,7 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->addProperty($journal->id);
         $cache->addProperty('amount-positive');
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
 
         // saves on queries:
@@ -232,13 +204,27 @@ class JournalRepository implements JournalRepositoryInterface
     }
 
     /**
+     * @return TransactionJournal|null
+     */
+    public function getLast(): ?TransactionJournal
+    {
+        /** @var TransactionJournal $entry */
+        $entry  = $this->user->transactionJournals()->orderBy('date', 'DESC')->first(['transaction_journals.*']);
+        $result = null;
+        if (null !== $entry) {
+            $result = $entry;
+        }
+
+        return $result;
+    }
+
+    /**
      * @param TransactionJournalLink $link
      *
      * @return string
      */
     public function getLinkNoteText(TransactionJournalLink $link): string
     {
-        $notes = null;
         /** @var Note $note */
         $note = $link->notes()->first();
         if (null !== $note) {
@@ -248,16 +234,51 @@ class JournalRepository implements JournalRepositoryInterface
         return '';
     }
 
+    /**
+     * Return Carbon value of a meta field (or NULL).
+     *
+     * @param int    $journalId
+     * @param string $field
+     *
+     * @return null|Carbon
+     */
+    public function getMetaDateById(int $journalId, string $field): ?Carbon
+    {
+        $cache = new CacheProperties;
+        $cache->addProperty('journal-meta-updated');
+        $cache->addProperty($journalId);
+        $cache->addProperty($field);
 
+        if ($cache->has()) {
+            return new Carbon($cache->get()); 
+        }
+        $entry = TransactionJournalMeta::where('transaction_journal_id', $journalId)
+                                       ->where('name', $field)->first();
+        if (null === $entry) {
+            return null;
+        }
+        $value = new Carbon($entry->data);
+        $cache->store($entry->data);
 
-
-
-
-
-
+        return $value;
+    }
 
     /**
-     * @param int $transactionId
+     * @inheritDoc
+     */
+    public function getSourceAccount(TransactionJournal $journal): Account
+    {
+        /** @var Transaction $transaction */
+        $transaction = $journal->transactions()->with('account')->where('amount', '<', 0)->first();
+        if (null === $transaction) {
+            throw new FireflyException(sprintf('Your administration is broken. Transaction journal #%d has no source transaction.', $journal->id));
+        }
+
+        return $transaction->account;
+    }
+
+    /**
+     * @param int $journalId
      */
     public function reconcileById(int $journalId): void
     {
@@ -266,6 +287,25 @@ class JournalRepository implements JournalRepositoryInterface
         if (null !== $journal) {
             $journal->transactions()->update(['reconciled' => true]);
         }
+    }
+
+    /**
+     * Search in journal descriptions.
+     *
+     * @param string $search
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function searchJournalDescriptions(string $search, int $limit): Collection
+    {
+        $query = $this->user->transactionJournals()
+                            ->orderBy('date', 'DESC');
+        if ('' !== $query) {
+            $query->where('description', 'LIKE', sprintf('%%%s%%', $search));
+        }
+
+        return $query->take($limit)->get();
     }
 
     /**
@@ -280,7 +320,7 @@ class JournalRepository implements JournalRepositoryInterface
      * Update budget for a journal.
      *
      * @param TransactionJournal $journal
-     * @param int $budgetId
+     * @param int                $budgetId
      *
      * @return TransactionJournal
      */
@@ -305,7 +345,7 @@ class JournalRepository implements JournalRepositoryInterface
      * Update category for a journal.
      *
      * @param TransactionJournal $journal
-     * @param string $category
+     * @param string             $category
      *
      * @return TransactionJournal
      */
@@ -329,7 +369,7 @@ class JournalRepository implements JournalRepositoryInterface
      * Update tag(s) for a journal.
      *
      * @param TransactionJournal $journal
-     * @param array $tags
+     * @param array              $tags
      *
      * @return TransactionJournal
      */
@@ -347,34 +387,5 @@ class JournalRepository implements JournalRepositoryInterface
         $journal->refresh();
 
         return $journal;
-    }
-
-    /**
-     * Return Carbon value of a meta field (or NULL).
-     *
-     * @param int    $journalId
-     * @param string $field
-     *
-     * @return null|Carbon
-     */
-    public function getMetaDateById(int $journalId, string $field): ?Carbon
-    {
-        $cache = new CacheProperties;
-        $cache->addProperty('journal-meta-updated');
-        $cache->addProperty($journalId);
-        $cache->addProperty($field);
-
-        if ($cache->has()) {
-            return new Carbon($cache->get()); // @codeCoverageIgnore
-        }
-        $entry = TransactionJournalMeta::where('transaction_journal_id', $journalId)
-                                       ->where('name', $field)->first();
-        if (null === $entry) {
-            return null;
-        }
-        $value = new Carbon($entry->data);
-        $cache->store($entry->data);
-
-        return $value;
     }
 }

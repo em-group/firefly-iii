@@ -1,22 +1,22 @@
 <?php
 /**
  * MassController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -35,6 +35,8 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Services\Internal\Update\JournalUpdateService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\View\View as IlluminateView;
 use InvalidArgumentException;
 use Log;
@@ -45,11 +47,11 @@ use Log;
  */
 class MassController extends Controller
 {
-    /** @var JournalRepositoryInterface Journals and transactions overview */
-    private $repository;
+    private JournalRepositoryInterface $repository;
 
     /**
      * MassController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -59,8 +61,9 @@ class MassController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('title', (string)trans('firefly.transactions'));
-                app('view')->share('mainTitleIcon', 'fa-repeat');
+                app('view')->share('mainTitleIcon', 'fa-exchange');
                 $this->repository = app(JournalRepositoryInterface::class);
+
                 return $next($request);
             }
         );
@@ -80,7 +83,7 @@ class MassController extends Controller
         // put previous url in session
         $this->rememberPreviousUri('transactions.mass-delete.uri');
 
-        return view('transactions.mass.delete', compact('journals', 'subTitle'));
+        return prefixView('transactions.mass.delete', compact('journals', 'subTitle'));
     }
 
     /**
@@ -107,10 +110,8 @@ class MassController extends Controller
                 }
             }
         }
-
-
         app('preferences')->mark();
-        session()->flash('success', (string)trans('firefly.mass_deleted_transactions_success', ['amount' => $count]));
+        session()->flash('success', (string)trans_choice('firefly.mass_deleted_transactions_success', $count));
 
         // redirect to previous URL:
         return redirect($this->getPreviousUri('transactions.mass-delete.uri'));
@@ -127,16 +128,16 @@ class MassController extends Controller
     {
         $subTitle = (string)trans('firefly.mass_edit_journals');
 
-        /** @var AccountRepositoryInterface $repository */
-        $repository = app(AccountRepositoryInterface::class);
+        /** @var AccountRepositoryInterface $accountRepository */
+        $accountRepository = app(AccountRepositoryInterface::class);
 
         // valid withdrawal sources:
         $array             = array_keys(config(sprintf('firefly.source_dests.%s', TransactionType::WITHDRAWAL)));
-        $withdrawalSources = $repository->getAccountsByType($array);
+        $withdrawalSources = $accountRepository->getAccountsByType($array);
 
         // valid deposit destinations:
         $array               = config(sprintf('firefly.source_dests.%s.%s', TransactionType::DEPOSIT, AccountType::REVENUE));
-        $depositDestinations = $repository->getAccountsByType($array);
+        $depositDestinations = $accountRepository->getAccountsByType($array);
 
         /** @var BudgetRepositoryInterface $budgetRepository */
         $budgetRepository = app(BudgetRepositoryInterface::class);
@@ -151,14 +152,15 @@ class MassController extends Controller
 
         $this->rememberPreviousUri('transactions.mass-edit.uri');
 
-        return view('transactions.mass.edit', compact('journals', 'subTitle', 'withdrawalSources', 'depositDestinations', 'budgets'));
+        return prefixView('transactions.mass.edit', compact('journals', 'subTitle', 'withdrawalSources', 'depositDestinations', 'budgets'));
     }
 
     /**
      * Mass update of journals.
      *
      * @param MassEditJournalRequest $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     *
+     * @return RedirectResponse|Redirector
      * @throws FireflyException
      */
     public function update(MassEditJournalRequest $request)
@@ -166,7 +168,7 @@ class MassController extends Controller
         $journalIds = $request->get('journals');
         if (!is_array($journalIds)) {
             // TODO something error.
-            throw new FireflyException('This is not an array.'); // @codeCoverageIgnore
+            throw new FireflyException('This is not an array.'); 
         }
         $count = 0;
         /** @var string $journalId */
@@ -175,30 +177,29 @@ class MassController extends Controller
             try {
                 $this->updateJournal($integer, $request);
                 $count++;
-            } catch (FireflyException $e) {  // @codeCoverageIgnore
-                // do something with error.
-                //echo $e->getMessage();
-                //exit;
+            } catch (FireflyException $e) {  
+                // @ignoreException
             }
         }
 
         app('preferences')->mark();
-        session()->flash('success', (string)trans('firefly.mass_edited_transactions_success', ['amount' => $count]));
+        session()->flash('success', (string)trans_choice('firefly.mass_edited_transactions_success', $count));
 
         // redirect to previous URL:
         return redirect($this->getPreviousUri('transactions.mass-edit.uri'));
     }
 
     /**
-     * @param int $journalId
+     * @param int                    $journalId
      * @param MassEditJournalRequest $request
+     *
      * @throws FireflyException
      */
     private function updateJournal(int $journalId, MassEditJournalRequest $request): void
     {
         $journal = $this->repository->findNull($journalId);
         if (null === $journal) {
-            throw new FireflyException(sprintf('Trying to edit non-existent or deleted journal #%d', $journalId)); // @codeCoverageIgnore
+            throw new FireflyException(sprintf('Trying to edit non-existent or deleted journal #%d', $journalId)); 
         }
         $service = app(JournalUpdateService::class);
         // for each field, call the update service.
@@ -227,48 +228,9 @@ class MassController extends Controller
 
     /**
      * @param MassEditJournalRequest $request
-     * @param int $journalId
-     * @param string $string
-     * @return int|null
-     * @codeCoverageIgnore
-     */
-    private function getIntFromRequest(MassEditJournalRequest $request, int $journalId, string $string): ?int
-    {
-        $value = $request->get($string);
-        if (!is_array($value)) {
-            return null;
-        }
-        if (!isset($value[$journalId])) {
-            return null;
-        }
-
-        return (int)$value[$journalId];
-    }
-
-    /**
-     * @param MassEditJournalRequest $request
-     * @param int $journalId
-     * @param string $string
-     * @return string|null
-     * @codeCoverageIgnore
-     */
-    private function getStringFromRequest(MassEditJournalRequest $request, int $journalId, string $string): ?string
-    {
-        $value = $request->get($string);
-        if (!is_array($value)) {
-            return null;
-        }
-        if (!isset($value[$journalId])) {
-            return null;
-        }
-
-        return (string)$value[$journalId];
-    }
-
-    /**
-     * @param MassEditJournalRequest $request
-     * @param int $journalId
-     * @param string $string
+     * @param int                    $journalId
+     * @param string                 $string
+     *
      * @return Carbon|null
      * @codeCoverageIgnore
      */
@@ -278,7 +240,7 @@ class MassController extends Controller
         if (!is_array($value)) {
             return null;
         }
-        if (!isset($value[$journalId])) {
+        if (!array_key_exists($journalId, $value)) {
             return null;
         }
         try {
@@ -290,5 +252,47 @@ class MassController extends Controller
         }
 
         return $carbon;
+    }
+
+    /**
+     * @param MassEditJournalRequest $request
+     * @param int                    $journalId
+     * @param string                 $string
+     *
+     * @return string|null
+     * @codeCoverageIgnore
+     */
+    private function getStringFromRequest(MassEditJournalRequest $request, int $journalId, string $string): ?string
+    {
+        $value = $request->get($string);
+        if (!is_array($value)) {
+            return null;
+        }
+        if (!array_key_exists($journalId, $value)) {
+            return null;
+        }
+
+        return (string)$value[$journalId];
+    }
+
+    /**
+     * @param MassEditJournalRequest $request
+     * @param int                    $journalId
+     * @param string                 $string
+     *
+     * @return int|null
+     * @codeCoverageIgnore
+     */
+    private function getIntFromRequest(MassEditJournalRequest $request, int $journalId, string $string): ?int
+    {
+        $value = $request->get($string);
+        if (!is_array($value)) {
+            return null;
+        }
+        if (!array_key_exists($journalId, $value)) {
+            return null;
+        }
+
+        return (int)$value[$journalId];
     }
 }

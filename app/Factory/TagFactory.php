@@ -1,22 +1,22 @@
 <?php
 /**
  * TagFactory.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection MultipleReturnStatementsInspection */
 
@@ -24,9 +24,9 @@ declare(strict_types=1);
 
 namespace FireflyIII\Factory;
 
+use FireflyIII\Models\Location;
 use FireflyIII\Models\Tag;
 use FireflyIII\User;
-use Illuminate\Support\Collection;
 use Log;
 
 /**
@@ -34,20 +34,43 @@ use Log;
  */
 class TagFactory
 {
-    /** @var Collection */
-    private $tags;
-    /** @var User */
-    private $user;
+    private User $user;
 
     /**
-     * Constructor.
-     * @codeCoverageIgnore
+     * @param string $tag
+     *
+     * @return Tag|null
      */
-    public function __construct()
+    public function findOrCreate(string $tag): ?Tag
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
+        $tag = trim($tag);
+        Log::debug(sprintf('Now in TagFactory::findOrCreate("%s")', $tag));
+
+        /** @var Tag $dbTag */
+        $dbTag = $this->user->tags()->where('tag', $tag)->first();
+        if (null !== $dbTag) {
+            Log::debug(sprintf('Tag exists (#%d), return it.', $dbTag->id));
+
+            return $dbTag;
         }
+        $newTag = $this->create(
+            [
+                'tag'         => $tag,
+                'date'        => null,
+                'description' => null,
+                'latitude'    => null,
+                'longitude'   => null,
+                'zoom_level'  => null,
+            ]
+        );
+        if (null === $newTag) {
+            Log::error(sprintf('TagFactory::findOrCreate("%s") but tag is unexpectedly NULL!', $tag));
+
+            return null;
+        }
+        Log::debug(sprintf('Created new tag #%d ("%s")', $newTag->id, $newTag->tag));
+
+        return $newTag;
     }
 
     /**
@@ -66,39 +89,22 @@ class TagFactory
             'tagMode'     => 'nothing',
             'date'        => $data['date'],
             'description' => $data['description'],
-            'latitude'    => $latitude,
-            'longitude'   => $longitude,
-            'zoomLevel'   => $zoomLevel,
+            'latitude'    => null,
+            'longitude'   => null,
+            'zoomLevel'   => null,
         ];
-        return Tag::create($array);
-    }
-
-    /**
-     * @param string $tag
-     *
-     * @return Tag|null
-     */
-    public function findOrCreate(string $tag): ?Tag
-    {
-        $tag = trim($tag);
-
-        /** @var Tag $dbTag */
-        $dbTag = $this->user->tags()->where('tag', $tag)->first();
-        if (null !== $dbTag) {
-            return $dbTag;
+        $tag       = Tag::create($array);
+        if (null !== $tag && null !== $latitude && null !== $longitude) {
+            // create location object.
+            $location             = new Location;
+            $location->latitude   = $latitude;
+            $location->longitude  = $longitude;
+            $location->zoom_level = $zoomLevel;
+            $location->locatable()->associate($tag);
+            $location->save();
         }
-        $newTag = $this->create(
-            [
-                'tag'         => $tag,
-                'date'        => null,
-                'description' => null,
-                'latitude'    => null,
-                'longitude'   => null,
-                'zoom_level'  => null,
-            ]
-        );
 
-        return $newTag;
+        return $tag;
     }
 
     /**

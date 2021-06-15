@@ -1,22 +1,22 @@
 <?php
 /**
  * FireflyValidator.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,21 +24,27 @@ namespace FireflyIII\Validation;
 
 use Config;
 use DB;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountMeta;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\TransactionType;
+use FireflyIII\Models\Webhook;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
+use FireflyIII\Repositories\PiggyBank\PiggyBankRepositoryInterface;
 use FireflyIII\Services\Password\Verifier;
+use FireflyIII\Support\ParseDateString;
 use FireflyIII\TransactionRules\Triggers\TriggerInterface;
 use FireflyIII\User;
 use Google2FA;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Validator;
+use Log;
+use function is_string;
 
 /**
  * Class FireflyValidator.
@@ -46,14 +52,14 @@ use Illuminate\Validation\Validator;
 class FireflyValidator extends Validator
 {
     /**
-     * @param $attribute
-     * @param $value
+     * @param mixed $attribute
+     * @param mixed $value
      *
      * @return bool
      */
     public function validate2faCode($attribute, $value): bool
     {
-        if (!\is_string($value) || null === $value || 6 !== strlen($value)) {
+        if (null === $value || !is_string($value) || 6 !== strlen($value)) {
             return false;
         }
 
@@ -63,9 +69,9 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
@@ -82,8 +88,8 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
+     * @param mixed $attribute
+     * @param mixed $value
      *
      * @return bool
      */
@@ -102,14 +108,14 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
+     * @param mixed $attribute
+     * @param mixed $value
      *
      * @return bool
      */
     public function validateIban($attribute, $value): bool
     {
-        if (!\is_string($value) || null === $value || strlen($value) < 6) {
+        if (null === $value || !is_string($value) || strlen($value) < 6) {
             return false;
         }
         // strip spaces
@@ -180,9 +186,10 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
+     *
      * @return bool
      */
     public function validateLess($attribute, $value, $parameters): bool
@@ -194,9 +201,10 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
+     *
      * @return bool
      */
     public function validateMore($attribute, $value, $parameters): bool
@@ -208,9 +216,9 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
@@ -227,9 +235,9 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param string $attribute
+     * @param string      $attribute
      *
-     * @param string $value
+     * @param string|null $value
      *
      * @return bool
      */
@@ -286,6 +294,14 @@ class FireflyValidator extends Validator
             return null !== $account;
         }
 
+        if ('update_piggy' === $actionType) {
+            /** @var PiggyBankRepositoryInterface $repository */
+            $repository = app(PiggyBankRepositoryInterface::class);
+            $piggy      = $repository->findByName($value);
+
+            return null !== $piggy;
+        }
+
         // return true for the rest.
         return true;
     }
@@ -293,8 +309,8 @@ class FireflyValidator extends Validator
     /**
      * $attribute has the format triggers.%d.value.
      *
-     * @param string $attribute
-     * @param string $value
+     * @param string      $attribute
+     * @param string|null $value
      *
      * @return bool
      */
@@ -319,11 +335,18 @@ class FireflyValidator extends Validator
         }
 
         // these trigger types need a simple strlen check:
-        $length = ['from_account_starts', 'from_account_ends', 'from_account_is', 'from_account_contains', 'to_account_starts', 'to_account_ends',
-                   'to_account_is', 'to_account_contains', 'description_starts', 'description_ends', 'description_contains', 'description_is', 'category_is',
+        $length = ['source_account_starts', 'source_account_ends', 'source_account_is', 'source_account_contains', 'destination_account_starts',
+                   'destination_account_ends',
+                   'destination_account_is', 'destination_account_contains', 'description_starts', 'description_ends', 'description_contains', 'description_is',
+                   'category_is',
                    'budget_is', 'tag_is', 'currency_is', 'notes_contain', 'notes_start', 'notes_end', 'notes_are',];
         if (in_array($triggerType, $length, true)) {
             return '' !== $value;
+        }
+
+        // check if it's an existing account.
+        if (in_array($triggerType, ['destination_account_id', 'source_account_id'])) {
+            return is_numeric($value) && (int)$value > 0;
         }
 
         // check transaction type.
@@ -333,27 +356,34 @@ class FireflyValidator extends Validator
             return 1 === $count;
         }
 
-        // and finally a "will match everything check":
-        $classes = app('config')->get('firefly.rule-triggers');
-        /** @var TriggerInterface $class */
-        $class = $classes[$triggerType] ?? false;
-        if (false === $class) {
-            return false;
+        // if the type is date, the simply try to parse it and throw error when it's bad.
+        if (in_array($triggerType, ['date_is', 'created_on', 'updated_on', 'date_before', 'date_after'], true)) {
+            /** @var ParseDateString $parser */
+            $parser = app(ParseDateString::class);
+            try {
+                $parser->parseDate($value);
+            } catch (FireflyException $e) {
+
+                Log::error($e->getMessage());
+
+                return false;
+            }
         }
 
-        return !$class::willMatchEverything($value);
+        return true;
+
     }
 
     /**
-     * @param $attribute
-     * @param $value
+     * @param mixed $attribute
+     * @param mixed $value
      *
      * @return bool
      */
     public function validateSecurePassword($attribute, $value): bool
     {
         $verify = false;
-        if (isset($this->data['verify_password'])) {
+        if (array_key_exists('verify_password', $this->data)) {
             $verify = 1 === (int)$this->data['verify_password'];
         }
         if ($verify) {
@@ -367,30 +397,33 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
     public function validateUniqueAccountForUser($attribute, $value, $parameters): bool
     {
-        // because a user does not have to be logged in (tests and what-not).
 
+        // because a user does not have to be logged in (tests and what-not).
         if (!auth()->check()) {
             return $this->validateAccountAnonymously();
         }
-        if (isset($this->data['what'])) {
-            return $this->validateByAccountTypeString($value, $parameters, $this->data['what']);
+        if (array_key_exists('objectType', $this->data)) {
+            return $this->validateByAccountTypeString($value, $parameters, $this->data['objectType']);
         }
-        if (isset($this->data['type'])) {
+        if (array_key_exists('type', $this->data)) {
             return $this->validateByAccountTypeString($value, $parameters, $this->data['type']);
         }
-
-        if (isset($this->data['account_type_id'])) {
+        if (array_key_exists('account_type_id', $this->data)) {
             return $this->validateByAccountTypeId($value, $parameters);
         }
-        if (isset($this->data['id'])) {
+        $parameterId = $parameters[0] ?? null;
+        if (null !== $parameterId) {
+            return $this->validateByParameterId((int)$parameterId, $value);
+        }
+        if (array_key_exists('id', $this->data)) {
             return $this->validateByAccountId($value);
         }
 
@@ -399,9 +432,143 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @return bool
+     */
+    private function validateAccountAnonymously(): bool
+    {
+        if (!array_key_exists('user_id',$this->data)) {
+            return false;
+        }
+
+        $user  = User::find($this->data['user_id']);
+        $type  = AccountType::find($this->data['account_type_id'])->first();
+        $value = $this->data['name'];
+
+        $set = $user->accounts()->where('account_type_id', $type->id)->get();
+        // TODO no longer need to loop like this
+        /** @var Account $entry */
+        foreach ($set as $entry) {
+            if ($entry->name === $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param string $value
+     * @param array  $parameters
+     * @param string $type
+     *
+     * @return bool
+     */
+    private function validateByAccountTypeString(string $value, array $parameters, string $type): bool
+    {
+        /** @var array|null $search */
+        $search = Config::get('firefly.accountTypeByIdentifier.' . $type);
+
+        if (null === $search) {
+            return false;
+        }
+
+        /** @var Collection $accountTypes */
+        $accountTypes   = AccountType::whereIn('type', $search)->get();
+        $ignore         = (int)($parameters[0] ?? 0.0);
+        $accountTypeIds = $accountTypes->pluck('id')->toArray();
+        /** @var Collection $set */
+        $set = auth()->user()->accounts()->whereIn('account_type_id', $accountTypeIds)->where('id', '!=', $ignore)->get();
+        // TODO no longer need to loop like this
+        /** @var Account $entry */
+        foreach ($set as $entry) {
+            if ($entry->name === $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param mixed $value
+     * @param mixed $parameters
+     *
+     * @return bool
+     */
+    private function validateByAccountTypeId($value, $parameters): bool
+    {
+        $type   = AccountType::find($this->data['account_type_id'])->first();
+        $ignore = (int)($parameters[0] ?? 0.0);
+
+        /** @var Collection $set */
+        $set = auth()->user()->accounts()->where('account_type_id', $type->id)->where('id', '!=', $ignore)->get();
+        // TODO no longer need to loop like this
+        /** @var Account $entry */
+        foreach ($set as $entry) {
+            // TODO no longer need to loop like this.
+            if ($entry->name === $value) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param int   $accountId
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    private function validateByParameterId(int $accountId, $value): bool
+    {
+        /** @var Account $existingAccount */
+        $existingAccount = Account::find($accountId);
+
+        $type   = $existingAccount->accountType;
+        $ignore = $existingAccount->id;
+
+        $entry = auth()->user()->accounts()->where('account_type_id', $type->id)->where('id', '!=', $ignore)
+                       ->where('name', $value)
+                       ->first();
+
+        return null === $entry;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    private function validateByAccountId($value): bool
+    {
+        /** @var Account $existingAccount */
+        $existingAccount = Account::find($this->data['id']);
+
+        $type   = $existingAccount->accountType;
+        $ignore = $existingAccount->id;
+
+        $entry = auth()->user()->accounts()->where('account_type_id', $type->id)->where('id', '!=', $ignore)
+                       ->where('name', $value)
+                       ->first();
+
+        return null === $entry;
+    }
+
+    /**
+     * @param string $value
+     *
+     * @return bool
+     */
+    private function validateByAccountName(string $value): bool
+    {
+        return auth()->user()->accounts()->where('name', $value)->count() === 0;
+    }
+
+    /**
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
@@ -434,16 +601,64 @@ class FireflyValidator extends Validator
     }
 
     /**
+     * @param mixed $value
+     * @param mixed $parameters
+     * @param mixed $something
      *
-     * Validate an object and its unicity. Checks for encryption / encrypted values as well.
+     * @return bool
+     */
+    public function validateUniqueExistingWebhook($value, $parameters, $something): bool
+    {
+        $existingId = (int)($something[0] ?? 0);
+        $trigger    = 0;
+        $response   = 0;
+        $delivery   = 0;
+        $triggers   = array_flip(config('firefly.webhooks.triggers'));
+        $responses  = array_flip(config('firefly.webhooks.responses'));
+        $deliveries = array_flip(config('firefly.webhooks.deliveries'));
+        if (auth()->check()) {
+            // get existing webhook value:
+            if (0 !== $existingId) {
+                /** @var Webhook|null $webhook */
+                $webhook = auth()->user()->webhooks()->find($existingId);
+                if (null === $webhook) {
+                    return false;
+                }
+                // set triggers etc.
+                $trigger  = $triggers[$webhook->trigger] ?? 0;
+                $response = $responses[$webhook->response] ?? 0;
+                $delivery = $deliveries[$webhook->delivery] ?? 0;
+            }
+            if (0 === $existingId) {
+                $trigger  = $triggers[$this->data['trigger']] ?? 0;
+                $response = $responses[$this->data['response']] ?? 0;
+                $delivery = $deliveries[$this->data['delivery']] ?? 0;
+            }
+            $url    = $this->data['url'];
+            $userId = auth()->user()->id;
+
+            return 0 === Webhook::whereUserId($userId)
+                                ->where('trigger', $trigger)
+                                ->where('response', $response)
+                                ->where('delivery', $delivery)
+                                ->where('id', '!=', $existingId)
+                                ->where('url', $url)->count();
+        }
+
+        return false;
+    }
+
+    /**
+     *
+     * Validate an object and its uniqueness. Checks for encryption / encrypted values as well.
      *
      * parameter 0: the table
      * parameter 1: the field
      * parameter 2: an id to ignore (when editing)
      *
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
@@ -457,11 +672,9 @@ class FireflyValidator extends Validator
          * ID field, set that field to be the $exclude.
          */
         $data = $this->getData();
-        if (!isset($parameters[2]) && isset($data['id']) && (int)$data['id'] > 0) {
+        if (!array_key_exists(2, $parameters) && array_key_exists('id', $data) && (int)$data['id'] > 0) {
             $exclude = (int)$data['id'];
         }
-
-
         // get entries from table
         $set = DB::table($table)->where('user_id', auth()->user()->id)->whereNull('deleted_at')
                  ->where('id', '!=', $exclude)->get([$field]);
@@ -478,9 +691,32 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @param $attribute
-     * @param $value
-     * @param $parameters
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
+     *
+     * @return bool
+     */
+    public function validateUniqueObjectGroup($attribute, $value, $parameters): bool
+    {
+        $exclude = $parameters[0] ?? null;
+        $query   = DB::table('object_groups')
+                     ->whereNull('object_groups.deleted_at')
+                     ->where('object_groups.user_id', auth()->user()->id)
+                     ->where('object_groups.title', $value);
+        if (null !== $exclude) {
+            $query->where('object_groups.id', '!=', (int)$exclude);
+        }
+
+        return 0 === $query->count();
+    }
+
+    /**
+     * @param mixed $attribute
+     * @param mixed $value
+     * @param mixed $parameters
+     *
+     * TODO this method does not need a for loop
      *
      * @return bool
      */
@@ -507,120 +743,36 @@ class FireflyValidator extends Validator
     }
 
     /**
-     * @return bool
-     */
-    private function validateAccountAnonymously(): bool
-    {
-        if (!isset($this->data['user_id'])) {
-            return false;
-        }
-
-        $user  = User::find($this->data['user_id']);
-        $type  = AccountType::find($this->data['account_type_id'])->first();
-        $value = $this->data['name'];
-
-        $set = $user->accounts()->where('account_type_id', $type->id)->get();
-        // TODO no longer need to loop like this
-        /** @var Account $entry */
-        foreach ($set as $entry) {
-            if ($entry->name === $value) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $value
+     * @param mixed $value
+     * @param mixed $parameters
      *
      * @return bool
      */
-    private function validateByAccountId($value): bool
+    public function validateUniqueWebhook($value, $parameters): bool
     {
-        /** @var Account $existingAccount */
-        $existingAccount = Account::find($this->data['id']);
+        if (auth()->check()) {
+            // possible values
+            $triggers   = array_flip(config('firefly.webhooks.triggers'));
+            $responses  = array_flip(config('firefly.webhooks.responses'));
+            $deliveries = array_flip(config('firefly.webhooks.deliveries'));
 
-        $type   = $existingAccount->accountType;
-        $ignore = $existingAccount->id;
+            // integers
+            $trigger  = $triggers[$this->data['trigger']] ?? 0;
+            $response = $responses[$this->data['response']] ?? 0;
+            $delivery = $deliveries[$this->data['delivery']] ?? 0;
+            $url      = $this->data['url'];
+            $userId   = auth()->user()->id;
 
-        /** @var Collection $set */
-        $set = auth()->user()->accounts()->where('account_type_id', $type->id)->where('id', '!=', $ignore)->get();
-        // TODO no longer need to loop like this
-        /** @var Account $entry */
-        foreach ($set as $entry) {
-            if ($entry->name === $value) {
-                return false;
-            }
+            return 0 === Webhook::whereUserId($userId)
+                                ->where('trigger', $trigger)
+                                ->where('response', $response)
+                                ->where('delivery', $delivery)
+                                ->where('url', $url)->count();
+            // find similar webhook for user:
+            //= var_dump($this->data);
+            //exit;
         }
 
-        return true;
-    }
-
-    /**
-     * @param $value
-     * @param $parameters
-     *
-     * @return bool
-     */
-    private function validateByAccountTypeId($value, $parameters): bool
-    {
-        $type   = AccountType::find($this->data['account_type_id'])->first();
-        $ignore = (int)($parameters[0] ?? 0.0);
-
-        /** @var Collection $set */
-        $set = auth()->user()->accounts()->where('account_type_id', $type->id)->where('id', '!=', $ignore)->get();
-        // TODO no longer need to loop like this
-        /** @var Account $entry */
-        foreach ($set as $entry) {
-            // TODO no longer need to loop like this.
-            if ($entry->name === $value) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $value
-     * @param array $parameters
-     * @param string $type
-     *
-     * @return bool
-     */
-    private function validateByAccountTypeString(string $value, array $parameters, string $type): bool
-    {
-        /** @var array $search */
-        $search = Config::get('firefly.accountTypeByIdentifier.' . $type);
-
-        if (null === $search) {
-            return false;
-        }
-
-        /** @var Collection $accountTypes */
-        $accountTypes   = AccountType::whereIn('type', $search)->get();
-        $ignore         = (int)($parameters[0] ?? 0.0);
-        $accountTypeIds = $accountTypes->pluck('id')->toArray();
-        /** @var Collection $set */
-        $set = auth()->user()->accounts()->whereIn('account_type_id', $accountTypeIds)->where('id', '!=', $ignore)->get();
-        // TODO no longer need to loop like this
-        /** @var Account $entry */
-        foreach ($set as $entry) {
-            if ($entry->name === $value) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @param string $value
-     * @return bool
-     */
-    private function validateByAccountName(string $value): bool
-    {
-        return auth()->user()->accounts()->where('name', $value)->count() === 0;
+        return false;
     }
 }

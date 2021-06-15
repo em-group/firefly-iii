@@ -1,22 +1,22 @@
 <?php
 /**
  * AttachmentRepository.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -46,20 +46,10 @@ class AttachmentRepository implements AttachmentRepositoryInterface
     private $user;
 
     /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
-    /**
      * @param Attachment $attachment
      *
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function destroy(Attachment $attachment): bool
     {
@@ -69,8 +59,8 @@ class AttachmentRepository implements AttachmentRepositoryInterface
         $path = $helper->getAttachmentLocation($attachment);
         try {
             Storage::disk('upload')->delete($path);
-        } catch (Exception $e) {
-            Log::error(sprintf('Could not delete file for attachment %d: %s', $attachment->id, $e->getMessage()));
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
         $attachment->delete();
 
@@ -121,7 +111,6 @@ class AttachmentRepository implements AttachmentRepositoryInterface
             try {
                 $unencryptedContent = Crypt::decrypt($encryptedContent); // verified
             } catch (DecryptException $e) {
-                Log::debug(sprintf('Could not decrypt: %e', $e->getMessage()));
                 $unencryptedContent = $encryptedContent;
             }
         }
@@ -181,14 +170,27 @@ class AttachmentRepository implements AttachmentRepositoryInterface
      */
     public function update(Attachment $attachment, array $data): Attachment
     {
-        $attachment->title = $data['title'];
-
-        // update filename, if present and different:
-        if (isset($data['filename']) && '' !== $data['filename'] && $data['filename'] !== $attachment->filename) {
-            $attachment->filename = $data['filename'];
+        if (array_key_exists('title', $data)) {
+            $attachment->title = $data['title'];
         }
+
+        if (array_key_exists('filename', $data)) {
+            if ('' !== (string)$data['filename'] && $data['filename'] !== $attachment->filename) {
+                $attachment->filename = $data['filename'];
+            }
+        }
+        // update model (move attachment)
+        // should be validated already:
+        if (array_key_exists('attachable_type', $data) && array_key_exists('attachable_id', $data)) {
+            $attachment->attachable_id   = (int)$data['attachable_id'];
+            $attachment->attachable_type = sprintf('FireflyIII\\Models\\%s', $data['attachable_type']);
+        }
+
         $attachment->save();
-        $this->updateNote($attachment, $data['notes'] ?? '');
+        $attachment->refresh();
+        if (array_key_exists('notes', $data)) {
+            $this->updateNote($attachment, (string)$data['notes']);
+        }
 
         return $attachment;
     }
@@ -207,8 +209,8 @@ class AttachmentRepository implements AttachmentRepositoryInterface
             if (null !== $dbNote) {
                 try {
                     $dbNote->delete();
-                } catch (Exception $e) {
-                    Log::debug(sprintf('Could not delete note: %s', $e->getMessage()));
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    // @ignoreException
                 }
             }
 

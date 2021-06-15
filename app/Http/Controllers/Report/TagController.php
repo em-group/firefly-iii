@@ -1,28 +1,27 @@
 <?php
 /**
  * TagController.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Report;
-
 
 use Carbon\Carbon;
 use FireflyIII\Http\Controllers\Controller;
@@ -41,10 +40,7 @@ use Throwable;
  */
 class TagController extends Controller
 {
-
-
-    /** @var OperationsRepositoryInterface */
-    private $opsRepository;
+    private OperationsRepositoryInterface $opsRepository;
 
     /**
      * ExpenseReportController constructor.
@@ -112,35 +108,33 @@ class TagController extends Controller
                                                                                                             'sum'    => '0',
                                                                                                         ];
                     $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['spent'] = bcadd(
-                        $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['spent'], $journal['amount']
+                        $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['spent'],
+                        $journal['amount']
                     );
                     $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['sum']   = bcadd(
-                        $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['sum'], $journal['amount']
+                        $report[$sourceAccountId]['currencies'][$currencyId]['tags'][$tag['id']]['sum'],
+                        $journal['amount']
                     );
                 }
             }
         }
-
-
         // loop income.
         foreach ($earned as $currency) {
             $currencyId = $currency['currency_id'];
 
-            /** @var array $category */
+            /** @var array $tag */
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
-                    $destinationId = $journal['destination_account_id'];
+                    $destinationId                                                                   = $journal['destination_account_id'];
                     $report[$destinationId]['currencies'][$currencyId]
-                                   = $report[$destinationId]['currencies'][$currencyId]
-                                     ?? [
-                                         'currency_id'             => $currency['currency_id'],
-                                         'currency_symbol'         => $currency['currency_symbol'],
-                                         'currency_name'           => $currency['currency_name'],
-                                         'currency_decimal_places' => $currency['currency_decimal_places'],
-                                         'tags'                    => [],
-                                     ];
-
-
+                                                                                                     = $report[$destinationId]['currencies'][$currencyId]
+                                                                                                       ?? [
+                                                                                                           'currency_id'             => $currency['currency_id'],
+                                                                                                           'currency_symbol'         => $currency['currency_symbol'],
+                                                                                                           'currency_name'           => $currency['currency_name'],
+                                                                                                           'currency_decimal_places' => $currency['currency_decimal_places'],
+                                                                                                           'tags'                    => [],
+                                                                                                       ];
                     $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]
                                                                                                      = $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]
                                                                                                        ??
@@ -150,16 +144,18 @@ class TagController extends Controller
                                                                                                            'sum'    => '0',
                                                                                                        ];
                     $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['earned'] = bcadd(
-                        $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['earned'], $journal['amount']
+                        $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['earned'],
+                        $journal['amount']
                     );
                     $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['sum']    = bcadd(
-                        $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['sum'], $journal['amount']
+                        $report[$destinationId]['currencies'][$currencyId]['tags'][$tag['id']]['sum'],
+                        $journal['amount']
                     );
                 }
             }
         }
 
-        return view('reports.tag.partials.account-per-tag', compact('report', 'tags'));
+        return prefixView('reports.tag.partials.account-per-tag', compact('report', 'tags'));
     }
 
     /**
@@ -212,10 +208,12 @@ class TagController extends Controller
                             'sum'                     => '0',
                         ];
                     $report[$sourceAccountId]['currencies'][$currencyId]['spent'] = bcadd(
-                        $report[$sourceAccountId]['currencies'][$currencyId]['spent'], $journal['amount']
+                        $report[$sourceAccountId]['currencies'][$currencyId]['spent'],
+                        $journal['amount']
                     );
                     $report[$sourceAccountId]['currencies'][$currencyId]['sum']   = bcadd(
-                        $report[$sourceAccountId]['currencies'][$currencyId]['sum'], $journal['amount']
+                        $report[$sourceAccountId]['currencies'][$currencyId]['sum'],
+                        $journal['amount']
                     );
                     $sums[$currencyId]['spent_sum']                               = bcadd($sums[$currencyId]['spent_sum'], $journal['amount']);
                     $sums[$currencyId]['total_sum']                               = bcadd($sums[$currencyId]['total_sum'], $journal['amount']);
@@ -248,10 +246,12 @@ class TagController extends Controller
                             'sum'                     => '0',
                         ];
                     $report[$destinationAccountId]['currencies'][$currencyId]['earned'] = bcadd(
-                        $report[$destinationAccountId]['currencies'][$currencyId]['earned'], $journal['amount']
+                        $report[$destinationAccountId]['currencies'][$currencyId]['earned'],
+                        $journal['amount']
                     );
                     $report[$destinationAccountId]['currencies'][$currencyId]['sum']    = bcadd(
-                        $report[$destinationAccountId]['currencies'][$currencyId]['sum'], $journal['amount']
+                        $report[$destinationAccountId]['currencies'][$currencyId]['sum'],
+                        $journal['amount']
                     );
                     $sums[$currencyId]['earned_sum']                                    = bcadd($sums[$currencyId]['earned_sum'], $journal['amount']);
                     $sums[$currencyId]['total_sum']                                     = bcadd($sums[$currencyId]['total_sum'], $journal['amount']);
@@ -259,7 +259,7 @@ class TagController extends Controller
             }
         }
 
-        return view('reports.tag.partials.accounts', compact('sums', 'report'));
+        return prefixView('reports.tag.partials.accounts', compact('sums', 'report'));
     }
 
     /**
@@ -275,7 +275,6 @@ class TagController extends Controller
         $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $tags);
         $result = [];
         foreach ($spent as $currency) {
-            $currencyId = $currency['currency_id'];
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
                     $destinationId = $journal['destination_account_id'];
@@ -305,9 +304,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.tag.partials.avg-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.avg-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -328,7 +327,6 @@ class TagController extends Controller
         $spent  = $this->opsRepository->listIncome($start, $end, $accounts, $tags);
         $result = [];
         foreach ($spent as $currency) {
-            $currencyId = $currency['currency_id'];
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
                     $sourceId     = $journal['source_account_id'];
@@ -358,9 +356,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.tag.partials.avg-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.avg-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -418,10 +416,12 @@ class TagController extends Controller
                             'currency_decimal_places' => $currency['currency_decimal_places'],
                         ];
                     $report[$tagId]['currencies'][$currencyId]['spent'] = bcadd(
-                        $report[$tagId]['currencies'][$currencyId]['spent'], $journal['amount']
+                        $report[$tagId]['currencies'][$currencyId]['spent'],
+                        $journal['amount']
                     );
                     $report[$tagId]['currencies'][$currencyId]['sum']   = bcadd(
-                        $report[$tagId]['currencies'][$currencyId]['sum'], $journal['amount']
+                        $report[$tagId]['currencies'][$currencyId]['sum'],
+                        $journal['amount']
                     );
 
                     $sums[$currencyId]['spent_sum'] = bcadd($sums[$currencyId]['spent_sum'], $journal['amount']);
@@ -457,10 +457,12 @@ class TagController extends Controller
                             'currency_decimal_places' => $currency['currency_decimal_places'],
                         ];
                     $report[$tagId]['currencies'][$currencyId]['earned'] = bcadd(
-                        $report[$tagId]['currencies'][$currencyId]['earned'], $journal['amount']
+                        $report[$tagId]['currencies'][$currencyId]['earned'],
+                        $journal['amount']
                     );
                     $report[$tagId]['currencies'][$currencyId]['sum']    = bcadd(
-                        $report[$tagId]['currencies'][$currencyId]['sum'], $journal['amount']
+                        $report[$tagId]['currencies'][$currencyId]['sum'],
+                        $journal['amount']
                     );
 
                     $sums[$currencyId]['earned_sum'] = bcadd($sums[$currencyId]['earned_sum'], $journal['amount']);
@@ -469,7 +471,7 @@ class TagController extends Controller
             }
         }
 
-        return view('reports.tag.partials.tags', compact('sums', 'report'));
+        return prefixView('reports.tag.partials.tags', compact('sums', 'report'));
     }
 
     /**
@@ -485,7 +487,6 @@ class TagController extends Controller
         $spent  = $this->opsRepository->listExpenses($start, $end, $accounts, $tags);
         $result = [];
         foreach ($spent as $currency) {
-            $currencyId = $currency['currency_id'];
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
                     $result[] = [
@@ -494,6 +495,7 @@ class TagController extends Controller
                         'amount_float'             => (float)$journal['amount'],
                         'amount'                   => $journal['amount'],
                         'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date_sort'                => $journal['date']->format('Y-m-d'),
                         'destination_account_name' => $journal['destination_account_name'],
                         'destination_account_id'   => $journal['destination_account_id'],
                         'currency_id'              => $currency['currency_id'],
@@ -512,9 +514,9 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = view('reports.tag.partials.top-expenses', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.top-expenses', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
@@ -535,7 +537,6 @@ class TagController extends Controller
         $spent  = $this->opsRepository->listIncome($start, $end, $accounts, $tags);
         $result = [];
         foreach ($spent as $currency) {
-            $currencyId = $currency['currency_id'];
             foreach ($currency['tags'] as $tag) {
                 foreach ($tag['transaction_journals'] as $journal) {
                     $result[] = [
@@ -544,6 +545,7 @@ class TagController extends Controller
                         'amount_float'            => (float)$journal['amount'],
                         'amount'                  => $journal['amount'],
                         'date'                    => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date_sort'               => $journal['date']->format('Y-m-d'),
                         'source_account_name'     => $journal['source_account_name'],
                         'source_account_id'       => $journal['source_account_id'],
                         'currency_id'             => $currency['currency_id'],
@@ -562,14 +564,13 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = view('reports.tag.partials.top-income', compact('result'))->render();
-            // @codeCoverageIgnoreStart
-        } catch (Throwable $e) {
+            $result = prefixView('reports.tag.partials.top-income', compact('result'))->render();
+
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
             $result = sprintf('Could not render view: %s', $e->getMessage());
         }
 
         return $result;
     }
-
 }

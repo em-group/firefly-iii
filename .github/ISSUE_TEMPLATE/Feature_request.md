@@ -1,6 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea or feature for Firefly III
+title: ''
+labels: ''
+assignees: ''
 
 ---
 
@@ -28,5 +31,4 @@ Please describe your feature request:
 
 - Make a drawing
 - Donate money (just kidding ;)
-- Remember the human
 -->

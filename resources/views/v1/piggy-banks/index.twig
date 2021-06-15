@@ -1,4 +1,4 @@
-{% extends "./layout/default" %}
+{% extends './v1/layout/default' %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName) }}
@@ -6,7 +6,7 @@
 
 {% block content %}
     {% if piggyBanks|length == 0 %}
-        {% include 'partials.empty' with {objectType: 'default', type: 'piggies',route: route('piggy-banks.create')} %}
+        {% include 'v1.partials.empty' with {objectType: 'default', type: 'piggies',route: route('piggy-banks.create')} %}
     {% else %}
 <div class="row">
     <div class="col-lg-12 col-md-12 col-sm-12">
@@ -18,7 +18,7 @@
                 <div style="padding:8px;">
                     <a class="btn btn-success" href="{{ route('piggy-banks.create') }}"><i class="fa fa-plus fa-fw"></i> {{ 'create_new_piggy_bank'|_ }}</a>
                 </div>
-                {% include 'list/piggy-banks' %}
+                {% include 'v1.list/piggy-banks' %}
             </div>
             <div class="box-footer">
                 <a class="btn btn-success" href="{{ route('piggy-banks.create') }}"><i class="fa fa-plus fa-fw"></i> {{ 'create_new_piggy_bank'|_ }}</a>
@@ -33,8 +33,8 @@
             <div class="box-header with-border">
                 <h3 class="box-title">{{ 'account_status'|_ }}</h3>
             </div>
-            <div class="box-body table-responsive no-padding">
-                <table class="table table-hover" id="accountStatus">
+            <div class="box-body no-padding">
+                <table class="table table-responsive table-hover" id="accountStatus">
                     <thead>
                     <tr>
                         <th>{{ 'account'|_ }}</th>
@@ -75,6 +75,6 @@
 {% endif %}
 {% endblock %}
 {% block scripts %}
-    <script src="v1/js/lib/jquery-ui.min.js?v={{ FF_VERSION }}" type="text/javascript"></script>
-    <script type="text/javascript" src="v1/js/ff/piggy-banks/index.js?v={{ FF_VERSION }}"></script>
+    <script src="v1/js/lib/jquery-ui.min.js?v={{ FF_VERSION }}" type="text/javascript" nonce="{{ JS_NONCE }}"></script>
+    <script type="text/javascript" src="v1/js/ff/piggy-banks/index.js?v={{ FF_VERSION }}" nonce="{{ JS_NONCE }}"></script>
 {% endblock %}

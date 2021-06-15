@@ -2,22 +2,22 @@
 
 /**
  * intro.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -32,26 +32,11 @@ return [
     'index_sidebar-toggle'                            => 'Aby utworzyć nowe transakcje, konta lub inne rzeczy, użyj menu pod tą ikoną.',
     'index_cash_account'                              => 'To są dotychczas utworzone konta. Możesz użyć konta gotówkowego do śledzenia wydatków gotówkowych, ale oczywiście nie jest to obowiązkowe.',
 
-    // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Select your favorite asset account or liability from this dropdown.',
-    'transactions_create_withdrawal_destination'      => 'Select an expense account here. Leave it empty if you want to make a cash expense.',
-    'transactions_create_withdrawal_foreign_currency' => 'Use this field to set a foreign currency and amount.',
-    'transactions_create_withdrawal_more_meta'        => 'Plenty of other meta data you set in these fields.',
-    'transactions_create_withdrawal_split_add'        => 'If you want to split a transaction, add more splits with this button',
-
-    // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Select or type the payee in this auto-completing dropdown/textbox. Leave it empty if you want to make a cash deposit.',
-    'transactions_create_deposit_destination'         => 'Select an asset or liability account here.',
-    'transactions_create_deposit_foreign_currency'    => 'Use this field to set a foreign currency and amount.',
-    'transactions_create_deposit_more_meta'           => 'Plenty of other meta data you set in these fields.',
-    'transactions_create_deposit_split_add'           => 'If you want to split a transaction, add more splits with this button',
-
-    // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Select the source asset account here.',
-    'transactions_create_transfer_destination'        => 'Select the destination asset account here.',
-    'transactions_create_transfer_foreign_currency'   => 'Use this field to set a foreign currency and amount.',
-    'transactions_create_transfer_more_meta'          => 'Plenty of other meta data you set in these fields.',
-    'transactions_create_transfer_split_add'          => 'If you want to split a transaction, add more splits with this button',
+    // transactions
+    'transactions_create_basic_info'                  => 'Wprowadź podstawowe informacje o swojej transakcji. Konto źródłowe, konto docelowe, datę i opis.',
+    'transactions_create_amount_info'                 => 'Wprowadź wartość transakcji. Jeśli to konieczne, pola będą automatycznie aktualizować informacje o obcej kwocie.',
+    'transactions_create_optional_info'               => 'Wszystkie te pola są opcjonalne. Dodanie meta-danych sprawi, że Twoje transakcje będą lepiej zorganizowane.',
+    'transactions_create_split'                       => 'Jeżeli chcesz podzielić transakcję, dodaj więcej podziałów używając tego przycisku',
 
     // create account:
     'accounts_create_iban'                            => 'Nadaj kontom ważny numer IBAN. Może to ułatwić import danych w przyszłości.',

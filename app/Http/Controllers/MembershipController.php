@@ -68,7 +68,7 @@ class MembershipController extends Controller
             ->get();
         $subProducts = SubProducts::getSubProducts($this->user->language->locale);
 
-        return view('membership.index', compact(
+        return view('v1.membership.index', compact(
             'memberships',
             'membership',
             'hasActiveMembership',
@@ -122,7 +122,7 @@ class MembershipController extends Controller
         $subdomain = preg_replace('/https?:\/\//', '$0*.', config('app.url')).':*';
 
         return response()->view(
-            'membership.purchase',
+            'v1.membership.purchase',
             compact('subProducts', 'purchaseLink'),
             200,
             ['Content-Security-Policy' => "frame-src 'self' $subdomain"]

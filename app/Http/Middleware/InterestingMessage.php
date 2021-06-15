@@ -1,29 +1,30 @@
 <?php
-declare(strict_types=1);
 /**
  * InterestingMessage.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Http\Middleware;
 
-
 use Closure;
+use FireflyIII\Models\Account;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use Illuminate\Http\Request;
@@ -37,15 +38,14 @@ class InterestingMessage
     /**
      * Flashes the user an interesting message if the URL parameters warrant it.
      *
-     * @param Request  $request
-     * @param \Closure $next
+     * @param Request $request
+     * @param Closure $next
      *
      * @return mixed
      *
      */
     public function handle(Request $request, Closure $next)
     {
-        //Log::debug(sprintf('Interesting Message middleware for URI %s', $request->url()));
         if ($this->testing()) {
             return $next($request);
         }
@@ -54,8 +54,21 @@ class InterestingMessage
             Preferences::mark();
             $this->handleGroupMessage($request);
         }
+        if ($this->accountMessage($request)) {
+            Preferences::mark();
+            $this->handleAccountMessage($request);
+        }
 
         return $next($request);
+    }
+
+    /**
+     * @return bool
+     */
+    private function testing(): bool
+    {
+        // ignore middleware in test environment.
+        return 'testing' === config('app.env') || !auth()->check();
     }
 
     /**
@@ -72,6 +85,28 @@ class InterestingMessage
         return null !== $transactionGroupId && null !== $message;
     }
 
+    /**
+     * @param Request $request
+     */
+    private function handleAccountMessage(Request $request): void {
+
+        // get parameters from request.
+        $accountId = $request->get('account_id');
+        $message            = $request->get('message');
+
+        /** @var Account $account */
+        $account = auth()->user()->accounts()->withTrashed()->find($accountId);
+
+        if (null === $account) {
+            return;
+        }
+        if ('deleted' === $message) {
+            session()->flash('success', (string)trans('firefly.account_deleted', ['name' => $account->name]));
+        }
+        if('created' === $message) {
+            session()->flash('success', (string)trans('firefly.stored_new_account', ['name' => $account->name]));
+        }
+    }
     /**
      * @param Request $request
      */
@@ -99,22 +134,32 @@ class InterestingMessage
         }
         $title = $count > 1 ? $group->title : $journal->description;
         if ('created' === $message) {
-            session()->flash('success_uri', route('transactions.show', [$transactionGroupId]));
+            session()->flash('success_url', route('transactions.show', [$transactionGroupId]));
             session()->flash('success', (string)trans('firefly.stored_journal', ['description' => $title]));
         }
         if ('updated' === $message) {
             $type = strtolower($journal->transactionType->type);
-            session()->flash('success_uri', route('transactions.show', [$transactionGroupId]));
+            session()->flash('success_url', route('transactions.show', [$transactionGroupId]));
             session()->flash('success', (string)trans(sprintf('firefly.updated_%s', $type), ['description' => $title]));
+        }
+        if ('no_change' === $message) {
+            $type = strtolower($journal->transactionType->type);
+            session()->flash('warning_url', route('transactions.show', [$transactionGroupId]));
+            session()->flash('warning', (string)trans(sprintf('firefly.no_changes_%s', $type), ['description' => $title]));
         }
     }
 
     /**
+     * @param Request $request
+     *
      * @return bool
      */
-    private function testing(): bool
+    private function accountMessage(Request $request): bool
     {
-        // ignore middleware in test environment.
-        return 'testing' === config('app.env') || !auth()->check();
+        // get parameters from request.
+        $accountId = $request->get('account_id');
+        $message   = $request->get('message');
+
+        return null !== $accountId && null !== $message;
     }
 }

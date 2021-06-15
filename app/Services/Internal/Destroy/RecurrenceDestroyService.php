@@ -1,22 +1,22 @@
 <?php
 /**
  * RecurrenceDestroyService.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -35,13 +35,18 @@ use Log;
 class RecurrenceDestroyService
 {
     /**
-     * Constructor.
+     * Delete recurrence by ID
+     *
+     * @param int $recurrenceId
      */
-    public function __construct()
+    public function destroyById(int $recurrenceId): void
     {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
+        $recurrence = Recurrence::find($recurrenceId);
+        if (null === $recurrence) {
+            return;
         }
+        $this->destroy($recurrence);
+
     }
 
     /**
@@ -55,8 +60,8 @@ class RecurrenceDestroyService
         try {
             // delete all meta data
             $recurrence->recurrenceMeta()->delete();
-        } catch (Exception $e) { // @codeCoverageIgnore
-            Log::info(sprintf('Could not delete recurrence meta: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
         // delete all transactions.
         /** @var RecurrenceTransaction $transaction */
@@ -64,8 +69,8 @@ class RecurrenceDestroyService
             $transaction->recurrenceTransactionMeta()->delete();
             try {
                 $transaction->delete();
-            } catch (Exception $e) { // @codeCoverageIgnore
-                Log::info(sprintf('Could not delete recurrence transaction: %s', $e->getMessage())); // @codeCoverageIgnore
+            } catch (Exception $e) { // @phpstan-ignore-line
+                // @ignoreException
             }
         }
         // delete all repetitions
@@ -74,24 +79,9 @@ class RecurrenceDestroyService
         // delete recurrence
         try {
             $recurrence->delete();
-        } catch (Exception $e) { // @codeCoverageIgnore
-            Log::info(sprintf('Could not delete recurrence: %s', $e->getMessage())); // @codeCoverageIgnore
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
-    }
-
-    /**
-     * Delete recurrence by ID
-     *
-     * @param int $recurrenceId
-     */
-    public function destroyById(int $recurrenceId): void
-    {
-        $recurrence = Recurrence::find($recurrenceId);
-        if (null === $recurrence) {
-            return;
-        }
-        $this->destroy($recurrence);
-
     }
 
 }

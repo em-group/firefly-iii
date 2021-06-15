@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * AccountCurrencies.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -53,10 +54,10 @@ class AccountCurrencies extends Command
     protected $signature = 'firefly-iii:account-currencies {--F|force : Force the execution of this command.}';
     /** @var AccountRepositoryInterface */
     private $accountRepos;
-    /** @var UserRepositoryInterface */
-    private $userRepos;
     /** @var int */
     private $count;
+    /** @var UserRepositoryInterface */
+    private $userRepos;
 
     /**
      * Each (asset) account must have a reference to a preferred currency. If the account does not have one, it's forced upon the account.
@@ -113,20 +114,58 @@ class AccountCurrencies extends Command
             return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
+        return false;
     }
-
 
     /**
      *
      */
-    private function markAsExecuted(): void
+    private function updateAccountCurrencies(): void
     {
-        app('fireflyconfig')->set(self::CONFIG_NAME, true);
+        Log::debug('Now in updateAccountCurrencies()');
+        $users               = $this->userRepos->all();
+        $defaultCurrencyCode = (string)config('firefly.default_currency', 'EUR');
+        Log::debug(sprintf('Default currency is %s', $defaultCurrencyCode));
+        foreach ($users as $user) {
+            $this->updateCurrenciesForUser($user, $defaultCurrencyCode);
+        }
     }
 
     /**
-     * @param Account $account
+     * @param User   $user
+     * @param string $systemCurrencyCode
+     */
+    private function updateCurrenciesForUser(User $user, string $systemCurrencyCode): void
+    {
+        Log::debug(sprintf('Now in updateCurrenciesForUser(%s, %s)', $user->email, $systemCurrencyCode));
+        $this->accountRepos->setUser($user);
+        $accounts = $this->accountRepos->getAccountsByType([AccountType::DEFAULT, AccountType::ASSET]);
+
+        // get user's currency preference:
+        $defaultCurrencyCode = app('preferences')->getForUser($user, 'currencyPreference', $systemCurrencyCode)->data;
+        if (!is_string($defaultCurrencyCode)) {
+            $defaultCurrencyCode = $systemCurrencyCode;
+        }
+        Log::debug(sprintf('Users currency pref is %s', $defaultCurrencyCode));
+
+        /** @var TransactionCurrency|null $defaultCurrency */
+        $defaultCurrency = TransactionCurrency::where('code', $defaultCurrencyCode)->first();
+
+        if (null === $defaultCurrency) {
+            Log::error(sprintf('Users currency pref "%s" does not exist!', $defaultCurrencyCode));
+            $this->error(sprintf('User has a preference for "%s", but this currency does not exist.', $defaultCurrencyCode));
+
+            return;
+        }
+
+        /** @var Account $account */
+        foreach ($accounts as $account) {
+            $this->updateAccount($account, $defaultCurrency);
+        }
+    }
+
+    /**
+     * @param Account             $account
      * @param TransactionCurrency $currency
      */
     private function updateAccount(Account $account, TransactionCurrency $currency): void
@@ -137,8 +176,8 @@ class AccountCurrencies extends Command
         $accountCurrency = (int)$this->accountRepos->getMetaValue($account, 'currency_id');
         Log::debug(sprintf('Account currency is #%d', $accountCurrency));
 
-        $openingBalance  = $this->accountRepos->getOpeningBalance($account);
-        $obCurrency      = 0;
+        $openingBalance = $this->accountRepos->getOpeningBalance($account);
+        $obCurrency     = 0;
         if (null !== $openingBalance) {
             $obCurrency = (int)$openingBalance->transaction_currency_id;
             Log::debug('Account has opening balance.');
@@ -165,8 +204,6 @@ class AccountCurrencies extends Command
 
             return;
         }
-
-
         // do not match and opening balance id is not null.
         if ($accountCurrency !== $obCurrency && null !== $openingBalance) {
             Log::debug(sprintf('Account (#%d) and OB currency (#%d) are different. Overrule OB, set to account currency.', $accountCurrency, $obCurrency));
@@ -177,7 +214,8 @@ class AccountCurrencies extends Command
                 static function (Transaction $transaction) use ($accountCurrency) {
                     $transaction->transaction_currency_id = $accountCurrency;
                     $transaction->save();
-                });
+                }
+            );
             $this->line(sprintf('Account #%d ("%s") now has a correct currency for opening balance.', $account->id, $account->name));
             $this->count++;
 
@@ -189,47 +227,8 @@ class AccountCurrencies extends Command
     /**
      *
      */
-    private function updateAccountCurrencies(): void
+    private function markAsExecuted(): void
     {
-        Log::debug('Now in updateAccountCurrencies()');
-        $users               = $this->userRepos->all();
-        $defaultCurrencyCode = (string)config('firefly.default_currency', 'EUR');
-        Log::debug(sprintf('Default currency is %s', $defaultCurrencyCode));
-        foreach ($users as $user) {
-            $this->updateCurrenciesForUser($user, $defaultCurrencyCode);
-        }
-    }
-
-    /**
-     * @param User $user
-     * @param string $systemCurrencyCode
-     */
-    private function updateCurrenciesForUser(User $user, string $systemCurrencyCode): void
-    {
-        Log::debug(sprintf('Now in updateCurrenciesForUser(%s, %s)', $user->email, $systemCurrencyCode));
-        $this->accountRepos->setUser($user);
-        $accounts = $this->accountRepos->getAccountsByType([AccountType::DEFAULT, AccountType::ASSET]);
-
-        // get user's currency preference:
-        $defaultCurrencyCode = app('preferences')->getForUser($user, 'currencyPreference', $systemCurrencyCode)->data;
-        if (!is_string($defaultCurrencyCode)) {
-            $defaultCurrencyCode = $systemCurrencyCode;
-        }
-        Log::debug(sprintf('Users currency pref is %s', $defaultCurrencyCode));
-
-        /** @var TransactionCurrency $defaultCurrency */
-        $defaultCurrency = TransactionCurrency::where('code', $defaultCurrencyCode)->first();
-
-        if (null === $defaultCurrency) {
-            Log::error(sprintf('Users currency pref "%s" does not exist!', $defaultCurrencyCode));
-            $this->error(sprintf('User has a preference for "%s", but this currency does not exist.', $defaultCurrencyCode));
-
-            return;
-        }
-
-        /** @var Account $account */
-        foreach ($accounts as $account) {
-            $this->updateAccount($account, $defaultCurrency);
-        }
+        app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
 }

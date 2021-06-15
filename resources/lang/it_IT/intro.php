@@ -2,22 +2,22 @@
 
 /**
  * intro.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -32,26 +32,11 @@ return [
     'index_sidebar-toggle'                            => 'Per creare nuove transazioni, conto o altre cose, usa il menu sotto questa icona.',
     'index_cash_account'                              => 'Questi sono i conti finora creati. Puoi utilizzare il conto contanti per tracciare le spese in contanti ma ovviamente non è obbligatorio.',
 
-    // transactions (withdrawal)
-    'transactions_create_withdrawal_source'           => 'Seleziona da questo menu a discesa il tuo conto attività o passività preferito.',
-    'transactions_create_withdrawal_destination'      => 'Seleziona qui un conto uscita. Lascialo vuoto se vuoi fare una spesa in contanti.',
-    'transactions_create_withdrawal_foreign_currency' => 'Usa questo campo per impostare una valuta straniera e un importo.',
-    'transactions_create_withdrawal_more_meta'        => 'In questi campi puoi impostare molti altri meta dati.',
-    'transactions_create_withdrawal_split_add'        => 'Se vuoi suddividere una transazione, aggiungi ulteriori suddivisioni con questo pulsante',
-
-    // transactions (deposit)
-    'transactions_create_deposit_source'              => 'Seleziona o scrivi il beneficiario in questo campo di auto-completamento. Lascialo vuoto se vuoi fare un deposito in contanti.',
-    'transactions_create_deposit_destination'         => 'Seleziona qui un conto attività o una passività.',
-    'transactions_create_deposit_foreign_currency'    => 'Usa questo campo per impostare una valuta straniera e un importo.',
-    'transactions_create_deposit_more_meta'           => 'In questi campi puoi impostare molti altri meta dati.',
-    'transactions_create_deposit_split_add'           => 'Se vuoi suddividere una transazione, aggiungi ulteriori suddivisioni con questo pulsante',
-
-    // transactions (transfer)
-    'transactions_create_transfer_source'             => 'Seleziona qui il conto attività di origine.',
-    'transactions_create_transfer_destination'        => 'Seleziona qui il conto attività di destinazione.',
-    'transactions_create_transfer_foreign_currency'   => 'Usa questo campo per impostare una valuta straniera e un importo.',
-    'transactions_create_transfer_more_meta'          => 'In questi campi puoi impostare molti altri meta dati.',
-    'transactions_create_transfer_split_add'          => 'Se vuoi suddividere una transazione, aggiungi ulteriori suddivisioni con questo pulsante',
+    // transactions
+    'transactions_create_basic_info'                  => 'Inserisci le informazioni di base della transazione. Sorgente, destinazione, data e descrizione.',
+    'transactions_create_amount_info'                 => 'Inserisci l\'importo della transazione. Se necessario, i campi si aggiorneranno automaticamente per informazioni sull\'importo estero.',
+    'transactions_create_optional_info'               => 'Tutti questi campi sono facoltativi. Aggiungendo questi metadati le tue transazioni saranno meglio organizzate.',
+    'transactions_create_split'                       => 'Se vuoi suddividere una transazione, aggiungi ulteriori suddivisioni con questo pulsante',
 
     // create account:
     'accounts_create_iban'                            => 'Dai ai tuoi conti un IBAN valido. Ciò potrebbe rendere molto facile l\'importazione dei dati in futuro.',

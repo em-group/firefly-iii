@@ -1,39 +1,25 @@
 <?php
-declare(strict_types=1);
-
-
-/**
+/*
  * twigbridge.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2021 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use TwigBridge\Extension\Laravel\Auth;
-use TwigBridge\Extension\Laravel\Config;
-use TwigBridge\Extension\Laravel\Dump;
-use TwigBridge\Extension\Laravel\Input;
-use TwigBridge\Extension\Laravel\Session;
-use TwigBridge\Extension\Laravel\Str;
-use TwigBridge\Extension\Laravel\Translator;
-use TwigBridge\Extension\Laravel\Url;
-use TwigBridge\Extension\Loader\Facades;
-use TwigBridge\Extension\Loader\Filters;
-use TwigBridge\Extension\Loader\Functions;
-use TwigBridge\Twig\Template;
+declare(strict_types=1);
 
 /**
  * This file is part of the TwigBridge package.
@@ -44,11 +30,25 @@ use TwigBridge\Twig\Template;
  * file that was distributed with this source code.
  */
 
+use FireflyIII\Support\Twig\AmountFormat;
+use FireflyIII\Support\Twig\General;
+use FireflyIII\Support\Twig\Rule;
+use FireflyIII\Support\Twig\TransactionGroupTwig;
+use FireflyIII\Support\Twig\Translation;
+use TwigBridge\Extension\Laravel\Dump;
+use TwigBridge\Extension\Laravel\Input;
+use TwigBridge\Extension\Laravel\Model;
+use TwigBridge\Extension\Laravel\Str;
+use TwigBridge\Extension\Laravel\Translator;
+use TwigBridge\Extension\Laravel\Url;
+use TwigBridge\Extension\Loader\Facades;
+use TwigBridge\Extension\Loader\Filters;
+use TwigBridge\Extension\Loader\Functions;
+
 /**
  * Configuration options for Twig.
  */
 return [
-
     'twig' => [
         /*
         |--------------------------------------------------------------------------
@@ -81,7 +81,7 @@ return [
 
             // The base template class to use for generated templates.
             // default: TwigBridge\Twig\Template
-            'base_template_class' => Template::class,
+            'base_template_class' => 'TwigBridge\Twig\Template',
 
             // An absolute path where to store the compiled templates, or false to disable caching. If null
             // then the cache file path is used.
@@ -136,20 +136,27 @@ return [
             Facades::class,
             Filters::class,
             Functions::class,
-
-            Auth::class,
-            Config::class,
+            \TwigBridge\Extension\Laravel\Auth::class,
+            \TwigBridge\Extension\Laravel\Config::class,
             Dump::class,
             Input::class,
-            Session::class,
+            \TwigBridge\Extension\Laravel\Session::class,
             Str::class,
             Translator::class,
             Url::class,
+            Model::class,
             // 'TwigBridge\Extension\Laravel\Gate',
 
             // 'TwigBridge\Extension\Laravel\Form',
             // 'TwigBridge\Extension\Laravel\Html',
             // 'TwigBridge\Extension\Laravel\Legacy\Facades',
+
+            AmountFormat::class,
+            General::class,
+            Rule::class,
+            TransactionGroupTwig::class,
+            Translation::class,
+
         ],
 
         /*
@@ -194,19 +201,17 @@ return [
             'Steam',
             'Config',
             'Request',
-            'Form'          => ['is_safe' => ['input', 'select', 'checkbox', 'model', 'open', 'radio', 'textarea', 'file',],],
+            'Form'          => ['is_safe' => ['input', 'select', 'checkbox', 'model', 'open', 'radio', 'textarea', 'file']],
             'ExpandedForm'  => [
                 'is_safe' => [
                     'date', 'text', 'select', 'balance', 'optionsList', 'checkbox', 'amount', 'tags', 'integer', 'textarea', 'location', 'file', 'staticText',
-                    'password', 'nonSelectableAmount', 'number', 'amountNoCurrency', 'percentage',
-
+                    'password', 'nonSelectableAmount', 'number', 'amountNoCurrency', 'percentage','objectGroup'
 
                 ],
             ],
             'AccountForm'   => [
                 'is_safe' => [
-                    'activeAssetAccountList', 'activeLongAccountList', 'activeWithdrawalDestinations', 'activeDepositDestinations',
-                    'assetAccountCheckList', 'assetAccountList', 'longAccountList',
+                    'activeWithdrawalDestinations', 'activeDepositDestinations', 'assetAccountCheckList', 'assetAccountList', 'longAccountList',
                 ],
             ],
             'CurrencyForm'  => [
@@ -214,19 +219,17 @@ return [
                     'currencyList', 'currencyListEmpty', 'balanceAll',
                 ],
             ],
-            'PiggyBankForm' =>
-                [
-                    'is_safe' => [
-                        'piggyBankList',
-                    ],
+            'PiggyBankForm' => [
+                'is_safe' => [
+                    'piggyBankList',
                 ],
+            ],
             'RuleForm'      => [
                 'is_safe' => [
                     'ruleGroupList', 'ruleGroupListWithEmpty',
                 ],
             ],
         ],
-
 
         /*
         |--------------------------------------------------------------------------

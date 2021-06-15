@@ -1,22 +1,22 @@
 <?php
 /**
  * AccountTasker.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -38,16 +38,6 @@ class AccountTasker implements AccountTaskerInterface
 {
     /** @var User */
     private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
 
     /**
      * @param Collection $accounts
@@ -86,9 +76,7 @@ class AccountTasker implements AccountTaskerInterface
                     'currency_symbol'         => $currency->symbol,
                     'currency_name'           => $currency->name,
                     'currency_decimal_places' => $currency->decimal_places,];
-
-
-            $entry = [
+            $entry                         = [
                 'name'                    => $account->name,
                 'id'                      => $account->id,
                 'currency_id'             => $currency->id,
@@ -280,7 +268,7 @@ class AccountTasker implements AccountTaskerInterface
             $sourceId   = (int)$journal['source_account_id'];
             $currencyId = (int)$journal['currency_id'];
             $key        = sprintf('%s-%s', $sourceId, $currencyId);
-            if (!isset($report['accounts'][$key])) {
+            if (!array_key_exists($key, $report['accounts'])) {
                 $currencies[$currencyId]  = $currencies[$currencyId] ?? $currencyRepos->findNull($currencyId);
                 $report['accounts'][$key] = [
                     'id'                      => $sourceId,

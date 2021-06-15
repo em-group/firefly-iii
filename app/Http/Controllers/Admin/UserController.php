@@ -1,22 +1,22 @@
 <?php
 /**
  * UserController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,20 +24,24 @@ namespace FireflyIII\Http\Controllers\Admin;
 
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
-use FireflyIII\Http\Middleware\IsSandStormUser;
 use FireflyIII\Http\Middleware\Whitelabel;
 use FireflyIII\Http\Requests\UserFormRequest;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
+use Log;
 
 /**
  * Class UserController.
  */
 class UserController extends Controller
 {
-    /** @var UserRepositoryInterface */
-    private $repository;
+    protected bool                  $externalIdentity;
+    private UserRepositoryInterface $repository;
 
     /**
      * UserController constructor.
@@ -51,36 +55,48 @@ class UserController extends Controller
                 app('view')->share('title', (string)trans('firefly.administration'));
                 app('view')->share('mainTitleIcon', 'fa-hand-spock-o');
                 $this->repository = app(UserRepositoryInterface::class);
+
                 return $next($request);
             }
         );
         $this->middleware(IsDemoUser::class)->except(['index', 'show']);
-        $this->middleware(IsSandStormUser::class);
+        $loginProvider          = config('firefly.login_provider');
+        $authGuard              = config('firefly.authentication_guard');
+        $this->externalIdentity = 'eloquent' !== $loginProvider || 'web' !== $authGuard;
     }
 
     /**
-     * Delete a user.
-     *
      * @param User $user
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Application|Factory|RedirectResponse|Redirector|View
      */
     public function delete(User $user)
     {
+        if ($this->externalIdentity) {
+            request()->session()->flash('error', trans('firefly.external_user_mgt_disabled'));
+
+            return redirect(route('admin.users'));
+        }
+
         $subTitle = (string)trans('firefly.delete_user', ['email' => $user->email]);
 
-        return view('admin.users.delete', compact('user', 'subTitle'));
+        return prefixView('admin.users.delete', compact('user', 'subTitle'));
     }
 
     /**
      * Destroy a user.
      *
-     * @param User                    $user
+     * @param User $user
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function destroy(User $user)
     {
+        if ($this->externalIdentity) {
+            request()->session()->flash('error', trans('firefly.external_user_mgt_disabled'));
+
+            return redirect(route('admin.users'));
+        }
         $this->repository->destroy($user);
         session()->flash('success', (string)trans('firefly.user_deleted'));
 
@@ -92,10 +108,14 @@ class UserController extends Controller
      *
      * @param User $user
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function edit(User $user)
     {
+        $canEditDetails = true;
+        if ($this->externalIdentity) {
+            $canEditDetails = false;
+        }
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('users.edit.fromUpdate')) {
             $this->rememberPreviousUri('users.edit.uri');
@@ -104,6 +124,8 @@ class UserController extends Controller
 
         $subTitle     = (string)trans('firefly.edit_user', ['email' => $user->email]);
         $subTitleIcon = 'fa-user-o';
+        $currentUser  = auth()->user();
+        $isAdmin      = $this->repository->hasRole($user, 'owner');
         $codes        = [
             ''              => (string)trans('firefly.no_block_code'),
             'bounced'       => (string)trans('firefly.block_code_bounced'),
@@ -111,13 +133,13 @@ class UserController extends Controller
             'email_changed' => (string)trans('firefly.block_code_email_changed'),
         ];
 
-        return view('admin.users.edit', compact('user', 'subTitle', 'subTitleIcon', 'codes'));
+        return prefixView('admin.users.edit', compact('user', 'canEditDetails', 'subTitle', 'subTitleIcon', 'codes', 'currentUser', 'isAdmin'));
     }
 
     /**
      * Show index of user manager.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -138,15 +160,15 @@ class UserController extends Controller
         // Set whitelabel back
         Whitelabel::setConfig(auth()->user()->whitelabel);
 
-        return view('admin.users.index', compact('subTitle', 'subTitleIcon', 'users'));
+        return prefixView('admin.users.index', compact('subTitle', 'subTitleIcon', 'users'));
     }
 
     /**
      * Show single user.
      *
-     * @param User                    $user
+     * @param User $user
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(User $user)
     {
@@ -156,29 +178,44 @@ class UserController extends Controller
         $subTitleIcon  = 'fa-user';
         $information   = $this->repository->getUserData($user);
 
-        return view(
-            'admin.users.show', compact(
-                                  'title', 'mainTitleIcon', 'subTitle', 'subTitleIcon', 'information', 'user'
-                              )
+        return prefixView(
+            'admin.users.show',
+            compact(
+                'title',
+                'mainTitleIcon',
+                'subTitle',
+                'subTitleIcon',
+                'information',
+                'user'
+            )
         );
     }
 
     /**
      * Update single user.
      *
-     * @param UserFormRequest         $request
-     * @param User                    $user
+     * @param UserFormRequest $request
+     * @param User            $user
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function update(UserFormRequest $request, User $user)
     {
         Log::debug('Actually here');
         $data = $request->getUserData();
 
+        //var_dump($data);
+
         // update password
-        if ('' !== $data['password']) {
+        if (array_key_exists('password', $data) && '' !== $data['password']) {
             $this->repository->changePassword($user, $data['password']);
+        }
+        if (true === $data['is_owner']) {
+            $this->repository->attachRole($user, 'owner');
+            session()->flash('info', trans('firefly.give_admin_careful'));
+        }
+        if (false === $data['is_owner'] && $user->id !== auth()->user()->id) {
+            $this->repository->removeRole($user, 'owner');
         }
 
         $this->repository->changeStatus($user, $data['blocked'], $data['blocked_code']);
@@ -188,11 +225,11 @@ class UserController extends Controller
         app('preferences')->mark();
         $redirect = redirect($this->getPreviousUri('users.edit.uri'));
         if (1 === (int)$request->get('return_to_edit')) {
-            // @codeCoverageIgnoreStart
+
             session()->put('users.edit.fromUpdate', true);
 
             $redirect = redirect(route('admin.users.edit', [$user->id]))->withInput(['return_to_edit' => 1]);
-            // @codeCoverageIgnoreEnd
+
         }
 
         // redirect to previous URL.

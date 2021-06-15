@@ -1,21 +1,21 @@
 /*
  * show.js
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /** global: zoomLevel, latitude, longitude, L, mapboxToken, doPlaceMarker */
@@ -31,7 +31,7 @@ $(function () {
          */
 
         // make map:
-        var mymap = L.map('tag_location_map', {
+        var mymap = L.map('location_map', {
             zoomControl: false,
             touchZoom: false,
             doubleClickZoom: false,
@@ -40,15 +40,13 @@ $(function () {
             dragging: false
         }).setView([latitude, longitude], zoomLevel);
 
-        L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?access_token={accessToken}', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
             maxZoom: 18,
-            id: 'mapbox.streets',
+            id: 'mapbox/streets-v11',
             accessToken: mapboxToken
         }).addTo(mymap);
-
-        if (doPlaceMarker) {
-            L.marker([latitude, longitude]).addTo(mymap);
-        }
+        L.marker([latitude, longitude]).addTo(mymap);
     }
+
 });

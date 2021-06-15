@@ -1,22 +1,22 @@
 <?php
 /**
  * RuleGroupRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -31,18 +31,29 @@ use Illuminate\Support\Collection;
  */
 interface RuleGroupRepositoryInterface
 {
+
+    /**
+     * Make sure rule group order is correct in DB.
+     */
+    public function correctRuleGroupOrder(): void;
+
     /**
      * @return int
      */
     public function count(): int;
 
     /**
-     * @param RuleGroup $ruleGroup
+     * @param RuleGroup      $ruleGroup
      * @param RuleGroup|null $moveTo
      *
      * @return bool
      */
     public function destroy(RuleGroup $ruleGroup, ?RuleGroup $moveTo): bool;
+
+    /**
+     * Delete everything.
+     */
+    public function destroyAll(): void;
 
     /**
      * @param int $ruleGroupId
@@ -97,11 +108,20 @@ interface RuleGroupRepositoryInterface
     public function getHighestOrderRuleGroup(): int;
 
     /**
-     * @param User $user
+     * @param string|null $filter
      *
      * @return Collection
      */
-    public function getRuleGroupsWithRules(User $user): Collection;
+    public function getRuleGroupsWithRules(?string $filter): Collection;
+
+    /**
+     * Also inactive groups.
+     *
+     * @param string|null $filter
+     *
+     * @return Collection
+     */
+    public function getAllRuleGroupsWithRules(?string $filter): Collection;
 
     /**
      * @param RuleGroup $group
@@ -111,30 +131,37 @@ interface RuleGroupRepositoryInterface
     public function getRules(RuleGroup $group): Collection;
 
     /**
-     * @param RuleGroup $ruleGroup
+     * Get highest possible order for a rule group.
      *
+     * @return int
+     */
+    public function maxOrder(): int;
+
+    /**
      * @return bool
      */
-    public function moveDown(RuleGroup $ruleGroup): bool;
+    public function resetOrder(): bool;
 
     /**
      * @param RuleGroup $ruleGroup
      *
      * @return bool
      */
-    public function moveUp(RuleGroup $ruleGroup): bool;
+    public function resetRuleOrder(RuleGroup $ruleGroup): bool;
 
     /**
-     * @return bool
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
      */
-    public function resetRuleGroupOrder(): bool;
+    public function searchRuleGroup(string $query, int $limit): Collection;
 
     /**
      * @param RuleGroup $ruleGroup
-     *
-     * @return bool
+     * @param int       $newOrder
      */
-    public function resetRulesInGroupOrder(RuleGroup $ruleGroup): bool;
+    public function setOrder(RuleGroup $ruleGroup, int $newOrder): void;
 
     /**
      * @param User $user
@@ -150,7 +177,7 @@ interface RuleGroupRepositoryInterface
 
     /**
      * @param RuleGroup $ruleGroup
-     * @param array $data
+     * @param array     $data
      *
      * @return RuleGroup
      */

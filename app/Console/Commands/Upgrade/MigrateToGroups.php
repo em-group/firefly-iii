@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * MigrateToGroups.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
@@ -57,16 +58,12 @@ class MigrateToGroups extends Command
      *
      * @var string
      */
-    protected $signature = 'firefly-iii:migrate-to-groups {--F|force : Force the migration, even if it fired before.}';
-    /** @var TransactionGroupFactory */
-    private $groupFactory;
-    /** @var JournalRepositoryInterface */
-    private $journalRepository;
-    /** @var JournalCLIRepositoryInterface */
-    private $cliRepository;
-    /** @var JournalDestroyService */
-    private $service;
-    private $count;
+    protected                             $signature = 'firefly-iii:migrate-to-groups {--F|force : Force the migration, even if it fired before.}';
+    private JournalCLIRepositoryInterface $cliRepository;
+    private int                           $count;
+    private TransactionGroupFactory       $groupFactory;
+    private JournalRepositoryInterface    $journalRepository;
+    private JournalDestroyService         $service;
 
     /**
      * Execute the console command.
@@ -78,7 +75,7 @@ class MigrateToGroups extends Command
     {
         $this->stupidLaravel();
         $start = microtime(true);
-        // @codeCoverageIgnoreStart
+
         if ($this->isMigrated() && true !== $this->option('force')) {
             $this->info('Database already seems to be migrated.');
 
@@ -88,7 +85,7 @@ class MigrateToGroups extends Command
         if (true === $this->option('force')) {
             $this->warn('Forcing the migration.');
         }
-        // @codeCoverageIgnoreEnd
+
 
         Log::debug('---- start group migration ----');
         $this->makeGroupsFromSplitJournals();
@@ -107,10 +104,7 @@ class MigrateToGroups extends Command
         if (0 === $this->count) {
             $this->line('No journals to migrate to groups.');
         }
-
-
         $this->markAsMigrated();
-
 
         return 0;
     }
@@ -132,59 +126,6 @@ class MigrateToGroups extends Command
     }
 
     /**
-     * @param TransactionJournal $journal
-     * @param Transaction $transaction
-     *
-     * @return Transaction|null
-     */
-    private function findOpposingTransaction(TransactionJournal $journal, Transaction $transaction): ?Transaction
-    {
-        $set = $journal->transactions->filter(
-            static function (Transaction $subject) use ($transaction) {
-                $amount     = (float)$transaction->amount * -1 === (float)$subject->amount;
-                $identifier = $transaction->identifier === $subject->identifier;
-                Log::debug(sprintf('Amount the same? %s', var_export($amount, true)));
-                Log::debug(sprintf('ID the same?     %s', var_export($identifier, true)));
-
-                return $amount && $identifier;
-            }
-        );
-
-        return $set->first();
-    }
-
-    /**
-     * @param TransactionJournal $journal
-     *
-     * @return Collection
-     */
-    private function getDestinationTransactions(TransactionJournal $journal): Collection
-    {
-        return $journal->transactions->filter(
-            static function (Transaction $transaction) {
-                return $transaction->amount > 0;
-            }
-        );
-    }
-
-    /**
-     * @param array $array
-     */
-    private function giveGroup(array $array): void
-    {
-        $groupId = DB::table('transaction_groups')->insertGetId(
-            [
-                'created_at' => date('Y-m-d H:i:s'),
-                'updated_at' => date('Y-m-d H:i:s'),
-                'title'      => null,
-                'user_id'    => $array['user_id'],
-            ]
-        );
-        DB::table('transaction_journals')->where('id', $array['id'])->update(['transaction_group_id' => $groupId]);
-        $this->count++;
-    }
-
-    /**
      * @return bool
      */
     private function isMigrated(): bool
@@ -194,27 +135,7 @@ class MigrateToGroups extends Command
             return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     * Gives all journals without a group a group.
-     */
-    private function makeGroupsFromAll(): void
-    {
-        $orphanedJournals = $this->cliRepository->getJournalsWithoutGroup();
-        $count            = count($orphanedJournals);
-        if ($count > 0) {
-            Log::debug(sprintf('Going to convert %d transaction journals. Please hold..', $count));
-            $this->line(sprintf('Going to convert %d transaction journals. Please hold..', $count));
-            /** @var array $journal */
-            foreach ($orphanedJournals as $array) {
-                $this->giveGroup($array);
-            }
-        }
-        if (0 === $count) {
-            $this->info('No need to convert transaction journals.');
-        }
+        return false; 
     }
 
     /**
@@ -239,17 +160,16 @@ class MigrateToGroups extends Command
      * @param TransactionJournal $journal
      *
      * @throws Exception
-     *
      */
     private function makeMultiGroup(TransactionJournal $journal): void
     {
         // double check transaction count.
         if ($journal->transactions->count() <= 2) {
-            // @codeCoverageIgnoreStart
+
             Log::debug(sprintf('Will not try to convert journal #%d because it has 2 or less transactions.', $journal->id));
 
             return;
-            // @codeCoverageIgnoreEnd
+
         }
         Log::debug(sprintf('Will now try to convert journal #%d', $journal->id));
 
@@ -297,15 +217,16 @@ class MigrateToGroups extends Command
             $opposingTr = $this->findOpposingTransaction($journal, $transaction);
 
             if (null === $opposingTr) {
-                // @codeCoverageIgnoreStart
+
                 $this->error(
                     sprintf(
                         'Journal #%d has no opposing transaction for transaction #%d. Cannot upgrade this entry.',
-                        $journal->id, $transaction->id
+                        $journal->id,
+                        $transaction->id
                     )
                 );
                 continue;
-                // @codeCoverageIgnoreEnd
+
             }
 
             // overrule journal category with transaction category.
@@ -364,13 +285,57 @@ class MigrateToGroups extends Command
 
         // report on result:
         Log::debug(
-            sprintf('Migrated journal #%d into group #%d with these journals: #%s',
-                    $journal->id, $group->id, implode(', #', $group->transactionJournals->pluck('id')->toArray()))
+            sprintf(
+                'Migrated journal #%d into group #%d with these journals: #%s',
+                $journal->id,
+                $group->id,
+                implode(', #', $group->transactionJournals->pluck('id')->toArray())
+            )
         );
         $this->line(
-            sprintf('Migrated journal #%d into group #%d with these journals: #%s',
-                    $journal->id, $group->id, implode(', #', $group->transactionJournals->pluck('id')->toArray()))
+            sprintf(
+                'Migrated journal #%d into group #%d with these journals: #%s',
+                $journal->id,
+                $group->id,
+                implode(', #', $group->transactionJournals->pluck('id')->toArray())
+            )
         );
+    }
+
+    /**
+     * @param TransactionJournal $journal
+     *
+     * @return Collection
+     */
+    private function getDestinationTransactions(TransactionJournal $journal): Collection
+    {
+        return $journal->transactions->filter(
+            static function (Transaction $transaction) {
+                return $transaction->amount > 0;
+            }
+        );
+    }
+
+    /**
+     * @param TransactionJournal $journal
+     * @param Transaction        $transaction
+     *
+     * @return Transaction|null
+     */
+    private function findOpposingTransaction(TransactionJournal $journal, Transaction $transaction): ?Transaction
+    {
+        $set = $journal->transactions->filter(
+            static function (Transaction $subject) use ($transaction) {
+                $amount     = (float)$transaction->amount * -1 === (float)$subject->amount;
+                $identifier = $transaction->identifier === $subject->identifier;
+                Log::debug(sprintf('Amount the same? %s', var_export($amount, true)));
+                Log::debug(sprintf('ID the same?     %s', var_export($identifier, true)));
+
+                return $amount && $identifier;
+            }
+        );
+
+        return $set->first();
     }
 
     /**
@@ -440,11 +405,47 @@ class MigrateToGroups extends Command
     }
 
     /**
+     * Gives all journals without a group a group.
+     */
+    private function makeGroupsFromAll(): void
+    {
+        $orphanedJournals = $this->cliRepository->getJournalsWithoutGroup();
+        $total            = count($orphanedJournals);
+        if ($total > 0) {
+            Log::debug(sprintf('Going to convert %d transaction journals. Please hold..', $total));
+            $this->line(sprintf('Going to convert %d transaction journals. Please hold..', $total));
+            /** @var array $array */
+            foreach ($orphanedJournals as $array) {
+                $this->giveGroup($array);
+            }
+        }
+        if (0 === $total) {
+            $this->info('No need to convert transaction journals.');
+        }
+    }
+
+    /**
+     * @param array $array
+     */
+    private function giveGroup(array $array): void
+    {
+        $groupId = DB::table('transaction_groups')->insertGetId(
+            [
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'title'      => null,
+                'user_id'    => $array['user_id'],
+            ]
+        );
+        DB::table('transaction_journals')->where('id', $array['id'])->update(['transaction_group_id' => $groupId]);
+        $this->count++;
+    }
+
+    /**
      *
      */
     private function markAsMigrated(): void
     {
         app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
-
 }

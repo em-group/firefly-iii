@@ -1,30 +1,31 @@
 <?php
 /**
  * FireflyServiceProvider.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Providers;
 
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Generator\Chart\Basic\ChartJsGenerator;
 use FireflyIII\Generator\Chart\Basic\GeneratorInterface;
+use FireflyIII\Generator\Webhook\MessageGeneratorInterface;
+use FireflyIII\Generator\Webhook\StandardMessageGenerator;
 use FireflyIII\Helpers\Attachments\AttachmentHelper;
 use FireflyIII\Helpers\Attachments\AttachmentHelperInterface;
 use FireflyIII\Helpers\Fiscal\FiscalHelper;
@@ -37,15 +38,24 @@ use FireflyIII\Helpers\Report\PopupReport;
 use FireflyIII\Helpers\Report\PopupReportInterface;
 use FireflyIII\Helpers\Report\ReportHelper;
 use FireflyIII\Helpers\Report\ReportHelperInterface;
+use FireflyIII\Helpers\Webhook\Sha3SignatureGenerator;
+use FireflyIII\Helpers\Webhook\SignatureGeneratorInterface;
+use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepository;
+use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepositoryInterface;
+use FireflyIII\Repositories\Telemetry\TelemetryRepository;
+use FireflyIII\Repositories\Telemetry\TelemetryRepositoryInterface;
 use FireflyIII\Repositories\TransactionType\TransactionTypeRepository;
 use FireflyIII\Repositories\TransactionType\TransactionTypeRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepository;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
-use FireflyIII\Services\Currency\ExchangeRateInterface;
-use FireflyIII\Services\IP\IpifyOrg;
-use FireflyIII\Services\IP\IPRetrievalInterface;
-use FireflyIII\Services\Password\PwndVerifierV3;
+use FireflyIII\Repositories\Webhook\WebhookRepository;
+use FireflyIII\Repositories\Webhook\WebhookRepositoryInterface;
+use FireflyIII\Services\FireflyIIIOrg\Update\UpdateRequest;
+use FireflyIII\Services\FireflyIIIOrg\Update\UpdateRequestInterface;
+use FireflyIII\Services\Password\PwndVerifierV2;
 use FireflyIII\Services\Password\Verifier;
+use FireflyIII\Services\Webhook\StandardWebhookSender;
+use FireflyIII\Services\Webhook\WebhookSenderInterface;
 use FireflyIII\Support\Amount;
 use FireflyIII\Support\ExpandedForm;
 use FireflyIII\Support\FireflyConfig;
@@ -56,16 +66,12 @@ use FireflyIII\Support\Form\RuleForm;
 use FireflyIII\Support\Navigation;
 use FireflyIII\Support\Preferences;
 use FireflyIII\Support\Steam;
-use FireflyIII\Support\Twig\AmountFormat;
-use FireflyIII\Support\Twig\General;
-use FireflyIII\Support\Twig\Rule;
-use FireflyIII\Support\Twig\TransactionGroupTwig;
-use FireflyIII\Support\Twig\Translation;
+use FireflyIII\Support\Telemetry;
+use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
+use FireflyIII\TransactionRules\Engine\SearchRuleEngine;
 use FireflyIII\Validation\FireflyValidator;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
-use Twig;
-use Twig_Extension_Debug;
-use TwigBridge\Extension\Loader\Functions;
 use Validator;
 
 /**
@@ -83,19 +89,10 @@ class FireflyServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Validator::resolver(
-
-            function ($translator, $data, $rules, $messages) {
+            static function ($translator, $data, $rules, $messages) {
                 return new FireflyValidator($translator, $data, $rules, $messages);
             }
         );
-        $config = app('config');
-        Twig::addExtension(new Functions($config));
-        Twig::addExtension(new General);
-        Twig::addExtension(new TransactionGroupTwig);
-        Twig::addExtension(new Translation);
-        Twig::addExtension(new Rule);
-        Twig::addExtension(new AmountFormat);
-        Twig::addExtension(new Twig_Extension_Debug);
     }
 
     /**
@@ -106,33 +103,33 @@ class FireflyServiceProvider extends ServiceProvider
     {
         $this->app->bind(
             'preferences',
-            function () {
+            static function () {
                 return new Preferences;
             }
         );
 
         $this->app->bind(
             'fireflyconfig',
-            function () {
+            static function () {
                 return new FireflyConfig;
             }
         );
         $this->app->bind(
             'navigation',
-            function () {
+            static function () {
                 return new Navigation;
             }
         );
         $this->app->bind(
             'amount',
-            function () {
+            static function () {
                 return new Amount;
             }
         );
 
         $this->app->bind(
             'steam',
-            function () {
+            static function () {
                 return new Steam;
             }
         );
@@ -170,31 +167,74 @@ class FireflyServiceProvider extends ServiceProvider
             }
         );
 
+        $this->app->bind(
+            'telemetry',
+            static function () {
+                return new Telemetry;
+            }
+        );
+
         // chart generator:
         $this->app->bind(GeneratorInterface::class, ChartJsGenerator::class);
-
-
         // other generators
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(TransactionTypeRepositoryInterface::class, TransactionTypeRepository::class);
+
         $this->app->bind(AttachmentHelperInterface::class, AttachmentHelper::class);
+        $this->app->bind(
+            ObjectGroupRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var ObjectGroupRepository $repository */
+                $repository = app(ObjectGroupRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        $this->app->bind(
+            WebhookRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var WebhookRepository $repository */
+                $repository = app(WebhookRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        $this->app->bind(
+            RuleEngineInterface::class,
+            static function (Application $app) {
+                /** @var SearchRuleEngine $engine */
+                $engine = app(SearchRuleEngine::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $engine->setUser(auth()->user());
+                }
+
+                return $engine;
+            }
+        );
 
         // more generators:
         $this->app->bind(PopupReportInterface::class, PopupReport::class);
         $this->app->bind(HelpInterface::class, Help::class);
         $this->app->bind(ReportHelperInterface::class, ReportHelper::class);
         $this->app->bind(FiscalHelperInterface::class, FiscalHelper::class);
-        $class = (string)config(sprintf('firefly.cer_providers.%s', (string)config('firefly.cer_provider')));
-        if ('' === $class) {
-            throw new FireflyException('Invalid currency exchange rate provider. Cannot continue.');
-        }
-        $this->app->bind(ExchangeRateInterface::class, $class);
+        $this->app->bind(UpdateRequestInterface::class, UpdateRequest::class);
+        $this->app->bind(TelemetryRepositoryInterface::class, TelemetryRepository::class);
+
+        // webhooks:
+        $this->app->bind(MessageGeneratorInterface::class, StandardMessageGenerator::class);
+        $this->app->bind(SignatureGeneratorInterface::class, Sha3SignatureGenerator::class);
+        $this->app->bind(WebhookSenderInterface::class, StandardWebhookSender::class);
 
         // password verifier thing
-        $this->app->bind(Verifier::class, PwndVerifierV3::class);
-
-        // IP thing:
-        $this->app->bind(IPRetrievalInterface::class, IpifyOrg::class);
+        $this->app->bind(Verifier::class, PwndVerifierV2::class);
 
         // net worth thing.
         $this->app->bind(NetWorthInterface::class, NetWorth::class);

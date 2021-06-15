@@ -25,7 +25,7 @@ class FrontpageController extends Controller
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
-        return view('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency'));
+        return prefixView('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency'));
     }
 
     public function terms(Request $request)
@@ -35,7 +35,7 @@ class FrontpageController extends Controller
         $terms = Cache::remember('frontpage_terms_'.$domain.'_'.$locale, now()->addDay(), function() use($locale){
             return HubClient::getTerms($locale);
         });
-        return view('frontpage.terms', compact('terms'));
+        return prefixView('frontpage.terms', compact('terms'));
     }
 
     /**
@@ -108,6 +108,6 @@ class FrontpageController extends Controller
                 ]);
             }
         }
-        return view('frontpage.unsub');
+        return prefixView('frontpage.unsub');
     }
 }

@@ -1,22 +1,22 @@
 <?php
 /**
  * TransactionJournalMetaFactory.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection MultipleReturnStatementsInspection */
 
@@ -35,24 +35,13 @@ use Log;
 class TransactionJournalMetaFactory
 {
     /**
-     * Constructor.
-     * @codeCoverageIgnore
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
-
-    /**
      * @param array $data
      *
      * @return TransactionJournalMeta|null
      */
     public function updateOrCreate(array $data): ?TransactionJournalMeta
     {
-        Log::debug('In updateOrCreate()');
+        //Log::debug('In updateOrCreate()');
         $value = $data['data'];
         /** @var TransactionJournalMeta $entry */
         $entry = $data['journal']->transactionJournalMeta()->where('name', $data['name'])->first();
@@ -60,8 +49,8 @@ class TransactionJournalMetaFactory
             Log::debug('Value is empty, delete meta value.');
             try {
                 $entry->delete();
-            } catch (Exception $e) { // @codeCoverageIgnore
-                Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); // @codeCoverageIgnore
+            } catch (Exception $e) { // @phpstan-ignore-line
+                Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); 
             }
 
             return null;
@@ -72,14 +61,14 @@ class TransactionJournalMetaFactory
             $value = $data['data']->toW3cString();
         }
         if ('' === (string)$value) {
-            Log::debug('Is an empty string.');
+            // Log::debug('Is an empty string.');
             // don't store blank strings.
             if (null !== $entry) {
                 Log::debug('Will not store empty strings, delete meta value');
                 try {
                     $entry->delete();
-                } catch (Exception $e) { // @codeCoverageIgnore
-                    Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); // @codeCoverageIgnore
+                } catch (Exception $e) { // @phpstan-ignore-line
+                    Log::error(sprintf('Could not delete transaction journal meta: %s', $e->getMessage())); 
                 }
             }
 

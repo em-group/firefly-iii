@@ -1,117 +1,124 @@
 <?php
 /**
  * TransactionJournal.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
 use Carbon\Carbon;
+use Eloquent;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Collection;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-
 /**
- * Class TransactionJournal.
+ * FireflyIII\Models\TransactionJournal
  *
- * @property User                                                                                      $user
- * @property int                                                                                       $bill_id
- * @property Collection                                                                                $categories
- * @property bool                                                                                      $completed
- * @property string                                                                                    $description
- * @property int                                                                                       $transaction_type_id
- * @property int                                                                                       transaction_currency_id
- * @property TransactionCurrency                                                                       $transactionCurrency
- * @property Collection                                                                                $tags
- * @property int                                                                                       user_id
- * @property Collection                                                                                transactions
- * @property int                                                                                       transaction_count
- * @property Carbon                                                                                    interest_date
- * @property Carbon                                                                                    book_date
- * @property Carbon                                                                                    process_date
- * @property bool                                                                                      encrypted
- * @property int                                                                                       order
- * @property int                                                                                       budget_id
- * @property string                                                                                    period_marker
- * @property Carbon                                                                                    $date
- * @property string                                                                                    $transaction_type_type
  * @property int                                                                                       $id
- * @property TransactionType                                                                           $transactionType
- * @property Collection                                                                                budgets
- * @property Bill                                                                                      $bill
- * @property Collection                                                                                transactionJournalMeta
- * @property TransactionGroup                                                                          transactionGroup
- * @property int                                                                                       transaction_group_id
- * @SuppressWarnings (PHPMD.TooManyPublicMethods)
- * @SuppressWarnings (PHPMD.CouplingBetweenObjects)
- * @property \Illuminate\Support\Carbon|null                                                           $created_at
- * @property \Illuminate\Support\Carbon|null                                                           $updated_at
- * @property \Illuminate\Support\Carbon|null                                                           $deleted_at
+ * @property \Carbon\Carbon|null                                                                       $created_at
+ * @property \Carbon\Carbon|null                                                                       $updated_at
+ * @property \Carbon\Carbon|null                                                                       $deleted_at
+ * @property int                                                                                       $user_id
+ * @property int                                                                                       $transaction_type_id
+ * @property int|null                                                                                  $transaction_group_id
+ * @property int|null                                                                                  $bill_id
+ * @property int|null                                                                                  $transaction_currency_id
+ * @property string                                                                                    $description
+ * @property \Carbon\Carbon                                                                            $date
+ * @property \Carbon\Carbon|null                                                                       $interest_date
+ * @property \Carbon\Carbon|null                                                                       $book_date
+ * @property \Carbon\Carbon|null                                                                       $process_date
+ * @property int                                                                                       $order
  * @property int                                                                                       $tag_count
+ * @property string                                                                                    $transaction_type_type
+ * @property bool                                                                                      $encrypted
+ * @property bool                                                                                      $completed
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Attachment[]             $attachments
+ * @property-read int|null                                                                             $attachments_count
+ * @property-read \FireflyIII\Models\Bill|null                                                         $bill
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Budget[]                 $budgets
+ * @property-read int|null                                                                             $budgets_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Category[]               $categories
+ * @property-read int|null                                                                             $categories_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\TransactionJournalLink[] $destJournalLinks
+ * @property-read int|null                                                                             $dest_journal_links_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Note[]                   $notes
+ * @property-read int|null                                                                             $notes_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\PiggyBankEvent[]         $piggyBankEvents
+ * @property-read int|null                                                                             $piggy_bank_events_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\TransactionJournalLink[] $sourceJournalLinks
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Category[]               $transactionGroups
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal after(\Carbon\Carbon $date)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal before(\Carbon\Carbon $date)
- * @method static bool|null forceDelete()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal newQuery()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\TransactionJournal onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal query()
- * @method static bool|null restore()
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal transactionTypes($types)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereBillId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereBookDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereCompleted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereDeletedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereDescription($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereEncrypted($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereInterestDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereOrder($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereProcessDate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereTagCount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereTransactionCurrencyId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereTransactionTypeId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\Models\TransactionJournal whereUserId($value)
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\TransactionJournal withTrashed()
- * @method static \Illuminate\Database\Query\Builder|\FireflyIII\Models\TransactionJournal withoutTrashed()
- * @mixin \Eloquent
+ * @property-read int|null                                                                             $source_journal_links_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Tag[]                    $tags
+ * @property-read int|null                                                                             $tags_count
+ * @property-read \FireflyIII\Models\TransactionCurrency|null                                          $transactionCurrency
+ * @property-read \FireflyIII\Models\TransactionGroup|null                                             $transactionGroup
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\TransactionJournalMeta[] $transactionJournalMeta
+ * @property-read int|null                                                                             $transaction_journal_meta_count
+ * @property-read \FireflyIII\Models\TransactionType                                                   $transactionType
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Transaction[]            $transactions
+ * @property-read int|null                                                                             $transactions_count
+ * @property-read User                                                                                 $user
+ * @method static EloquentBuilder|TransactionJournal after(\Carbon\Carbon $date)
+ * @method static EloquentBuilder|TransactionJournal before(\Carbon\Carbon $date)
+ * @method static EloquentBuilder|TransactionJournal newModelQuery()
+ * @method static EloquentBuilder|TransactionJournal newQuery()
+ * @method static \Illuminate\Database\Query\Builder|TransactionJournal onlyTrashed()
+ * @method static EloquentBuilder|TransactionJournal query()
+ * @method static EloquentBuilder|TransactionJournal transactionTypes($types)
+ * @method static EloquentBuilder|TransactionJournal whereBillId($value)
+ * @method static EloquentBuilder|TransactionJournal whereBookDate($value)
+ * @method static EloquentBuilder|TransactionJournal whereCompleted($value)
+ * @method static EloquentBuilder|TransactionJournal whereCreatedAt($value)
+ * @method static EloquentBuilder|TransactionJournal whereDate($value)
+ * @method static EloquentBuilder|TransactionJournal whereDeletedAt($value)
+ * @method static EloquentBuilder|TransactionJournal whereDescription($value)
+ * @method static EloquentBuilder|TransactionJournal whereEncrypted($value)
+ * @method static EloquentBuilder|TransactionJournal whereId($value)
+ * @method static EloquentBuilder|TransactionJournal whereInterestDate($value)
+ * @method static EloquentBuilder|TransactionJournal whereOrder($value)
+ * @method static EloquentBuilder|TransactionJournal whereProcessDate($value)
+ * @method static EloquentBuilder|TransactionJournal whereTagCount($value)
+ * @method static EloquentBuilder|TransactionJournal whereTransactionCurrencyId($value)
+ * @method static EloquentBuilder|TransactionJournal whereTransactionGroupId($value)
+ * @method static EloquentBuilder|TransactionJournal whereTransactionTypeId($value)
+ * @method static EloquentBuilder|TransactionJournal whereUpdatedAt($value)
+ * @method static EloquentBuilder|TransactionJournal whereUserId($value)
+ * @method static \Illuminate\Database\Query\Builder|TransactionJournal withTrashed()
+ * @method static \Illuminate\Database\Query\Builder|TransactionJournal withoutTrashed()
+ * @mixin Eloquent
+ * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Location[]               $locations
+ * @property-read int|null                                                                             $locations_count
+ * @property int $the_count
  */
 class TransactionJournal extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, HasFactory;
 
     /**
      * The attributes that should be casted to native types.
@@ -135,13 +142,14 @@ class TransactionJournal extends Model
 
     /** @var array Fields that can be filled */
     protected $fillable
-        = ['user_id', 'transaction_type_id', 'bill_id', 'tag_count','transaction_currency_id', 'description', 'completed', 'order',
+        = ['user_id', 'transaction_type_id', 'bill_id', 'tag_count', 'transaction_currency_id', 'description', 'completed', 'order',
            'date'];
     /** @var array Hidden from view */
     protected $hidden = ['encrypted'];
 
     /**
      * Checks if tables are joined.
+     *
      * @codeCoverageIgnore
      *
      * @param Builder $query
@@ -170,8 +178,8 @@ class TransactionJournal extends Model
      * @param string $value
      *
      * @return TransactionJournal
-     * @throws NotFoundHttpException
      * @throws FireflyException
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): TransactionJournal
     {
@@ -209,6 +217,15 @@ class TransactionJournal extends Model
 
     /**
      * @codeCoverageIgnore
+     * @return MorphMany
+     */
+    public function locations(): MorphMany
+    {
+        return $this->morphMany(Location::class, 'locatable');
+    }
+
+    /**
+     * @codeCoverageIgnore
      * @return BelongsToMany
      */
     public function budgets(): BelongsToMany
@@ -227,28 +244,11 @@ class TransactionJournal extends Model
 
     /**
      * @codeCoverageIgnore
-     * @return bool
+     * @return HasMany
      */
-    public function isDeposit(): bool
+    public function destJournalLinks(): HasMany
     {
-        if (null !== $this->transaction_type_type) {
-            return TransactionType::DEPOSIT === $this->transaction_type_type;
-        }
-
-        return $this->transactionType->isDeposit();
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @return bool
-     */
-    public function isOpeningBalance(): bool
-    {
-        if (null !== $this->transaction_type_type) {
-            return TransactionType::OPENING_BALANCE === $this->transaction_type_type;
-        }
-
-        return $this->transactionType->isOpeningBalance();
+        return $this->hasMany(TransactionJournalLink::class, 'destination_id');
     }
 
     /**
@@ -262,19 +262,6 @@ class TransactionJournal extends Model
         }
 
         return $this->transactionType->isTransfer();
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @return bool
-     */
-    public function isWithdrawal(): bool
-    {
-        if (null !== $this->transaction_type_type) {
-            return TransactionType::WITHDRAWAL === $this->transaction_type_type;
-        }
-
-        return $this->transactionType->isWithdrawal();
     }
 
     /**
@@ -332,7 +319,7 @@ class TransactionJournal extends Model
         if (!self::isJoined($query, 'transaction_types')) {
             $query->leftJoin('transaction_types', 'transaction_types.id', '=', 'transaction_journals.transaction_type_id');
         }
-        if (count($types) > 0) {
+        if (0 !== count($types)) {
             $query->whereIn('transaction_types.type', $types);
         }
     }

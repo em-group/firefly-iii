@@ -1,22 +1,22 @@
 <?php
 /**
  * RuleManagement.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -25,6 +25,7 @@ namespace FireflyIII\Support\Http\Controllers;
 
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
+use FireflyIII\Support\Search\OperatorQuerySearch;
 use Illuminate\Http\Request;
 use Log;
 use Throwable;
@@ -35,7 +36,6 @@ use Throwable;
  */
 trait RuleManagement
 {
-
     /**
      *
      */
@@ -61,7 +61,7 @@ trait RuleManagement
                     ],
                     [
                         'type'            => 'from_account_is',
-                        'value'           => (string)trans('firefly.default_rule_trigger_from_account'),
+                        'value'           => (string)trans('firefly.default_rule_trigger_source_account'),
                         'stop_processing' => false,
 
                     ],
@@ -99,7 +99,7 @@ trait RuleManagement
         if (is_array($oldInput)) {
             foreach ($oldInput as $oldAction) {
                 try {
-                    $triggers[] = view(
+                    $triggers[] = prefixView(
                         'rules.partials.action',
                         [
                             'oldAction'  => $oldAction['type'],
@@ -108,7 +108,7 @@ trait RuleManagement
                             'count'      => $index + 1,
                         ]
                     )->render();
-                } catch (Throwable $e) {
+                } catch (Throwable $e) { // @phpstan-ignore-line
                     Log::debug(sprintf('Throwable was thrown in getPreviousActions(): %s', $e->getMessage()));
                     Log::error($e->getTraceAsString());
                 }
@@ -127,22 +127,34 @@ trait RuleManagement
      */
     protected function getPreviousTriggers(Request $request): array
     {
-        $index    = 0;
-        $triggers = [];
-        $oldInput = $request->old('triggers');
+        // TODO duplicated code.
+        $operators = config('firefly.search.operators');
+        $triggers  = [];
+        foreach ($operators as $key => $operator) {
+            if ('user_action' !== $key && false === $operator['alias']) {
+
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+            }
+        }
+        asort($triggers);
+
+        $index           = 0;
+        $renderedEntries = [];
+        $oldInput        = $request->old('triggers');
         if (is_array($oldInput)) {
             foreach ($oldInput as $oldTrigger) {
                 try {
-                    $triggers[] = view(
+                    $renderedEntries[] = prefixView(
                         'rules.partials.trigger',
                         [
-                            'oldTrigger' => $oldTrigger['type'],
+                            'oldTrigger' => OperatorQuerySearch::getRootOperator($oldTrigger['type']),
                             'oldValue'   => $oldTrigger['value'],
                             'oldChecked' => 1 === (int)($oldTrigger['stop_processing'] ?? '0'),
                             'count'      => $index + 1,
+                            'triggers'   => $triggers,
                         ]
                     )->render();
-                } catch (Throwable $e) {
+                } catch (Throwable $e) { // @phpstan-ignore-line
                     Log::debug(sprintf('Throwable was thrown in getPreviousTriggers(): %s', $e->getMessage()));
                     Log::error($e->getTraceAsString());
                 }
@@ -150,7 +162,49 @@ trait RuleManagement
             }
         }
 
-        return $triggers;
+        return $renderedEntries;
+    }
+
+    /**
+     * @param array $submittedOperators
+     *
+     * @return array
+     */
+    protected function parseFromOperators(array $submittedOperators): array
+    {
+        // TODO duplicated code.
+        $operators       = config('firefly.search.operators');
+        $renderedEntries = [];
+        $triggers        = [];
+        foreach ($operators as $key => $operator) {
+            if ('user_action' !== $key && false === $operator['alias']) {
+
+                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+            }
+        }
+        asort($triggers);
+
+        $index = 0;
+        foreach ($submittedOperators as $operator) {
+            try {
+                $renderedEntries[] = prefixView(
+                    'rules.partials.trigger',
+                    [
+                        'oldTrigger' => OperatorQuerySearch::getRootOperator($operator['type']),
+                        'oldValue'   => $operator['value'],
+                        'oldChecked' => false,
+                        'count'      => $index + 1,
+                        'triggers'   => $triggers,
+                    ]
+                )->render();
+            } catch (Throwable $e) { // @phpstan-ignore-line
+                Log::debug(sprintf('Throwable was thrown in getPreviousTriggers(): %s', $e->getMessage()));
+                Log::error($e->getTraceAsString());
+            }
+            $index++;
+        }
+
+        return $renderedEntries;
     }
 
     /**

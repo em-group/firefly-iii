@@ -1,28 +1,27 @@
 <?php
-declare(strict_types=1);
 /**
  * RuleForm.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Support\Form;
-
-
 use FireflyIII\Models\RuleGroup;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use Form;
@@ -35,10 +34,11 @@ use Illuminate\Support\HtmlString;
 class RuleForm
 {
     use FormSupport;
+
     /**
-     * @param string $name
-     * @param mixed $value
-     * @param array $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
      */
@@ -59,8 +59,8 @@ class RuleForm
     }
 
     /**
-     * @param string $name
-     * @param null $value
+     * @param string     $name
+     * @param null       $value
      * @param array|null $options
      *
      * @return HtmlString
@@ -79,7 +79,7 @@ class RuleForm
         ];
         /** @var RuleGroup $group */
         foreach ($list as $group) {
-            if (isset($options['hidden']) && (int)$options['hidden'] !== $group->id) {
+            if (array_key_exists('hidden', $options) && (int)$options['hidden'] !== $group->id) {
                 $array[$group->id] = $group->title;
             }
         }

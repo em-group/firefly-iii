@@ -1,22 +1,22 @@
 <?php
 /**
  * Date.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -39,7 +39,7 @@ class Date implements BinderInterface
      * @param Route  $route
      *
      * @return Carbon
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value, Route $route): Carbon
     {
@@ -62,7 +62,7 @@ class Date implements BinderInterface
             'previousFiscalYearStart' => $fiscalHelper->startOfFiscalYear(Carbon::now())->subYear(),
             'previousFiscalYearEnd'   => $fiscalHelper->endOfFiscalYear(Carbon::now())->subYear(),
         ];
-        if (isset($magicWords[$value])) {
+        if (array_key_exists($value, $magicWords)) {
             $return = $magicWords[$value];
             Log::debug(sprintf('User requests "%s", so will return "%s"', $value, $return));
 
@@ -71,7 +71,7 @@ class Date implements BinderInterface
 
         try {
             $result = new Carbon($value);
-        } catch (Exception $e) {
+        } catch (Exception $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not parse date "%s" for user #%d: %s', $value, auth()->user()->id, $e->getMessage()));
             throw new NotFoundHttpException;
         }

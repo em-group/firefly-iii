@@ -1,22 +1,22 @@
 <?php
 /**
  * RuleRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -47,6 +47,13 @@ interface RuleRepositoryInterface
     public function destroy(Rule $rule): bool;
 
     /**
+     * @param Rule $rule
+     *
+     * @return Rule
+     */
+    public function duplicate(Rule $rule): Rule;
+
+    /**
      * @param int $ruleId
      *
      * @return Rule|null
@@ -64,13 +71,6 @@ interface RuleRepositoryInterface
      * @return RuleGroup
      */
     public function getFirstRuleGroup(): RuleGroup;
-
-    /**
-     * Get the rules for a user tailored to the import process.
-     *
-     * @return Collection
-     */
-    public function getForImport(): Collection;
 
     /**
      * @param RuleGroup $ruleGroup
@@ -101,41 +101,64 @@ interface RuleRepositoryInterface
     public function getRuleTriggers(Rule $rule): Collection;
 
     /**
+     * Return search query for rule.
+     *
      * @param Rule $rule
      *
-     * @return bool
+     * @return string
      */
-    public function moveDown(Rule $rule): bool;
+    public function getSearchQuery(Rule $rule): string;
 
     /**
-     * @param Rule $rule
+     * Get all the users rules that trigger on storage.
      *
-     * @return bool
+     * @return Collection
      */
-    public function moveUp(Rule $rule): bool;
+    public function getStoreRules(): Collection;
 
     /**
-     * @param Rule  $rule
-     * @param array $ids
+     * Get all the users rules that trigger on update.
      *
-     * @return bool
+     * @return Collection
      */
-    public function reorderRuleActions(Rule $rule, array $ids): bool;
+    public function getUpdateRules(): Collection;
 
     /**
-     * @param Rule  $rule
-     * @param array $ids
+     * @param RuleGroup $ruleGroup
      *
-     * @return bool
+     * @return int
      */
-    public function reorderRuleTriggers(Rule $rule, array $ids): bool;
+    public function maxOrder(RuleGroup $ruleGroup): int;
+
+    /**
+     * @param Rule      $rule
+     * @param RuleGroup $ruleGroup
+     * @param int       $order
+     *
+     * @return Rule
+     */
+    public function moveRule(Rule $rule, RuleGroup $ruleGroup, int $order): Rule;
 
     /**
      * @param RuleGroup $ruleGroup
      *
      * @return bool
      */
-    public function resetRulesInGroupOrder(RuleGroup $ruleGroup): bool;
+    public function resetRuleOrder(RuleGroup $ruleGroup): bool;
+
+    /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function searchRule(string $query, int $limit): Collection;
+
+    /**
+     * @param Rule $rule
+     * @param int  $newOrder
+     */
+    public function setOrder(Rule $rule, int $newOrder): void;
 
     /**
      * @param User $user

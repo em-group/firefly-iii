@@ -1,22 +1,22 @@
 <?php
 /**
  * MonthReportGenerator.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 /** @noinspection PhpUndefinedMethodInspection */
@@ -41,12 +41,9 @@ use Throwable;
  */
 class MonthReportGenerator implements ReportGeneratorInterface
 {
-    /** @var Collection The accounts used. */
-    private $accounts;
-    /** @var Carbon End date of the report. */
-    private $end;
-    /** @var Carbon Start date of the report. */
-    private $start;
+    private Collection $accounts;
+    private Carbon     $end;
+    private Carbon     $start;
 
     /**
      * Generates the report.
@@ -82,90 +79,16 @@ class MonthReportGenerator implements ReportGeneratorInterface
                         'due_date', 'payment_date', 'invoice_date',
         ];
         try {
-            $result = view('reports.audit.report', compact('reportType', 'accountIds', 'auditData', 'hideable', 'defaultShow'))
+            $result = prefixView('reports.audit.report', compact('reportType', 'accountIds', 'auditData', 'hideable', 'defaultShow'))
                 ->with('start', $this->start)->with('end', $this->end)->with('accounts', $this->accounts)
                 ->render();
-        } catch (Throwable $e) {
+        } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Cannot render reports.audit.report: %s', $e->getMessage()));
             Log::error($e->getTraceAsString());
             $result = sprintf('Could not render report view: %s', $e->getMessage());
         }
 
         return $result;
-    }
-
-    /**
-     * Get the audit report.
-     *
-     * @param Account $account
-     * @param Carbon  $date
-     *
-     * @return array
-     *
-     * @throws FireflyException
-     */
-    public function getAuditReport(Account $account, Carbon $date): array
-    {
-        /** @var AccountRepositoryInterface $accountRepository */
-        $accountRepository = app(AccountRepositoryInterface::class);
-        $accountRepository->setUser($account->user);
-
-        /** @var JournalRepositoryInterface $journalRepository */
-        $journalRepository = app(JournalRepositoryInterface::class);
-        $journalRepository->setUser($account->user);
-
-        /** @var GroupCollectorInterface $collector */
-        $collector = app(GroupCollectorInterface::class);
-        $collector->setAccounts(new Collection([$account]))->setRange($this->start, $this->end)->withAccountInformation()
-            ->withBudgetInformation()->withCategoryInformation()->withBillInformation();
-        $journals         = $collector->getExtractedJournals();
-        $journals         = array_reverse($journals, true);
-        $dayBeforeBalance = app('steam')->balance($account, $date);
-        $startBalance     = $dayBeforeBalance;
-        $defaultCurrency  = app('amount')->getDefaultCurrencyByUser($account->user);
-        $currency         = $accountRepository->getAccountCurrency($account) ?? $defaultCurrency;
-
-        foreach ($journals as $index => $journal) {
-            $journals[$index]['balance_before'] = $startBalance;
-            $transactionAmount                  = $journal['amount'];
-
-            // make sure amount is in the right "direction".
-            if ($account->id === $journal['destination_account_id']) {
-                $transactionAmount = app('steam')->positive($journal['amount']);
-            }
-
-            if ($currency->id === $journal['foreign_currency_id']) {
-                $transactionAmount = $journal['foreign_amount'];
-                if ($account->id === $journal['destination_account_id']) {
-                    $transactionAmount = app('steam')->positive($journal['foreign_amount']);
-                }
-            }
-
-            $newBalance                        = bcadd($startBalance, $transactionAmount);
-            $journals[$index]['balance_after'] = $newBalance;
-            $startBalance                      = $newBalance;
-
-            // add meta dates for each journal.
-            $journals[$index]['interest_date'] = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'interest_date');
-            $journals[$index]['book_date']     = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'book_date');
-            $journals[$index]['process_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'process_date');
-            $journals[$index]['due_date']      = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'due_date');
-            $journals[$index]['payment_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'payment_date');
-            $journals[$index]['invoice_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'invoice_date');
-
-        }
-
-        $return = [
-            'journals'         => $journals,
-            'currency'         => $currency,
-            'exists'           => count($journals) > 0,
-            'end'              => $this->end->formatLocalized((string)trans('config.month_and_day')),
-            'endBalance'       => app('steam')->balance($account, $this->end),
-            'dayBefore'        => $date->formatLocalized((string)trans('config.month_and_day')),
-            'dayBeforeBalance' => $dayBeforeBalance,
-        ];
-
-        return $return;
     }
 
     /**
@@ -264,5 +187,78 @@ class MonthReportGenerator implements ReportGeneratorInterface
     public function setTags(Collection $tags): ReportGeneratorInterface
     {
         return $this;
+    }
+
+    /**
+     * Get the audit report.
+     *
+     * @param Account $account
+     * @param Carbon  $date
+     *
+     * @return array
+     *
+     * @throws FireflyException
+     */
+    public function getAuditReport(Account $account, Carbon $date): array
+    {
+        /** @var AccountRepositoryInterface $accountRepository */
+        $accountRepository = app(AccountRepositoryInterface::class);
+        $accountRepository->setUser($account->user);
+
+        /** @var JournalRepositoryInterface $journalRepository */
+        $journalRepository = app(JournalRepositoryInterface::class);
+        $journalRepository->setUser($account->user);
+
+        /** @var GroupCollectorInterface $collector */
+        $collector = app(GroupCollectorInterface::class);
+        $collector->setAccounts(new Collection([$account]))->setRange($this->start, $this->end)->withAccountInformation()
+                  ->withBudgetInformation()->withCategoryInformation()->withBillInformation();
+        $journals         = $collector->getExtractedJournals();
+        $journals         = array_reverse($journals, true);
+        $dayBeforeBalance = app('steam')->balance($account, $date);
+        $startBalance     = $dayBeforeBalance;
+        $defaultCurrency  = app('amount')->getDefaultCurrencyByUser($account->user);
+        $currency         = $accountRepository->getAccountCurrency($account) ?? $defaultCurrency;
+
+        foreach ($journals as $index => $journal) {
+            $journals[$index]['balance_before'] = $startBalance;
+            $transactionAmount                  = $journal['amount'];
+
+            // make sure amount is in the right "direction".
+            if ($account->id === $journal['destination_account_id']) {
+                $transactionAmount = app('steam')->positive($journal['amount']);
+            }
+
+            if ($currency->id === $journal['foreign_currency_id']) {
+                $transactionAmount = $journal['foreign_amount'];
+                if ($account->id === $journal['destination_account_id']) {
+                    $transactionAmount = app('steam')->positive($journal['foreign_amount']);
+                }
+            }
+
+            $newBalance                        = bcadd($startBalance, $transactionAmount);
+            $journals[$index]['balance_after'] = $newBalance;
+            $startBalance                      = $newBalance;
+
+            // add meta dates for each journal.
+            $journals[$index]['interest_date'] = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'interest_date');
+            $journals[$index]['book_date']     = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'book_date');
+            $journals[$index]['process_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'process_date');
+            $journals[$index]['due_date']      = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'due_date');
+            $journals[$index]['payment_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'payment_date');
+            $journals[$index]['invoice_date']  = $journalRepository->getMetaDateById($journal['transaction_journal_id'], 'invoice_date');
+
+        }
+        $locale = app('steam')->getLocale();
+
+        return [
+            'journals'         => $journals,
+            'currency'         => $currency,
+            'exists'           => 0!==count($journals),
+            'end'              => $this->end->formatLocalized((string)trans('config.month_and_day', [], $locale)),
+            'endBalance'       => app('steam')->balance($account, $this->end),
+            'dayBefore'        => $date->formatLocalized((string)trans('config.month_and_day', [], $locale)),
+            'dayBeforeBalance' => $dayBeforeBalance,
+        ];
     }
 }

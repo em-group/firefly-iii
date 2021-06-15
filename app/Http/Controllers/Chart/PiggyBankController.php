@@ -1,22 +1,22 @@
 <?php
 /**
  * PiggyBankController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -39,11 +39,13 @@ use Illuminate\Support\Collection;
 class PiggyBankController extends Controller
 {
     use DateCalculation;
+
     /** @var GeneratorInterface Chart generation methods. */
     protected $generator;
 
     /**
      * PiggyBankController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -71,21 +73,22 @@ class PiggyBankController extends Controller
         $cache->addProperty('chart.piggy-bank.history');
         $cache->addProperty($piggyBank->id);
         if ($cache->has()) {
-            return response()->json($cache->get()); // @codeCoverageIgnore
+            return response()->json($cache->get()); 
         }
-        $set = $repository->getEvents($piggyBank);
-        $set = $set->reverse();
+        $set    = $repository->getEvents($piggyBank);
+        $set    = $set->reverse();
+        $locale = app('steam')->getLocale();
 
         // get first event or start date of piggy bank or today
-        $startDate = $piggyBank->start_date ?? new Carbon;
+        $startDate = $piggyBank->startdate ?? today(config('app.timezone'));
 
-        /** @var PiggyBankEvent $first */
+        /** @var PiggyBankEvent $firstEvent */
         $firstEvent = $set->first();
         $firstDate  = null === $firstEvent ? new Carbon : $firstEvent->date;
 
         // which ever is older:
         $oldest = $startDate->lt($firstDate) ? $startDate : $firstDate;
-        $today  = new Carbon;
+        $today  = today(config('app.timezone'));
         // depending on diff, do something with range of chart.
         $step = $this->calculateStep($oldest, $today);
 
@@ -98,7 +101,7 @@ class PiggyBankController extends Controller
                 }
             );
             $currentSum        = $filtered->sum('amount');
-            $label             = $oldest->formatLocalized((string)trans('config.month_and_day'));
+            $label             = $oldest->formatLocalized((string)trans('config.month_and_day', [], $locale));
             $chartData[$label] = $currentSum;
             $oldest            = app('navigation')->addPeriod($oldest, $step, 0);
         }
@@ -109,7 +112,7 @@ class PiggyBankController extends Controller
             }
         );
         $finalSum               = $finalFiltered->sum('amount');
-        $finalLabel             = $today->formatLocalized((string)trans('config.month_and_day'));
+        $finalLabel             = $today->formatLocalized((string)trans('config.month_and_day', [], $locale));
         $chartData[$finalLabel] = $finalSum;
 
         $data = $this->generator->singleSet($piggyBank->name, $chartData);

@@ -1,28 +1,27 @@
 <?php
 /**
  * MigrateToRules.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
-
 
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Bill;
@@ -53,16 +52,15 @@ class MigrateToRules extends Command
      * @var string
      */
     protected $signature = 'firefly-iii:bills-to-rules {--F|force : Force the execution of this command.}';
-
-    /** @var UserRepositoryInterface */
-    private $userRepository;
-    /** @var RuleGroupRepositoryInterface */
-    private $ruleGroupRepository;
     /** @var BillRepositoryInterface */
     private $billRepository;
+    private $count;
+    /** @var RuleGroupRepositoryInterface */
+    private $ruleGroupRepository;
     /** @var RuleRepositoryInterface */
     private $ruleRepository;
-    private $count;
+    /** @var UserRepositoryInterface */
+    private $userRepository;
 
     /**
      * Execute the console command.
@@ -75,13 +73,13 @@ class MigrateToRules extends Command
         $this->stupidLaravel();
         $start = microtime(true);
 
-        // @codeCoverageIgnoreStart
+
         if ($this->isExecuted() && true !== $this->option('force')) {
             $this->warn('This command has already been executed.');
 
             return 0;
         }
-        // @codeCoverageIgnoreEnd
+
 
         $users = $this->userRepository->all();
         /** @var User $user */
@@ -129,21 +127,14 @@ class MigrateToRules extends Command
             return (bool)$configVar->data;
         }
 
-        return false; // @codeCoverageIgnore
-    }
-
-    /**
-     *
-     */
-    private function markAsExecuted(): void
-    {
-        app('fireflyconfig')->set(self::CONFIG_NAME, true);
+        return false; 
     }
 
     /**
      * Migrate bills to new rule structure for a specific user.
      *
      * @param User $user
+     *
      * @throws FireflyException
      */
     private function migrateUser(User $user): void
@@ -156,7 +147,6 @@ class MigrateToRules extends Command
         $lang       = app('preferences')->getForUser($user, 'language', 'en_US');
         $groupTitle = (string)trans('firefly.rulegroup_for_bills_title', [], $lang->data);
         $ruleGroup  = $this->ruleGroupRepository->findByTitle($groupTitle);
-        //$currency   = $this->getCurrency($user);
 
         if (null === $ruleGroup) {
             $ruleGroup = $this->ruleGroupRepository->store(
@@ -177,9 +167,9 @@ class MigrateToRules extends Command
     }
 
     /**
-     * @param RuleGroup $ruleGroup
-     * @param Bill $bill
-     * @throws FireflyException
+     * @param RuleGroup  $ruleGroup
+     * @param Bill       $bill
+     * @param Preference $language
      */
     private function migrateBill(RuleGroup $ruleGroup, Bill $bill, Preference $language): void
     {
@@ -245,5 +235,13 @@ class MigrateToRules extends Command
         ];
         $this->billRepository->update($bill, $newBillData);
         $this->count++;
+    }
+
+    /**
+     *
+     */
+    private function markAsExecuted(): void
+    {
+        app('fireflyconfig')->set(self::CONFIG_NAME, true);
     }
 }

@@ -1,22 +1,22 @@
 <?php
 /**
  * OperationsRepositoryInterface.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Repositories\Account;
 
 use Carbon\Carbon;
+use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 
@@ -37,8 +38,8 @@ interface OperationsRepositoryInterface
      * which have the specified accounts. It's grouped per currency, with as few details in the array
      * as possible. Amounts are always negative.
      *
-     * @param Carbon          $start
-     * @param Carbon          $end
+     * @param Carbon     $start
+     * @param Carbon     $end
      * @param Collection $accounts
      *
      * @return array
@@ -66,22 +67,98 @@ interface OperationsRepositoryInterface
     /**
      * Sum of withdrawal journals in period for a set of accounts, grouped per currency. Amounts are always negative.
      *
-     * @param Carbon          $start
-     * @param Carbon          $end
-     * @param Collection|null $accounts
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $expense
+     * @param TransactionCurrency|null $currency
      *
      * @return array
      */
-    public function sumExpenses(Carbon $start, Carbon $end, ?Collection $accounts = null): array;
+    public function sumExpenses(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $expense = null, ?TransactionCurrency $currency = null
+    ): array;
+
+    /**
+     * Sum of withdrawal journals in period for a set of accounts, grouped per source / currency. Amounts are always negative.
+     *
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $expense
+     * @param TransactionCurrency|null $currency
+     *
+     * @return array
+     */
+    public function sumExpensesBySource(
+        Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $expense = null, ?TransactionCurrency $currency = null
+    ): array;
+
+    /**
+     * Sum of withdrawal journals in period for a set of accounts, grouped per destination / currency. Amounts are always negative.
+     *
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $expense
+     * @param TransactionCurrency|null $currency
+     *
+     * @return array
+     */
+    public function sumExpensesByDestination(
+        Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $expense = null, ?TransactionCurrency $currency = null
+    ): array;
 
     /**
      * Sum of income journals in period for a set of accounts, grouped per currency. Amounts are always positive.
      *
-     * @param Carbon          $start
-     * @param Carbon          $end
-     * @param Collection|null $accounts
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $revenue
+     * @param TransactionCurrency|null $currency
      *
      * @return array
      */
-    public function sumIncome(Carbon $start, Carbon $end, ?Collection $accounts = null): array;
+    public function sumIncome(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $revenue = null, ?TransactionCurrency $currency = null
+    ): array;
+
+    /**
+     * Sum of income journals in period for a set of accounts, grouped per destination + currency. Amounts are always positive.
+     *
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $revenue
+     * @param TransactionCurrency|null $currency
+     *
+     * @return array
+     */
+    public function sumIncomeByDestination(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $revenue = null, ?TransactionCurrency $currency = null
+    ): array;
+
+    /**
+     * Sum of income journals in period for a set of accounts, grouped per source + currency. Amounts are always positive.
+     *
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param Collection|null          $revenue
+     * @param TransactionCurrency|null $currency
+     *
+     * @return array
+     */
+    public function sumIncomeBySource(Carbon $start, Carbon $end, ?Collection $accounts = null, ?Collection $revenue = null, ?TransactionCurrency $currency = null
+    ): array;
+
+    /**
+     * Sum of transfers in period for a set of accounts, grouped per currency. Amounts are always positive.
+     *
+     * @param Carbon                   $start
+     * @param Carbon                   $end
+     * @param Collection|null          $accounts
+     * @param TransactionCurrency|null $currency
+     *
+     * @return array
+     */
+    public function sumTransfers(Carbon $start, Carbon $end, ?Collection $accounts = null, ?TransactionCurrency $currency = null): array;
 }

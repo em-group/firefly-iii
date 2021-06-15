@@ -1,28 +1,30 @@
 <?php
 /**
  * BudgetRepositoryInterface.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Budget;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\AutoBudget;
 use FireflyIII\Models\Budget;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
@@ -43,6 +45,16 @@ interface BudgetRepositoryInterface
      * @return bool
      */
     public function destroy(Budget $budget): bool;
+
+    /**
+     * Destroy all budgets.
+     */
+    public function destroyAll(): void;
+
+    /**
+     * @param Budget $budget
+     */
+    public function destroyAutoBudget(Budget $budget): void;
 
     /**
      * @param int|null    $budgetId
@@ -86,6 +98,20 @@ interface BudgetRepositoryInterface
     public function getActiveBudgets(): Collection;
 
     /**
+     * @param Budget $budget
+     *
+     * @return Collection
+     */
+    public function getAttachments(Budget $budget): Collection;
+
+    /**
+     * @param Budget $budget
+     *
+     * @return AutoBudget|null
+     */
+    public function getAutoBudget(Budget $budget): ?AutoBudget;
+
+    /**
      * @return Collection
      */
     public function getBudgets(): Collection;
@@ -105,11 +131,17 @@ interface BudgetRepositoryInterface
     public function getInactiveBudgets(): Collection;
 
     /**
+     * @return int
+     */
+    public function getMaxOrder(): int;
+
+    /**
      * @param string $query
+     * @param int    $limit
      *
      * @return Collection
      */
-    public function searchBudget(string $query): Collection;
+    public function searchBudget(string $query, int $limit): Collection;
 
     /**
      * @param Budget $budget
@@ -126,6 +158,7 @@ interface BudgetRepositoryInterface
      * @param array $data
      *
      * @return Budget
+     * @throws FireflyException
      */
     public function store(array $data): Budget;
 

@@ -1,22 +1,22 @@
 <?php
 /**
  * RequestInformation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -44,14 +44,12 @@ use Route as RouteFacade;
  */
 trait RequestInformation
 {
-
-
     /**
      * Get the domain of FF system.
      *
      * @return string
      */
-    protected function getDomain(): string // get request info
+    final protected function getDomain(): string // get request info
     {
         $url   = url()->to('/');
         $parts = parse_url($url);
@@ -68,7 +66,7 @@ trait RequestInformation
      * @return string
      *
      */
-    protected function getHelpText(string $route, string $language): string // get from internet.
+    final protected function getHelpText(string $route, string $language): string // get from internet.
     {
         $help = app(HelpInterface::class);
         // get language and default variables.
@@ -99,9 +97,8 @@ trait RequestInformation
             // also check cache first:
             if ($help->inCache($route, $language)) {
                 Log::debug(sprintf('Help text %s was in cache.', $language));
-                $content = $help->getFromCache($route, $language);
 
-                return $content;
+                return $help->getFromCache($route, $language);
             }
             $baseHref   = route('index');
             $helpString = sprintf(
@@ -117,20 +114,25 @@ trait RequestInformation
             return $content;
         }
 
-        return '<p>' . trans('firefly.route_has_no_help') . '</p>'; // @codeCoverageIgnore
+        return '<p>' . trans('firefly.route_has_no_help') . '</p>'; 
     }
 
     /**
-     * Get user's language.
+     * @return string
+     */
+    final protected function getPageName(): string // get request info
+    {
+        return str_replace('.', '_', RouteFacade::currentRouteName());
+    }
+
+    /**
+     * Get the specific name of a page for intro.
      *
      * @return string
      */
-    protected function getLanguage(): string // get preference
+    final protected function getSpecificPageName(): string // get request info
     {
-        /** @var string $language */
-        $language = app('preferences')->get('language', config('firefly.default_language', 'en_US'))->data;
-
-        return $language;
+        return null === RouteFacade::current()->parameter('objectType') ? '' : '_' . RouteFacade::current()->parameter('objectType');
     }
 
     /**
@@ -140,12 +142,12 @@ trait RequestInformation
      *
      * @return array
      */
-    protected function getValidTriggerList(TestRuleFormRequest $request): array // process input
+    final protected function getValidTriggerList(TestRuleFormRequest $request): array // process input
     {
         $triggers = [];
         $data     = $request->get('triggers');
         if (is_array($data)) {
-            foreach ($data as $index => $triggerInfo) {
+            foreach ($data as $triggerInfo) {
                 $triggers[] = [
                     'type'            => $triggerInfo['type'] ?? '',
                     'value'           => $triggerInfo['value'] ?? '',
@@ -162,13 +164,10 @@ trait RequestInformation
      *
      * @return bool
      */
-    protected function hasSeenDemo(): bool // get request info + get preference
+    final protected function hasSeenDemo(): bool // get request info + get preference
     {
         $page         = $this->getPageName();
         $specificPage = $this->getSpecificPageName();
-
-
-
         // indicator if user has seen the help for this page ( + special page):
         $key = sprintf('shown_demo_%s%s', $page, $specificPage);
         // is there an intro for this route?
@@ -180,31 +179,12 @@ trait RequestInformation
         // both must be array and either must be > 0
         if (count($intro) > 0 || count($specialIntro) > 0) {
             $shownDemo = app('preferences')->get($key, false)->data;
-            //Log::debug(sprintf('Check if user has already seen intro with key "%s". Result is %s', $key, var_export($shownDemo, true)));
         }
         if (!is_bool($shownDemo)) {
-            $shownDemo = true; // @codeCoverageIgnore
+            $shownDemo = true; 
         }
 
         return $shownDemo;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPageName(): string // get request info
-    {
-        return str_replace('.', '_', RouteFacade::currentRouteName());
-    }
-
-    /**
-     * Get the specific name of a page for intro.
-     *
-     * @return string
-     */
-    protected function getSpecificPageName(): string // get request info
-    {
-        return null === RouteFacade::current()->parameter('objectType') ? '' : '_' . RouteFacade::current()->parameter('objectType');
     }
 
     /**
@@ -215,7 +195,7 @@ trait RequestInformation
      * @return bool
      *
      */
-    protected function notInSessionRange(Carbon $date): bool // Validate a preference
+    final protected function notInSessionRange(Carbon $date): bool // Validate a preference
     {
         /** @var Carbon $start */
         $start = session('start', Carbon::now()->startOfMonth());
@@ -240,7 +220,7 @@ trait RequestInformation
      *
      * @return array
      */
-    protected function parseAttributes(array $attributes): array // parse input + return result
+    final protected function parseAttributes(array $attributes): array // parse input + return result
     {
         $attributes['location'] = $attributes['location'] ?? '';
         $attributes['accounts'] = AccountList::routeBinder($attributes['accounts'] ?? '', new Route('get', '', []));
@@ -266,7 +246,7 @@ trait RequestInformation
     /**
      * Validate users new password.
      *
-     * @param User $user
+     * @param User   $user
      * @param string $current
      * @param string $new
      *
@@ -274,7 +254,7 @@ trait RequestInformation
      *
      * @throws ValidationException
      */
-    protected function validatePassword(User $user, string $current, string $new): bool //get request info
+    final protected function validatePassword(User $user, string $current, string $new): bool //get request info
     {
         if (!Hash::check($current, $user->password)) {
             throw new ValidationException((string)trans('firefly.invalid_current_password'));
@@ -295,7 +275,7 @@ trait RequestInformation
      * @return ValidatorContract
      * @codeCoverageIgnore
      */
-    protected function validator(array $data): ValidatorContract
+    final protected function validator(array $data): ValidatorContract
     {
         return Validator::make(
             $data,

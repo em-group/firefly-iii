@@ -1,22 +1,22 @@
 <?php
 /**
  * JournalServiceProvider.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -59,20 +59,48 @@ class JournalServiceProvider extends ServiceProvider
     }
 
     /**
-     *
+     * Register repository.
      */
-    private function registerGroupCollector(): void
+    private function registerRepository(): void
     {
         $this->app->bind(
-            GroupCollectorInterface::class,
+            JournalRepositoryInterface::class,
             static function (Application $app) {
-                /** @var GroupCollectorInterface $collector */
-                $collector = app(GroupCollector::class);
-                if ($app->auth->check()) {
-                    $collector->setUser(auth()->user());
+                /** @var JournalRepositoryInterface $repository */
+                $repository = app(JournalRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
                 }
 
-                return $collector;
+                return $repository;
+            }
+        );
+
+        // also bind new API repository
+        $this->app->bind(
+            JournalAPIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalAPIRepositoryInterface $repository */
+                $repository = app(JournalAPIRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
+            }
+        );
+
+        // also bind new CLI repository
+        $this->app->bind(
+            JournalCLIRepositoryInterface::class,
+            static function (Application $app) {
+                /** @var JournalCLIRepositoryInterface $repository */
+                $repository = app(JournalCLIRepository::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $repository->setUser(auth()->user());
+                }
+
+                return $repository;
             }
         );
     }
@@ -87,7 +115,7 @@ class JournalServiceProvider extends ServiceProvider
             static function (Application $app) {
                 /** @var TransactionGroupRepositoryInterface $repository */
                 $repository = app(TransactionGroupRepository::class);
-                if ($app->auth->check()) {
+                if ($app->auth->check()) { // @phpstan-ignore-line
                     $repository->setUser(auth()->user());
                 }
 
@@ -97,48 +125,20 @@ class JournalServiceProvider extends ServiceProvider
     }
 
     /**
-     * Register repository.
+     *
      */
-    private function registerRepository(): void
+    private function registerGroupCollector(): void
     {
         $this->app->bind(
-            JournalRepositoryInterface::class,
+            GroupCollectorInterface::class,
             static function (Application $app) {
-                /** @var JournalRepositoryInterface $repository */
-                $repository = app(JournalRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
+                /** @var GroupCollectorInterface $collector */
+                $collector = app(GroupCollector::class);
+                if ($app->auth->check()) { // @phpstan-ignore-line
+                    $collector->setUser(auth()->user());
                 }
 
-                return $repository;
-            }
-        );
-
-        // also bind new API repository
-        $this->app->bind(
-            JournalAPIRepositoryInterface::class,
-            static function (Application $app) {
-                /** @var JournalAPIRepositoryInterface $repository */
-                $repository = app(JournalAPIRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
-                }
-
-                return $repository;
-            }
-        );
-
-        // also bind new CLI repository
-        $this->app->bind(
-            JournalCLIRepositoryInterface::class,
-            static function (Application $app) {
-                /** @var JournalCLIRepositoryInterface $repository */
-                $repository = app(JournalCLIRepository::class);
-                if ($app->auth->check()) {
-                    $repository->setUser(auth()->user());
-                }
-
-                return $repository;
+                return $collector;
             }
         );
     }

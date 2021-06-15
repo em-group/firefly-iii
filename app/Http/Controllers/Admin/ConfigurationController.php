@@ -1,22 +1,22 @@
 <?php
 /**
  * ConfigurationController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 /** @noinspection PhpUndefinedClassInspection */
 declare(strict_types=1);
@@ -26,10 +26,11 @@ namespace FireflyIII\Http\Controllers\Admin;
 use FireflyIII\Helpers\Update\UpdateTrait;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
-use FireflyIII\Http\Middleware\IsSandStormUser;
 use FireflyIII\Http\Requests\ConfigurationRequest;
 use FireflyIII\Services\Github\Object\Release;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Log;
 
 /**
@@ -44,6 +45,7 @@ class ConfigurationController extends Controller
 
     /**
      * ConfigurationController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -59,13 +61,12 @@ class ConfigurationController extends Controller
             }
         );
         $this->middleware(IsDemoUser::class)->except(['index']);
-        $this->middleware(IsSandStormUser::class);
     }
 
     /**
      * Show configuration index.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -74,8 +75,7 @@ class ConfigurationController extends Controller
 
         Log::channel('audit')->info('User visits admin config index.');
 
-        $newerRelease = $this->updateAvailable();
-        $latestReleaseVersion = $this->latestRelease->getTitle() ?? config('firefly.version');
+        $latestReleaseVersion = $this->updateAvailable() ?? config('firefly.version');
 
         // all available configuration and their default value in case
         // they don't exist yet.
@@ -83,9 +83,9 @@ class ConfigurationController extends Controller
         $isDemoSite     = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
         $siteOwner      = config('firefly.site_owner');
 
-        return view(
+        return prefixView(
             'admin.configuration.index',
-            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'newerRelease', 'latestReleaseVersion')
+            compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'latestReleaseVersion')
         );
     }
 
@@ -117,7 +117,7 @@ class ConfigurationController extends Controller
     protected function updateAvailable()
     {
         $this->latestRelease = $this->getLatestRelease();
-        $versionCheck  = $this->versionCheck($this->latestRelease);
-        return $versionCheck < 0;
+//        $versionCheck  = $this->versionCheck($this->latestRelease);
+        return $this->latestRelease['message'];
     }
 }

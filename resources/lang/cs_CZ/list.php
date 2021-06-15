@@ -2,22 +2,22 @@
 
 /**
  * list.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -36,38 +36,37 @@ return [
     'currentBalance'          => 'Aktuální zůstatek',
     'linked_to_rules'         => 'Příslušná pravidla',
     'active'                  => 'Aktivní?',
-    'percentage'              => 'pct.',
+    'percentage'              => '%',
+    'recurring_transaction'   => 'Opakované transakce',
     'next_due'                => 'Příští splatnost',
     'transaction_type'        => 'Typ',
     'lastActivity'            => 'Poslední aktivita',
     'balanceDiff'             => 'Rozdíl zůstatku',
-    'matchesOn'               => 'Matched on',
-    'other_meta_data'         => 'Other meta data',
+    'other_meta_data'         => 'Ostatní metadata',
     'account_type'            => 'Typ účtu',
     'created_at'              => 'Vytvořeno',
     'account'                 => 'Účet',
+    'external_uri'            => 'Externí identifikátor URI',
     'matchingAmount'          => 'Částka',
-    'split_number'            => '# rozdělení',
     'destination'             => 'Cíl',
     'source'                  => 'Zdroj',
-    'next_expected_match'     => 'Next expected match',
+    'next_expected_match'     => 'Další očekávaná shoda',
     'automatch'               => 'Automatické hledání shody?',
-    'repeat_freq'             => 'Repeats',
+    'repeat_freq'             => 'Opakuje se',
     'description'             => 'Popis',
     'amount'                  => 'Částka',
-    'internal_reference'      => 'Interní reference',
     'date'                    => 'Datum',
     'interest_date'           => 'Úrokové datum',
-    'book_date'               => 'Book date',
+    'book_date'               => 'Datum rezervace',
     'process_date'            => 'Datum zpracování',
     'due_date'                => 'Datum splatnosti',
     'payment_date'            => 'Datum platby',
     'invoice_date'            => 'Datum vystavení',
-    'interal_reference'       => 'Interní reference',
+    'internal_reference'      => 'Interní odkaz',
     'notes'                   => 'Poznámky',
     'from'                    => 'Od',
     'piggy_bank'              => 'Pokladnička',
-    'to'                      => 'To',
+    'to'                      => 'Komu',
     'budget'                  => 'Rozpočet',
     'category'                => 'Kategorie',
     'bill'                    => 'Účet',
@@ -79,11 +78,11 @@ return [
     'iban'                    => 'IBAN',
     'paid_current_period'     => 'Zaplaceno v tomto období',
     'email'                   => 'Email',
-    'registered_at'           => 'Registered at',
+    'registered_at'           => 'Registrováno v',
     'is_blocked'              => 'Je blokován',
     'is_admin'                => 'Je admin',
     'has_two_factor'          => 'Má 2FA',
-    'blocked_code'            => 'Block code',
+    'blocked_code'            => 'Blokovací kód',
     'source_account'          => 'Zdrojový účet',
     'destination_account'     => 'Cílový účet',
     'accounts_count'          => 'Počet účtů',
@@ -91,13 +90,12 @@ return [
     'attachments_count'       => 'Počet příloh',
     'bills_count'             => 'Počet účtů',
     'categories_count'        => 'Počet kategorií',
-    'import_jobs_count'       => 'Počet úloh importu',
     'budget_count'            => 'Počet rozpočtů',
     'rule_and_groups_count'   => 'Počet pravidel a skupin pravidel',
     'tags_count'              => 'Počet štítků',
     'tags'                    => 'Štítky',
-    'inward'                  => 'Inward description',
-    'outward'                 => 'Outward description',
+    'inward'                  => 'Vnitřní popis',
+    'outward'                 => 'Vnější popis',
     'number_of_transactions'  => 'Počet transakcí',
     'total_amount'            => 'Celková částka',
     'sum'                     => 'Součet',
@@ -105,20 +103,18 @@ return [
     'sum_withdrawals'         => 'Součet výběrů',
     'sum_deposits'            => 'Součet vkladů',
     'sum_transfers'           => 'Součet převodů',
-    'reconcile'               => 'Reconcile',
-    'account_on_spectre'      => 'Účet (Spectre)',
-    'account_on_ynab'         => 'Účet (YNAB)',
-    'do_import'               => 'Importovat z tohoto účtu',
-    'sepa_ct_id'              => 'SEPA End to End Identifier',
-    'sepa_ct_op'              => 'SEPA Opposing Account Identifier',
-    'sepa_db'                 => 'SEPA Mandate Identifier',
-    'sepa_country'            => 'SEPA Country',
-    'sepa_cc'                 => 'SEPA Clearing Code',
-    'sepa_ep'                 => 'SEPA External Purpose',
-    'sepa_ci'                 => 'SEPA Creditor Identifier',
-    'sepa_batch_id'           => 'SEPA Batch ID',
-    'external_id'             => 'External ID',
-    'account_at_bunq'         => 'Account with bunq',
+    'sum_reconciliations'     => 'Suma vyúčtování',
+    'reconcile'               => 'Vyúčtovat',
+    'sepa_ct_id'              => 'SEPA End to End identifikátor',
+    'sepa_ct_op'              => 'SEPA Identifikátor cílového účtu',
+    'sepa_db'                 => 'SEPA Identifikátor mandátu',
+    'sepa_country'            => 'SEPA země',
+    'sepa_cc'                 => 'SEPA Zúčtovací kód',
+    'sepa_ep'                 => 'SEPA Externí účel',
+    'sepa_ci'                 => 'SEPA Identifikátor věřitele',
+    'sepa_batch_id'           => 'SEPA ID dávky',
+    'external_id'             => 'Externí identifikátor',
+    'account_at_bunq'         => 'Účet s bunq',
     'file_name'               => 'Název souboru',
     'file_size'               => 'Velikost souboru',
     'file_type'               => 'Typ souboru',
@@ -127,9 +123,9 @@ return [
     'spectre_bank'            => 'Banka',
     'spectre_last_use'        => 'Minulé přihlášení',
     'spectre_status'          => 'Stav',
-    'bunq_payment_id'         => 'bunq payment ID',
+    'bunq_payment_id'         => 'ID platby bunq',
     'repetitions'             => 'Opakování',
-    'title'                   => 'Title',
+    'title'                   => 'Název',
     'transaction_s'           => 'Transakce',
     'field'                   => 'Kolonka',
     'value'                   => 'Hodnota',

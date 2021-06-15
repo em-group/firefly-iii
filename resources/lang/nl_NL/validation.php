@@ -2,22 +2,22 @@
 
 /**
  * validation.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -45,6 +45,7 @@ return [
     'at_least_one_repetition'        => 'Er is op zijn minst één herhaling nodig.',
     'require_repeat_until'           => 'Je moet een aantal herhalingen opgeven, of een einddatum (repeat_until). Niet beide.',
     'require_currency_info'          => 'De inhoud van dit veld is ongeldig zonder valutagegevens.',
+    'not_transfer_account'           => 'Deze account kan je niet gebruiken voor overschrijvingen.',
     'require_currency_amount'        => 'De inhoud van dit veld is ongeldig zonder bedrag in vreemde valuta.',
     'equal_description'              => 'Transactiebeschrijving mag niet gelijk zijn aan globale beschrijving.',
     'file_invalid_mime'              => 'Bestand ":name" is van het type ":mime", en die kan je niet uploaden.',
@@ -56,10 +57,10 @@ return [
     'at_least_one_action'            => 'De regel moet minstens één actie hebben.',
     'base64'                         => 'Dit is geen geldige base64 gecodeerde data.',
     'model_id_invalid'               => 'Dit ID past niet bij dit object.',
-    'more'                           => ':attribute moet groter zijn dan nul.',
     'less'                           => ':attribute moet minder zijn dan 10.000.000',
     'active_url'                     => ':attribute is geen geldige URL.',
     'after'                          => ':attribute moet een datum na :date zijn.',
+    'date_after'                     => 'De startdatum moet vóór de einddatum zijn.',
     'alpha'                          => ':attribute mag alleen letters bevatten.',
     'alpha_dash'                     => ':attribute mag alleen letters, nummers, onderstreep(_) en strepen(-) bevatten.',
     'alpha_num'                      => ':attribute mag alleen letters en nummers bevatten.',
@@ -120,23 +121,31 @@ return [
     'string'                         => 'Het :attribute moet een tekenreeks zijn.',
     'url'                            => ':attribute is geen geldige URL.',
     'timezone'                       => 'Het :attribute moet een geldige zone zijn.',
-    '2fa_code'                    => 'De waarde in het :attribute-veld is niet geldig.',
-    'dimensions'                  => 'Het :attribute heeft het verkeerde afbeeldingsformaat.',
-    'distinct'                    => 'Het :attribute veld heeft een dubbele waarde.',
-    'file'                        => ':attribute moet een bestand zijn.',
-    'in_array'                    => 'Het :attribute veld bestaat niet in :other.',
-    'present'                     => 'Het :attribute veld moet aanwezig zijn.',
-    'amount_zero'                 => 'Het totaalbedrag kan niet nul zijn.',
-    'current_target_amount'       => 'Het huidige bedrag moet minder zijn dan het doelbedrag.',
-    'unique_piggy_bank_for_user'  => 'De naam van de spaarpot moet uniek zijn.',
+    '2fa_code'                       => 'De waarde in het :attribute-veld is niet geldig.',
+    'dimensions'                     => 'Het :attribute heeft het verkeerde afbeeldingsformaat.',
+    'distinct'                       => 'Het :attribute veld heeft een dubbele waarde.',
+    'file'                           => ':attribute moet een bestand zijn.',
+    'in_array'                       => 'Het :attribute veld bestaat niet in :other.',
+    'present'                        => 'Het :attribute veld moet aanwezig zijn.',
+    'amount_zero'                    => 'Het totaalbedrag kan niet nul zijn.',
+    'current_target_amount'          => 'Het huidige bedrag moet minder zijn dan het doelbedrag.',
+    'unique_piggy_bank_for_user'     => 'De naam van de spaarpot moet uniek zijn.',
+    'unique_object_group'            => 'De groepsnaam moet uniek zijn',
+    'starts_with'                    => 'De waarde moet beginnen met :values.',
+    'unique_webhook'                 => 'Je hebt al een webhook met deze waarden.',
+    'unique_existing_webhook'        => 'Je hebt al een andere webhook met deze waarden.',
+    'same_account_type'              => 'Beide rekeningen moeten van hetzelfde rekeningtype zijn',
+    'same_account_currency'          => 'Beide rekeningen moeten dezelfde valuta hebben',
+
     'secure_password'             => 'Dit is geen veilig wachtwoord. Probeer het nog een keer. Zie ook: https://bit.ly/FF3-password-security',
     'valid_recurrence_rep_type'   => 'Dit is geen geldige herhaling voor periodieke transacties.',
     'valid_recurrence_rep_moment' => 'Ongeldig herhaalmoment voor dit type herhaling.',
     'invalid_account_info'        => 'Ongeldige rekeninginformatie.',
-    'attributes'                     => [
+    'attributes'                  => [
         'email'                   => 'e-mailadres',
         'description'             => 'omschrijving',
         'amount'                  => 'bedrag',
+        'transactions.*.amount'   => 'transactiebedrag',
         'name'                    => 'naam',
         'piggy_bank_id'           => 'spaarpot ID',
         'targetamount'            => 'doelbedrag',
@@ -171,15 +180,18 @@ return [
     ],
 
     // validation of accounts:
-    'withdrawal_source_need_data'    => 'Om door te gaan moet een geldige bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
-    'withdrawal_source_bad_data'     => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
-    'withdrawal_dest_need_data'      => 'Om door te gaan moet een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
-    'withdrawal_dest_bad_data'       => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'withdrawal_source_need_data' => 'Om door te gaan moet een geldige bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
+    'withdrawal_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'withdrawal_dest_need_data'   => 'Om door te gaan moet een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
+    'withdrawal_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+
+    'generic_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
 
     'deposit_source_need_data' => 'Om door te gaan moet een geldige bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
     'deposit_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
     'deposit_dest_need_data'   => 'Om door te gaan moet een geldig doelrekening ID en/of geldige doelrekeningnaam worden gevonden.',
     'deposit_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'deposit_dest_wrong_type'  => 'De ingevoerde doelrekening is niet van het juiste type.',
 
     'transfer_source_need_data' => 'Om door te gaan moet een geldig bronaccount ID en/of geldige bronaccountnaam worden gevonden.',
     'transfer_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
@@ -191,6 +203,16 @@ return [
     'ob_dest_need_data'   => 'Om door te gaan moet een geldig doelrekening ID en/of geldige doelrekeningnaam worden gevonden.',
     'ob_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
 
-    'generic_invalid_source' => 'Je kan deze rekening niet gebruiken als bronrekening.',
+    'generic_invalid_source'      => 'Je kan deze rekening niet gebruiken als bronrekening.',
     'generic_invalid_destination' => 'Je kan deze rekening niet gebruiken als doelrekening.',
+
+    'gte.numeric' => ':attribute moet groter of gelijk zijn aan :value.',
+    'gt.numeric'  => 'De :attribute moet groter zijn dan :value.',
+    'gte.file'    => ':attribute moet groter of gelijk zijn aan :value kilobytes.',
+    'gte.string'  => ':attribute moet :value karakters of meer bevatten.',
+    'gte.array'   => ':attribute moet :value items of meer bevatten.',
+
+    'amount_required_for_auto_budget' => 'Bedrag is vereist.',
+    'auto_budget_amount_positive'     => 'Het bedrag moet meer zijn dan nul.',
+    'auto_budget_period_mandatory'    => 'De auto-budgetperiode is verplicht.',
 ];

@@ -1,22 +1,22 @@
 <?php
 /**
  * CacheProperties.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -24,17 +24,17 @@ namespace FireflyIII\Support;
 
 use Cache;
 use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Class CacheProperties.
+ *
  * @codeCoverageIgnore
  */
 class CacheProperties
 {
-    /** @var string */
-    protected $hash = '';
-    /** @var Collection */
-    protected $properties;
+    protected string     $hash = '';
+    protected Collection $properties;
 
     /**
      *
@@ -49,7 +49,7 @@ class CacheProperties
     }
 
     /**
-     * @param $property
+     * @param mixed $property
      */
     public function addProperty($property): void
     {
@@ -86,21 +86,27 @@ class CacheProperties
     }
 
     /**
-     * @param $data
-     */
-    public function store($data): void
-    {
-        Cache::forever($this->hash, $data);
-    }
-
-    /**
+     * @throws JsonException
      */
     private function hash(): void
     {
         $content = '';
         foreach ($this->properties as $property) {
-            $content .= json_encode($property);
+            try {
+                $content .= json_encode($property, JSON_THROW_ON_ERROR, 512);
+            } catch (JsonException $e) {
+                // @ignoreException
+                $content .= hash('sha256', (string)time());
+            }
         }
-        $this->hash = substr(sha1($content), 0, 16);
+        $this->hash = substr(hash('sha256', $content), 0, 16);
+    }
+
+    /**
+     * @param mixed $data
+     */
+    public function store($data): void
+    {
+        Cache::forever($this->hash, $data);
     }
 }

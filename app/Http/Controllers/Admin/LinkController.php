@@ -1,22 +1,22 @@
 <?php
 /**
  * LinkController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -27,21 +27,23 @@ use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Http\Requests\LinkTypeFormRequest;
 use FireflyIII\Models\LinkType;
 use FireflyIII\Repositories\LinkType\LinkTypeRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 use Log;
-use View;
 
 /**
  * Class LinkController.
  */
 class LinkController extends Controller
 {
-
-    /** @var LinkTypeRepositoryInterface */
-    private $repository;
+    private LinkTypeRepositoryInterface $repository;
 
     /**
      * LinkController constructor.
+     *
      * @codeCoverageIgnore
      */
     public function __construct()
@@ -63,7 +65,7 @@ class LinkController extends Controller
     /**
      * Make a new link form.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function create()
     {
@@ -77,16 +79,16 @@ class LinkController extends Controller
             $this->rememberPreviousUri('link-types.create.uri');
         }
 
-        return view('admin.link.create', compact('subTitle', 'subTitleIcon'));
+        return prefixView('admin.link.create', compact('subTitle', 'subTitleIcon'));
     }
 
     /**
      * Delete a link form.
      *
-     * @param Request $request
+     * @param Request  $request
      * @param LinkType $linkType
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|View
+     * @return Factory|RedirectResponse|Redirector|View
      */
     public function delete(Request $request, LinkType $linkType)
     {
@@ -113,16 +115,16 @@ class LinkController extends Controller
         // put previous url in session
         $this->rememberPreviousUri('link-types.delete.uri');
 
-        return view('admin.link.delete', compact('linkType', 'subTitle', 'moveTo', 'count'));
+        return prefixView('admin.link.delete', compact('linkType', 'subTitle', 'moveTo', 'count'));
     }
 
     /**
      * Actually destroy the link.
      *
-     * @param Request $request
+     * @param Request  $request
      * @param LinkType $linkType
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function destroy(Request $request, LinkType $linkType)
     {
@@ -140,10 +142,10 @@ class LinkController extends Controller
     /**
      * Edit a link form.
      *
-     * @param Request $request
+     * @param Request  $request
      * @param LinkType $linkType
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Illuminate\View\View
+     * @return Factory|RedirectResponse|Redirector|View
      */
     public function edit(Request $request, LinkType $linkType)
     {
@@ -159,17 +161,17 @@ class LinkController extends Controller
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('link-types.edit.fromUpdate')) {
-            $this->rememberPreviousUri('link-types.edit.uri'); // @codeCoverageIgnore
+            $this->rememberPreviousUri('link-types.edit.uri'); 
         }
         $request->session()->forget('link-types.edit.fromUpdate');
 
-        return view('admin.link.edit', compact('subTitle', 'subTitleIcon', 'linkType'));
+        return prefixView('admin.link.edit', compact('subTitle', 'subTitleIcon', 'linkType'));
     }
 
     /**
      * Show index of all links.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function index()
     {
@@ -184,7 +186,7 @@ class LinkController extends Controller
             }
         );
 
-        return view('admin.link.index', compact('subTitle', 'subTitleIcon', 'linkTypes'));
+        return prefixView('admin.link.index', compact('subTitle', 'subTitleIcon', 'linkTypes'));
     }
 
     /**
@@ -192,7 +194,7 @@ class LinkController extends Controller
      *
      * @param LinkType $linkType
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return Factory|View
      */
     public function show(LinkType $linkType)
     {
@@ -202,7 +204,7 @@ class LinkController extends Controller
 
         Log::channel('audit')->info(sprintf('User viewing link type #%d', $linkType->id));
 
-        return view('admin.link.show', compact('subTitle', 'subTitleIcon', 'linkType', 'links'));
+        return prefixView('admin.link.show', compact('subTitle', 'subTitleIcon', 'linkType', 'links'));
     }
 
     /**
@@ -210,7 +212,7 @@ class LinkController extends Controller
      *
      * @param LinkTypeFormRequest $request
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function store(LinkTypeFormRequest $request)
     {
@@ -240,9 +242,9 @@ class LinkController extends Controller
      * Update an existing link.
      *
      * @param LinkTypeFormRequest $request
-     * @param LinkType $linkType
+     * @param LinkType            $linkType
      *
-     * @return $this|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return $this|RedirectResponse|Redirector
      */
     public function update(LinkTypeFormRequest $request, LinkType $linkType)
     {

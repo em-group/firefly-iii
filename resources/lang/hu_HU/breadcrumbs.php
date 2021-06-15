@@ -2,22 +2,22 @@
 
 /**
  * breadcrumbs.php
- * Copyright (c) 2018 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 declare(strict_types=1);
@@ -30,6 +30,7 @@ return [
     'edit_piggyBank'         => '":name" malacpersely szerkesztése',
     'preferences'            => 'Beállítások',
     'profile'                => 'Profil',
+    'accounts'               => 'Számlák',
     'changePassword'         => 'Jelszó módosítása',
     'change_email'           => 'Email cím módosítása',
     'bills'                  => 'Számlák',
@@ -51,9 +52,15 @@ return [
     'edit_journal'           => '":description" tranzakció szerkesztése',
     'edit_reconciliation'    => '":description" szerkesztése',
     'delete_journal'         => '":description" tranzakció törlése',
+    'delete_group'           => '":description" tranzakció törlése',
     'tags'                   => 'Cimkék',
     'createTag'              => 'Új címke létrehozása',
     'edit_tag'               => '":tag" címke szerkesztése',
     'delete_tag'             => '":tag" címke törlése',
     'delete_journal_link'    => 'Tranzakciók közötti kapcsolat törlése',
+    'telemetry_index'        => 'Telemetria',
+    'telemetry_view'         => 'Telemetria megtekintése',
+    'edit_object_group'      => '":title" csoport szerkesztése',
+    'delete_object_group'    => '":title" csoport törlése',
+    'logout_others'          => 'Minden más munkamenet kijelentkeztetése'
 ];

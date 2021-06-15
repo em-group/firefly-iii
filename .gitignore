@@ -1,4 +1,7 @@
 /node_modules
+/frontend/node_modules
+/frontend/fonts
+/frontend/images
 /public/hot
 /public/storage
 /storage/*.key
@@ -14,3 +17,5 @@ public/google*.html
 report.html
 composer.phar
 /.idea
+.phpunit.result.cache
+app.js.map

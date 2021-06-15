@@ -1,27 +1,27 @@
 <?php
-declare(strict_types=1);
 /**
  * JournalCLIRepository.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace FireflyIII\Repositories\Journal;
+declare(strict_types=1);
 
+namespace FireflyIII\Repositories\Journal;
 
 use Carbon\Carbon;
 use DB;
@@ -30,7 +30,6 @@ use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Log;
 use stdClass;
 
 /**
@@ -40,16 +39,6 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
 {
     /** @var User */
     private $user;
-
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-        if ('testing' === config('app.env')) {
-            Log::warning(sprintf('%s should not be instantiated in the TEST environment!', get_class($this)));
-        }
-    }
 
     /**
      * Get all transaction journals with a specific type, regardless of user.
@@ -139,9 +128,9 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         if ($cache->has()) {
             $result = null;
             try {
-                $result = new Carbon($cache->get()); // @codeCoverageIgnore
-            } catch (Exception $e) {
-                $e->getMessage();
+                $result = new Carbon($cache->get()); 
+            } catch (Exception $e) { // @phpstan-ignore-line
+                // @ignoreException
             }
 
             return $result;
@@ -154,13 +143,12 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         $value = null;
         try {
             $value = new Carbon($entry->data);
-        } catch (Exception $e) {
-            $e->getMessage();
-
-            return null;
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
-
-        $cache->store($entry->data);
+        if (null !== $value) {
+            $cache->store($value);
+        }
 
         return $value;
     }
@@ -181,7 +169,7 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         $cache->addProperty($field);
 
         if ($cache->has()) {
-            return $cache->get(); // @codeCoverageIgnore
+            return $cache->get(); 
         }
 
         $entry = $journal->transactionJournalMeta()->where('name', $field)->first();
@@ -199,13 +187,11 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         }
 
         // return when something else:
+        $return = (string)$value;
         try {
-            $return = (string)$value;
             $cache->store($return);
-        } catch (Exception $e) {
-            Log::error($e->getMessage());
-
-            return '';
+        } catch (Exception $e) { // @phpstan-ignore-line
+            // @ignoreException
         }
 
         return $return;

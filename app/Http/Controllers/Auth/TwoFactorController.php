@@ -1,34 +1,32 @@
 <?php
 /**
  * TwoFactorController.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
-use FireflyIII\Http\Requests\TokenFormRequest;
 use FireflyIII\User;
-use Illuminate\Cookie\CookieJar;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Log;
+use Illuminate\Routing\Redirector;
 use PragmaRX\Google2FALaravel\Support\Authenticator;
 use Preferences;
 
@@ -38,15 +36,30 @@ use Preferences;
 class TwoFactorController extends Controller
 {
     /**
+     * What to do if 2FA lost?
+     *
+     * @return mixed
+     */
+    public function lostTwoFactor()
+    {
+        /** @var User $user */
+        $user      = auth()->user();
+        $siteOwner = config('firefly.site_owner');
+        $title     = (string)trans('firefly.two_factor_forgot_title');
+
+        return prefixView('auth.lost-two-factor', compact('user', 'siteOwner', 'title'));
+    }
+
+    /**
      * @param Request $request
      *
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     * @return RedirectResponse|Redirector
      */
     public function submitMFA(Request $request)
     {
         /** @var array $mfaHistory */
         $mfaHistory = Preferences::get('mfa_history', [])->data;
-        $mfaCode    = $request->get('one_time_password');
+        $mfaCode    = (string)$request->get('one_time_password');
 
         // is in history? then refuse to use it.
         if ($this->inMFAHistory($mfaCode, $mfaHistory)) {
@@ -83,20 +96,26 @@ class TwoFactorController extends Controller
     }
 
     /**
+     * Each MFA history has a timestamp and a code, saving the MFA entries for 5 minutes. So if the
+     * submitted MFA code has been submitted in the last 5 minutes, it won't work despite being valid.
+     *
      * @param string $mfaCode
+     * @param array  $mfaHistory
+     *
+     * @return bool
      */
-    private function addToMFAHistory(string $mfaCode): void
+    private function inMFAHistory(string $mfaCode, array $mfaHistory): bool
     {
-        /** @var array $mfaHistory */
-        $mfaHistory   = Preferences::get('mfa_history', [])->data;
-        $entry        = [
-            'time' => time(),
-            'code' => $mfaCode,
-        ];
-        $mfaHistory[] = $entry;
+        $now = time();
+        foreach ($mfaHistory as $entry) {
+            $time = $entry['time'];
+            $code = $entry['code'];
+            if ($code === $mfaCode && $now - $time <= 300) {
+                return true;
+            }
+        }
 
-        Preferences::set('mfa_history', $mfaHistory);
-        $this->filterMFAHistory();
+        return false;
     }
 
     /**
@@ -122,47 +141,20 @@ class TwoFactorController extends Controller
     }
 
     /**
-     * What to do if 2FA lost?
-     *
-     * @return mixed
-     */
-    public function lostTwoFactor()
-    {
-        /** @var User $user */
-        $user      = auth()->user();
-        $siteOwner = config('firefly.site_owner');
-        $title     = (string)trans('firefly.two_factor_forgot_title');
-
-        Log::info(
-            'To reset the two factor authentication for user #' . $user->id .
-            ' (' . $user->email . '), simply open the "preferences" table and delete the entries with the names "twoFactorAuthEnabled" and' .
-            ' "twoFactorAuthSecret" for user_id ' . $user->id . '. That will take care of it.'
-        );
-
-        return view('auth.lost-two-factor', compact('user', 'siteOwner', 'title'));
-    }
-
-    /**
-     * Each MFA history has a timestamp and a code, saving the MFA entries for 5 minutes. So if the
-     * submitted MFA code has been submitted in the last 5 minutes, it won't work despite being valid.
-     *
      * @param string $mfaCode
-     * @param array  $mfaHistory
-     *
-     * @return bool
      */
-    private function inMFAHistory(string $mfaCode, array $mfaHistory): bool
+    private function addToMFAHistory(string $mfaCode): void
     {
-        $now = time();
-        foreach ($mfaHistory as $entry) {
-            $time = $entry['time'];
-            $code = $entry['code'];
-            if ($code === $mfaCode && $now - $time <= 300) {
-                return true;
-            }
-        }
+        /** @var array $mfaHistory */
+        $mfaHistory   = Preferences::get('mfa_history', [])->data;
+        $entry        = [
+            'time' => time(),
+            'code' => $mfaCode,
+        ];
+        $mfaHistory[] = $entry;
 
-        return false;
+        Preferences::set('mfa_history', $mfaHistory);
+        $this->filterMFAHistory();
     }
 
     /**

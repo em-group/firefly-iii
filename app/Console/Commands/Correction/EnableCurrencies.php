@@ -1,24 +1,25 @@
 <?php
-declare(strict_types=1);
 /**
  * EnableCurrencies.php
- * Copyright (c) 2019 thegrumpydictator@gmail.com
+ * Copyright (c) 2020 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Correction;
 
@@ -29,6 +30,7 @@ use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Models\TransactionJournal;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
+use Log;
 
 /**
  * Class EnableCurrencies
@@ -51,7 +53,7 @@ class EnableCurrencies extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return int
      */
     public function handle(): int
     {
@@ -73,9 +75,10 @@ class EnableCurrencies extends Command
 
         // get all from transactions
         /** @var Collection $transactions */
-        $transactions = Transaction::groupBy('transaction_currency_id')->get(['transaction_currency_id']);
+        $transactions = Transaction::groupBy('transaction_currency_id', 'foreign_currency_id')->get(['transaction_currency_id', 'foreign_currency_id']);
         foreach ($transactions as $entry) {
             $found[] = (int)$entry->transaction_currency_id;
+            $found[] = (int)$entry->foreign_currency_id;
         }
 
         // get all from budget limits
@@ -85,8 +88,17 @@ class EnableCurrencies extends Command
             $found[] = (int)$entry->transaction_currency_id;
         }
 
-        $found = array_unique($found);
-        $this->info(sprintf('%d different currencies are currently in use.', count($found)));
+        $found   = array_values(array_unique($found));
+        $found   = array_values(
+            array_filter(
+                $found, function (int $currencyId) {
+                return $currencyId !== 0;
+            }
+            )
+        );
+        $message = sprintf('%d different currencies are currently in use.', count($found));
+        $this->info($message);
+        Log::debug($message, $found);
 
         $disabled = TransactionCurrency::whereIn('id', $found)->where('enabled', false)->count();
         if ($disabled > 0) {

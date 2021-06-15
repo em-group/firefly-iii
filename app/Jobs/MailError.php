@@ -1,22 +1,22 @@
 <?php
 /**
  * MailError.php
- * Copyright (c) 2017 thegrumpydictator@gmail.com
+ * Copyright (c) 2019 james@firefly-iii.org
  *
- * This file is part of Firefly III.
+ * This file is part of Firefly III (https://github.com/firefly-iii).
  *
- * Firefly III is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Firefly III is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU Affero General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with Firefly III. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 declare(strict_types=1);
 
@@ -32,20 +32,17 @@ use Mail;
 
 /**
  * Class MailError.
+ *
  * @codeCoverageIgnore
  */
 class MailError extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
-    /** @var string Destination */
-    protected $destination;
-    /** @var array Exception information */
-    protected $exception;
-    /** @var string IP address */
-    protected $ipAddress;
-    /** @var array User information */
-    protected $userData;
+    protected string $destination;
+    protected array $exception;
+    protected string $ipAddress;
+    protected array $userData;
 
     /**
      * MailError constructor.
@@ -76,6 +73,7 @@ class MailError extends Job implements ShouldQueue
         $args['loggedIn'] = $this->userData['id'] > 0;
         $args['user']     = $this->userData;
         $args['ip']       = $this->ipAddress;
+        $args['token']    = config('firefly.ipinfo_token');
         if ($this->attempts() < 3) {
             try {
                 Mail::send(
@@ -83,11 +81,11 @@ class MailError extends Job implements ShouldQueue
                     $args,
                     function (Message $message) use ($email) {
                         if ('mail@example.com' !== $email) {
-                            $message->to($email, $email)->subject('Caught an error in Firely III');
+                            $message->to($email, $email)->subject((string)trans('email.error_subject'));
                         }
                     }
                 );
-            } catch (Exception $e) {
+            } catch (Exception $e) { // @phpstan-ignore-line
                 Log::error('Exception when mailing: ' . $e->getMessage());
             }
         }
