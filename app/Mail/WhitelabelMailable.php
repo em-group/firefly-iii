@@ -24,7 +24,7 @@ abstract class WhitelabelMailable extends Mailable {
         }
     }
 
-    public function send(MailerContract $mailer)
+    public function send($mailer)
     {
         // Inject whitelabel config from saved id
         if (!empty($this->whitelabel_id)) {
