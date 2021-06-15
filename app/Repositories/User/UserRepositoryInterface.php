@@ -26,6 +26,7 @@ use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 
 /**
  * Interface UserRepositoryInterface.
@@ -36,9 +37,9 @@ interface UserRepositoryInterface
     /**
      * Returns a collection of all users.
      *
-     * @return Collection
+     * @return LazyCollection
      */
-    public function all(): Collection;
+    public function all(): LazyCollection;
 
     /**
      * Gives a user a role.
