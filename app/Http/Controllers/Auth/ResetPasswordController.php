@@ -92,7 +92,7 @@ class ResetPasswordController extends Controller
         $rules = [
             'token'    => 'required',
             'email'    => 'required|email',
-            'password' => 'required|confirmed|min:16|secure_password',
+            'password' => 'required|confirmed|min:6',
         ];
 
         $this->validate($request, $rules, $this->validationErrorMessages());
