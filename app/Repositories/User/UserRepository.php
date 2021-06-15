@@ -32,6 +32,7 @@ use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\LazyCollection;
 use Log;
 use Str;
 
@@ -43,11 +44,11 @@ class UserRepository implements UserRepositoryInterface
 {
     use SendsHubRequests;
     /**
-     * @return Collection
+     * @return LazyCollection
      */
-    public function all(): Collection
+    public function all(): LazyCollection
     {
-        return User::orderBy('id', 'DESC')->get(['users.*']);
+        return User::orderBy('id', 'DESC')->lazy();
     }
 
     /**

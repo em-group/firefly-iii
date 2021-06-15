@@ -61,6 +61,7 @@ class CreateAccessTokens extends Command
         $start = microtime(true);
         $count = 0;
         $users = $repository->all();
+
         /** @var User $user */
         foreach ($users as $user) {
             $pref = app('preferences')->getForUser($user, 'access_token', null);
