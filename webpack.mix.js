@@ -96,3 +96,9 @@ mix.copy('resources/assets/frontpage-templates/BS/img/', 'public/fpt/BS/img');
 // BSU
 mix.sass('resources/assets/frontpage-templates/BSU/sass/styles.scss', 'public/fpt/BSU/css');
 mix.copy('resources/assets/frontpage-templates/BSU/img/', 'public/fpt/BSU/img');
+// BTO
+mix.sass('resources/assets/frontpage-templates/BTO/sass/styles.scss', 'public/fpt/BTO/css');
+mix.copy('resources/assets/frontpage-templates/BTO/img/', 'public/fpt/BTO/img');
+// YBO
+mix.sass('resources/assets/frontpage-templates/YBO/sass/styles.scss', 'public/fpt/YBO/css');
+mix.copy('resources/assets/frontpage-templates/YBO/img/', 'public/fpt/YBO/img');
