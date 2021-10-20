@@ -265,10 +265,10 @@
     <div class="inner">
         <div class="flex">
             <article>
-                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
-                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
-                <button class="btn btn-lg btn-info" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
-                <button class="btn btn-lg btn-info" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
+                <button class="btn btn-lg btn-info terms-link" data-section="terms-terms">Terms &amp; Conditions</button>
+                <button class="btn btn-lg btn-info terms-link" data-section="terms-privacy-policy">Privacy Policy</button>
+                <button class="btn btn-lg btn-info terms-link" data-section="terms-cookie-policy">Cookie Policy</button>
+                <button class="btn btn-lg btn-info terms-link" data-section="refund-cancellation-policy">Refund &amp; Cancellation Policy</button>
                 <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px; margin-top:15px; margin-bottom:15px; position:relative;" id="terms-container">
                     {{ terms | raw }}
                 </div>
@@ -313,20 +313,7 @@
 <script src="/fpt/projection/assets/js/util.js" nonce="{{ JS_NONCE }}"></script>
 <script src="/fpt/projection/assets/js/main.js" nonce="{{ JS_NONCE }}"></script>
 
-<script nonce="{{ JS_NONCE }}">
-    $(function(){
-        window.gotoSection = function(section){
-            let e = $('#terms-container');
-            let hs = e.find('h3');
-            let positions = {
-                'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
-                'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
-                'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
-                'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
-            };
-            e.scrollTop(positions[section]);
-        };
-    });
-</script>
+<script src="fpt/terms.js" nonce="{{ JS_NONCE }}"></script>
+
 </body>
 </html>
