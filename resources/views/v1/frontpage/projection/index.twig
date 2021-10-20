@@ -313,23 +313,7 @@
 <script src="/fpt/projection/assets/js/util.js" nonce="{{ JS_NONCE }}"></script>
 <script src="/fpt/projection/assets/js/main.js" nonce="{{ JS_NONCE }}"></script>
 
-<script nonce="{{ JS_NONCE }}">
-    $(function(){
-        $(document).on('click', '#terms .btn', function(){
-            gotoSection($(this).data('section'));
-        });
-    });
-    window.gotoSection = function(section){
-        let e = $('#terms-container');
-        let hs = e.find('h3');
-        let positions = {
-            'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
-            'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
-            'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
-            'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
-        };
-        e.scrollTop(positions[section]);
-    };
-</script>
+<script src="fpt/terms.js" nonce="{{ JS_NONCE }}"></script>
+
 </body>
 </html>
