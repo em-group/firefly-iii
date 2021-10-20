@@ -354,10 +354,10 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-terms');">Terms &amp; Conditions</button>
-                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</button>
-                <button class="btn btn-lg btn-orange" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</button>
-                <button class="btn btn-lg btn-orange" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</button>
+                <button class="btn btn-lg btn-orange terms-link" data-section="terms-terms">Terms &amp; Conditions</button>
+                <button class="btn btn-lg btn-orange terms-link" data-section="terms-privacy-policy">Privacy Policy</button>
+                <button class="btn btn-lg btn-orange terms-link" data-section="terms-cookie-policy">Cookie Policy</button>
+                <button class="btn btn-lg btn-orange terms-link" data-section="refund-cancellation-policy">Refund &amp; Cancellation Policy</button>
                 <div style="max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;position: relative;" id="terms-container">
                     {{ terms | raw }}
                 </div>
@@ -392,10 +392,10 @@
             <div class="col-md-4 footer-menu-links">
                 <h4>Terms & Conditions</h4>
                 <div class="orange-bar"></div>
-                <a class="" href="#terms" onclick="gotoSection('terms-terms');">Terms & Conditions</a>
-                <a class="" href="#terms" onclick="gotoSection('terms-privacy-policy');">Privacy Policy</a>
-                <a class="" href="#terms" onclick="gotoSection('terms-cookie-policy');">Cookie Policy</a>
-                <a class="" href="#terms" onclick="gotoSection('refund-cancellation-policy');">Refund &amp; Cancellation Policy</a>
+                <a class=" terms-link" href="#terms" data-section="terms-terms">Terms & Conditions</a>
+                <a class=" terms-link" href="#terms" data-section="terms-privacy-policy">Privacy Policy</a>
+                <a class=" terms-link" href="#terms" data-section="terms-cookie-policy">Cookie Policy</a>
+                <a class=" terms-link" href="#terms" data-section="refund-cancellation-policy">Refund &amp; Cancellation Policy</a>
             </div>
         </div>
     </div>
@@ -404,20 +404,8 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
 <script src="/fpt/t-1/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
 
-<script nonce="{{ JS_NONCE }}">
-    $(function(){
-        window.gotoSection = function(section){
-            let e = $('#terms-container');
-            let hs = e.find('h3');
-            let positions = {
-                'terms-terms': hs.get(0) ? hs.get(0).offsetTop : 0,
-                'terms-privacy-policy': hs.get(1) ? hs.get(1).offsetTop : 0,
-                'terms-cookie-policy': hs.get(2) ? hs.get(2).offsetTop : 0,
-                'refund-cancellation-policy': hs.get(3) ? hs.get(3).offsetTop : 0,
-            };
-            e.scrollTop(positions[section]);
-        };
-    });
+<script src="/fpt/js/terms.js" nonce="{{ JS_NONCE }}">
+
 </script>
 
 </body>

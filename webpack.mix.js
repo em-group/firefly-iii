@@ -34,6 +34,8 @@ mix.js('resources/assets/js/create_transaction.js', 'public/v1/js').vue({version
 mix.js('resources/assets/js/edit_transaction.js', 'public/v1/js').vue({version: 2});
 mix.js('resources/assets/js/profile.js', 'public/v1/js').vue({version: 2});
 
+mix.js('resources/assets/frontpage-templates/terms.js', 'public/fpt');
+
 // Sedna frontpage template
 mix.sass('resources/assets/frontpage-templates/sedna/sass/ie.scss', 'public/fpt/sedna/css');
 mix.sass('resources/assets/frontpage-templates/sedna/sass/print.scss', 'public/fpt/sedna/css');
