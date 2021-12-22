@@ -104,3 +104,21 @@ mix.copy('resources/assets/frontpage-templates/BTO/img/', 'public/fpt/BTO/img');
 // YBO
 mix.sass('resources/assets/frontpage-templates/YBO/sass/styles.scss', 'public/fpt/YBO/css');
 mix.copy('resources/assets/frontpage-templates/YBO/img/', 'public/fpt/YBO/img');
+
+// BAM
+mix.sass('resources/assets/frontpage-templates/BAM/sass/styles.scss', 'public/fpt/BAM/css');
+mix.copy('resources/assets/frontpage-templates/BAM/img/', 'public/fpt/BAM/img');
+// BST
+mix.sass('resources/assets/frontpage-templates/BST/sass/styles.scss', 'public/fpt/BST/css');
+mix.copy('resources/assets/frontpage-templates/BST/img/', 'public/fpt/BST/img');
+// BZ
+mix.sass('resources/assets/frontpage-templates/BZ/sass/styles.scss', 'public/fpt/BZ/css');
+// MBA
+mix.sass('resources/assets/frontpage-templates/MBA/sass/styles.scss', 'public/fpt/MBA/css');
+mix.copy('resources/assets/frontpage-templates/MBA/img/', 'public/fpt/MBA/img');
+// SB
+mix.sass('resources/assets/frontpage-templates/SB/sass/styles.scss', 'public/fpt/SB/css');
+mix.copy('resources/assets/frontpage-templates/SB/img/', 'public/fpt/SB/img');
+// SPO
+mix.sass('resources/assets/frontpage-templates/SPO/styles.scss', 'public/fpt/SPO/css');
+mix.copy('resources/assets/frontpage-templates/SPO/img/', 'public/fpt/SPO/img');

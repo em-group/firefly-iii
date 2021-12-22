@@ -12,7 +12,9 @@
     <link rel="stylesheet" href="fpt/sedna/css/bootstrap.min.css">
     <link rel="stylesheet" href="fpt/sedna/css/jquery.fancybox.css">
     <link rel="stylesheet" href="fpt/sedna/css/flexslider.css">
-    <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
+    {% if config('whitelabels.styles_path') != '' %}
+        <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
+    {% endif %}
     <link rel="stylesheet" href="fpt/sedna/css/queries.css">
     <link rel="stylesheet" href="fpt/sedna/css/etline-font.css">
 
