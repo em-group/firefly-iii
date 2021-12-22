@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <link rel="stylesheet" href="fpt/t-2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="fpt/SO/css/styles.css">
+    <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
     <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous" nonce="{{ JS_NONCE }}"></script>
 
     <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
@@ -39,7 +39,13 @@
         </div>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container">
-                <a class="navbar-brand" href="#"><img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;"></a>
+                <a class="navbar-brand" href="#">
+                    {% if config('whitelabels.logo_url') != "" %}
+                        <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
+                    {% else %}
+                        {{ config('app.name') }}
+                    {% endif %}
+                </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-bar" aria-controls="nav-bar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
