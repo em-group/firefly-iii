@@ -125,3 +125,6 @@ mix.copy('resources/assets/frontpage-templates/SPO/img/', 'public/fpt/SPO/img');
 // IYB
 mix.sass('resources/assets/frontpage-templates/IYB/sass/styles.scss', 'public/fpt/IYB/css');
 mix.copy('resources/assets/frontpage-templates/IYB/img/', 'public/fpt/IYB/img');
+// BV
+mix.sass('resources/assets/frontpage-templates/BV/sass/styles.scss', 'public/fpt/BV/css');
+mix.copy('resources/assets/frontpage-templates/BV/img/', 'public/fpt/BV/img');
