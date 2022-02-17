@@ -122,3 +122,6 @@ mix.copy('resources/assets/frontpage-templates/SB/img/', 'public/fpt/SB/img');
 // SPO
 mix.sass('resources/assets/frontpage-templates/SPO/styles.scss', 'public/fpt/SPO/css');
 mix.copy('resources/assets/frontpage-templates/SPO/img/', 'public/fpt/SPO/img');
+// IYB
+mix.sass('resources/assets/frontpage-templates/IYB/sass/styles.scss', 'public/fpt/IYB/css');
+mix.copy('resources/assets/frontpage-templates/IYB/img/', 'public/fpt/IYB/img');
