@@ -131,3 +131,6 @@ mix.copy('resources/assets/frontpage-templates/BV/img/', 'public/fpt/BV/img');
 // GB
 mix.sass('resources/assets/frontpage-templates/GB/sass/styles.scss', 'public/fpt/GB/css');
 mix.copy('resources/assets/frontpage-templates/GB/img/', 'public/fpt/GB/img');
+// KMB
+mix.sass('resources/assets/frontpage-templates/KMB/sass/styles.scss', 'public/fpt/KMB/css');
+mix.copy('resources/assets/frontpage-templates/KMB/img/', 'public/fpt/KMB/img');
