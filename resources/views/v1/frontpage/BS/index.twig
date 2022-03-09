@@ -33,7 +33,7 @@
     <header>
         <div class="border-bottom">
             <div class="container pt-1 pb-1">
-                <small>{{ config('whitelabels.phone') }}</small>
+                <small>{{ company.phone ?: config('whitelabels.phone') }}</small>
                 <small class="pl-2 pl-sm-5"><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small>
             </div>
         </div>
@@ -303,7 +303,7 @@
                 <div class="feature-list">
                     <h3 class="text-orange">About {{ config('app.name') }}</h3>
                     <p>{{ config('app.name') }} is a fully-fledged budget-planning service which offers anyone to gain control over their earnings and expenses. By providing the software, we can help you get a better overview of your financial status.</p>
-                    <p>{{ config('app.name') }} is served and run by {{ config('whitelabels.company') }}.</p>
+                    <p>{{ config('app.name') }} is served and run by {{ company.display_name ?: config('whitelabels.company') }}.</p>
                     <p>If you have any questions, please don't hesitate to contact us.</p>
                 </div>
             </div>
@@ -315,7 +315,7 @@
                     <tr>
                         <td style="width:65px;"><div class="icon"><i class="fa fa-phone"></i></div></td>
                         <td>
-                            {{ config('whitelabels.phone') }}<br>
+                            {{ company.phone ?: config('whitelabels.phone') }}<br>
                             <em>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 (Central Europe timezone)</em>
                         </td>
                     </tr>
@@ -333,11 +333,11 @@
                         <td><div class="icon"><i class="fa fa-address-book"></i></div></td>
                         <td>
                             {{ config('app.name') }}<br>
-                            {{ config('whitelabels.company') }}<br>
-                            {{ config('whitelabels.address_line1') }}<br>
-                            {{ config('whitelabels.address_line2') }}<br>
-                            {{ config('whitelabels.address_line3') }}<br>
-                            {{ config('whitelabels.company_reg') }}
+                            {{ company.display_name ?: config('whitelabels.company') }}<br>
+                            {{ company.address_1 ?: config('whitelabels.address_line1') }}<br>
+                            {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line3') }}<br>
+                            {{ company.address_country ?: config('whitelabels.address_line3') }}<br>
+                            {{ company.registration_number ?: config('whitelabels.company_reg') }}
                         </td>
                     </tr>
                 </table>
@@ -367,13 +367,13 @@
         <div class="row">
             <div class="col-md-4">
                 <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
-                <h4 class="mt-4 mb-0">{{ config('whitelabels.phone') }}</h4>
+                <h4 class="mt-4 mb-0">{{ company.phone ?: config('whitelabels.phone') }}</h4>
                 <small><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small><br>
-                <small>{{ config('whitelabels.company') }},
-                    {{ config('whitelabels.address_line1') }},
-                    {{ config('whitelabels.address_line2') }},
-                    {{ config('whitelabels.address_line3') }},
-                    {{ config('whitelabels.company_reg') }}</small>
+                <small>{{ company.display_name ?: config('whitelabels.company') }},
+                    {{ company.address_1 ?: config('whitelabels.address_line1') }},
+                    {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line3') }},
+                    {{ company.address_country ?: config('whitelabels.address_line3') }},
+                    {{ company.registration_number ?: config('whitelabels.company_reg') }}</small>
             </div>
             <div class="col-md-4 footer-menu-links">
                 <h4>Menu Links</h4>
