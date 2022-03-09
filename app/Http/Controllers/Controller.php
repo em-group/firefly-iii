@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\Models\HubCompany;
 use FireflyIII\Http\Middleware\Whitelabel;
 use FireflyIII\Support\Http\Controllers\RequestInformation;
 use FireflyIII\Support\Http\Controllers\UserNavigation;
@@ -61,6 +62,15 @@ abstract class Controller extends BaseController
 
         // is webhooks enabled?
         app('view')->share('featuringWebhooks', true === config('firefly.feature_flags.webhooks') && true === config('firefly.allow_webhooks'));
+
+        // share company details to views
+        $domain = config('whitelabels.domain');
+        $whitelabel = \FireflyIII\Models\Whitelabel::where('domain', $domain)->first();
+        $company = null;
+        if(isset($whitelabel->company_id)){
+            $company = HubCompany::where('id', $whitelabel->company_id)->first();
+        }
+        app('view')->share('company', $company);
 
         // share custom auth guard info.
         $authGuard = config('firefly.authentication_guard');

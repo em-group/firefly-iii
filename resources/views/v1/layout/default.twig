@@ -140,11 +140,11 @@
             <a href="/#terms" target="_blank">Cookie Policy</a> ·
             <a href="/#terms" target="_blank">Refund & Cancellation Policy</a>
         </div>
-        <strong><a href="/">{{ config('app.name') }}</a></strong> · {{ config('whitelabels.company') }} ·
-        {{ config('whitelabels.address_line1') }} ·
-        {{ config('whitelabels.address_line2') }} ·
-        {{ config('whitelabels.address_line3') }} ·
-        {{ config('whitelabels.company_reg') }}
+        <strong><a href="/">{{ config('app.name') }}</a></strong> · {{ company.display_name ?: config('whitelabels.company') }} ·
+        {{ company.address_1 ?: config('whitelabels.address_line1') }} ·
+        {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line2') }} ·
+        {{ company.address_country ?: config('whitelabels.address_line3') }} ·
+        {{ company.registration_number ?: config('whitelabels.company_reg') }}
 {#        <small class="text-muted">&copy; James Cole, <a href="https://www.gnu.org/licenses/agpl-3.0.html">AGPL-3.0-or-later</a>.</small>#}
     </footer>
 
