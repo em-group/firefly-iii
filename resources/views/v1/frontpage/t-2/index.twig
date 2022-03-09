@@ -39,7 +39,7 @@
     <header>
         <div class="border-bottom">
             <div class="container pt-1 pb-1">
-                <small>{{ company.phone ?: config('whitelabels.phone') }}</small>
+                <small>{{ config('whitelabels.phone') }}</small>
                 <small class="pl-2 pl-sm-5"><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small>
             </div>
         </div>
@@ -324,7 +324,7 @@
                     <tr>
                         <td style="width:65px;"><div class="icon"><i class="fa fa-phone"></i></div></td>
                         <td>
-                            {{ company.phone ?: config('whitelabels.phone') }}<br>
+                            {{ config('whitelabels.phone') }}<br>
                             <em>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 (Central Europe timezone)</em>
                         </td>
                     </tr>
@@ -376,7 +376,7 @@
         <div class="row">
             <div class="col-md-4">
                 <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
-                <h4 class="mt-4 mb-0">{{ company.phone ?: config('whitelabels.phone') }}</h4>
+                <h4 class="mt-4 mb-0">{{ config('whitelabels.phone') }}</h4>
                 <small><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small><br>
                 <small>{{ company.display_name ?: config('whitelabels.company') }},
                 {{ company.address_1 ?: config('whitelabels.address_line1') }},
