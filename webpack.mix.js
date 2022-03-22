@@ -143,3 +143,6 @@ mix.copy('resources/assets/frontpage-templates/BPT/img/', 'public/fpt/BPT/img');
 // OBN
 mix.sass('resources/assets/frontpage-templates/OBN/sass/styles.scss', 'public/fpt/OBN/css');
 mix.copy('resources/assets/frontpage-templates/OBN/img/', 'public/fpt/OBN/img');
+// MBT
+mix.sass('resources/assets/frontpage-templates/MBT/sass/styles.scss', 'public/fpt/MBT/css');
+mix.copy('resources/assets/frontpage-templates/MBT/img/', 'public/fpt/MBT/img');
