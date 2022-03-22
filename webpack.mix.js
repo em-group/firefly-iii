@@ -146,3 +146,6 @@ mix.copy('resources/assets/frontpage-templates/OBN/img/', 'public/fpt/OBN/img');
 // MBT
 mix.sass('resources/assets/frontpage-templates/MBT/sass/styles.scss', 'public/fpt/MBT/css');
 mix.copy('resources/assets/frontpage-templates/MBT/img/', 'public/fpt/MBT/img');
+// BSh
+mix.sass('resources/assets/frontpage-templates/BSh/sass/styles.scss', 'public/fpt/BSh/css');
+mix.copy('resources/assets/frontpage-templates/BSh/img/', 'public/fpt/BSh/img');
