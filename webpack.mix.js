@@ -140,3 +140,6 @@ mix.copy('resources/assets/frontpage-templates/MBV/img/', 'public/fpt/MBV/img');
 // BPT
 mix.sass('resources/assets/frontpage-templates/BPT/sass/styles.scss', 'public/fpt/BPT/css');
 mix.copy('resources/assets/frontpage-templates/BPT/img/', 'public/fpt/BPT/img');
+// PB
+mix.sass('resources/assets/frontpage-templates/PB/sass/styles.scss', 'public/fpt/PB/css');
+mix.copy('resources/assets/frontpage-templates/PB/img/', 'public/fpt/PB/img');
