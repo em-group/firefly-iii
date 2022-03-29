@@ -152,3 +152,6 @@ mix.copy('resources/assets/frontpage-templates/BSh/img/', 'public/fpt/BSh/img');
 // PB
 mix.sass('resources/assets/frontpage-templates/PB/sass/styles.scss', 'public/fpt/PB/css');
 mix.copy('resources/assets/frontpage-templates/PB/img/', 'public/fpt/PB/img');
+// StB
+mix.sass('resources/assets/frontpage-templates/StB/sass/styles.scss', 'public/fpt/StB/css');
+mix.copy('resources/assets/frontpage-templates/StB/img/', 'public/fpt/StB/img');
