@@ -164,3 +164,6 @@ mix.copy('resources/assets/frontpage-templates/CB/img/', 'public/fpt/CB/img');
 // EXP
 mix.sass('resources/assets/frontpage-templates/EXP/sass/styles.scss', 'public/fpt/EXP/css');
 mix.copy('resources/assets/frontpage-templates/EXP/img/', 'public/fpt/EXP/img');
+// WFS
+mix.sass('resources/assets/frontpage-templates/WFS/sass/styles.scss', 'public/fpt/WFS/css');
+mix.copy('resources/assets/frontpage-templates/WFS/img/', 'public/fpt/WFS/img');
