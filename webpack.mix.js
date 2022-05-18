@@ -170,3 +170,6 @@ mix.copy('resources/assets/frontpage-templates/WFS/img/', 'public/fpt/WFS/img');
 // FOO
 mix.sass('resources/assets/frontpage-templates/FOO/sass/styles.scss', 'public/fpt/FOO/css');
 mix.copy('resources/assets/frontpage-templates/FOO/img/', 'public/fpt/FOO/img');
+// BBP
+mix.sass('resources/assets/frontpage-templates/BBP/sass/styles.scss', 'public/fpt/BBP/css');
+mix.copy('resources/assets/frontpage-templates/BBP/img/', 'public/fpt/BBP/img');
