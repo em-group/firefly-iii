@@ -28,7 +28,6 @@ use FireflyIII\Models\Attachment;
 use FireflyIII\Models\PiggyBank;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Contracts\Encryption\EncryptException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
@@ -58,8 +57,8 @@ class AttachmentHelper implements AttachmentHelperInterface
      */
     public function __construct()
     {
-        $this->maxUploadSize = (int)config('firefly.maxUploadSize');
-        $this->allowedMimes  = (array)config('firefly.allowedMimes');
+        $this->maxUploadSize = (int) config('firefly.maxUploadSize');
+        $this->allowedMimes  = (array) config('firefly.allowedMimes');
         $this->errors        = new MessageBag;
         $this->messages      = new MessageBag;
         $this->attachments   = new Collection;
@@ -77,15 +76,10 @@ class AttachmentHelper implements AttachmentHelperInterface
      */
     public function getAttachmentContent(Attachment $attachment): string
     {
-        $encryptedData = '';
-        try {
-            $encryptedData = $this->uploadDisk->get(sprintf('at-%d.data', $attachment->id));
-        } catch (FileNotFoundException $e) {
-            Log::error($e->getMessage());
-        }
+        $encryptedData = (string) $this->uploadDisk->get(sprintf('at-%d.data', $attachment->id));
         try {
             $unencryptedData = Crypt::decrypt($encryptedData); // verified
-        } catch (DecryptException | FileNotFoundException $e) {
+        } catch (DecryptException $e) {
             Log::error(sprintf('Could not decrypt data of attachment #%d: %s', $attachment->id, $e->getMessage()));
             $unencryptedData = $encryptedData;
         }
@@ -103,7 +97,7 @@ class AttachmentHelper implements AttachmentHelperInterface
      */
     public function getAttachmentLocation(Attachment $attachment): string
     {
-        return sprintf('%sat-%d.data', DIRECTORY_SEPARATOR, (int)$attachment->id);
+        return sprintf('%sat-%d.data', DIRECTORY_SEPARATOR, (int) $attachment->id);
     }
 
     /**
@@ -171,11 +165,14 @@ class AttachmentHelper implements AttachmentHelperInterface
         $allowedMime = config('firefly.allowedMimes');
         if (!in_array($mime, $allowedMime, true)) {
             Log::error(sprintf('Mime type %s is not allowed for API file upload.', $mime));
+            fclose($resource);
 
             return false;
         }
         // is allowed? Save the file, without encryption.
-        $this->uploadDisk->put($attachment->fileName(), $content);
+        $parts = explode('/', $attachment->fileName());
+        $file  = $parts[count($parts) - 1];
+        $this->uploadDisk->put($file, $content);
 
         // update attachment.
         $attachment->md5      = md5_file($path);
@@ -243,7 +240,6 @@ class AttachmentHelper implements AttachmentHelperInterface
             }
 
             $attachment = new Attachment; // create Attachment object.
-            /** @noinspection PhpUndefinedFieldInspection */
             $attachment->user()->associate($user);
             $attachment->attachable()->associate($model);
             $attachment->md5      = md5_file($file->getRealPath());
@@ -271,7 +267,7 @@ class AttachmentHelper implements AttachmentHelperInterface
             $this->attachments->push($attachment);
 
             $name = e($file->getClientOriginalName()); // add message:
-            $msg  = (string)trans('validation.file_attached', ['name' => $name]);
+            $msg  = (string) trans('validation.file_attached', ['name' => $name]);
             $this->messages->add('attachments', $msg);
         }
 
@@ -328,7 +324,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         $result = true;
 
         if (!in_array($mime, $this->allowedMimes, true)) {
-            $msg = (string)trans('validation.file_invalid_mime', ['name' => $name, 'mime' => $mime]);
+            $msg = (string) trans('validation.file_invalid_mime', ['name' => $name, 'mime' => $mime]);
             $this->errors->add('attachments', $msg);
             Log::error($msg);
 
@@ -353,7 +349,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         $name   = e($file->getClientOriginalName());
         $result = true;
         if ($size > $this->maxUploadSize) {
-            $msg = (string)trans('validation.file_too_large', ['name' => $name]);
+            $msg = (string) trans('validation.file_too_large', ['name' => $name]);
             $this->errors->add('attachments', $msg);
             Log::error($msg);
 
@@ -385,7 +381,7 @@ class AttachmentHelper implements AttachmentHelperInterface
         }
         $result = false;
         if ($count > 0) {
-            $msg = (string)trans('validation.file_already_attached', ['name' => $name]);
+            $msg = (string) trans('validation.file_already_attached', ['name' => $name]);
             $this->errors->add('attachments', $msg);
             Log::error($msg);
             $result = true;

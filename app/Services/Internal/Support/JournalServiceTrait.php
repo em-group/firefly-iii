@@ -63,9 +63,6 @@ trait JournalServiceTrait
         // some debug logging:
         Log::debug(sprintf('Now in getAccount(%s)', $direction), $data);
 
-        // final result:
-        $result = null;
-
         // expected type of source account, in order of preference
         /** @var array $array */
         $array         = config('firefly.expected_source_types');
@@ -74,14 +71,19 @@ trait JournalServiceTrait
 
         // and now try to find it, based on the type of transaction.
         $message = 'Based on the fact that the transaction is a %s, the %s account should be in: %s. Direction is %s.';
-        Log::debug(sprintf($message, $transactionType, $direction, implode(', ', $expectedTypes[$transactionType]), $direction));
+        Log::debug(sprintf($message, $transactionType, $direction, implode(', ', $expectedTypes[$transactionType] ?? ['UNKNOWN']), $direction));
 
+        Log::debug('Now searching by ID');
         $result = $this->findAccountById($data, $expectedTypes[$transactionType]);
-        $result = $this->findAccountByName($result, $data, $expectedTypes[$transactionType]);
+        Log::debug('If nothing is found, searching by IBAN');
         $result = $this->findAccountByIban($result, $data, $expectedTypes[$transactionType]);
+        Log::debug('If nothing is found, searching by number');
         $result = $this->findAccountByNumber($result, $data, $expectedTypes[$transactionType]);
+        Log::debug('If nothing is found, searching by name');
+        $result = $this->findAccountByName($result, $data, $expectedTypes[$transactionType]);
+        Log::debug('If nothing is found, create it.');
         $result = $this->createAccount($result, $data, $expectedTypes[$transactionType][0]);
-
+        Log::debug('If cant be created, return cash account.');
         return $this->getCashAccount($result, $data, $expectedTypes[$transactionType]);
     }
 
@@ -96,7 +98,7 @@ trait JournalServiceTrait
         $search = null;
         // first attempt, find by ID.
         if (null !== $data['id']) {
-            $search = $this->accountRepository->findNull((int) $data['id']);
+            $search = $this->accountRepository->find((int) $data['id']);
             if (null !== $search && in_array($search->accountType->type, $types, true)) {
                 Log::debug(
                     sprintf('Found "account_id" object: #%d, "%s" of type %s', $search->id, $search->name, $search->accountType->type)
@@ -105,33 +107,6 @@ trait JournalServiceTrait
         }
 
         return $search;
-    }
-
-    /**
-     * @param Account|null $account
-     * @param array        $data
-     * @param array        $types
-     *
-     * @return Account|null
-     */
-    private function findAccountByName(?Account $account, array $data, array $types): ?Account
-    {
-        // second attempt, find by name.
-        if (null === $account && null !== $data['name']) {
-            Log::debug('Found nothing by account ID.');
-            // find by preferred type.
-            $source = $this->accountRepository->findByName($data['name'], [$types[0]]);
-            // or any expected type.
-            $source = $source ?? $this->accountRepository->findByName($data['name'], $types);
-
-            if (null !== $source) {
-                Log::debug(sprintf('Found "account_name" object: #%d, %s', $source->id, $source->name));
-
-                $account = $source;
-            }
-        }
-
-        return $account;
     }
 
     /**
@@ -171,7 +146,7 @@ trait JournalServiceTrait
     private function findAccountByNumber(?Account $account, array $data, array $types): ?Account
     {
         // third attempt, find by account number
-        if (null === $account && null !== $data['number']) {
+        if (null === $account && null !== $data['number'] && '' !== (string) $data['number']) {
             Log::debug(sprintf('Searching for account number "%s".', $data['number']));
             // find by preferred type.
             $source = $this->accountRepository->findByAccountNumber((string) $data['number'], [$types[0]]);
@@ -192,9 +167,35 @@ trait JournalServiceTrait
     /**
      * @param Account|null $account
      * @param array        $data
+     * @param array        $types
+     *
+     * @return Account|null
+     */
+    private function findAccountByName(?Account $account, array $data, array $types): ?Account
+    {
+        // second attempt, find by name.
+        if (null === $account && null !== $data['name']) {
+            // find by preferred type.
+            $source = $this->accountRepository->findByName($data['name'], [$types[0]]);
+            // or any expected type.
+            $source = $source ?? $this->accountRepository->findByName($data['name'], $types);
+
+            if (null !== $source) {
+                Log::debug(sprintf('Found "account_name" object: #%d, %s', $source->id, $source->name));
+
+                $account = $source;
+            }
+        }
+
+        return $account;
+    }
+
+    /**
+     * @param Account|null $account
+     * @param array        $data
      * @param string       $preferredType
      *
-     * @return Account
+     * @return Account|null
      * @throws FireflyException
      */
     private function createAccount(?Account $account, array $data, string $preferredType): ?Account
@@ -204,7 +205,7 @@ trait JournalServiceTrait
         if (null !== $account) {
             Log::debug(
                 sprintf(
-                    'Was also given %s account #%d ("%s") so will simply return that.',
+                    'Was given %s account #%d ("%s") so will simply return that.',
                     $account->accountType->type, $account->id, $account->name
 
                 )
@@ -214,20 +215,20 @@ trait JournalServiceTrait
 
             // final attempt, create it.
             if (AccountType::ASSET === $preferredType) {
-                throw new FireflyException(sprintf('TransactionFactory: Cannot create asset account with these values: %s',json_encode($data)));
+                throw new FireflyException(sprintf('TransactionFactory: Cannot create asset account with these values: %s', json_encode($data)));
             }
             // fix name of account if only IBAN is given:
-            if ('' === (string)$data['name'] && '' !== (string)$data['iban']) {
+            if ('' === (string) $data['name'] && '' !== (string) $data['iban']) {
                 Log::debug(sprintf('Account name is now IBAN ("%s")', $data['iban']));
                 $data['name'] = $data['iban'];
             }
             // fix name of account if only number is given:
-            if ('' === (string)$data['name'] && '' !== (string)$data['number']) {
+            if ('' === (string) $data['name'] && '' !== (string) $data['number']) {
                 Log::debug(sprintf('Account name is now account number ("%s")', $data['number']));
                 $data['name'] = $data['number'];
             }
             // if name is still NULL, return NULL.
-            if(null === $data['name']) {
+            if (null === $data['name']) {
                 return null;
             }
             $data['name'] = $data['name'] ?? '(no name)';
@@ -302,7 +303,7 @@ trait JournalServiceTrait
     /**
      * @param string|null $amount
      *
-     * @return string
+     * @return string|null
      * @codeCoverageIgnore
      */
     protected function getForeignAmount(?string $amount): ?string
@@ -372,13 +373,13 @@ trait JournalServiceTrait
 
     /**
      * @param TransactionJournal $journal
-     * @param string             $notes
+     * @param string|null        $notes
      *
      * @codeCoverageIgnore
      */
     protected function storeNotes(TransactionJournal $journal, ?string $notes): void
     {
-        $notes = (string)$notes;
+        $notes = (string) $notes;
         $note  = $journal->notes()->first();
         if ('' !== $notes) {
             if (null === $note) {
@@ -405,7 +406,7 @@ trait JournalServiceTrait
      * Link tags to journal.
      *
      * @param TransactionJournal $journal
-     * @param array              $tags
+     * @param array|null         $tags
      *
      * @codeCoverageIgnore
      */
@@ -421,7 +422,7 @@ trait JournalServiceTrait
         }
         Log::debug('Start of loop.');
         foreach ($tags as $string) {
-            $string = (string)$string;
+            $string = (string) $string;
             Log::debug(sprintf('Now at tag "%s"', $string));
             if ('' !== $string) {
                 $tag = $this->tagFactory->findOrCreate($string);

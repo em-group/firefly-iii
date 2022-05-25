@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => '首頁',
+    'budgets'                => 'Budgets',
+    'subscriptions'          => 'Subscriptions',
+    'transactions'           => 'Transactions',
+    'title_expenses'         => 'Expenses',
+    'title_withdrawal'       => 'Expenses',
+    'title_revenue'          => 'Revenue / income',
+    'title_deposit'          => 'Revenue / income',
+    'title_transfer'         => 'Transfers',
+    'title_transfers'        => 'Transfers',
     'edit_currency'          => '編輯貨幣 ":name"',
     'delete_currency'        => '刪除貨幣 ":name"',
     'newPiggyBank'           => '創建一個新的小豬撲滿',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => '編輯標籤 ":tag"',
     'delete_tag'             => '刪除標籤 ":tag"',
     'delete_journal_link'    => '刪除交易記錄之間的連結',
-    'telemetry_index'        => '使用紀錄回傳 (telemetry)',
-    'telemetry_view'         => '檢視使用紀錄回傳',
     'edit_object_group'      => '編輯群組 ":title"',
     'delete_object_group'    => '刪除群組 ":title"',
-    'logout_others'          => '登出其他 sessions'
+    'logout_others'          => '登出其他 sessions',
+    'asset_accounts'         => 'Asset accounts',
+    'expense_accounts'       => 'Expense accounts',
+    'revenue_accounts'       => 'Revenue accounts',
+    'liabilities_accounts'   => 'Liabilities',
+    'placeholder'            => '[Placeholder]',
 ];

@@ -47,5 +47,8 @@ return [
     'tell_more'               => 'Řekněte nám více než "se objevilo Hups!"',
     'include_logs'            => 'Zahrnout protokoly chyb (viz výše).',
     'what_did_you_do'         => 'Řekněte nám, co jste dělali.',
+    'offline_header'          => 'Jste pravděpodobně offline',
+    'offline_unreachable'     => 'Firefly III je nedostupný. Vaše zařízení je momentálně offline nebo server nefunguje.',
+    'offline_github'          => 'Pokud jste si jisti, že jak vaše zařízení tak i server jsou dostupne online, vytvořte prosím ticket na <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

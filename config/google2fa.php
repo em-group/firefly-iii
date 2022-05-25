@@ -21,6 +21,8 @@
 
 declare(strict_types=1);
 
+use PragmaRX\Google2FALaravel\Support\Constants;
+
 return [
     /*
      * Auth container binding
@@ -76,7 +78,7 @@ return [
     /*
      * One Time Password View
      */
-    'view'                 => sprintf('%s.auth.mfa', env('FIREFLY_III_LAYOUT', 'v1')),
+    'view'                 => 'auth.mfa',
 
     /*
      * One Time Password error message
@@ -91,5 +93,7 @@ return [
     'throw_exceptions'     => true,
 
     'store_in_cookie' => true,
+
+    'qrcode_image_backend' => Constants::QRCODE_IMAGE_BACKEND_SVG,
 
 ];

@@ -41,8 +41,8 @@ interface LinkTypeRepositoryInterface
     public function countJournals(LinkType $linkType): int;
 
     /**
-     * @param LinkType $linkType
-     * @param LinkType $moveTo
+     * @param LinkType      $linkType
+     * @param LinkType|null $moveTo
      *
      * @return bool
      */
@@ -54,6 +54,13 @@ interface LinkTypeRepositoryInterface
      * @return bool
      */
     public function destroyLink(TransactionJournalLink $link): bool;
+
+    /**
+     * @param int $linkTypeId
+     *
+     * @return LinkType|null
+     */
+    public function find(int $linkTypeId): ?LinkType;
 
     /**
      * Find link type by name.
@@ -73,13 +80,6 @@ interface LinkTypeRepositoryInterface
      * @return bool
      */
     public function findLink(TransactionJournal $one, TransactionJournal $two): bool;
-
-    /**
-     * @param int $linkTypeId
-     *
-     * @return LinkType|null
-     */
-    public function findNull(int $linkTypeId): ?LinkType;
 
     /**
      * See if such a link already exists (and get it).
@@ -153,6 +153,13 @@ interface LinkTypeRepositoryInterface
      * @return bool
      */
     public function switchLink(TransactionJournalLink $link): bool;
+
+    /**
+     * @param int $linkId
+     *
+     * @return bool
+     */
+    public function switchLinkById(int $linkId): bool;
 
     /**
      * @param LinkType $linkType

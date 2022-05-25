@@ -26,7 +26,6 @@ namespace FireflyIII\Services\Internal\Destroy;
 use DB;
 use Exception;
 use FireflyIII\Models\Category;
-use Log;
 
 /**
  * Class CategoryDestroyService
@@ -47,9 +46,9 @@ class CategoryDestroyService
         }
 
         // also delete all relations between categories and transaction journals:
-        DB::table('category_transaction_journal')->where('category_id', (int)$category->id)->delete();
+        DB::table('category_transaction_journal')->where('category_id', (int) $category->id)->delete();
 
         // also delete all relations between categories and transactions:
-        DB::table('category_transaction')->where('category_id', (int)$category->id)->delete();
+        DB::table('category_transaction')->where('category_id', (int) $category->id)->delete();
     }
 }

@@ -84,7 +84,7 @@ class UpdateRequest extends FormRequest
             'notes',
         ];
 
-        $this->stringFields  = [
+        $this->convertStringFields  = [
             'type',
             'currency_code',
             'foreign_currency_code',
@@ -113,7 +113,7 @@ class UpdateRequest extends FormRequest
             'sepa_ep',
             'sepa_ci',
             'sepa_batch_id',
-            'external_uri',
+            'external_url',
         ];
         $this->booleanFields = [
             'reconciled',
@@ -129,8 +129,11 @@ class UpdateRequest extends FormRequest
         if ($this->has('apply_rules')) {
             $data['apply_rules'] = $this->boolean('apply_rules', true);
         }
+        if ($this->has('fire_webhooks')) {
+            $data['fire_webhooks'] = $this->boolean('fire_webhooks', true);
+        }
         if ($this->has('group_title')) {
-            $data['group_title'] = $this->string('group_title');
+            $data['group_title'] = $this->convertString('group_title');
         }
 
         return $data;
@@ -170,6 +173,7 @@ class UpdateRequest extends FormRequest
      * For each field, add it to the array if a reference is present in the request:
      *
      * @param array $current
+     * @param array $transaction
      *
      * @return array
      */
@@ -177,7 +181,7 @@ class UpdateRequest extends FormRequest
     {
         foreach ($this->integerFields as $fieldName) {
             if (array_key_exists($fieldName, $transaction)) {
-                $current[$fieldName] = $this->integerFromValue((string)$transaction[$fieldName]);
+                $current[$fieldName] = $this->integerFromValue((string) $transaction[$fieldName]);
             }
         }
 
@@ -192,9 +196,9 @@ class UpdateRequest extends FormRequest
      */
     private function getStringData(array $current, array $transaction): array
     {
-        foreach ($this->stringFields as $fieldName) {
+        foreach ($this->convertStringFields as $fieldName) {
             if (array_key_exists($fieldName, $transaction)) {
-                $current[$fieldName] = $this->clearString((string)$transaction[$fieldName], false);
+                $current[$fieldName] = $this->clearString((string) $transaction[$fieldName], false);
             }
         }
 
@@ -211,7 +215,7 @@ class UpdateRequest extends FormRequest
     {
         foreach ($this->textareaFields as $fieldName) {
             if (array_key_exists($fieldName, $transaction)) {
-                $current[$fieldName] = $this->clearString((string)$transaction[$fieldName]);
+                $current[$fieldName] = $this->clearString((string) $transaction[$fieldName]);
             }
         }
 
@@ -229,8 +233,8 @@ class UpdateRequest extends FormRequest
         foreach ($this->dateFields as $fieldName) {
             Log::debug(sprintf('Now at date field %s', $fieldName));
             if (array_key_exists($fieldName, $transaction)) {
-                Log::debug(sprintf('New value: "%s"', (string)$transaction[$fieldName]));
-                $current[$fieldName] = $this->dateFromValue((string)$transaction[$fieldName]);
+                Log::debug(sprintf('New value: "%s"', (string) $transaction[$fieldName]));
+                $current[$fieldName] = $this->dateFromValue((string) $transaction[$fieldName]);
             }
         }
 
@@ -247,7 +251,7 @@ class UpdateRequest extends FormRequest
     {
         foreach ($this->booleanFields as $fieldName) {
             if (array_key_exists($fieldName, $transaction)) {
-                $current[$fieldName] = $this->convertBoolean((string)$transaction[$fieldName]);
+                $current[$fieldName] = $this->convertBoolean((string) $transaction[$fieldName]);
             }
         }
 
@@ -280,72 +284,76 @@ class UpdateRequest extends FormRequest
     {
         return [
             // basic fields for group:
-            'group_title'                          => 'between:1,1000',
-            'apply_rules'                          => [new IsBoolean],
+            'group_title'                           => 'between:1,1000',
+            'apply_rules'                           => [new IsBoolean],
 
             // transaction rules (in array for splits):
-            'transactions.*.type'                  => 'in:withdrawal,deposit,transfer,opening-balance,reconciliation',
-            'transactions.*.date'                  => [new IsDateOrTime],
-            'transactions.*.order'                 => 'numeric|min:0',
+            'transactions.*.type'                   => 'in:withdrawal,deposit,transfer,opening-balance,reconciliation',
+            'transactions.*.date'                   => [new IsDateOrTime],
+            'transactions.*.order'                  => 'numeric|min:0',
+
+            // group id:
+            'transactions.*.transaction_journal_id' => ['nullable', 'numeric', new BelongsUser],
+
 
             // currency info
-            'transactions.*.currency_id'           => 'numeric|exists:transaction_currencies,id',
-            'transactions.*.currency_code'         => 'min:3|max:3|exists:transaction_currencies,code',
-            'transactions.*.foreign_currency_id'   => 'nullable|numeric|exists:transaction_currencies,id',
-            'transactions.*.foreign_currency_code' => 'nullable|min:3|max:3|exists:transaction_currencies,code',
+            'transactions.*.currency_id'            => 'numeric|exists:transaction_currencies,id',
+            'transactions.*.currency_code'          => 'min:3|max:3|exists:transaction_currencies,code',
+            'transactions.*.foreign_currency_id'    => 'nullable|numeric|exists:transaction_currencies,id',
+            'transactions.*.foreign_currency_code'  => 'nullable|min:3|max:3|exists:transaction_currencies,code',
 
             // amount
-            'transactions.*.amount'                => 'numeric|gt:0|max:100000000000',
-            'transactions.*.foreign_amount'        => 'nullable|numeric|gte:0',
+            'transactions.*.amount'                 => 'numeric|gt:0|max:100000000000',
+            'transactions.*.foreign_amount'         => 'nullable|numeric|gte:0',
 
             // description
-            'transactions.*.description'           => 'nullable|between:1,1000',
+            'transactions.*.description'            => 'nullable|between:1,1000',
 
             // source of transaction
-            'transactions.*.source_id'             => ['numeric', 'nullable', new BelongsUser],
-            'transactions.*.source_name'           => 'between:1,255|nullable',
+            'transactions.*.source_id'              => ['numeric', 'nullable', new BelongsUser],
+            'transactions.*.source_name'            => 'between:1,255|nullable',
 
             // destination of transaction
-            'transactions.*.destination_id'        => ['numeric', 'nullable', new BelongsUser],
-            'transactions.*.destination_name'      => 'between:1,255|nullable',
+            'transactions.*.destination_id'         => ['numeric', 'nullable', new BelongsUser],
+            'transactions.*.destination_name'       => 'between:1,255|nullable',
 
             // budget, category, bill and piggy
-            'transactions.*.budget_id'             => ['mustExist:budgets,id', new BelongsUser],
-            'transactions.*.budget_name'           => ['between:1,255', 'nullable', new BelongsUser],
-            'transactions.*.category_id'           => ['mustExist:categories,id', new BelongsUser],
-            'transactions.*.category_name'         => 'between:1,255|nullable',
-            'transactions.*.bill_id'               => ['numeric', 'nullable', 'mustExist:bills,id', new BelongsUser],
-            'transactions.*.bill_name'             => ['between:1,255', 'nullable', new BelongsUser],
+            'transactions.*.budget_id'              => ['mustExist:budgets,id', new BelongsUser],
+            'transactions.*.budget_name'            => ['between:1,255', 'nullable', new BelongsUser],
+            'transactions.*.category_id'            => ['mustExist:categories,id', new BelongsUser],
+            'transactions.*.category_name'          => 'between:1,255|nullable',
+            'transactions.*.bill_id'                => ['numeric', 'nullable', 'mustExist:bills,id', new BelongsUser],
+            'transactions.*.bill_name'              => ['between:1,255', 'nullable', new BelongsUser],
 
             // other interesting fields
-            'transactions.*.reconciled'            => [new IsBoolean],
-            'transactions.*.notes'                 => 'min:1,max:50000|nullable',
-            'transactions.*.tags'                  => 'between:0,255',
+            'transactions.*.reconciled'             => [new IsBoolean],
+            'transactions.*.notes'                  => 'min:1,max:50000|nullable',
+            'transactions.*.tags'                   => 'between:0,255',
 
             // meta info fields
-            'transactions.*.internal_reference'    => 'min:1,max:255|nullable',
-            'transactions.*.external_id'           => 'min:1,max:255|nullable',
-            'transactions.*.recurrence_id'         => 'min:1,max:255|nullable',
-            'transactions.*.bunq_payment_id'       => 'min:1,max:255|nullable',
-            'transactions.*.external_uri'          => 'min:1,max:255|nullable|url',
+            'transactions.*.internal_reference'     => 'min:1,max:255|nullable',
+            'transactions.*.external_id'            => 'min:1,max:255|nullable',
+            'transactions.*.recurrence_id'          => 'min:1,max:255|nullable',
+            'transactions.*.bunq_payment_id'        => 'min:1,max:255|nullable',
+            'transactions.*.external_url'           => 'min:1,max:255|nullable|url',
 
             // SEPA fields:
-            'transactions.*.sepa_cc'               => 'min:1,max:255|nullable',
-            'transactions.*.sepa_ct_op'            => 'min:1,max:255|nullable',
-            'transactions.*.sepa_ct_id'            => 'min:1,max:255|nullable',
-            'transactions.*.sepa_db'               => 'min:1,max:255|nullable',
-            'transactions.*.sepa_country'          => 'min:1,max:255|nullable',
-            'transactions.*.sepa_ep'               => 'min:1,max:255|nullable',
-            'transactions.*.sepa_ci'               => 'min:1,max:255|nullable',
-            'transactions.*.sepa_batch_id'         => 'min:1,max:255|nullable',
+            'transactions.*.sepa_cc'                => 'min:1,max:255|nullable',
+            'transactions.*.sepa_ct_op'             => 'min:1,max:255|nullable',
+            'transactions.*.sepa_ct_id'             => 'min:1,max:255|nullable',
+            'transactions.*.sepa_db'                => 'min:1,max:255|nullable',
+            'transactions.*.sepa_country'           => 'min:1,max:255|nullable',
+            'transactions.*.sepa_ep'                => 'min:1,max:255|nullable',
+            'transactions.*.sepa_ci'                => 'min:1,max:255|nullable',
+            'transactions.*.sepa_batch_id'          => 'min:1,max:255|nullable',
 
             // dates
-            'transactions.*.interest_date'         => 'date|nullable',
-            'transactions.*.book_date'             => 'date|nullable',
-            'transactions.*.process_date'          => 'date|nullable',
-            'transactions.*.due_date'              => 'date|nullable',
-            'transactions.*.payment_date'          => 'date|nullable',
-            'transactions.*.invoice_date'          => 'date|nullable',
+            'transactions.*.interest_date'          => 'date|nullable',
+            'transactions.*.book_date'              => 'date|nullable',
+            'transactions.*.process_date'           => 'date|nullable',
+            'transactions.*.due_date'               => 'date|nullable',
+            'transactions.*.payment_date'           => 'date|nullable',
+            'transactions.*.invoice_date'           => 'date|nullable',
         ];
     }
 
@@ -366,10 +374,13 @@ class UpdateRequest extends FormRequest
                 $this->validateJournalIds($validator, $transactionGroup);
 
                 // all transaction types must be equal:
-                $this->validateTransactionTypesForUpdate($validator, $transactionGroup);
+                $this->validateTransactionTypesForUpdate($validator);
 
                 // validate source/destination is equal, depending on the transaction journal type.
                 $this->validateEqualAccountsForUpdate($validator, $transactionGroup);
+
+                // a catch when users submit splits with no source or destination info at all.
+                $this->preventNoAccountInfo($validator,);
 
                 // validate that the currency fits the source and/or destination account.
                 // validate all account info

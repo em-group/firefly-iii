@@ -49,7 +49,7 @@
   "support": {
     "email": "james@firefly-iii.org",
     "issues": "https://github.com/firefly-iii/firefly-iii/issues",
-    "forum": "https://reddit.com/r/FireflyIII",
+    "forum": "https://gitter.im/firefly-iii/firefly-iii",
     "wiki": "https://github.com/firefly-iii/help/wiki",
     "source": "https://github.com/firefly-iii/firefly-iii",
     "docs": "https://docs.firefly-iii.org/"
@@ -62,66 +62,61 @@
     {
       "type": "github",
       "url": "https://github.com/sponsors/JC5"
-    },
-    {
-      "type": "paypal",
-      "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L62W7DVD5ETPC&source=url"
     }
   ],
   "require": {
-    "php": ">=7.4.0|^8.0",
+    "php": ">=8",
     "ext-bcmath": "*",
     "ext-curl": "*",
     "ext-fileinfo": "*",
-    "ext-gd": "*",
+    "ext-iconv": "*",
     "ext-intl": "*",
     "ext-json": "*",
+    "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-pdo": "*",
     "ext-session": "*",
     "ext-simplexml": "*",
+    "ext-sodium": "*",
     "ext-tokenizer": "*",
     "ext-xml": "*",
+    "ext-xmlwriter": "*",
     "bacon/bacon-qr-code": "2.*",
-    "diglactic/laravel-breadcrumbs": "^6.0",
     "em-group/global-lib": "^1.1",
+    "diglactic/laravel-breadcrumbs": "^7.1",
     "doctrine/dbal": "3.*",
-    "fideloper/proxy": "4.*",
     "gdbots/query-parser": "^2.0",
-    "guzzlehttp/guzzle": "^7.2",
-    "jc5/google2fa-laravel": "2.0.5",
+    "guzzlehttp/guzzle": "^7.4",
+    "jc5/google2fa-laravel": "^2.0",
     "jc5/recovery": "^2",
-    "laravel/framework": "^8.0",
+    "laravel/framework": "^9",
     "laravel/passport": "10.*",
-    "laravel/ui": "^3.0",
+    "laravel/sanctum": "^2.14",
+    "laravel/ui": "^3.4",
     "laravelcollective/html": "6.*",
-    "league/commonmark": "1.*",
-    "league/csv": "^9.6",
+    "league/commonmark": "2.*",
+    "league/csv": "^9.7",
     "league/fractal": "0.*",
     "sentry/sentry-laravel": "^2",
+    "nunomaduro/collision": "^6.1",
     "pragmarx/google2fa": "^8.0",
     "predis/predis": "^1.1",
-    "ramsey/uuid": "^4.1",
-    "rcrowe/twigbridge": "^0.12.1",
-    "spatie/data-transfer-object": "^2.8"
+    "psr/log": "<4",
+    "ramsey/uuid": "^4.3",
+    "rcrowe/twigbridge": "^0.14",
+    "spatie/data-transfer-object": "^3.7",
+    "spatie/laravel-ignition": "^1.2",
+    "symfony/http-client": "^6.0",
+    "symfony/mailgun-mailer": "^6.0"
   },
   "require-dev": {
-    "barryvdh/laravel-debugbar": "^3.3",
     "barryvdh/laravel-ide-helper": "2.*",
-    "ergebnis/phpstan-rules": "^0.15.0",
     "filp/whoops": "2.*",
     "fakerphp/faker": "1.*",
     "mockery/mockery": "1.*",
-    "nunomaduro/larastan": "^0.7.0",
-    "phpstan/phpstan": "^0.12.34",
-    "phpstan/phpstan-deprecation-rules": "^0.12.5",
-    "phpunit/phpunit": "^9.2",
-    "roave/security-advisories": "dev-master",
-    "thecodingmachine/phpstan-strict-rules": "^0.12.0"
+    "phpunit/phpunit": "^9.5"
   },
   "suggest": {
-    "adldap2/adldap2-laravel": "If you want to login using LDAP.",
-    "ext-ldap": "Needed to support LDAP."
   },
   "autoload": {
     "files": [
@@ -161,7 +156,6 @@
       "@php artisan cache:clear",
       "@php artisan firefly-iii:fix-pgsql-sequences",
       "@php artisan firefly-iii:decrypt-all",
-
       "@php artisan firefly-iii:transaction-identifiers",
       "@php artisan firefly-iii:migrate-to-groups",
       "@php artisan firefly-iii:account-currencies",
@@ -177,7 +171,8 @@
       "@php artisan firefly-iii:migrate-recurrence-meta",
       "@php artisan firefly-iii:migrate-tag-locations",
       "@php artisan firefly-iii:migrate-recurrence-type",
-
+      "@php artisan firefly-iii:upgrade-liabilities",
+      "@php artisan firefly-iii:create-group-memberships",
       "@php artisan firefly-iii:fix-piggies",
       "@php artisan firefly-iii:create-link-types",
       "@php artisan firefly-iii:create-access-tokens",
@@ -198,22 +193,27 @@
       "@php artisan firefly-iii:unify-group-accounts",
       "@php artisan firefly-iii:fix-transaction-types",
       "@php artisan firefly-iii:fix-frontpage-accounts",
-
+      "@php artisan firefly-iii:fix-ibans",
       "@php artisan firefly-iii:report-empty-objects",
       "@php artisan firefly-iii:report-sum",
       "@php artisan firefly-iii:restore-oauth-keys",
       "@php artisan firefly-iii:set-latest-version --james-is-cool",
       "@php artisan firefly:instructions update",
+      "@php artisan firefly-iii:verify-security-alerts",
       "@php artisan passport:install"
     ],
     "post-install-cmd": [
-      "@php artisan firefly:instructions install"
+      "@php artisan firefly:instructions install",
+      "@php artisan firefly-iii:verify-security-alerts"
     ]
   },
   "config": {
     "preferred-install": "dist",
     "sort-packages": true,
-    "optimize-autoloader": true
+    "optimize-autoloader": true,
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true
+    }
   },
   "repositories": {
     "local": {

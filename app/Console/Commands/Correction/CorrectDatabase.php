@@ -69,6 +69,7 @@ class CorrectDatabase extends Command
             'firefly-iii:delete-empty-journals',
             'firefly-iii:delete-empty-groups',
             'firefly-iii:fix-account-types',
+            'firefly-iii:fix-ibans',
             'firefly-iii:fix-account-order',
             'firefly-iii:rename-meta-fields',
             'firefly-iii:fix-ob-currencies',
@@ -76,7 +77,7 @@ class CorrectDatabase extends Command
             'firefly-iii:fix-recurring-transactions',
             'firefly-iii:restore-oauth-keys',
             'firefly-iii:fix-transaction-types',
-            'firefly-iii:fix-frontpage-accounts'
+            'firefly-iii:fix-frontpage-accounts',
         ];
         foreach ($commands as $command) {
             $this->line(sprintf('Now executing %s', $command));

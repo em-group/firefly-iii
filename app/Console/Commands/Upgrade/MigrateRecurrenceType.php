@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\RecurrenceTransaction;
 use FireflyIII\Models\TransactionType;
@@ -52,6 +53,7 @@ class MigrateRecurrenceType extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws FireflyException
      */
     public function handle(): int
     {
@@ -74,15 +76,18 @@ class MigrateRecurrenceType extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
-        return false; 
+        return false;
     }
 
     /**
@@ -101,7 +106,7 @@ class MigrateRecurrenceType extends Command
 
     private function migrateRecurrence(Recurrence $recurrence): void
     {
-        $originalType                    = (int)$recurrence->transaction_type_id;
+        $originalType                    = (int) $recurrence->transaction_type_id;
         $newType                         = $this->getInvalidType();
         $recurrence->transaction_type_id = $newType->id;
         $recurrence->save();

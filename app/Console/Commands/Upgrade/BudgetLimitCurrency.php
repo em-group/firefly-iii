@@ -23,9 +23,10 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
-use FireflyIII\Models\Budget;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\BudgetLimit;
 use Illuminate\Console\Command;
+use JsonException;
 
 /**
  * Class BudgetLimitCurrency
@@ -50,6 +51,8 @@ class BudgetLimitCurrency extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws FireflyException
+     * @throws JsonException
      */
     public function handle(): int
     {
@@ -67,7 +70,6 @@ class BudgetLimitCurrency extends Command
         /** @var BudgetLimit $budgetLimit */
         foreach ($budgetLimits as $budgetLimit) {
             if (null === $budgetLimit->transaction_currency_id) {
-                /** @var Budget $budget */
                 $budget = $budgetLimit->budget;
                 if (null !== $budget) {
                     $user = $budget->user;
@@ -96,15 +98,18 @@ class BudgetLimitCurrency extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
-        return false; 
+        return false;
     }
 
     /**

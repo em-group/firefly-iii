@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Middleware;
 
 use Closure;
-use DaveJamesMiller\Breadcrumbs\BreadcrumbsManager;
+use Diglactic\Breadcrumbs\Breadcrumbs as BreadcrumbsManager;
 use EM\Hub\Library\SubProducts;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\User;

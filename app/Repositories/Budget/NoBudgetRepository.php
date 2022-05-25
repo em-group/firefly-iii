@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Repositories\Budget;
+
 use Carbon\Carbon;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\TransactionCurrency;
@@ -60,7 +61,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
 
         /** @var array $journal */
         foreach ($journals as $journal) {
-            $currencyId = (int)$journal['currency_id'];
+            $currencyId = (int) $journal['currency_id'];
 
             $data[$currencyId] = $data[$currencyId] ?? [
                     'id'                      => 0,
@@ -132,12 +133,12 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
             /** @var TransactionCurrency $currency */
             $currency = $currencies[$code];
             $return[] = [
-                'currency_id'             => (string)$currency['id'],
+                'currency_id'             => (string) $currency['id'],
                 'currency_code'           => $code,
                 'currency_name'           => $currency['name'],
                 'currency_symbol'         => $currency['symbol'],
                 'currency_decimal_places' => $currency['decimal_places'],
-                'amount'                  => number_format((float)$spent, $currency['decimal_places'], '.', ''),
+                'amount'                  => number_format((float) $spent, $currency['decimal_places'], '.', ''),
             ];
         }
 
@@ -146,8 +147,8 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
 
     /** @noinspection MoreThanThreeArgumentsInspection */
     /**
-     * TODO this method does not include foreign amount transactions. It only sums up "amount".
-     * TODO this probably also applies to the other "sumExpenses" methods.
+     * See reference nr. 15
+     * See reference nr. 16
      *
      * @param Carbon                   $start
      * @param Carbon                   $end
@@ -175,7 +176,7 @@ class NoBudgetRepository implements NoBudgetRepositoryInterface
         $array    = [];
 
         foreach ($journals as $journal) {
-            $currencyId                = (int)$journal['currency_id'];
+            $currencyId                = (int) $journal['currency_id'];
             $array[$currencyId]        = $array[$currencyId] ?? [
                     'sum'                     => '0',
                     'currency_id'             => $currencyId,

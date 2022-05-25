@@ -28,6 +28,11 @@ use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\ObjectGroupFormRequest;
 use FireflyIII\Models\ObjectGroup;
 use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepositoryInterface;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 
 /**
  * Class EditController
@@ -48,7 +53,7 @@ class EditController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-envelope-o');
-                app('view')->share('title', (string)trans('firefly.object_groups_page_title'));
+                app('view')->share('title', (string) trans('firefly.object_groups_page_title'));
 
                 $this->repository = app(ObjectGroupRepositoryInterface::class);
 
@@ -61,18 +66,20 @@ class EditController extends Controller
      * Edit an object group.
      *
      * @param ObjectGroup $objectGroup
+     *
+     * @return Factory|View
      */
     public function edit(ObjectGroup $objectGroup)
     {
-        $subTitle     = (string)trans('firefly.edit_object_group', ['title' => $objectGroup->title]);
+        $subTitle     = (string) trans('firefly.edit_object_group', ['title' => $objectGroup->title]);
         $subTitleIcon = 'fa-pencil';
 
         if (true !== session('object-groups.edit.fromUpdate')) {
-            $this->rememberPreviousUri('object-groups.edit.uri');
+            $this->rememberPreviousUrl('object-groups.edit.url');
         }
         session()->forget('object-groups.edit.fromUpdate');
 
-        return prefixView('object-groups.edit', compact('subTitle', 'subTitleIcon', 'objectGroup'));
+        return view('object-groups.edit', compact('subTitle', 'subTitleIcon', 'objectGroup'));
     }
 
     /**
@@ -80,18 +87,20 @@ class EditController extends Controller
      *
      * @param ObjectGroupFormRequest $request
      * @param ObjectGroup            $objectGroup
+     *
+     * @return Application|RedirectResponse|Redirector
      */
     public function update(ObjectGroupFormRequest $request, ObjectGroup $objectGroup)
     {
         $data      = $request->getObjectGroupData();
         $piggyBank = $this->repository->update($objectGroup, $data);
 
-        session()->flash('success', (string)trans('firefly.updated_object_group', ['title' => $objectGroup->title]));
+        session()->flash('success', (string) trans('firefly.updated_object_group', ['title' => $objectGroup->title]));
         app('preferences')->mark();
 
-        $redirect = redirect($this->getPreviousUri('object-groups.edit.uri'));
+        $redirect = redirect($this->getPreviousUrl('object-groups.edit.url'));
 
-        if (1 === (int)$request->get('return_to_edit')) {
+        if (1 === (int) $request->get('return_to_edit')) {
 
             session()->put('object-groups.edit.fromUpdate', true);
 

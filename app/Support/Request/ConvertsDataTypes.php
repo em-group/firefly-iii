@@ -25,7 +25,6 @@ namespace FireflyIII\Support\Request;
 
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidFormatException;
-use Exception;
 use Log;
 
 /**
@@ -34,6 +33,30 @@ use Log;
 trait ConvertsDataTypes
 {
     /**
+     * Return integer value.
+     *
+     * @param string $field
+     *
+     * @return int
+     */
+    public function integer(string $field): int
+    {
+        return (int) $this->get($field);
+    }
+
+    /**
+     * Return string value.
+     *
+     * @param string $field
+     *
+     * @return string
+     */
+    public function convertString(string $field): string
+    {
+        return $this->clearString((string) ($this->get($field) ?? ''), false);
+    }
+
+    /**
      * @param string|null $string
      * @param bool        $keepNewlines
      *
@@ -41,7 +64,7 @@ trait ConvertsDataTypes
      */
     public function clearString(?string $string, bool $keepNewlines = true): ?string
     {
-        if(null === $string) {
+        if (null === $string) {
             return null;
         }
         $search       = [
@@ -100,30 +123,6 @@ trait ConvertsDataTypes
     }
 
     /**
-     * Return integer value.
-     *
-     * @param string $field
-     *
-     * @return int
-     */
-    public function integer(string $field): int
-    {
-        return (int)$this->get($field);
-    }
-
-    /**
-     * Return string value.
-     *
-     * @param string $field
-     *
-     * @return string
-     */
-    public function string(string $field): string
-    {
-        return $this->clearString((string)($this->get($field) ?? ''), false);
-    }
-
-    /**
      * Return string value with newlines.
      *
      * @param string $field
@@ -132,7 +131,7 @@ trait ConvertsDataTypes
      */
     public function stringWithNewlines(string $field): string
     {
-        return $this->clearString((string)($this->get($field) ?? ''));
+        return $this->clearString((string) ($this->get($field) ?? ''));
     }
 
     /**
@@ -156,7 +155,7 @@ trait ConvertsDataTypes
     }
 
     /**
-     * @param string $value
+     * @param string|null $value
      *
      * @return bool
      */
@@ -179,28 +178,6 @@ trait ConvertsDataTypes
         }
 
         return false;
-    }
-
-    /**
-     * Return date or NULL.
-     *
-     * @param string $field
-     *
-     * @return Carbon|null
-     */
-    protected function date(string $field): ?Carbon
-    {
-        $result = null;
-        try {
-            $result = $this->get($field) ? new Carbon($this->get($field)) : null;
-        } catch (InvalidFormatException $e) {
-            // @ignoreException
-        }
-        if (null === $result) {
-            Log::debug(sprintf('Exception when parsing date "%s".', $this->get($field)));
-        }
-
-        return $result;
     }
 
     /**
@@ -246,7 +223,7 @@ trait ConvertsDataTypes
             return null;
         }
 
-        return (float)$res;
+        return (float) $res;
     }
 
     /**
@@ -271,6 +248,28 @@ trait ConvertsDataTypes
     }
 
     /**
+     * Return date or NULL.
+     *
+     * @param string $field
+     *
+     * @return Carbon|null
+     */
+    protected function getCarbonDate(string $field): ?Carbon
+    {
+        $result = null;
+        try {
+            $result = $this->get($field) ? new Carbon($this->get($field)) : null;
+        } catch (InvalidFormatException $e) {
+            // @ignoreException
+        }
+        if (null === $result) {
+            Log::debug(sprintf('Exception when parsing date "%s".', $this->get($field)));
+        }
+
+        return $result;
+    }
+
+    /**
      * Parse to integer
      *
      * @param string|null $string
@@ -286,7 +285,7 @@ trait ConvertsDataTypes
             return null;
         }
 
-        return (int)$string;
+        return (int) $string;
     }
 
     /**
@@ -302,12 +301,12 @@ trait ConvertsDataTypes
             return null;
         }
 
-        $value = (string)$this->get($field);
+        $value = (string) $this->get($field);
         if ('' === $value) {
             return null;
         }
 
-        return (int)$value;
+        return (int) $value;
     }
 
 }

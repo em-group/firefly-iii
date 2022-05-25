@@ -74,7 +74,7 @@ class DoubleController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgExpenses(Collection $accounts, Collection $doubles, Carbon $start, Carbon $end)
     {
@@ -100,8 +100,8 @@ class DoubleController extends Controller
                     ];
                 $result[$key]['transactions']++;
                 $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                $result[$key]['avg_float'] = (float) $result[$key]['avg'];
             }
         }
         // sort by amount_float
@@ -110,7 +110,7 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.double.partials.avg-expenses', compact('result'))->render();
+            $result = view('reports.double.partials.avg-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -126,7 +126,7 @@ class DoubleController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgIncome(Collection $accounts, Collection $doubles, Carbon $start, Carbon $end)
     {
@@ -152,8 +152,8 @@ class DoubleController extends Controller
                     ];
                 $result[$key]['transactions']++;
                 $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                $result[$key]['avg_float'] = (float) $result[$key]['avg'];
             }
         }
         // sort by amount_float
@@ -162,7 +162,7 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.double.partials.avg-income', compact('result'))->render();
+            $result = view('reports.double.partials.avg-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -288,11 +288,11 @@ class DoubleController extends Controller
             }
         }
 
-        return prefixView('reports.double.partials.accounts', compact('sums', 'report'));
+        return view('reports.double.partials.accounts', compact('sums', 'report'));
     }
 
     /**
-     * TODO this method is double.
+     * See reference nr. 67
      *
      * @param Collection  $accounts
      * @param int         $id
@@ -413,7 +413,7 @@ class DoubleController extends Controller
             }
         }
 
-        return prefixView('reports.double.partials.accounts-per-asset', compact('sums', 'report'));
+        return view('reports.double.partials.accounts-per-asset', compact('sums', 'report'));
     }
 
     /**
@@ -422,7 +422,7 @@ class DoubleController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topExpenses(Collection $accounts, Collection $doubles, Carbon $start, Carbon $end)
     {
@@ -435,9 +435,9 @@ class DoubleController extends Controller
                 $result[] = [
                     'description'              => $journal['description'],
                     'transaction_group_id'     => $journal['transaction_group_id'],
-                    'amount_float'             => (float)$journal['amount'],
+                    'amount_float'             => (float) $journal['amount'],
                     'amount'                   => $journal['amount'],
-                    'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                    'date'                     => $journal['date']->isoFormat($this->monthAndDayFormat),
                     'date_sort'                => $journal['date']->format('Y-m-d'),
                     'destination_account_name' => $journal['destination_account_name'],
                     'destination_account_id'   => $journal['destination_account_id'],
@@ -456,7 +456,7 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.double.partials.top-expenses', compact('result'))->render();
+            $result = view('reports.double.partials.top-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -472,7 +472,7 @@ class DoubleController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topIncome(Collection $accounts, Collection $doubles, Carbon $start, Carbon $end)
     {
@@ -485,9 +485,9 @@ class DoubleController extends Controller
                 $result[] = [
                     'description'              => $journal['description'],
                     'transaction_group_id'     => $journal['transaction_group_id'],
-                    'amount_float'             => (float)$journal['amount'],
+                    'amount_float'             => (float) $journal['amount'],
                     'amount'                   => $journal['amount'],
-                    'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                    'date'                     => $journal['date']->isoFormat($this->monthAndDayFormat),
                     'date_sort'                => $journal['date']->format('Y-m-d'),
                     'destination_account_name' => $journal['destination_account_name'],
                     'destination_account_id'   => $journal['destination_account_id'],
@@ -506,7 +506,7 @@ class DoubleController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.double.partials.top-income', compact('result'))->render();
+            $result = view('reports.double.partials.top-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));

@@ -22,20 +22,21 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Form;
+
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Repositories\PiggyBank\PiggyBankRepositoryInterface;
 
 /**
  * Class PiggyBankForm
  *
- * TODO cleanup and describe.
+ * See reference nr. 27
  */
 class PiggyBankForm
 {
     use FormSupport;
 
     /**
-     * TODO cleanup and describe.
+     * See reference nr. 28
      *
      * @param string     $name
      * @param mixed      $value
@@ -49,7 +50,7 @@ class PiggyBankForm
         /** @var PiggyBankRepositoryInterface $repository */
         $repository = app(PiggyBankRepositoryInterface::class);
         $piggyBanks = $repository->getPiggyBanksWithAmount();
-        $title      = (string)trans('firefly.default_group_title_name');
+        $title      = (string) trans('firefly.default_group_title_name');
         $array      = [];
         $subList    = [
             0 => [
@@ -57,7 +58,7 @@ class PiggyBankForm
                     'title' => $title,
                 ],
                 'piggies' => [
-                    (string)trans('firefly.none_in_select_list'),
+                    (string) trans('firefly.none_in_select_list'),
                 ],
             ],
         ];

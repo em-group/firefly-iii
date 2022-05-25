@@ -33,22 +33,39 @@ use Log;
 trait DepositValidation
 {
     /**
-     * @param int|null $accountId
-     * @param mixed    $accountName
+     * @param array $accountTypes
      *
      * @return bool
      */
-    protected function validateDepositDestination(?int $accountId, $accountName): bool
+    abstract protected function canCreateTypes(array $accountTypes): bool;
+
+    /**
+     * @param array $validTypes
+     * @param array $data
+     *
+     * @return Account|null
+     */
+    abstract protected function findExistingAccount(array $validTypes, array $data): ?Account;
+
+    /**
+     * @param array $array
+     *
+     * @return bool
+     */
+    protected function validateDepositDestination(array $array): bool
     {
-        $result = null;
-        Log::debug(sprintf('Now in validateDepositDestination(%d, "%s")', $accountId, $accountName));
+        $result      = null;
+        $accountId   = array_key_exists('id', $array) ? $array['id'] : null;
+        $accountName = array_key_exists('name', $array) ? $array['name'] : null;
+
+        Log::debug('Now in validateDepositDestination', $array);
 
         // source can be any of the following types.
         $validTypes = $this->combinations[$this->transactionType][$this->source->accountType->type] ?? [];
         if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
             // if both values are NULL we return false,
             // because the destination of a deposit can't be created.
-            $this->destError = (string)trans('validation.deposit_dest_need_data');
+            $this->destError = (string) trans('validation.deposit_dest_need_data');
             Log::error('Both values are NULL, cant create deposit destination.');
             $result = false;
         }
@@ -60,10 +77,10 @@ trait DepositValidation
 
         if (null === $result) {
             // otherwise try to find the account:
-            $search = $this->findExistingAccount($validTypes, (int)$accountId, (string)$accountName);
+            $search = $this->findExistingAccount($validTypes, $array);
             if (null === $search) {
                 Log::debug('findExistingAccount() returned NULL, so the result is false.');
-                $this->destError = (string)trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
+                $this->destError = (string) trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
                 $result          = false;
             }
             if (null !== $search) {
@@ -73,36 +90,23 @@ trait DepositValidation
             }
         }
         $result = $result ?? false;
-        Log::debug(sprintf('validateDepositDestination(%d, "%s") will return %s', $accountId, $accountName, var_export($result, true)));
+        Log::debug(sprintf('validateDepositDestination will return %s', var_export($result, true)));
 
         return $result;
     }
 
     /**
-     * @param array $accountTypes
+     * @param array $array
      *
      * @return bool
      */
-    abstract protected function canCreateTypes(array $accountTypes): bool;
-
-    /**
-     * @param array  $validTypes
-     * @param int    $accountId
-     * @param string $accountName
-     *
-     * @return Account|null
-     */
-    abstract protected function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account;
-
-    /**
-     * @param int|null    $accountId
-     * @param string|null $accountName
-     *
-     * @return bool
-     */
-    protected function validateDepositSource(?int $accountId, ?string $accountName): bool
+    protected function validateDepositSource(array $array): bool
     {
-        Log::debug(sprintf('Now in validateDepositSource(%d, "%s")', $accountId, $accountName));
+        $accountId     = array_key_exists('id', $array) ? $array['id'] : null;
+        $accountName   = array_key_exists('name', $array) ? $array['name'] : null;
+        $accountIban   = array_key_exists('iban', $array) ? $array['iban'] : null;
+        $accountNumber = array_key_exists('number', $array) ? $array['number'] : null;
+        Log::debug('Now in validateDepositSource', $array);
         $result = null;
         // source can be any of the following types.
         $validTypes = array_keys($this->combinations[$this->transactionType]);
@@ -110,16 +114,36 @@ trait DepositValidation
             // if both values are NULL return false,
             // because the source of a deposit can't be created.
             // (this never happens).
-            $this->sourceError = (string)trans('validation.deposit_source_need_data');
+            $this->sourceError = (string) trans('validation.deposit_source_need_data');
             $result            = false;
         }
 
-        // if the user submits an ID only but that ID is not of the correct type,
+        // if the user submits an ID, but that ID is not of the correct type,
         // return false.
-        if (null !== $accountId && null === $accountName) {
-            $search = $this->accountRepository->findNull($accountId);
+        if (null !== $accountId) {
+            $search = $this->accountRepository->find($accountId);
             if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {
-                Log::debug(sprintf('User submitted only an ID (#%d), which is a "%s", so this is not a valid source.', $accountId, $search->accountType->type));
+                Log::debug(sprintf('User submitted an ID (#%d), which is a "%s", so this is not a valid source.', $accountId, $search->accountType->type));
+                $result = false;
+            }
+        }
+
+        // if user submits an IBAN:
+        if (null !== $accountIban) {
+            $search = $this->accountRepository->findByIbanNull($accountIban, $validTypes);
+            if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {
+                Log::debug(sprintf('User submitted IBAN ("%s"), which is a "%s", so this is not a valid source.', $accountIban, $search->accountType->type));
+                $result = false;
+            }
+        }
+
+        // if user submits a number:
+        if (null !== $accountNumber) {
+            $search = $this->accountRepository->findByAccountNumber($accountNumber, $validTypes);
+            if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {
+                Log::debug(
+                    sprintf('User submitted number ("%s"), which is a "%s", so this is not a valid source.', $accountNumber, $search->accountType->type)
+                );
                 $result = false;
             }
         }

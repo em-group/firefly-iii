@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers\Models\RuleGroup;
 
+use Exception;
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Models\RuleGroup\TestRequest;
 use FireflyIII\Api\V1\Requests\Models\RuleGroup\TriggerRequest;
@@ -34,10 +35,8 @@ use FireflyIII\Transformers\TransactionGroupTransformer;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Collection;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
-use Exception;
 
 /**
  * Class TriggerController
@@ -68,6 +67,9 @@ class TriggerController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/rule_groups/testRuleGroup
+     *
      * @param TestRequest $request
      * @param RuleGroup   $group
      *
@@ -77,7 +79,6 @@ class TriggerController extends Controller
      */
     public function testGroup(TestRequest $request, RuleGroup $group): JsonResponse
     {
-        /** @var Collection $rules */
         $rules = $this->ruleGroupRepository->getActiveRules($group);
         if (0 === $rules->count()) {
             throw new FireflyException('200023: No rules in this rule group.');
@@ -122,6 +123,9 @@ class TriggerController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/rule_groups/fireRuleGroup
+     *
      * Execute the given rule group on a set of existing transactions.
      *
      * @param TriggerRequest $request
@@ -132,7 +136,6 @@ class TriggerController extends Controller
      */
     public function triggerGroup(TriggerRequest $request, RuleGroup $group): JsonResponse
     {
-        /** @var Collection $rules */
         $rules = $this->ruleGroupRepository->getActiveRules($group);
         if (0 === $rules->count()) {
             throw new FireflyException('200023: No rules in this rule group.');

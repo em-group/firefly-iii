@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers\Json;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Account;
@@ -35,6 +36,7 @@ use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 use Throwable;
 
@@ -61,7 +63,7 @@ class ReconcileController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string)trans('firefly.accounts'));
+                app('view')->share('title', (string) trans('firefly.accounts'));
                 $this->repository    = app(JournalRepositoryInterface::class);
                 $this->accountRepos  = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -74,21 +76,27 @@ class ReconcileController extends Controller
     /**
      * Overview of reconciliation.
      *
-     * @param Request $request
-     * @param Account $account
-     * @param Carbon  $start
-     * @param Carbon  $end
+     * @param Request      $request
+     * @param Account|null $account
+     * @param Carbon|null  $start
+     * @param Carbon|null  $end
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      */
-    public function overview(Request $request, Account $account, Carbon $start, Carbon $end): JsonResponse
+    public function overview(Request $request, Account $account = null, Carbon $start = null, Carbon $end = null): JsonResponse
     {
         $startBalance    = $request->get('startBalance');
         $endBalance      = $request->get('endBalance');
         $accountCurrency = $this->accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
         $amount          = '0';
         $clearedAmount   = '0';
+        $route           = '';
 
+        if (null === $start && null === $end) {
+            throw new FireflyException('Invalid dates submitted.');
+        }
         if ($end->lt($start)) {
             [$start, $end] = [$end, $start];
         }
@@ -135,7 +143,7 @@ class ReconcileController extends Controller
         $reconSum = bcadd(bcadd($startBalance, $amount), $clearedAmount);
 
         try {
-            $view = prefixView(
+            $view = view(
                 'accounts.reconcile.overview',
                 compact(
                     'account',
@@ -160,7 +168,7 @@ class ReconcileController extends Controller
         }
 
         $return = [
-            'post_uri' => $route,
+            'post_url' => $route,
             'html'     => $view,
         ];
 
@@ -210,15 +218,19 @@ class ReconcileController extends Controller
     /**
      * Returns a list of transactions in a modal.
      *
-     * @param Account $account
-     * @param Carbon  $start
-     * @param Carbon  $end
+     * @param Account     $account
+     * @param Carbon|null $start
+     * @param Carbon|null $end
      *
-     * @return mixed
-     *
+     * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      */
-    public function transactions(Account $account, Carbon $start, Carbon $end)
+    public function transactions(Account $account, Carbon $start = null, Carbon $end = null)
     {
+        if (null === $start || null === $end) {
+            throw new FireflyException('Invalid dates submitted.');
+        }
         if ($end->lt($start)) {
             [$end, $start] = [$start, $end];
         }
@@ -226,8 +238,8 @@ class ReconcileController extends Controller
         $startDate->subDay();
 
         $currency     = $this->accountRepos->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
-        $startBalance = round((float)app('steam')->balance($account, $startDate), $currency->decimal_places);
-        $endBalance   = round((float)app('steam')->balance($account, $end), $currency->decimal_places);
+        $startBalance = round((float) app('steam')->balance($account, $startDate), $currency->decimal_places);
+        $endBalance   = round((float) app('steam')->balance($account, $end), $currency->decimal_places);
 
         // get the transactions
         $selectionStart = clone $start;
@@ -246,7 +258,7 @@ class ReconcileController extends Controller
         $journals = $this->processTransactions($account, $array);
 
         try {
-            $html = prefixView(
+            $html = view(
                 'accounts.reconcile.transactions',
                 compact('account', 'journals', 'currency', 'start', 'end', 'selectionStart', 'selectionEnd')
             )->render();
@@ -255,6 +267,7 @@ class ReconcileController extends Controller
             Log::debug(sprintf('Could not render: %s', $e->getMessage()));
             $html = sprintf('Could not render accounts.reconcile.transactions: %s', $e->getMessage());
         }
+
         return response()->json(['html' => $html, 'startBalance' => $startBalance, 'endBalance' => $endBalance]);
     }
 

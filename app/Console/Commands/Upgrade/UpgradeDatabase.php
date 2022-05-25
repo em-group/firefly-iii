@@ -74,6 +74,8 @@ class UpgradeDatabase extends Command
             'firefly-iii:migrate-recurrence-meta',
             'firefly-iii:migrate-tag-locations',
             'firefly-iii:migrate-recurrence-type',
+            'firefly-iii:upgrade-liabilities',
+            'firefly-iii:create-group-memberships',
 
             // there are 16 verify commands.
             'firefly-iii:fix-piggies',
@@ -96,6 +98,7 @@ class UpgradeDatabase extends Command
             'firefly-iii:unify-group-accounts',
             'firefly-iii:fix-transaction-types',
             'firefly-iii:fix-frontpage-accounts',
+            'firefly-iii:fix-ibans',
 
             // two report commands
             'firefly-iii:report-empty-objects',
@@ -104,6 +107,7 @@ class UpgradeDatabase extends Command
 
             // instructions
             'firefly:instructions update',
+            'firefly-iii:verify-security-alerts',
         ];
         $args     = [];
         if ($this->option('force')) {
@@ -116,9 +120,9 @@ class UpgradeDatabase extends Command
             echo $result;
         }
         // set new DB version.
-        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
+        app('fireflyconfig')->set('db_version', (int) config('firefly.db_version'));
         // index will set FF3 version.
-        app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
+        app('fireflyconfig')->set('ff3_version', (string) config('firefly.version'));
 
         return 0;
     }
@@ -137,11 +141,6 @@ class UpgradeDatabase extends Command
 
         $this->line('Now decrypting the database (if necessary)...');
         Artisan::call('firefly-iii:decrypt-all');
-        $result = Artisan::output();
-        echo $result;
-
-        $this->line('Now installing OAuth2 keys...');
-        Artisan::call('passport:install');
         $result = Artisan::output();
         echo $result;
 

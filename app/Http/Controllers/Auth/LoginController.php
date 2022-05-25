@@ -22,20 +22,24 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
 
-use Adldap;
 use Cookie;
 use DB;
+use FireflyIII\Events\ActuallyLoggedIn;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Providers\RouteServiceProvider;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Foundation\Auth\ThrottlesLogins;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Routing\Redirector;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
 use Log;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class LoginController
@@ -48,14 +52,16 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class LoginController extends Controller
 {
-    use AuthenticatesUsers;
+    use AuthenticatesUsers, ThrottlesLogins;
 
     /**
      * Where to redirect users after login.
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::HOME;
+    protected string $redirectTo = RouteServiceProvider::HOME;
+
+    private string $username;
 
     /**
      * Create a new controller instance.
@@ -65,6 +71,7 @@ class LoginController extends Controller
     public function __construct()
     {
         parent::__construct();
+        $this->username = 'email';
         $this->middleware('guest')->except('logout');
     }
 
@@ -73,21 +80,18 @@ class LoginController extends Controller
      *
      * @param Request $request
      *
-     * @return RedirectResponse|\Illuminate\Http\Response|JsonResponse
+     * @return JsonResponse|RedirectResponse
      *
      * @throws ValidationException
      */
     public function login(Request $request)
     {
-        Log::channel('audit')->info(sprintf('User is trying to login using "%s"', $request->get('email')));
-        Log::info(sprintf('User is trying to login.'));
-        if ('ldap' === config('auth.providers.users.driver')) {
-            /** @var Adldap\Connections\Provider $provider */
-            Adldap::getProvider('default'); // @phpstan-ignore-line
-        }
+        Log::channel('audit')->info(sprintf('User is trying to login using "%s"', $request->get($this->username())));
+        Log::info('User is trying to login.');
 
         Log::info('Validating login');
         $this->validateLogin($request);
+        Log::debug('Login data is valid.');
 
         /** Copied directly from AuthenticatesUsers, but with logging added: */
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
@@ -95,7 +99,8 @@ class LoginController extends Controller
         // the IP address of the client making these requests into this application.
         Log::info('checkign for hasTooManyLoginAttempts');
         if (method_exists($this, 'hasTooManyLoginAttempts') && $this->hasTooManyLoginAttempts($request)) {
-            Log::channel('audit')->info(sprintf('Login for user "%s" was locked out.', $request->get('email')));
+            Log::channel('audit')->info(sprintf('Login for user "%s" was locked out.', $request->get($this->username())));
+            Log::error(sprintf('Login for user "%s" was locked out.', $request->get($this->username())));
             $this->fireLockoutEvent($request);
 
             $this->sendLockoutResponse($request);
@@ -105,10 +110,14 @@ class LoginController extends Controller
         /** Copied directly from AuthenticatesUsers, but with logging added: */
         try {
             if ($this->attemptLogin($request)) {
-                Log::channel('audit')->info(sprintf('User "%s" has been logged in.', $request->get('email')));
+                Log::channel('audit')->info(sprintf('User "%s" has been logged in.', $request->get($this->username())));
                 Log::debug(sprintf('Redirect after login is %s.', $this->redirectPath()));
 
                 // if you just logged in, it can't be that you have a valid 2FA cookie.
+
+                // send a custom login event because laravel will also fire a login event if a "remember me"-cookie
+            // restores the event.
+            event(new ActuallyLoggedIn($this->guard()->user()));
 
                 return $this->sendLoginResponse($request);
             }
@@ -116,6 +125,7 @@ class LoginController extends Controller
             Log::debug($ex->getMessage().PHP_EOL.$ex->getTraceAsString());
             throw $ex;
         }
+        Log::warning('Login attempt failed.');
 
         /** Copied directly from AuthenticatesUsers, but with logging added: */
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -123,7 +133,7 @@ class LoginController extends Controller
         // user surpasses their maximum number of attempts they will get locked out.
         Log::info('incrementLoginAttempts');
         $this->incrementLoginAttempts($request);
-        Log::channel('audit')->info(sprintf('Login failed. Attempt for user "%s" failed.', $request->get('email')));
+        Log::channel('audit')->info(sprintf('Login failed. Attempt for user "%s" failed.', $request->get($this->username())));
 
         Log::info('setPreviousUrl');
         // Make sure we properly go directly back to the login page, to properly display errors
@@ -136,20 +146,51 @@ class LoginController extends Controller
     }
 
     /**
+     * Get the login username to be used by the controller.
+     *
+     * @return string
+     */
+    public function username()
+    {
+        return $this->username;
+    }
+
+    /**
+     * Get the failed login response instance.
+     *
+     * @param Request $request
+     *
+     * @return void
+     *
+     * @throws ValidationException
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        $exception             = ValidationException::withMessages(
+            [
+                $this->username() => [trans('auth.failed')],
+            ]
+        );
+        $exception->redirectTo = route('login');
+
+        throw $exception;
+    }
+
+    /**
      * Log the user out of the application.
      *
      * @param Request $request
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function logout(Request $request)
     {
         $authGuard = config('firefly.authentication_guard');
-        $logoutUri = config('firefly.custom_logout_uri');
-        if ('remote_user_guard' === $authGuard && '' !== $logoutUri) {
-            return redirect($logoutUri);
+        $logoutUrl = config('firefly.custom_logout_url');
+        if ('remote_user_guard' === $authGuard && '' !== $logoutUrl) {
+            return redirect($logoutUrl);
         }
-        if ('remote_user_guard' === $authGuard && '' === $logoutUri) {
+        if ('remote_user_guard' === $authGuard && '' === $logoutUrl) {
             session()->flash('error', trans('firefly.cant_logout_guard'));
         }
 
@@ -168,7 +209,7 @@ class LoginController extends Controller
         }
 
         return $request->wantsJson()
-            ? new \Illuminate\Http\Response('', 204)
+            ? new Response('', 204)
             : redirect('/');
     }
 
@@ -178,43 +219,28 @@ class LoginController extends Controller
     }
 
     /**
-     * Get the failed login response instance.
+     * Show the application's login form.
      *
      * @param Request $request
      *
-     * @return Response
-     *
-     * @throws ValidationException
-     */
-    protected function sendFailedLoginResponse(Request $request)
-    {
-        $exception             = ValidationException::withMessages(
-            [
-                $this->username() => [trans('auth.failed')],
-            ]
-        );
-        $exception->redirectTo = route('login');
-
-        throw $exception;
-    }
-
-    /**
-     * Show the application's login form.
-     *
-     * @return Factory|\Illuminate\Http\Response|View
+     * @return Factory|Application|View|Redirector|RedirectResponse
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function showLoginForm(Request $request)
     {
         Log::channel('audit')->info('Show login form (1.1).');
 
-        $count         = DB::table('users')->count();
-        $loginProvider = config('firefly.login_provider');
-        $title         = (string)trans('firefly.login_page_title');
-        if (0 === $count && 'eloquent' === $loginProvider) {
-            return redirect(route('register')); 
+        $count = DB::table('users')->count();
+        $guard = config('auth.defaults.guard');
+        $title = (string) trans('firefly.login_page_title');
+
+        if (0 === $count && 'web' === $guard) {
+            return redirect(route('register'));
         }
 
-        // is allowed to?
+        // is allowed to register, etc.
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $allowRegistration = true;
         $allowReset        = true;
@@ -223,7 +249,7 @@ class LoginController extends Controller
         }
 
         // single user mode is ignored when the user is not using eloquent:
-        if ('eloquent' !== $loginProvider) {
+        if ('web' !== $guard) {
             $allowRegistration = false;
             $allowReset        = false;
         }
@@ -236,8 +262,8 @@ class LoginController extends Controller
             $cookieName = config('google2fa.cookie_name', 'google2fa_token');
             request()->cookies->set($cookieName, 'invalid');
         }
+        $usernameField = $this->username();
 
-        return prefixView('auth.login', compact('allowRegistration', 'email', 'remember', 'allowReset', 'title'));
+        return view('auth.login', compact('allowRegistration', 'email', 'remember', 'allowReset', 'title', 'usernameField'));
     }
-
 }

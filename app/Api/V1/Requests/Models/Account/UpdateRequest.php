@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Requests\Models\Account;
 
+use FireflyIII\Models\Account;
 use FireflyIII\Models\Location;
 use FireflyIII\Rules\IsBoolean;
 use FireflyIII\Rules\UniqueAccountNumber;
@@ -32,6 +33,7 @@ use FireflyIII\Support\Request\AppendsLocationData;
 use FireflyIII\Support\Request\ChecksLogin;
 use FireflyIII\Support\Request\ConvertsDataTypes;
 use Illuminate\Foundation\Http\FormRequest;
+use Log;
 
 /**
  * Class UpdateRequest
@@ -48,35 +50,43 @@ class UpdateRequest extends FormRequest
     public function getUpdateData(): array
     {
         $fields = [
-            'name'                    => ['name', 'string'],
+            'name'                    => ['name', 'convertString'],
             'active'                  => ['active', 'boolean'],
             'include_net_worth'       => ['include_net_worth', 'boolean'],
-            'account_type_name'       => ['type', 'string'],
-            'virtual_balance'         => ['virtual_balance', 'string'],
-            'iban'                    => ['iban', 'string'],
-            'BIC'                     => ['bic', 'string'],
-            'account_number'          => ['account_number', 'string'],
-            'account_role'            => ['account_role', 'string'],
-            'liability_type'          => ['liability_type', 'string'],
-            'opening_balance'         => ['opening_balance', 'string'],
+            'account_type_name'       => ['type', 'convertString'],
+            'virtual_balance'         => ['virtual_balance', 'convertString'],
+            'iban'                    => ['iban', 'convertString'],
+            'BIC'                     => ['bic', 'convertString'],
+            'account_number'          => ['account_number', 'convertString'],
+            'account_role'            => ['account_role', 'convertString'],
+            'liability_type'          => ['liability_type', 'convertString'],
+            'opening_balance'         => ['opening_balance', 'convertString'],
             'opening_balance_date'    => ['opening_balance_date', 'date'],
-            'cc_type'                 => ['credit_card_type', 'string'],
-            'cc_monthly_payment_date' => ['monthly_payment_date', 'string'],
+            'cc_type'                 => ['credit_card_type', 'convertString'],
+            'cc_monthly_payment_date' => ['monthly_payment_date', 'convertString'],
             'notes'                   => ['notes', 'stringWithNewlines'],
-            'interest'                => ['interest', 'string'],
-            'interest_period'         => ['interest_period', 'string'],
+            'interest'                => ['interest', 'convertString'],
+            'interest_period'         => ['interest_period', 'convertString'],
             'order'                   => ['order', 'integer'],
             'currency_id'             => ['currency_id', 'integer'],
-            'currency_code'           => ['currency_code', 'string'],
+            'currency_code'           => ['currency_code', 'convertString'],
+            'liability_direction'     => ['liability_direction', 'convertString'],
+            'liability_amount'        => ['liability_amount', 'convertString'],
+            'liability_start_date'    => ['liability_start_date', 'date'],
         ];
-        $data   = $this->getAllData($fields);
-        $data   = $this->appendLocationData($data, null);
+        /** @var Account $account */
+        $account = $this->route()->parameter('account');
+        $data    = $this->getAllData($fields);
+        $data    = $this->appendLocationData($data, null);
+        $valid   = config('firefly.valid_liabilities');
+        if (array_key_exists('liability_amount', $data) && in_array($account->accountType->type, $valid, true)) {
+            $data['opening_balance'] = app('steam')->negative($data['liability_amount']);
+            Log::debug(sprintf('Opening balance for liability is "%s".', $data['opening_balance']));
+        }
 
-        if (array_key_exists('account_type_name', $data) && 'liability' === $data['account_type_name']) {
-            $data['opening_balance']      = bcmul($this->string('liability_amount'), '-1');
-            $data['opening_balance_date'] = $this->date('liability_start_date');
-            $data['account_type_name']    = $this->string('liability_type');
-            $data['account_type_id']      = null;
+        if (array_key_exists('liability_start_date', $data) && in_array($account->accountType->type, $valid, true)) {
+            $data['opening_balance_date'] = $data['liability_start_date'];
+            Log::debug(sprintf('Opening balance date for liability is "%s".', $data['opening_balance_date']));
         }
 
         return $data;
@@ -97,9 +107,9 @@ class UpdateRequest extends FormRequest
         $rules = [
             'name'                 => sprintf('min:1|uniqueAccountForUser:%d', $account->id),
             'type'                 => sprintf('in:%s', $types),
-            'iban'                 => ['iban', 'nullable', new UniqueIban($account, $this->string('type'))],
+            'iban'                 => ['iban', 'nullable', new UniqueIban($account, $this->convertString('type'))],
             'bic'                  => 'bic|nullable',
-            'account_number'       => ['between:1,255', 'nullable', new UniqueAccountNumber($account, $this->string('type'))],
+            'account_number'       => ['between:1,255', 'nullable', new UniqueAccountNumber($account, $this->convertString('type'))],
             'opening_balance'      => 'numeric|required_with:opening_balance_date|nullable',
             'opening_balance_date' => 'date|required_with:opening_balance|nullable',
             'virtual_balance'      => 'numeric|nullable',
@@ -112,6 +122,7 @@ class UpdateRequest extends FormRequest
             'credit_card_type'     => sprintf('in:%s|nullable|required_if:account_role,ccAsset', $ccPaymentTypes),
             'monthly_payment_date' => 'date' . '|nullable|required_if:account_role,ccAsset|required_if:credit_card_type,monthlyFull',
             'liability_type'       => 'required_if:type,liability|in:loan,debt,mortgage',
+            'liability_direction'  => 'required_if:type,liability|in:credit,debit',
             'interest'             => 'required_if:type,liability|between:0,100|numeric',
             'interest_period'      => 'required_if:type,liability|in:daily,monthly,yearly',
             'notes'                => 'min:0|max:65536',

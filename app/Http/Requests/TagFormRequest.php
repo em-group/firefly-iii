@@ -44,9 +44,9 @@ class TagFormRequest extends FormRequest
     public function collectTagData(): array
     {
         $data = [
-            'tag'         => $this->string('tag'),
-            'date'        => $this->date('date'),
-            'description' => $this->string('description'),
+            'tag'         => $this->convertString('tag'),
+            'date'        => $this->getCarbonDate('date'),
+            'description' => $this->convertString('description'),
         ];
 
         return $this->appendLocationData($data, 'location');

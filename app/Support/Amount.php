@@ -23,10 +23,12 @@ declare(strict_types=1);
 namespace FireflyIII\Support;
 
 use Crypt;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\User;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Collection;
+use JsonException;
 use NumberFormatter;
 
 /**
@@ -49,7 +51,7 @@ class Amount
      */
     public function formatAnything(TransactionCurrency $format, string $amount, bool $coloured = null): string
     {
-        return $this->formatFlat($format->symbol, (int)$format->decimal_places, $amount, $coloured);
+        return $this->formatFlat($format->symbol, (int) $format->decimal_places, $amount, $coloured);
     }
 
     /**
@@ -63,6 +65,7 @@ class Amount
      *
      * @return string
      *
+     * @throws FireflyException
      * @noinspection MoreThanThreeArgumentsInspection
      */
     public function formatFlat(string $symbol, int $decimalPlaces, string $amount, bool $coloured = null): string
@@ -75,7 +78,7 @@ class Amount
         $fmt->setSymbol(NumberFormatter::CURRENCY_SYMBOL, $symbol);
         $fmt->setAttribute(NumberFormatter::MIN_FRACTION_DIGITS, $decimalPlaces);
         $fmt->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, $decimalPlaces);
-        $result = $fmt->format((float)$amount);
+        $result = $fmt->format((float) $amount);
 
         if (true === $coloured) {
             if ($amount > 0) {
@@ -109,13 +112,16 @@ class Amount
 
     /**
      * @return string
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getCurrencyCode(): string
     {
         $cache = new CacheProperties;
         $cache->addProperty('getCurrencyCode');
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         $currencyPreference = app('preferences')->get('currencyPreference', config('firefly.default_currency', 'EUR'));
 
@@ -127,11 +133,13 @@ class Amount
         }
         $cache->store(config('firefly.default_currency', 'EUR'));
 
-        return (string)config('firefly.default_currency', 'EUR');
+        return (string) config('firefly.default_currency', 'EUR');
     }
 
     /**
      * @return TransactionCurrency
+     * @throws FireflyException
+     * @throws JsonException
      */
     public function getDefaultCurrency(): TransactionCurrency
     {
@@ -145,6 +153,7 @@ class Amount
      * @param User $user
      *
      * @return TransactionCurrency
+     * @throws FireflyException
      */
     public function getDefaultCurrencyByUser(User $user): TransactionCurrency
     {
@@ -152,18 +161,15 @@ class Amount
         $cache->addProperty('getDefaultCurrency');
         $cache->addProperty($user->id);
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         $currencyPreference = app('preferences')->getForUser($user, 'currencyPreference', config('firefly.default_currency', 'EUR'));
         $currencyPrefStr    = $currencyPreference ? $currencyPreference->data : 'EUR';
 
         // at this point the currency preference could be encrypted, if coming from an old version.
-        $currencyCode = $this->tryDecrypt((string)$currencyPrefStr);
+        $currencyCode = $this->tryDecrypt((string) $currencyPrefStr);
 
         // could still be json encoded:
-        if (strlen($currencyCode) > 3) {
-            $currencyCode = json_decode($currencyCode, true, 512, JSON_THROW_ON_ERROR) ?? 'EUR';
-        }
         /** @var TransactionCurrency|null $currency */
         $currency = TransactionCurrency::where('code', $currencyCode)->first();
         if (null === $currency) {
@@ -218,6 +224,7 @@ class Amount
 
     /**
      * @return array
+     * @throws FireflyException
      */
     private function getLocaleInfo(): array
     {

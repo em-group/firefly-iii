@@ -34,6 +34,7 @@ use FireflyIII\Support\Report\Category\CategoryReportGenerator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
+use JsonException;
 use Log;
 use Throwable;
 
@@ -161,7 +162,7 @@ class CategoryController extends Controller
             }
         }
 
-        return prefixView('reports.category.partials.account-per-category', compact('report', 'categories'));
+        return view('reports.category.partials.account-per-category', compact('report', 'categories'));
     }
 
     /**
@@ -265,7 +266,7 @@ class CategoryController extends Controller
             }
         }
 
-        return prefixView('reports.category.partials.accounts', compact('sums', 'report'));
+        return view('reports.category.partials.accounts', compact('sums', 'report'));
     }
 
     /**
@@ -274,7 +275,7 @@ class CategoryController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgExpenses(Collection $accounts, Collection $categories, Carbon $start, Carbon $end)
     {
@@ -299,8 +300,8 @@ class CategoryController extends Controller
                         ];
                     $result[$key]['transactions']++;
                     $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                    $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                    $result[$key]['avg_float'] = (float) $result[$key]['avg'];
                 }
             }
         }
@@ -310,7 +311,7 @@ class CategoryController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.category.partials.avg-expenses', compact('result'))->render();
+            $result = view('reports.category.partials.avg-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -326,7 +327,7 @@ class CategoryController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgIncome(Collection $accounts, Collection $categories, Carbon $start, Carbon $end)
     {
@@ -351,8 +352,8 @@ class CategoryController extends Controller
                         ];
                     $result[$key]['transactions']++;
                     $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                    $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                    $result[$key]['avg_float'] = (float) $result[$key]['avg'];
                 }
             }
         }
@@ -362,7 +363,7 @@ class CategoryController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.category.partials.avg-income', compact('result'))->render();
+            $result = view('reports.category.partials.avg-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -477,7 +478,7 @@ class CategoryController extends Controller
             }
         }
 
-        return prefixView('reports.category.partials.categories', compact('sums', 'report'));
+        return view('reports.category.partials.categories', compact('sums', 'report'));
     }
 
     /**
@@ -488,6 +489,7 @@ class CategoryController extends Controller
      * @param Carbon     $end
      *
      * @return mixed|string
+     * @throws JsonException
      */
     public function expenses(Collection $accounts, Carbon $start, Carbon $end)
     {
@@ -497,7 +499,7 @@ class CategoryController extends Controller
         $cache->addProperty('category-period-expenses-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         // depending on the carbon format (a reliable way to determine the general date difference)
@@ -546,7 +548,7 @@ class CategoryController extends Controller
         $report = $data;
 
         try {
-            $result = prefixView('reports.partials.category-period', compact('report', 'periods'))->render();
+            $result = view('reports.partials.category-period', compact('report', 'periods'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render category::expenses: %s', $e->getMessage()));
@@ -568,6 +570,7 @@ class CategoryController extends Controller
      * @param Carbon     $end
      *
      * @return string
+     * @throws JsonException
      */
     public function income(Collection $accounts, Carbon $start, Carbon $end): string
     {
@@ -577,7 +580,7 @@ class CategoryController extends Controller
         $cache->addProperty('category-period-income-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         // depending on the carbon format (a reliable way to determine the general date difference)
@@ -625,7 +628,7 @@ class CategoryController extends Controller
         $report = $data;
 
         try {
-            $result = prefixView('reports.partials.category-period', compact('report', 'periods'))->render();
+            $result = view('reports.partials.category-period', compact('report', 'periods'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render category::expenses: %s', $e->getMessage()));
@@ -645,10 +648,9 @@ class CategoryController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return mixed|string
-     *
+     * @return string
      */
-    public function operations(Collection $accounts, Carbon $start, Carbon $end)
+    public function operations(Collection $accounts, Carbon $start, Carbon $end): string
     {
         // chart properties for cache:
         $cache = new CacheProperties;
@@ -657,7 +659,7 @@ class CategoryController extends Controller
         $cache->addProperty('category-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         /** @var CategoryReportGenerator $generator */
@@ -670,12 +672,13 @@ class CategoryController extends Controller
 
 
         try {
-            $result = prefixView('reports.partials.categories', compact('report'))->render();
+            $result = (string) view('reports.partials.categories', compact('report'))->render();
             $cache->store($result);
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render category::expenses: %s', $e->getMessage()));
             $result = sprintf('An error prevented Firefly III from rendering: %s. Apologies.', $e->getMessage());
         }
+
         return $result;
     }
 
@@ -685,7 +688,7 @@ class CategoryController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topExpenses(Collection $accounts, Collection $categories, Carbon $start, Carbon $end)
     {
@@ -697,9 +700,9 @@ class CategoryController extends Controller
                     $result[] = [
                         'description'              => $journal['description'],
                         'transaction_group_id'     => $journal['transaction_group_id'],
-                        'amount_float'             => (float)$journal['amount'],
+                        'amount_float'             => (float) $journal['amount'],
                         'amount'                   => $journal['amount'],
-                        'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date'                     => $journal['date']->isoFormat($this->monthAndDayFormat),
                         'date_sort'                => $journal['date']->format('Y-m-d'),
                         'destination_account_name' => $journal['destination_account_name'],
                         'destination_account_id'   => $journal['destination_account_id'],
@@ -719,7 +722,7 @@ class CategoryController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.category.partials.top-expenses', compact('result'))->render();
+            $result = view('reports.category.partials.top-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -735,7 +738,7 @@ class CategoryController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topIncome(Collection $accounts, Collection $categories, Carbon $start, Carbon $end)
     {
@@ -747,9 +750,9 @@ class CategoryController extends Controller
                     $result[] = [
                         'description'             => $journal['description'],
                         'transaction_group_id'    => $journal['transaction_group_id'],
-                        'amount_float'            => (float)$journal['amount'],
+                        'amount_float'            => (float) $journal['amount'],
                         'amount'                  => $journal['amount'],
-                        'date'                    => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date'                    => $journal['date']->isoFormat($this->monthAndDayFormat),
                         'date_sort'               => $journal['date']->format('Y-m-d'),
                         'source_account_name'     => $journal['source_account_name'],
                         'source_account_id'       => $journal['source_account_id'],
@@ -769,7 +772,7 @@ class CategoryController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.category.partials.top-income', compact('result'))->render();
+            $result = view('reports.category.partials.top-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));

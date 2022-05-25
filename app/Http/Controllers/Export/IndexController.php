@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Export;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
@@ -31,7 +32,6 @@ use FireflyIII\Support\Export\ExportDataGenerator;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Response as LaravelResponse;
 use Illuminate\View\View;
-use League\Csv\CannotInsertRecord;
 
 /**
  * Class IndexController
@@ -54,7 +54,7 @@ class IndexController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-life-bouy');
-                app('view')->share('title', (string)trans('firefly.export_data_title'));
+                app('view')->share('title', (string) trans('firefly.export_data_title'));
                 $this->journalRepository = app(JournalRepositoryInterface::class);
                 $this->middleware(IsDemoUser::class)->except(['index']);
 
@@ -65,7 +65,7 @@ class IndexController extends Controller
 
     /**
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function export(): LaravelResponse
     {
@@ -89,7 +89,7 @@ class IndexController extends Controller
         $quoted = sprintf('"%s"', addcslashes($name, '"\\'));
         // headers for CSV file.
         /** @var LaravelResponse $response */
-        $response = response($result['transactions'], 200);
+        $response = response($result['transactions']);
         $response
             ->header('Content-Description', 'File Transfer')
             ->header('Content-Type', 'text/x-csv')
@@ -110,7 +110,7 @@ class IndexController extends Controller
      */
     public function index()
     {
-        return prefixView('export.index');
+        return view('export.index');
     }
 
 }

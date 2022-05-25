@@ -30,7 +30,6 @@ use FireflyIII\Models\WebhookAttempt;
 use FireflyIII\Models\WebhookMessage;
 use FireflyIII\Repositories\Webhook\WebhookRepositoryInterface;
 use FireflyIII\Transformers\WebhookAttemptTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -62,9 +61,14 @@ class AttemptController extends Controller
     }
 
     /**
-     * @param Webhook $webhook
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/webhooks/getWebhookMessageAttempts
+     *
+     * @param Webhook        $webhook
+     * @param WebhookMessage $message
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function index(Webhook $webhook, WebhookMessage $message): JsonResponse
     {
@@ -73,7 +77,7 @@ class AttemptController extends Controller
         }
 
         $manager    = $this->getManager();
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getAttempts($message);
         $count      = $collection->count();
         $attempts   = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
@@ -93,6 +97,9 @@ class AttemptController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/webhooks/getSingleWebhookMessageAttempt
+     *
      * Show single instance.
      *
      * @param Webhook        $webhook

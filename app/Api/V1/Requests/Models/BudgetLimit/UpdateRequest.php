@@ -48,9 +48,9 @@ class UpdateRequest extends FormRequest
         $fields = [
             'start'         => ['start', 'date'],
             'end'           => ['end', 'date'],
-            'amount'        => ['amount', 'string'],
+            'amount'        => ['amount', 'convertString'],
             'currency_id'   => ['currency_id', 'integer'],
-            'currency_code' => ['currency_code', 'string'],
+            'currency_code' => ['currency_code', 'convertString'],
         ];
 
         return $this->getAllData($fields);
@@ -76,7 +76,7 @@ class UpdateRequest extends FormRequest
      * Configure the validator instance with special rules for after the basic validation rules.
      *
      * @param Validator $validator
-     *                            TODO duplicate code.
+     * See reference nr. 72
      *
      * @return void
      */
@@ -90,7 +90,7 @@ class UpdateRequest extends FormRequest
                     $start = new Carbon($data['start']);
                     $end   = new Carbon($data['end']);
                     if ($end->isBefore($start)) {
-                        $validator->errors()->add('end', (string)trans('validation.date_after'));
+                        $validator->errors()->add('end', (string) trans('validation.date_after'));
                     }
                 }
             }

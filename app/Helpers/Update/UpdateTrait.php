@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Helpers\Update;
 
 use Illuminate\Support\Facades\Cache;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Services\FireflyIIIOrg\Update\UpdateRequestInterface;
 use Log;
 
@@ -39,10 +40,13 @@ trait UpdateTrait
      * 'level' => 'info' / 'success' / 'error'
      *
      * @return array
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getLatestRelease(): array
     {
-        Log::debug('Now in getLatestRelease()');
+        \Log::debug('Now in getLatestRelease()');
         return Cache::remember('firefly_releases', now()->addHour(), function() {
             /** @var UpdateRequestInterface $checker */
             $checker       = app(UpdateRequestInterface::class);

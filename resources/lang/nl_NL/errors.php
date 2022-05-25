@@ -47,5 +47,8 @@ return [
     'tell_more'               => 'Meer info dan "hij is stuk" gaarne',
     'include_logs'            => 'Inclusief foutlogs (zie hierboven).',
     'what_did_you_do'         => 'Zet er bij wat je deed.',
+    'offline_header'          => 'Je bent waarschijnlijk offline',
+    'offline_unreachable'     => 'Firefly III is onbereikbaar. Je apparaat is momenteel offline of de server werkt niet.',
+    'offline_github'          => 'Als je zeker weet dat zowel je apparaat als de server online zijn, open dan een ticket op <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

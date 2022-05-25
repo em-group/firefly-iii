@@ -35,6 +35,22 @@ interface CategoryRepositoryInterface
 {
 
     /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function categoryEndsWith(string $query, int $limit): Collection;
+
+    /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function categoryStartsWith(string $query, int $limit): Collection;
+
+    /**
      * @param Category $category
      *
      * @return bool
@@ -47,11 +63,20 @@ interface CategoryRepositoryInterface
     public function destroyAll(): void;
 
     /**
+     * Find a category or return NULL
+     *
+     * @param int $categoryId
+     *
+     * @return Category|null
+     */
+    public function find(int $categoryId): ?Category;
+
+    /**
      * Find a category.
      *
      * @param string $name
      *
-     * @return Category
+     * @return Category|null
      */
     public function findByName(string $name): ?Category;
 
@@ -62,15 +87,6 @@ interface CategoryRepositoryInterface
      * @return Category|null
      */
     public function findCategory(?int $categoryId, ?string $categoryName): ?Category;
-
-    /**
-     * Find a category or return NULL
-     *
-     * @param int $categoryId
-     *
-     * @return Category|null
-     */
-    public function findNull(int $categoryId): ?Category;
 
     /**
      * @param Category $category

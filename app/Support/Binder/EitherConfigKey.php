@@ -1,7 +1,7 @@
 <?php
-declare(strict_types=1);
+
 /*
- * StaticConfigKey.php
+ * EitherConfigKey.php
  * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -20,7 +20,10 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Support\Binder;
+
 use Illuminate\Routing\Route;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -29,25 +32,36 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class EitherConfigKey
 {
-    public static array $static = [
-        'firefly.version',
-        'firefly.api_version',
-        'firefly.default_location',
-        'firefly.account_to_transaction',
-        'firefly.allowed_opposing_types',
-        'firefly.accountRoles',
-        'firefly.valid_liabilities',
-        'firefly.interest_periods',
-        'firefly.enable_external_map',
-        'firefly.expected_source_types',
-        'app.timezone',
-    ];
+    public static array $static
+        = [
+            'firefly.version',
+            'firefly.api_version',
+            'firefly.default_location',
+            'firefly.account_to_transaction',
+            'firefly.allowed_opposing_types',
+            'firefly.accountRoles',
+            'firefly.valid_liabilities',
+            'firefly.interest_periods',
+            'firefly.bill_periods',
+            'firefly.enable_external_map',
+            'firefly.expected_source_types',
+            'firefly.credit_card_types',
+            'firefly.languages',
+            'app.timezone',
+            'firefly.valid_view_ranges',
+
+            // triggers and actions:
+            'firefly.rule-actions',
+            'firefly.context-rule-actions',
+            'search.operators',
+        ];
+
     /**
      * @param string $value
      * @param Route  $route
      *
      * @return string
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value, Route $route): string
     {

@@ -30,6 +30,7 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\User;
 use FireflyIII\Validation\Account\AccountValidatorProperties;
 use FireflyIII\Validation\Account\DepositValidation;
+use FireflyIII\Validation\Account\LiabilityValidation;
 use FireflyIII\Validation\Account\OBValidation;
 use FireflyIII\Validation\Account\ReconciliationValidation;
 use FireflyIII\Validation\Account\TransferValidation;
@@ -41,7 +42,7 @@ use Log;
  */
 class AccountValidator
 {
-    use AccountValidatorProperties, WithdrawalValidation, DepositValidation, TransferValidation, ReconciliationValidation, OBValidation;
+    use AccountValidatorProperties, WithdrawalValidation, DepositValidation, TransferValidation, ReconciliationValidation, OBValidation, LiabilityValidation;
 
     public bool                        $createMode;
     public string                      $destError;
@@ -94,15 +95,13 @@ class AccountValidator
     }
 
     /**
-     * @param int|null    $accountId
-     * @param string|null $accountName
-     * @param string|null $accountIban
+     * @param array $array
      *
      * @return bool
      */
-    public function validateDestination(?int $accountId, ?string $accountName, ?string $accountIban): bool
+    public function validateDestination(array $array): bool
     {
-        Log::debug(sprintf('Now in AccountValidator::validateDestination(%d, "%s", "%s")', $accountId, $accountName, $accountIban));
+        Log::debug('Now in AccountValidator::validateDestination()', $array);
         if (null === $this->source) {
             Log::error('Source is NULL, always FALSE.');
             $this->destError = 'No source account validation has taken place yet. Please do this first or overrule the object.';
@@ -118,19 +117,22 @@ class AccountValidator
                 break;
 
             case TransactionType::WITHDRAWAL:
-                $result = $this->validateWithdrawalDestination($accountId, $accountName);
+                $result = $this->validateWithdrawalDestination($array);
                 break;
             case TransactionType::DEPOSIT:
-                $result = $this->validateDepositDestination($accountId, $accountName);
+                $result = $this->validateDepositDestination($array);
                 break;
             case TransactionType::TRANSFER:
-                $result = $this->validateTransferDestination($accountId, $accountName);
+                $result = $this->validateTransferDestination($array);
                 break;
             case TransactionType::OPENING_BALANCE:
-                $result = $this->validateOBDestination($accountId, $accountName);
+                $result = $this->validateOBDestination($array);
+                break;
+            case TransactionType::LIABILITY_CREDIT:
+                $result = $this->validateLCDestination($array);
                 break;
             case TransactionType::RECONCILIATION:
-                $result = $this->validateReconciliationDestination($accountId);
+                $result = $this->validateReconciliationDestination($array);
                 break;
         }
 
@@ -138,35 +140,37 @@ class AccountValidator
     }
 
     /**
-     * @param int|null    $accountId
-     * @param string|null $accountName
-     * @param string|null $accountIban
+     * @param array $array
      *
      * @return bool
      */
-    public function validateSource(?int $accountId, ?string $accountName, ?string $accountIban): bool
+    public function validateSource(array $array): bool
     {
-        Log::debug(sprintf('Now in AccountValidator::validateSource(%d, "%s", "%s")', $accountId, $accountName, $accountIban));
+        Log::debug('Now in AccountValidator::validateSource()', $array);
         switch ($this->transactionType) {
             default:
                 Log::error(sprintf('AccountValidator::validateSource cannot handle "%s", so it will do a generic check.', $this->transactionType));
-                $result = $this->validateGenericSource($accountId, $accountName);
+                $result = $this->validateGenericSource($array);
                 break;
             case TransactionType::WITHDRAWAL:
-                $result = $this->validateWithdrawalSource($accountId, $accountName);
+                $result = $this->validateWithdrawalSource($array);
                 break;
             case TransactionType::DEPOSIT:
-                $result = $this->validateDepositSource($accountId, $accountName);
+                $result = $this->validateDepositSource($array);
                 break;
             case TransactionType::TRANSFER:
-                $result = $this->validateTransferSource($accountId, $accountName);
+                $result = $this->validateTransferSource($array);
                 break;
             case TransactionType::OPENING_BALANCE:
-                $result = $this->validateOBSource($accountId, $accountName);
+                $result = $this->validateOBSource($array);
                 break;
+            case TransactionType::LIABILITY_CREDIT:
+                $result = $this->validateLCSource($array);
+                break;
+
             case TransactionType::RECONCILIATION:
                 Log::debug('Calling validateReconciliationSource');
-                $result = $this->validateReconciliationSource($accountId);
+                $result = $this->validateReconciliationSource($array);
                 break;
         }
 
@@ -201,7 +205,7 @@ class AccountValidator
      */
     protected function canCreateType(string $accountType): bool
     {
-        $canCreate = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::INITIAL_BALANCE];
+        $canCreate = [AccountType::EXPENSE, AccountType::REVENUE, AccountType::INITIAL_BALANCE, AccountType::LIABILITY_CREDIT];
         if (in_array($accountType, $canCreate, true)) {
             return true;
         }
@@ -210,24 +214,45 @@ class AccountValidator
     }
 
     /**
-     * @param array  $validTypes
-     * @param int    $accountId
-     * @param string $accountName
+     * @param array $validTypes
+     * @param array $data
      *
      * @return Account|null
      */
-    protected function findExistingAccount(array $validTypes, int $accountId, string $accountName): ?Account
+    protected function findExistingAccount(array $validTypes, array $data): ?Account
     {
+        Log::debug('Now in findExistingAccount', $data);
+        $accountId     = array_key_exists('id', $data) ? $data['id'] : null;
+        $accountIban   = array_key_exists('iban', $data) ? $data['iban'] : null;
+        $accountNumber = array_key_exists('number', $data) ? $data['number'] : null;
+        $accountName   = array_key_exists('name', $data) ? $data['name'] : null;
+
         // find by ID
-        if ($accountId > 0) {
-            $first = $this->accountRepository->findNull($accountId);
+        if (null !== $accountId && $accountId > 0) {
+            $first = $this->accountRepository->find($accountId);
+            if ((null !== $first) && in_array($first->accountType->type, $validTypes, true)) {
+                return $first;
+            }
+        }
+
+        // find by iban
+        if (null !== $accountIban && '' !== (string) $accountIban) {
+            $first = $this->accountRepository->findByIbanNull($accountIban, $validTypes);
+            if ((null !== $first) && in_array($first->accountType->type, $validTypes, true)) {
+                return $first;
+            }
+        }
+
+        // find by number
+        if (null !== $accountNumber && '' !== (string) $accountNumber) {
+            $first = $this->accountRepository->findByAccountNumber($accountNumber, $validTypes);
             if ((null !== $first) && in_array($first->accountType->type, $validTypes, true)) {
                 return $first;
             }
         }
 
         // find by name:
-        if ('' !== $accountName) {
+        if ('' !== (string) $accountName) {
             return $this->accountRepository->findByName($accountName, $validTypes);
         }
 

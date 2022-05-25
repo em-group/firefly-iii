@@ -25,12 +25,14 @@ namespace FireflyIII\Api\V1\Controllers\Autocomplete;
 
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Autocomplete\AutocompleteRequest;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Support\Http\Api\AccountFilter;
 use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
+use JsonException;
 
 /**
  * Class AccountController
@@ -62,9 +64,15 @@ class AccountController extends Controller
     }
 
     /**
+     * Documentation for this endpoint:
+     * https://api-docs.firefly-iii.org/#/autocomplete/getAccountsAC
+     *
      * @param AutocompleteRequest $request
      *
      * @return JsonResponse
+     * @throws JsonException
+     * @throws FireflyException
+     * @throws FireflyException
      */
     public function accounts(AutocompleteRequest $request): JsonResponse
     {
@@ -74,7 +82,7 @@ class AccountController extends Controller
         $date  = $data['date'] ?? today(config('app.timezone'));
 
         $return          = [];
-        $result          = $this->repository->searchAccount((string)$query, $types, $data['limit']);
+        $result          = $this->repository->searchAccount((string) $query, $types, $data['limit']);
         $defaultCurrency = app('amount')->getDefaultCurrency();
 
         /** @var Account $account */
@@ -88,7 +96,7 @@ class AccountController extends Controller
             }
 
             $return[] = [
-                'id'                      => (string)$account->id,
+                'id'                      => (string) $account->id,
                 'name'                    => $account->name,
                 'name_with_balance'       => $nameWithBalance,
                 'type'                    => $account->accountType->type,

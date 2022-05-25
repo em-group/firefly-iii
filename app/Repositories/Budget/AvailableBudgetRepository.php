@@ -30,7 +30,6 @@ use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
-use Log;
 
 /**
  *
@@ -80,6 +79,14 @@ class AvailableBudgetRepository implements AvailableBudgetRepositoryInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function findById(int $id): ?AvailableBudget
+    {
+        return $this->user->availableBudgets->find($id);
+    }
+
+    /**
      * Return a list of all available budgets (in all currencies) (for the selected period).
      *
      * @param Carbon|null $start
@@ -117,7 +124,7 @@ class AvailableBudgetRepository implements AvailableBudgetRepositoryInterface
                                       ->where('start_date', $start->format('Y-m-d'))
                                       ->where('end_date', $end->format('Y-m-d'))->first();
         if (null !== $availableBudget) {
-            $amount = (string)$availableBudget->amount;
+            $amount = (string) $availableBudget->amount;
         }
 
         return $amount;

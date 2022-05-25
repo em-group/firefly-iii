@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'Это некорректный IBAN.',
     'zero_or_more'                   => 'Это значение не может быть отрицательным.',
     'date_or_time'                   => 'Значение должно быть корректной датой или временем (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'Необходимо принять :attribute.',
     'bic'                            => 'Это некорректный BIC.',
     'at_least_one_trigger'           => 'Правило должно иметь хотя бы одно условие.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Правило должно иметь хотя бы одно действие.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Это некорректный формат для данных, зашифрованных с помощью base64.',
     'model_id_invalid'               => 'Данный ID кажется недопустимым для этой модели.',
     'less'                           => ':attribute должен быть меньше 10,000,000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Для продолжения необходим действительный ID счёта назначения и/или действительное имя счёта.',
     'withdrawal_dest_bad_data'    => 'Не удалось найти действительный счёт назначения при поиске ID ":id" или имени ":name".',
 
-    'generic_source_bad_data'  => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',
+    'generic_source_bad_data' => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',
 
     'deposit_source_need_data' => 'Для продолжения необходим действительный ID счёта-источника и/или действительное имя счёта.',
     'deposit_source_bad_data'  => 'Не удалось найти корректный счёт-источник при поиске ID ":id" или имени ":name".',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Каждая разделённая транзакция должна иметь transaction_journal_id (либо действительный ID, либо 0).',
 
     'ob_source_need_data' => 'Для продолжения необходим действительный ID счёта-источника и/или действительное имя счёта.',
+    'lc_source_need_data' => 'Need to get a valid source account ID to continue.',
     'ob_dest_need_data'   => 'Для продолжения необходим действительный ID счёта назначения и/или действительное имя счёта.',
     'ob_dest_bad_data'    => 'Не удалось найти действительный счёт назначения при поиске ID ":id" или имени ":name".',
 
     'generic_invalid_source'      => 'Вы не можете использовать этот счёт в качестве счёта-источника.',
     'generic_invalid_destination' => 'Вы не можете использовать этот счёт в качестве счёта назначения.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => 'Значение :attribute должно быть больше или равно :value.',
     'gt.numeric'  => 'Значение :attribute должно быть больше :value.',

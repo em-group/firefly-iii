@@ -1,7 +1,8 @@
 <?php
+
 /*
  * twigbridge.php
- * Copyright (c) 2021 james@firefly-iii.org
+ * Copyright (c) 2022 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -21,6 +22,7 @@
 
 declare(strict_types=1);
 
+
 /**
  * This file is part of the TwigBridge package.
  *
@@ -35,39 +37,29 @@ use FireflyIII\Support\Twig\General;
 use FireflyIII\Support\Twig\Rule;
 use FireflyIII\Support\Twig\TransactionGroupTwig;
 use FireflyIII\Support\Twig\Translation;
+use Illuminate\Contracts\Support\Htmlable;
+use TwigBridge\Extension\Laravel\Auth;
+use TwigBridge\Extension\Laravel\Config;
 use TwigBridge\Extension\Laravel\Dump;
+use TwigBridge\Extension\Laravel\Event;
 use TwigBridge\Extension\Laravel\Input;
 use TwigBridge\Extension\Laravel\Model;
+use TwigBridge\Extension\Laravel\Session;
 use TwigBridge\Extension\Laravel\Str;
 use TwigBridge\Extension\Laravel\Translator;
 use TwigBridge\Extension\Laravel\Url;
 use TwigBridge\Extension\Loader\Facades;
 use TwigBridge\Extension\Loader\Filters;
 use TwigBridge\Extension\Loader\Functions;
+use TwigBridge\Extension\Loader\Globals;
 
 /**
  * Configuration options for Twig.
  */
 return [
-    'twig' => [
-        /*
-        |--------------------------------------------------------------------------
-        | Extension
-        |--------------------------------------------------------------------------
-        |
-        | File extension for Twig view files.
-        |
-        */
-        'extension'   => 'twig',
 
-        /*
-        |--------------------------------------------------------------------------
-        | Accepts all Twig environment configuration options
-        |--------------------------------------------------------------------------
-        |
-        | http://twig.sensiolabs.org/doc/api.html#environment-options
-        |
-        */
+    'twig' => [
+        'extension'    => 'twig',
         'environment' => [
 
             // When set to true, the generated templates have a __toString() method
@@ -107,6 +99,18 @@ return [
             // (default to -1 -- all optimizations are enabled; set it to 0 to disable)
             'optimizations'       => -1,
         ],
+        /*
+        |--------------------------------------------------------------------------
+        | Safe Classes
+        |--------------------------------------------------------------------------
+        |
+        | When set, the output of the `__string` method of the following classes will not be escaped.
+        | default: Laravel's Htmlable, which the HtmlString class implements.
+        |
+        */
+        'safe_classes' => [
+            Htmlable::class => ['html'],
+        ],
 
         /*
         |--------------------------------------------------------------------------
@@ -117,7 +121,7 @@ return [
         | NOTE: these will be overwritten if you pass data into the view with the same key.
         |
         */
-        'globals'     => [],
+        'globals'      => [],
     ],
 
     'extensions' => [
@@ -136,27 +140,23 @@ return [
             Facades::class,
             Filters::class,
             Functions::class,
-            \TwigBridge\Extension\Laravel\Auth::class,
-            \TwigBridge\Extension\Laravel\Config::class,
+            Event::class,
+            Globals::class,
+            Auth::class,
+            Config::class,
             Dump::class,
             Input::class,
-            \TwigBridge\Extension\Laravel\Session::class,
+            Session::class,
             Str::class,
             Translator::class,
             Url::class,
             Model::class,
-            // 'TwigBridge\Extension\Laravel\Gate',
-
-            // 'TwigBridge\Extension\Laravel\Form',
-            // 'TwigBridge\Extension\Laravel\Html',
-            // 'TwigBridge\Extension\Laravel\Legacy\Facades',
-
+            // Firefly III
             AmountFormat::class,
             General::class,
             Rule::class,
             TransactionGroupTwig::class,
             Translation::class,
-
         ],
 
         /*
@@ -205,7 +205,7 @@ return [
             'ExpandedForm'  => [
                 'is_safe' => [
                     'date', 'text', 'select', 'balance', 'optionsList', 'checkbox', 'amount', 'tags', 'integer', 'textarea', 'location', 'file', 'staticText',
-                    'password', 'nonSelectableAmount', 'number', 'amountNoCurrency', 'percentage','objectGroup'
+                    'password', 'nonSelectableAmount', 'number', 'amountNoCurrency', 'percentage', 'objectGroup',
 
                 ],
             ],

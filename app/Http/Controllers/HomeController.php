@@ -31,13 +31,9 @@ use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\User;
-use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
 use Log;
 
 /**
@@ -76,7 +72,7 @@ class HomeController extends Controller
         Log::debug('Received dateRange', ['start' => $request->get('start'), 'end' => $request->get('end'), 'label' => $request->get('label')]);
         // check if the label is "everything" or "Custom range" which will betray
         // a possible problem with the budgets.
-        if ($label === (string)trans('firefly.everything') || $label === (string)trans('firefly.customRange')) {
+        if ($label === (string) trans('firefly.everything') || $label === (string) trans('firefly.customRange')) {
             $isCustomRange = true;
             Log::debug('Range is now marked as "custom".');
         }
@@ -84,7 +80,7 @@ class HomeController extends Controller
         $diff = $start->diffInDays($end) + 1;
 
         if ($diff > 50) {
-            $request->session()->flash('warning', (string)trans('firefly.warning_much_data', ['days' => $diff]));
+            $request->session()->flash('warning', (string) trans('firefly.warning_much_data', ['days' => $diff]));
         }
 
         $request->session()->put('is_custom_range', $isCustomRange);
@@ -102,11 +98,14 @@ class HomeController extends Controller
      *
      * @param AccountRepositoryInterface $repository
      *
-     * @return Factory|RedirectResponse|Redirector|View
-     * @throws Exception
+     * @return mixed
+     * @throws \FireflyIII\Exceptions\FireflyException
      */
-    public function index(AccountRepositoryInterface $repository)
+    public function index(AccountRepositoryInterface $repository): mixed
     {
+        if ('v3' === config('firefly.layout')) {
+            return view('pwa');
+        }
         $types = config('firefly.accountTypesByIdentifier.asset');
         $count = $repository->count($types);
         Log::channel('audit')->info('User visits homepage.');
@@ -114,7 +113,7 @@ class HomeController extends Controller
         if (0 === $count) {
             return redirect(route('new-user.index'));
         }
-        $subTitle     = (string)trans('firefly.welcome_back');
+        $subTitle     = (string) trans('firefly.welcome_back');
         $transactions = [];
         $frontPage    = app('preferences')->getFresh('frontPageAccounts', $repository->getAccountsByType([AccountType::ASSET])->pluck('id')->toArray());
         /** @var Carbon $start */
@@ -143,6 +142,6 @@ class HomeController extends Controller
         $user = auth()->user();
         event(new RequestedVersionCheckStatus($user));
 
-        return prefixView('index', compact('count', 'subTitle', 'transactions', 'billCount', 'start', 'end', 'today'));
+        return view('index', compact('count', 'subTitle', 'transactions', 'billCount', 'start', 'end', 'today'));
     }
 }

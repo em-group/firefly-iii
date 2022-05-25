@@ -41,19 +41,15 @@ class StartFireflySession extends StartSession
      */
     protected function storeCurrentUrl(Request $request, $session): void
     {
-        $uri          = $request->fullUrl();
-        $isScriptPage = strpos($uri, 'jscript');
-        $isDeletePage = strpos($uri, 'delete');
-        $isLoginPage  = strpos($uri, '/login');
-        $isJsonPage   = strpos($uri, '/json');
+        $url     = $request->fullUrl();
+        $safeUrl = app('steam')->getSafeUrl($url, route('index'));
 
-        // also stop remembering "delete" URL's.
-        if (false === $isScriptPage && false === $isDeletePage
-            && false === $isLoginPage
-            && false === $isJsonPage
-            && 'GET' === $request->method()
-            && !$request->ajax()) {
-            $session->setPreviousUrl($uri);
+        if ($url !== $safeUrl) {
+            return;
+        }
+
+        if ('GET' === $request->method() && !$request->ajax()) {
+            $session->setPreviousUrl($safeUrl);
         }
     }
 }

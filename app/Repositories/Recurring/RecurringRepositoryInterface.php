@@ -31,6 +31,7 @@ use FireflyIII\Models\RecurrenceTransaction;
 use FireflyIII\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+
 /**
  * Interface RecurringRepositoryInterface
  *
@@ -64,6 +65,15 @@ interface RecurringRepositoryInterface
     public function getAll(): Collection;
 
     /**
+     * Get the category from a recurring transaction transaction.
+     *
+     * @param RecurrenceTransaction $recTransaction
+     *
+     * @return null|int
+     */
+    public function getBillId(RecurrenceTransaction $recTransaction): ?int;
+
+    /**
      * Get the budget ID from a recurring transaction transaction.
      *
      * @param RecurrenceTransaction $recTransaction
@@ -77,9 +87,18 @@ interface RecurringRepositoryInterface
      *
      * @param RecurrenceTransaction $recTransaction
      *
+     * @return null|int
+     */
+    public function getCategoryId(RecurrenceTransaction $recTransaction): ?int;
+
+    /**
+     * Get the category from a recurring transaction transaction.
+     *
+     * @param RecurrenceTransaction $recTransaction
+     *
      * @return null|string
      */
-    public function getCategory(RecurrenceTransaction $recTransaction): ?string;
+    public function getCategoryName(RecurrenceTransaction $recTransaction): ?string;
 
     /**
      * Returns the count of journals created for this recurrence, possibly limited by time.

@@ -27,6 +27,7 @@ namespace FireflyIII\Api\V1\Controllers\User;
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\User\PreferenceStoreRequest;
 use FireflyIII\Api\V1\Requests\User\PreferenceUpdateRequest;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Preference;
 use FireflyIII\Transformers\PreferenceTransformer;
 use Illuminate\Http\JsonResponse;
@@ -44,18 +45,21 @@ class PreferencesController extends Controller
     public const RESOURCE_KEY = 'preferences';
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/preferences/listPreference
+     *
      * List all of them.
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function index(): JsonResponse
     {
-        // TODO via repository.
-        $collection  = auth()->user()->preferences()->get();
+        $collection  = app('preferences')->all();
         $manager     = $this->getManager();
         $count       = $collection->count();
-        $pageSize    = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize    = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $preferences = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
 
         // make paginator:
@@ -74,6 +78,9 @@ class PreferencesController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/preferences/getPreference
+     *
      * Return a single preference by name.
      *
      * @param Preference $preference
@@ -94,9 +101,13 @@ class PreferencesController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/preferences/storePreference
+     *
      * @param PreferenceStoreRequest $request
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function store(PreferenceStoreRequest $request): JsonResponse
     {
@@ -114,9 +125,14 @@ class PreferencesController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/preferences/updatePreference
+     *
      * @param PreferenceUpdateRequest $request
+     * @param Preference              $preference
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function update(PreferenceUpdateRequest $request, Preference $preference): JsonResponse
     {

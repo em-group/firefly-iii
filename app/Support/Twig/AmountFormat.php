@@ -46,18 +46,6 @@ class AmountFormat extends AbstractExtension
     }
 
     /**
-     * {@inheritdoc}
-     */
-    public function getFunctions(): array
-    {
-        return [
-            $this->formatAmountByAccount(),
-            $this->formatAmountBySymbol(),
-            $this->formatAmountByCurrency(),
-        ];
-    }
-
-    /**
      * @return TwigFilter
      */
     protected function formatAmount(): TwigFilter
@@ -90,10 +78,22 @@ class AmountFormat extends AbstractExtension
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function getFunctions(): array
+    {
+        return [
+            $this->formatAmountByAccount(),
+            $this->formatAmountBySymbol(),
+            $this->formatAmountByCurrency(),
+        ];
+    }
+
+    /**
      * Will format the amount by the currency related to the given account.
      *
      * @return TwigFunction
-     * TODO remove me when layout v1 is deprecated.
+     * See reference nr. 42
      */
     protected function formatAmountByAccount(): TwigFunction
     {

@@ -34,8 +34,6 @@ use Throwable;
  * Class CurrencyForm
  *
  * All currency related form methods.
- *
- * TODO cleanup and describe.
  */
 class CurrencyForm
 {
@@ -61,7 +59,7 @@ class CurrencyForm
      *
      * @return string
      */
-    protected function currencyField(string $name, string $view, $value = null, array $options = null): string
+    protected function currencyField(string $name, string $view, mixed $value = null, array $options = null): string
     {
         $label           = $this->label($name, $options);
         $options         = $this->expandOptionArray($name, $label, $options);
@@ -74,12 +72,12 @@ class CurrencyForm
         unset($options['currency'], $options['placeholder']);
 
         // perhaps the currency has been sent to us in the field $amount_currency_id_$name (amount_currency_id_amount)
-        $preFilled      = session('preFilled');
+        $preFilled = session('preFilled');
         if (!is_array($preFilled)) {
             $preFilled = [];
         }
         $key            = 'amount_currency_id_' . $name;
-        $sentCurrencyId = array_key_exists($key, $preFilled) ? (int)$preFilled[$key] : $defaultCurrency->id;
+        $sentCurrencyId = array_key_exists($key, $preFilled) ? (int) $preFilled[$key] : $defaultCurrency->id;
 
         Log::debug(sprintf('Sent currency ID is %d', $sentCurrencyId));
 
@@ -94,10 +92,10 @@ class CurrencyForm
 
         // make sure value is formatted nicely:
         if (null !== $value && '' !== $value) {
-            $value = round((float)$value, $defaultCurrency->decimal_places);
+            $value = round((float) $value, $defaultCurrency->decimal_places);
         }
         try {
-            $html = prefixView('form.' . $view, compact('defaultCurrency', 'currencies', 'classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.' . $view, compact('defaultCurrency', 'currencies', 'classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render currencyField(): %s', $e->getMessage()));
             $html = 'Could not render currencyField.';
@@ -107,7 +105,7 @@ class CurrencyForm
     }
 
     /**
-     * TODO describe and cleanup.
+     * See reference nr. 23
      *
      * @param string     $name
      * @param mixed      $value
@@ -121,7 +119,7 @@ class CurrencyForm
     }
 
     /**
-     * TODO cleanup and describe better.
+     * See reference nr. 24
      *
      * @param string     $name
      * @param string     $view
@@ -148,7 +146,7 @@ class CurrencyForm
             $preFilled = [];
         }
         $key            = 'amount_currency_id_' . $name;
-        $sentCurrencyId = array_key_exists($key, $preFilled) ? (int)$preFilled[$key] : $defaultCurrency->id;
+        $sentCurrencyId = array_key_exists($key, $preFilled) ? (int) $preFilled[$key] : $defaultCurrency->id;
 
         Log::debug(sprintf('Sent currency ID is %d', $sentCurrencyId));
 
@@ -163,10 +161,10 @@ class CurrencyForm
 
         // make sure value is formatted nicely:
         if (null !== $value && '' !== $value) {
-            $value = round((float)$value, $defaultCurrency->decimal_places);
+            $value = round((float) $value, $defaultCurrency->decimal_places);
         }
         try {
-            $html = prefixView('form.' . $view, compact('defaultCurrency', 'currencies', 'classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.' . $view, compact('defaultCurrency', 'currencies', 'classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render currencyField(): %s', $e->getMessage()));
             $html = 'Could not render currencyField.';
@@ -176,7 +174,7 @@ class CurrencyForm
     }
 
     /**
-     * TODO cleanup and describe.
+     * See reference nr. 25
      *
      * @param string     $name
      * @param mixed      $value
@@ -201,7 +199,7 @@ class CurrencyForm
     }
 
     /**
-     * TODO cleanup and describe.
+     * See reference nr. 26
      *
      * @param string     $name
      * @param mixed      $value
@@ -217,7 +215,7 @@ class CurrencyForm
         // get all currencies:
         $list  = $currencyRepos->get();
         $array = [
-            0 => (string)trans('firefly.no_currency'),
+            0 => (string) trans('firefly.no_currency'),
         ];
         /** @var TransactionCurrency $currency */
         foreach ($list as $currency) {

@@ -22,32 +22,33 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
 use FireflyIII\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 /**
  * FireflyIII\Models\RuleGroup
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $user_id
- * @property string $title
- * @property string|null $description
- * @property int $order
- * @property bool $active
- * @property bool $stop_processing
- * @property \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\Rule[] $rules
- * @property-read int|null $rules_count
- * @property-read User $user
+ * @property int               $id
+ * @property Carbon|null       $created_at
+ * @property Carbon|null       $updated_at
+ * @property Carbon|null       $deleted_at
+ * @property int               $user_id
+ * @property string            $title
+ * @property string|null       $description
+ * @property int               $order
+ * @property bool              $active
+ * @property bool              $stop_processing
+ * @property Collection|Rule[] $rules
+ * @property-read int|null     $rules_count
+ * @property-read User         $user
  * @method static \Illuminate\Database\Eloquent\Builder|RuleGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RuleGroup newQuery()
  * @method static Builder|RuleGroup onlyTrashed()
@@ -65,10 +66,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|RuleGroup withTrashed()
  * @method static Builder|RuleGroup withoutTrashed()
  * @mixin Eloquent
+ * @property int|null          $user_group_id
+ * @method static \Illuminate\Database\Eloquent\Builder|RuleGroup whereUserGroupId($value)
  */
 class RuleGroup extends Model
 {
     use SoftDeletes;
+
     /**
      * The attributes that should be casted to native types.
      *
@@ -92,8 +96,8 @@ class RuleGroup extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return RuleGroup
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): RuleGroup
     {

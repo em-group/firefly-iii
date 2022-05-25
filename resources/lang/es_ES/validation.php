@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'El array esperaba la cláusula "where"',
+    'missing_update'                 => 'El array esperaba la cláusula "update"',
+    'invalid_where_key'              => 'El JSON contiene una clave no válida para la cláusula "where"',
+    'invalid_update_key'             => 'El JSON contiene una clave no válida para la cláusula "update"',
+    'invalid_query_data'             => 'Hay datos no válidos en el campo %s:%s de su consulta.',
+    'invalid_query_account_type'     => 'Su consulta contiene cuentas de diferentes tipos, lo que no está permitido.',
+    'invalid_query_currency'         => 'Su consulta contiene cuentas que tienen diferentes ajustes de divisa, lo que no está permitido.',
     'iban'                           => 'Este no es un IBAN válido.',
     'zero_or_more'                   => 'El valor no puede ser negativo.',
     'date_or_time'                   => 'El valor debe ser una fecha u hora válido (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'El :attribute debe ser aceptado.',
     'bic'                            => 'Esto no es un BIC válido.',
     'at_least_one_trigger'           => 'La regla debe tener al menos un desencadenante.',
+    'at_least_one_active_trigger'    => 'La regla debe tener al menos un desencadenante activo.',
     'at_least_one_action'            => 'La regla debe tener al menos una acción.',
+    'at_least_one_active_action'     => 'La regla debe tener al menos una acción activa.',
     'base64'                         => 'Esto no es un dato codificado en base64 válido.',
     'model_id_invalid'               => 'El ID dado no parece válido para este modelo.',
     'less'                           => ':attribute debe ser menor que 10.000.000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Necesita obtener un ID de cuenta de destino válido y/o nombre de cuenta de destino válido para continuar.',
     'withdrawal_dest_bad_data'    => 'No se pudo encontrar una cuenta de destino válida buscando ID ":id" o nombre ":name".',
 
-    'generic_source_bad_data'  => 'No se pudo encontrar una cuenta de origen válida al buscar el ID ":id" o nombre ":name".',
+    'generic_source_bad_data' => 'No se pudo encontrar una cuenta de origen válida al buscar el ID ":id" o nombre ":name".',
 
     'deposit_source_need_data' => 'Necesita obtener un ID de cuenta de origen válido y/o nombre de cuenta de origen válido para continuar.',
     'deposit_source_bad_data'  => 'No se pudo encontrar una cuenta de origen válida para ID ":id" o nombre ":name".',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Cada división debe tener transaction_journal_id (ID válido o 0).',
 
     'ob_source_need_data' => 'Necesita obtener un ID de cuenta de origen válido y/o nombre de cuenta de origen válido para continuar.',
+    'lc_source_need_data' => 'Necesita obtener un ID de cuenta de origen válido para continuar.',
     'ob_dest_need_data'   => 'Necesita obtener un ID de cuenta de destino válido y/o nombre de cuenta de destino válido para continuar.',
     'ob_dest_bad_data'    => 'No se pudo encontrar una cuenta de destino válida buscando ID ":id" o nombre ":name".',
 
     'generic_invalid_source'      => 'No puedes usar esta cuenta como cuenta de origen.',
     'generic_invalid_destination' => 'No puede usar esta cuenta como cuenta de destino.',
+
+    'generic_no_source'      => 'Debes enviar la información de la cuenta de origen.',
+    'generic_no_destination' => 'Debes enviar la información de la cuenta de destino.',
 
     'gte.numeric' => ':attribute debe ser mayor o igual que :value.',
     'gt.numeric'  => 'El :attribute debe ser mayor que :value.',

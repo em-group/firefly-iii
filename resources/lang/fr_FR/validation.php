@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'La requête ne contient pas de clause "where"',
+    'missing_update'                 => 'La requête ne contient pas de clause "update"',
+    'invalid_where_key'              => 'Le JSON contient une clé invalide pour la clause "where"',
+    'invalid_update_key'             => 'Le JSON contient une clé invalide pour la clause "update"',
+    'invalid_query_data'             => 'Il y a des données invalides dans le champ %s:%s de votre requête.',
+    'invalid_query_account_type'     => 'Votre requête contient des comptes de différents types, ce qui n\'est pas autorisé.',
+    'invalid_query_currency'         => 'Votre requête contient des comptes qui ont des paramètres de devise différents, ce qui n\'est pas autorisé.',
     'iban'                           => 'Il ne s\'agit pas d\'un IBAN valide.',
     'zero_or_more'                   => 'Le montant ne peut pas être négatif.',
     'date_or_time'                   => 'La valeur doit être une date ou une heure valide (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'Le champ :attribute doit être accepté.',
     'bic'                            => 'Ce n’est pas un code BIC valide.',
     'at_least_one_trigger'           => 'Une règle doit avoir au moins un déclencheur.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Une règle doit avoir au moins une action.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Il ne s\'agit pas de données base64 valides.',
     'model_id_invalid'               => 'L’ID fournit ne semble pas valide pour ce modèle.',
     'less'                           => ':attribute doit être inférieur à 10 000 000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Vous devez obtenir un ID de compte de destination valide et/ou un nom de compte de destination valide pour continuer.',
     'withdrawal_dest_bad_data'    => 'Impossible de trouver un compte de destination valide lors de la recherche de l\'ID ":id" ou du nom ":name".',
 
-    'generic_source_bad_data'  => 'Impossible de trouver un compte source valide lors de la recherche de l\'ID ":id" ou du nom ":name".',
+    'generic_source_bad_data' => 'Impossible de trouver un compte source valide lors de la recherche de l\'ID ":id" ou du nom ":name".',
 
     'deposit_source_need_data' => 'Vous devez obtenir un ID de compte source valide et/ou un nom de compte source valide pour continuer.',
     'deposit_source_bad_data'  => 'Impossible de trouver un compte source valide lors de la recherche de l\'ID ":id" ou du nom ":name".',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Chaque ventilation doit avoir transaction_journal_id (ID valide ou 0).',
 
     'ob_source_need_data' => 'Vous devez obtenir un ID de compte source valide et/ou un nom de compte source valide pour continuer.',
+    'lc_source_need_data' => 'Besoin d\'un identifiant de compte source valide pour continuer.',
     'ob_dest_need_data'   => 'Vous devez obtenir un ID de compte de destination valide et/ou un nom de compte de destination valide pour continuer.',
     'ob_dest_bad_data'    => 'Impossible de trouver un compte de destination valide lors de la recherche de l\'ID ":id" ou du nom ":name".',
 
     'generic_invalid_source'      => 'Vous ne pouvez pas utiliser ce compte comme compte source.',
     'generic_invalid_destination' => 'Vous ne pouvez pas utiliser ce compte comme compte de destination.',
+
+    'generic_no_source'      => 'Vous devez saisir les informations du compte source.',
+    'generic_no_destination' => 'Vous devez saisir les informations du compte de destination.',
 
     'gte.numeric' => 'La valeur de :attribute doit être supérieure ou égale à :value.',
     'gt.numeric'  => 'Le champ :attribute doit être plus grand que :value.',

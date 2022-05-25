@@ -59,8 +59,8 @@
 
     <component
         v-bind:is="uriComponent"
-        v-if="this.fields.external_uri" v-model="value.external_uri" :error="error.external_uri"
-        name="external_uri[]" v-bind:title="$t('firefly.external_uri')"></component>
+        v-if="this.fields.external_url" v-model="value.external_url" :error="error.external_url"
+        name="external_url[]" v-bind:title="$t('firefly.external_url')"></component>
 
     <component
         v-bind:is="textareaComponent"
@@ -92,13 +92,13 @@ export default {
           "internal_reference": false,
           "notes": false,
           "attachments": false,
-          "external_uri": false
+          "external_url": false
         }
       ]
     };
   },
   computed: {
-    // TODO this seems a pretty weird way of doing it.
+// See reference nr. 6
     dateComponent() {
       return 'custom-date';
     },

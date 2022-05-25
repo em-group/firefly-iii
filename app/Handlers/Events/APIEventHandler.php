@@ -24,12 +24,12 @@ declare(strict_types=1);
 namespace FireflyIII\Handlers\Events;
 
 use Exception;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Mail\AccessTokenCreatedMail;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Laravel\Passport\Events\AccessTokenCreated;
 use Log;
 use Mail;
-use Request;
 use Session;
 
 /**
@@ -43,12 +43,13 @@ class APIEventHandler
      * @param AccessTokenCreated $event
      *
      * @return bool
+     * @throws FireflyException
      */
     public function accessTokenCreated(AccessTokenCreated $event): bool
     {
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
-        $user       = $repository->findNull((int)$event->userId);
+        $user       = $repository->find((int) $event->userId);
         if (null !== $user) {
             $email = $user->email;
 
@@ -57,18 +58,16 @@ class APIEventHandler
                 $email = config('firefly.site_owner');
             }
 
-            $ipAddress = Request::ip();
-
             // see if user has alternative email address:
-            $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+            $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email');
             if (null !== $pref) {
-                $email = $pref->data;
+                $email = (string) (is_array($pref->data) ? $email : $pref->data);
             }
 
-            Log::debug(sprintf('Now in APIEventHandler::accessTokenCreated. Email is %s, IP is %s', $email, $ipAddress));
+            Log::debug(sprintf('Now in APIEventHandler::accessTokenCreated. Email is %s', $email));
             try {
                 Log::debug('Trying to send message...');
-                Mail::to($email)->send(new AccessTokenCreatedMail($email, $ipAddress));
+                Mail::to($email)->send(new AccessTokenCreatedMail);
 
             } catch (Exception $e) { // @phpstan-ignore-line
                 Log::debug('Send message failed! :(');

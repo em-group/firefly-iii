@@ -40,9 +40,9 @@ class MailError extends Job implements ShouldQueue
     use InteractsWithQueue, SerializesModels;
 
     protected string $destination;
-    protected array $exception;
+    protected array  $exception;
     protected string $ipAddress;
-    protected array $userData;
+    protected array  $userData;
 
     /**
      * MailError constructor.
@@ -60,7 +60,8 @@ class MailError extends Job implements ShouldQueue
         $this->exception   = $exceptionData;
         $debug             = $exceptionData;
         unset($debug['stackTrace']);
-        Log::error('Exception is: ' . json_encode($debug));
+        unset($debug['headers']);
+        Log::error(sprintf('Exception is: %s', json_encode($debug)));
     }
 
     /**
@@ -68,20 +69,20 @@ class MailError extends Job implements ShouldQueue
      */
     public function handle()
     {
-        $email            = config('firefly.site_owner');
+        $email            = (string) config('firefly.site_owner');
         $args             = $this->exception;
         $args['loggedIn'] = $this->userData['id'] > 0;
         $args['user']     = $this->userData;
         $args['ip']       = $this->ipAddress;
         $args['token']    = config('firefly.ipinfo_token');
-        if ($this->attempts() < 3) {
+        if ($this->attempts() < 3 && strlen($email) > 0) {
             try {
                 Mail::send(
                     ['emails.error-html', 'emails.error-text'],
                     $args,
                     function (Message $message) use ($email) {
                         if ('mail@example.com' !== $email) {
-                            $message->to($email, $email)->subject((string)trans('email.error_subject'));
+                            $message->to($email, $email)->subject((string) trans('email.error_subject'));
                         }
                     }
                 );

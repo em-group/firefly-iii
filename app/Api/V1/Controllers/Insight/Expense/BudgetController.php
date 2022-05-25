@@ -65,6 +65,9 @@ class BudgetController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/insight/insightExpenseBudget
+     *
      * @param GenericRequest $request
      *
      * @return JsonResponse
@@ -81,15 +84,15 @@ class BudgetController extends Controller
         }
         /** @var Budget $budget */
         foreach ($budgets as $budget) {
-            $expenses = $this->opsRepository->sumExpenses($start, $end, $assetAccounts, new Collection([$budget]), null);
+            $expenses = $this->opsRepository->sumExpenses($start, $end, $assetAccounts, new Collection([$budget]));
             /** @var array $expense */
             foreach ($expenses as $expense) {
                 $result[] = [
-                    'id'               => (string)$budget->id,
+                    'id'               => (string) $budget->id,
                     'name'             => $budget->name,
                     'difference'       => $expense['sum'],
-                    'difference_float' => (float)$expense['sum'],
-                    'currency_id'      => (string)$expense['currency_id'],
+                    'difference_float' => (float) $expense['sum'],
+                    'currency_id'      => (string) $expense['currency_id'],
                     'currency_code'    => $expense['currency_code'],
                 ];
             }
@@ -99,6 +102,9 @@ class BudgetController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/insight/insightExpenseNoBudget
+     *
      * @param GenericRequest $request
      *
      * @return JsonResponse
@@ -109,13 +115,13 @@ class BudgetController extends Controller
         $end           = $request->getEnd();
         $assetAccounts = $request->getAssetAccounts();
         $result        = [];
-        $expenses      = $this->noRepository->sumExpenses($start, $end, $assetAccounts, null);
+        $expenses      = $this->noRepository->sumExpenses($start, $end, $assetAccounts);
         /** @var array $expense */
         foreach ($expenses as $expense) {
             $result[] = [
                 'difference'       => $expense['sum'],
-                'difference_float' => (float)$expense['sum'],
-                'currency_id'      => (string)$expense['currency_id'],
+                'difference_float' => (float) $expense['sum'],
+                'currency_id'      => (string) $expense['currency_id'],
                 'currency_code'    => $expense['currency_code'],
             ];
         }

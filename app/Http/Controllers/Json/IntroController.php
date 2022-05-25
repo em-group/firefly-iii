@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Json;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Support\Http\Controllers\GetConfigurationData;
 use Illuminate\Http\JsonResponse;
@@ -48,7 +49,7 @@ class IntroController extends Controller
         $specificPage  = $specificPage ?? '';
         $steps         = $this->getBasicSteps($route);
         $specificSteps = $this->getSpecificSteps($route, $specificPage);
-        if (0 === count($specificSteps)) {
+        if (empty($specificSteps)) {
             Log::debug(sprintf('No specific steps for route "%s" and page "%s"', $route, $specificPage));
 
             return response()->json($steps);
@@ -103,6 +104,7 @@ class IntroController extends Controller
      * @param string|null $specialPage
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function postEnable(string $route, string $specialPage = null): JsonResponse
     {
@@ -116,7 +118,7 @@ class IntroController extends Controller
         app('preferences')->set($key, false);
         app('preferences')->mark();
 
-        return response()->json(['message' => (string)trans('firefly.intro_boxes_after_refresh')]);
+        return response()->json(['message' => (string) trans('firefly.intro_boxes_after_refresh')]);
     }
 
     /**
@@ -126,6 +128,7 @@ class IntroController extends Controller
      * @param string|null $specialPage
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function postFinished(string $route, string $specialPage = null): JsonResponse
     {

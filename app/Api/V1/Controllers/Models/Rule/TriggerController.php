@@ -66,6 +66,9 @@ class TriggerController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/rules/testRule
+     *
      * @param TestRequest $request
      * @param Rule        $rule
      *
@@ -113,6 +116,9 @@ class TriggerController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/rules/fireRule
+     *
      * Execute the given rule group on a set of existing transactions.
      *
      * @param TriggerRequest $request
@@ -139,11 +145,11 @@ class TriggerController extends Controller
             // add a range:
             $ruleEngine->addOperator(['type' => 'date_before', 'value' => $parameters['end']->format('Y-m-d')]);
         }
-        if (array_key_exists('accounts', $parameters) && '' !== $parameters['accounts']) {
+        if (array_key_exists('accounts', $parameters) && is_array($parameters['accounts']) && count($parameters['accounts']) > 0) {
             $ruleEngine->addOperator(['type' => 'account_id', 'value' => implode(',', $parameters['accounts'])]);
         }
 
-        // file the rule(s)
+        // fire the rule(s)
         $ruleEngine->fire();
 
         return response()->json([], 204);

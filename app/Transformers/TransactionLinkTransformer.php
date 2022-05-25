@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
+
 use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 
@@ -54,12 +55,12 @@ class TransactionLinkTransformer extends AbstractTransformer
         $notes = $this->repository->getLinkNoteText($link);
 
         return [
-            'id'           => (string)$link->id,
+            'id'           => (string) $link->id,
             'created_at'   => $link->created_at->toAtomString(),
             'updated_at'   => $link->updated_at->toAtomString(),
-            'inward_id'    => (string)$link->source_id,
-            'outward_id'   => (string)$link->destination_id,
-            'link_type_id' => (string)$link->link_type_id,
+            'inward_id'    => (string) $link->source_id,
+            'outward_id'   => (string) $link->destination_id,
+            'link_type_id' => (string) $link->link_type_id,
             'notes'        => '' === $notes ? null : $notes,
             'links'        => [
                 [

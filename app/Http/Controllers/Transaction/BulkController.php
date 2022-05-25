@@ -28,7 +28,10 @@ use FireflyIII\Http\Requests\BulkEditJournalRequest;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Log;
 
@@ -52,7 +55,7 @@ class BulkController extends Controller
         $this->middleware(
             function ($request, $next) {
                 $this->repository = app(JournalRepositoryInterface::class);
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -63,7 +66,7 @@ class BulkController extends Controller
     /**
      * Edit a set of journals in bulk.
      *
-     * TODO user wont be able to tell if journal is part of split.
+     * See reference nr. 47
      *
      * @param array $journals
      *
@@ -71,9 +74,9 @@ class BulkController extends Controller
      */
     public function edit(array $journals)
     {
-        $subTitle = (string)trans('firefly.mass_bulk_journals');
+        $subTitle = (string) trans('firefly.mass_bulk_journals');
 
-        $this->rememberPreviousUri('transactions.bulk-edit.uri');
+        $this->rememberPreviousUrl('transactions.bulk-edit.url');
 
         // make amounts positive.
 
@@ -82,7 +85,7 @@ class BulkController extends Controller
         $budgetRepos = app(BudgetRepositoryInterface::class);
         $budgetList  = app('expandedform')->makeSelectListWithEmpty($budgetRepos->getActiveBudgets());
 
-        return prefixView('transactions.bulk.edit', compact('journals', 'subTitle', 'budgetList'));
+        return view('transactions.bulk.edit', compact('journals', 'subTitle', 'budgetList'));
     }
 
     /**
@@ -90,35 +93,35 @@ class BulkController extends Controller
      *
      * @param BulkEditJournalRequest $request
      *
-     * @return mixed
+     * @return Application|RedirectResponse|Redirector
      */
     public function update(BulkEditJournalRequest $request)
     {
         $journalIds     = $request->get('journals');
         $journalIds     = is_array($journalIds) ? $journalIds : [];
-        $ignoreCategory = 1 === (int)$request->get('ignore_category');
-        $ignoreBudget   = 1 === (int)$request->get('ignore_budget');
+        $ignoreCategory = 1 === (int) $request->get('ignore_category');
+        $ignoreBudget   = 1 === (int) $request->get('ignore_budget');
         $tagsAction     = $request->get('tags_action');
 
         $count = 0;
 
         foreach ($journalIds as $journalId) {
-            $journalId = (int)$journalId;
-            $journal   = $this->repository->findNull($journalId);
+            $journalId = (int) $journalId;
+            $journal   = $this->repository->find($journalId);
             if (null !== $journal) {
                 $resultA = $this->updateJournalBudget($journal, $ignoreBudget, $request->integer('budget_id'));
-                $resultB = $this->updateJournalTags($journal, $tagsAction, explode(',', $request->string('tags')));
-                $resultC = $this->updateJournalCategory($journal, $ignoreCategory, $request->string('category'));
+                $resultB = $this->updateJournalTags($journal, $tagsAction, explode(',', $request->convertString('tags')));
+                $resultC = $this->updateJournalCategory($journal, $ignoreCategory, $request->convertString('category'));
                 if ($resultA || $resultB || $resultC) {
                     $count++;
                 }
             }
         }
         app('preferences')->mark();
-        $request->session()->flash('success', (string)trans_choice('firefly.mass_edited_transactions_success', $count));
+        $request->session()->flash('success', (string) trans_choice('firefly.mass_edited_transactions_success', $count));
 
         // redirect to previous URL:
-        return redirect($this->getPreviousUri('transactions.bulk-edit.uri'));
+        return redirect($this->getPreviousUrl('transactions.bulk-edit.url'));
     }
 
     /**

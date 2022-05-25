@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** global: token, helpPageTitle, noHelpForPage,noHelpForPageTitle */
+/** global: token, helpPageTitle */
 $(function () {
     "use strict";
     $('#help').click(showHelp);
@@ -33,15 +33,10 @@ function showHelp(e) {
     if (typeof specialPage === 'undefined') {
         specialPage = '';
     }
-    $('#helpBody').html('<i class="fa fa-refresh fa-spin"></i>');
+    $('#helpBody').html('<span class="fa fa-refresh fa-spin"></span>');
     $('#helpModal').modal('show');
     $('#helpTitle').html(helpPageTitle);
-    $.getJSON('help/' + encodeURI(route)).done(function (data) {
-        $('#helpBody').html(data.html);
-    }).fail(function () {
-        $('#helpBody').html('<p class="text-danger">' + noHelpForPage + '</p>');
-        $('#helpTitle').html(noHelpForPageTitle);
-    });
+    $('#helpBody').html(helpPageBody);
     $('#reenableGuidance').unbind('click').click(function () {
         enableGuidance(route, specialPage);
         return false;

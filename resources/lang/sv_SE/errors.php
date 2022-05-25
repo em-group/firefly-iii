@@ -47,5 +47,8 @@ return [
     'tell_more'               => 'Berätta mer än "det står Hoppsan!"',
     'include_logs'            => 'Inkludera felloggar (se ovan).',
     'what_did_you_do'         => 'Berätta vad du gjorde.',
+    'offline_header'          => 'Du är förmodligen offline',
+    'offline_unreachable'     => 'Firefly III kan inte nås. Din enhet är för närvarande offline eller servern fungerar inte.',
+    'offline_github'          => 'Om du är säker på att både din enhet och servern är online, vänligen öppna ett ärende på <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

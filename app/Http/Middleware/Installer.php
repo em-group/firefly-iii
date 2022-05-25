@@ -53,7 +53,7 @@ class Installer
      */
     public function handle($request, Closure $next)
     {
-        Log::debug(sprintf('Installer middleware for URI %s', $request->url()));
+        Log::debug(sprintf('Installer middleware for URL %s', $request->url()));
         // ignore installer in test environment.
         if ('testing' === config('app.env')) {
             return $next($request);
@@ -87,7 +87,7 @@ class Installer
      */
     private function hasNoTables(): bool
     {
-        Log::debug('Now in routine hasNoTables()');
+        //Log::debug('Now in routine hasNoTables()');
 
         try {
             DB::table('users')->count();
@@ -107,7 +107,8 @@ class Installer
             }
             throw new FireflyException(sprintf('Could not access the database: %s', $message), 0, $e);
         }
-        Log::debug('Everything seems OK with the tables.');
+
+        //Log::debug('Everything seems OK with the tables.');
 
         return false;
     }
@@ -144,8 +145,8 @@ class Installer
     private function oldDBVersion(): bool
     {
         // older version in config than database?
-        $configVersion = (int)config('firefly.db_version');
-        $dbVersion     = (int)app('fireflyconfig')->getFresh('db_version', 1)->data;
+        $configVersion = (int) config('firefly.db_version');
+        $dbVersion     = (int) app('fireflyconfig')->getFresh('db_version', 1)->data;
         if ($configVersion > $dbVersion) {
             Log::warning(
                 sprintf(
@@ -157,7 +158,8 @@ class Installer
 
             return true;
         }
-        Log::info(sprintf('Configured DB version (%d) equals expected DB version (%d)', $dbVersion, $configVersion));
+
+        //Log::info(sprintf('Configured DB version (%d) equals expected DB version (%d)', $dbVersion, $configVersion));
 
         return false;
     }
@@ -170,8 +172,8 @@ class Installer
     private function oldVersion(): bool
     {
         // version compare thing.
-        $configVersion = (string)config('firefly.version');
-        $dbVersion     = (string)app('fireflyconfig')->getFresh('ff3_version', '1.0')->data;
+        $configVersion = (string) config('firefly.version');
+        $dbVersion     = (string) app('fireflyconfig')->getFresh('ff3_version', '1.0')->data;
         if (1 === version_compare($configVersion, $dbVersion)) {
             Log::warning(
                 sprintf(
@@ -183,7 +185,8 @@ class Installer
 
             return true;
         }
-        Log::info(sprintf('Installed Firefly III version (%s) equals expected Firefly III version (%s)', $dbVersion, $configVersion));
+
+        //Log::info(sprintf('Installed Firefly III version (%s) equals expected Firefly III version (%s)', $dbVersion, $configVersion));
 
         return false;
     }

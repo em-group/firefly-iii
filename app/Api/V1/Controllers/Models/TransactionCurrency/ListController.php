@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace FireflyIII\Api\V1\Controllers\Models\TransactionCurrency;
 
 use FireflyIII\Api\V1\Controllers\Controller;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Bill;
@@ -87,25 +88,28 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listAccountByCurrency
      * Display a list of accounts.
      *
      * @param Request             $request
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function accounts(Request $request, TransactionCurrency $currency): JsonResponse
     {
         $manager = $this->getManager();
 
-        // read type from URI
+        // read type from URL
         $type = $request->get('type') ?? 'all';
         $this->parameters->set('type', $type);
 
         // types to get, page size:
         $types    = $this->mapAccountTypes($this->parameters->get('type'));
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of accounts. Count it and split it.
         /** @var AccountRepositoryInterface $accountRepository */
@@ -115,7 +119,7 @@ class ListController extends Controller
         // filter list on currency preference:
         $collection = $unfiltered->filter(
             static function (Account $account) use ($currency, $accountRepository) {
-                $currencyId = (int)$accountRepository->getMetaValue($account, 'currency_id');
+                $currencyId = (int) $accountRepository->getMetaValue($account, 'currency_id');
 
                 return $currencyId === $currency->id;
             }
@@ -138,18 +142,22 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listAvailableBudgetByCurrency
+     *
      * Display a listing of the resource.
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function availableBudgets(TransactionCurrency $currency): JsonResponse
     {
         $manager = $this->getManager();
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of available budgets. Count it and split it.
         /** @var AvailableBudgetRepositoryInterface $abRepository */
@@ -173,11 +181,15 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listBillByCurrency
+     *
      * List all bills
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function bills(TransactionCurrency $currency): JsonResponse
@@ -186,7 +198,7 @@ class ListController extends Controller
 
         /** @var BillRepositoryInterface $billRepos */
         $billRepos  = app(BillRepositoryInterface::class);
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $unfiltered = $billRepos->getBills();
 
         // filter and paginate list:
@@ -213,11 +225,15 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listBudgetLimitByCurrency
+     *
      * List all budget limits
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function budgetLimits(TransactionCurrency $currency): JsonResponse
@@ -226,7 +242,7 @@ class ListController extends Controller
         $blRepository = app(BudgetLimitRepositoryInterface::class);
 
         $manager      = $this->getManager();
-        $pageSize     = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize     = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection   = $blRepository->getAllBudgetLimitsByCurrency($currency, $this->parameters->get('start'), $this->parameters->get('end'));
         $count        = $collection->count();
         $budgetLimits = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
@@ -244,18 +260,22 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listRecurrenceByCurrency
+     *
      * List all recurring transactions.
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function recurrences(TransactionCurrency $currency): JsonResponse
     {
         $manager = $this->getManager();
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
         /** @var RecurringRepositoryInterface $recurringRepos */
@@ -294,17 +314,21 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listRuleByCurrency
+     *
      * List all of them.
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function rules(TransactionCurrency $currency): JsonResponse
     {
         $manager  = $this->getManager();
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
         /** @var RuleRepositoryInterface $ruleRepos */
@@ -343,6 +367,9 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listTransactionByCurrency
+     *
      * Show all transactions.
      *
      * @param Request             $request
@@ -350,11 +377,12 @@ class ListController extends Controller
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function transactions(Request $request, TransactionCurrency $currency): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 

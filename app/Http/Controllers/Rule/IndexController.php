@@ -22,14 +22,12 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Rule;
 
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Rule;
 use FireflyIII\Models\RuleGroup;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\RuleManagement;
-use FireflyIII\User;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -56,7 +54,7 @@ class IndexController extends Controller
         parent::__construct();
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.rules'));
+                app('view')->share('title', (string) trans('firefly.rules'));
                 app('view')->share('mainTitleIcon', 'fa-random');
                 $this->ruleGroupRepos = app(RuleGroupRepositoryInterface::class);
                 $this->ruleRepos      = app(RuleRepositoryInterface::class);
@@ -74,11 +72,10 @@ class IndexController extends Controller
     public function index()
     {
         $this->createDefaultRuleGroup();
-        $this->createDefaultRule();
         $this->ruleGroupRepos->resetOrder();
         $ruleGroups = $this->ruleGroupRepos->getAllRuleGroupsWithRules(null);
 
-        return prefixView('rules.index', compact('ruleGroups'));
+        return view('rules.index', compact('ruleGroups'));
     }
 
     /**
@@ -90,8 +87,8 @@ class IndexController extends Controller
      */
     public function moveRule(Request $request, Rule $rule, RuleGroup $ruleGroup): JsonResponse
     {
-        $order = (int)$request->get('order');
-        $this->ruleRepos->moveRule($rule, $ruleGroup, (int)$order);
+        $order = (int) $request->get('order');
+        $this->ruleRepos->moveRule($rule, $ruleGroup, (int) $order);
 
         return response()->json([]);
     }
@@ -100,7 +97,6 @@ class IndexController extends Controller
      * @param Rule $rule
      *
      * @return RedirectResponse
-     * @throws FireflyException
      */
     public function search(Rule $rule): RedirectResponse
     {

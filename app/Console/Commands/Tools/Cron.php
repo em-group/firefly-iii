@@ -25,11 +25,10 @@ declare(strict_types=1);
 namespace FireflyIII\Console\Commands\Tools;
 
 use Carbon\Carbon;
-use Exception;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Support\Cronjobs\AutoBudgetCronjob;
+use FireflyIII\Support\Cronjobs\BillWarningCronjob;
 use FireflyIII\Support\Cronjobs\RecurringCronjob;
-use FireflyIII\Support\Cronjobs\TelemetryCronjob;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
 use Log;
@@ -68,7 +67,7 @@ class Cron extends Command
         } catch (InvalidArgumentException $e) {
             $this->error(sprintf('"%s" is not a valid date', $this->option('date')));
         }
-        $force = (bool)$this->option('force');
+        $force = (bool) $this->option('force');
 
         /*
          * Fire recurring transaction cron job.
@@ -93,10 +92,10 @@ class Cron extends Command
         }
 
         /*
-         * Fire telemetry cron job
+         * Fire bill warning cron job
          */
         try {
-            $this->telemetryCronJob($force, $date);
+            $this->billWarningCronJob($force, $date);
         } catch (FireflyException $e) {
             Log::error($e->getMessage());
             Log::error($e->getTraceAsString());
@@ -104,8 +103,6 @@ class Cron extends Command
         }
 
         $this->info('More feedback on the cron jobs can be found in the log files.');
-
-        app('telemetry')->feature('system.command.executed', $this->signature);
 
         return 0;
     }
@@ -127,13 +124,13 @@ class Cron extends Command
         }
 
         $recurring->fire();
-        if($recurring->jobErrored) {
+        if ($recurring->jobErrored) {
             $this->error(sprintf('Error in "create recurring transactions" cron: %s', $recurring->message));
         }
-        if($recurring->jobFired) {
+        if ($recurring->jobFired) {
             $this->error(sprintf('"Create recurring transactions" cron fired: %s', $recurring->message));
         }
-        if($recurring->jobSucceeded) {
+        if ($recurring->jobSucceeded) {
             $this->error(sprintf('"Create recurring transactions" cron ran with success: %s', $recurring->message));
         }
     }
@@ -142,7 +139,6 @@ class Cron extends Command
      * @param bool        $force
      * @param Carbon|null $date
      *
-     * @throws FireflyException
      */
     private function autoBudgetCronJob(bool $force, ?Carbon $date): void
     {
@@ -155,13 +151,13 @@ class Cron extends Command
 
         $autoBudget->fire();
 
-        if($autoBudget->jobErrored) {
+        if ($autoBudget->jobErrored) {
             $this->error(sprintf('Error in "create auto budgets" cron: %s', $autoBudget->message));
         }
-        if($autoBudget->jobFired) {
+        if ($autoBudget->jobFired) {
             $this->error(sprintf('"Create auto budgets" cron fired: %s', $autoBudget->message));
         }
-        if($autoBudget->jobSucceeded) {
+        if ($autoBudget->jobSucceeded) {
             $this->error(sprintf('"Create auto budgets" cron ran with success: %s', $autoBudget->message));
         }
 
@@ -170,35 +166,28 @@ class Cron extends Command
     /**
      * @param bool        $force
      * @param Carbon|null $date
-     *
      * @throws FireflyException
      */
-    private function telemetryCronJob(bool $force, ?Carbon $date): void
+    private function billWarningCronJob(bool $force, ?Carbon $date): void
     {
-        if (false === config('firefly.send_telemetry') || false === config('firefly.feature_flags.telemetry')) {
-            // if not configured to do anything with telemetry, do nothing.
-            return;
-        }
-        $telemetry = new TelemetryCronjob;
-        $telemetry->setForce($force);
-
+        $autoBudget = new BillWarningCronjob;
+        $autoBudget->setForce($force);
         // set date in cron job:
         if (null !== $date) {
-            $telemetry->setDate($date);
+            $autoBudget->setDate($date);
         }
 
-        $telemetry->fire();
+        $autoBudget->fire();
 
-        if($telemetry->jobErrored) {
-            $this->error(sprintf('Error in "send telemetry" cron: %s', $telemetry->message));
+        if ($autoBudget->jobErrored) {
+            $this->error(sprintf('Error in "bill warnings" cron: %s', $autoBudget->message));
         }
-        if($telemetry->jobFired) {
-            $this->error(sprintf('"Send telemetry" cron fired: %s', $telemetry->message));
+        if ($autoBudget->jobFired) {
+            $this->error(sprintf('"Send bill warnings" cron fired: %s', $autoBudget->message));
         }
-        if($telemetry->jobSucceeded) {
-            $this->error(sprintf('"Send telemetry" cron ran with success: %s', $telemetry->message));
+        if ($autoBudget->jobSucceeded) {
+            $this->error(sprintf('"Send bill warnings" cron ran with success: %s', $autoBudget->message));
         }
 
     }
-
 }

@@ -31,6 +31,7 @@ use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Contracts\Foundation\Application;
 use Log;
+
 /**
  * Class RemoteUserGuard
  */
@@ -44,8 +45,7 @@ class RemoteUserGuard implements Guard
      * Create a new authentication guard.
      *
      * @param UserProvider $provider
-     *
-     * @return void
+     * @param Application  $app
      */
     // @phpstan-ignore-next-line
     public function __construct(UserProvider $provider, Application $app) // @phpstan-ignore-line
@@ -62,7 +62,7 @@ class RemoteUserGuard implements Guard
     {
         Log::debug(sprintf('Now at %s', __METHOD__));
         if (!is_null($this->user)) {
-            Log::debug('No user found.');
+            Log::debug('User is found.');
 
             return;
         }
@@ -81,8 +81,8 @@ class RemoteUserGuard implements Guard
         $header = config('auth.guard_email');
 
         if (null !== $header) {
-            $emailAddress = (string)(request()->server($header) ?? null);
-            $preference   = app('preferences')->getForUser($retrievedUser, 'remote_guard_alt_email', null);
+            $emailAddress = (string) (request()->server($header) ?? null);
+            $preference   = app('preferences')->getForUser($retrievedUser, 'remote_guard_alt_email');
 
             if (null !== $emailAddress && null === $preference && $emailAddress !== $userID) {
                 app('preferences')->setForUser($retrievedUser, 'remote_guard_alt_email', $emailAddress);
@@ -96,19 +96,33 @@ class RemoteUserGuard implements Guard
     /**
      * @inheritDoc
      */
-    public function check(): bool
+    public function guest(): bool
     {
-        $result = !is_null($this->user());
-
-        return $result;
+        return !$this->check();
     }
 
     /**
      * @inheritDoc
      */
-    public function guest(): bool
+    public function check(): bool
     {
-        return !$this->check();
+        return !is_null($this->user());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function user(): ?User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function hasUser()
+    {
+        // TODO: Implement hasUser() method.
     }
 
     /**
@@ -125,14 +139,6 @@ class RemoteUserGuard implements Guard
     public function setUser(Authenticatable $user)
     {
         $this->user = $user;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function user(): ?User
-    {
-        return $this->user;
     }
 
     /**

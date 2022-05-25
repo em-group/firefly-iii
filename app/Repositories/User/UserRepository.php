@@ -27,8 +27,10 @@ use EM\Hub\Models\HubEmailChange;
 use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Http\Requests\Request;
 use Exception;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\BudgetLimit;
 use FireflyIII\Models\Role;
+use FireflyIII\Models\UserGroup;
 use FireflyIII\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
@@ -43,38 +45,6 @@ use Str;
 class UserRepository implements UserRepositoryInterface
 {
     use SendsHubRequests;
-    /**
-     * @return LazyCollection
-     */
-    public function all(): LazyCollection
-    {
-        return User::orderBy('id', 'DESC')->lazy();
-    }
-
-    /**
-     * @param User   $user
-     * @param string $role
-     *
-     * @return bool
-     */
-    public function attachRole(User $user, string $role): bool
-    {
-        $roleObject = Role::where('name', $role)->first();
-        if (null === $roleObject) {
-            Log::error(sprintf('Could not find role "%s" in attachRole()', $role));
-
-            return false;
-        }
-
-        try {
-            $user->roles()->attach($roleObject);
-        } catch (QueryException $e) {
-            // don't care
-            Log::error(sprintf('Query exception when giving user a role: %s', $e->getMessage()));
-        }
-
-        return true;
-    }
 
     /**
      * This updates the users email address and records some things so it can be confirmed or undone later.
@@ -156,6 +126,14 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
+     * @return Collection
+     */
+    public function all(): Collection
+    {
+        return User::orderBy('id', 'DESC')->get(['users.*']);
+    }
+
+    /**
      * @param string $name
      * @param string $displayName
      * @param string $description
@@ -180,9 +158,38 @@ class UserRepository implements UserRepositoryInterface
             'email_blake2b' => $user->blake2b_email,
         ];
         self::sendPOST('profile/cancel-site-membership', $data);
+
+        $user->groupMemberships()->delete();
         $user->delete();
+        $this->deleteEmptyGroups();
 
         return true;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function deleteEmptyGroups(): void
+    {
+        $groups = UserGroup::get();
+        /** @var UserGroup $group */
+        foreach ($groups as $group) {
+            $count = $group->groupMemberships()->count();
+            if (0 === $count) {
+                Log::info(sprintf('Deleted empty group #%d ("%s")', $group->id, $group->title));
+                $group->delete();
+            }
+        }
+    }
+
+    /**
+     * @param int $userId
+     *
+     * @return User|null
+     */
+    public function find(int $userId): ?User
+    {
+        return User::find($userId);
     }
 
     /**
@@ -196,16 +203,6 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * @param int $userId
-     *
-     * @return User|null
-     */
-    public function findNull(int $userId): ?User
-    {
-        return User::find($userId);
-    }
-
-    /**
      * Returns the first user in the DB. Generally only works when there is just one.
      *
      * @return null|User
@@ -213,16 +210,6 @@ class UserRepository implements UserRepositoryInterface
     public function first(): ?User
     {
         return User::orderBy('id', 'ASC')->first();
-    }
-
-    /**
-     * @param string $role
-     *
-     * @return Role|null
-     */
-    public function getRole(string $role): ?Role
-    {
-        return Role::where('name', $role)->first();
     }
 
     /**
@@ -255,7 +242,7 @@ class UserRepository implements UserRepositoryInterface
         // two factor:
         $return['has_2fa']             = $user->mfa_secret !== null;
         $return['is_admin']            = $this->hasRole($user, 'owner');
-        $return['blocked']             = 1 === (int)$user->blocked;
+        $return['blocked']             = 1 === (int) $user->blocked;
         $return['blocked_code']        = $user->blocked_code;
         $return['accounts']            = $user->accounts()->count();
         $return['journals']            = $user->transactionJournals()->count();
@@ -286,8 +273,6 @@ class UserRepository implements UserRepositoryInterface
      */
     public function hasRole(User $user, string $role): bool
     {
-        // TODO no longer need to loop like this
-
         /** @var Role $userRole */
         foreach ($user->roles as $userRole) {
             if ($userRole->name === $role) {
@@ -296,21 +281,6 @@ class UserRepository implements UserRepositoryInterface
         }
 
         return false;
-    }
-
-    /**
-     * Remove any role the user has.
-     *
-     * @param User   $user
-     * @param string $role
-     */
-    public function removeRole(User $user, string $role): void
-    {
-        $roleObj = $this->getRole($role);
-        if (null === $roleObj) {
-            return;
-        }
-        $user->roles()->detach($roleObj->id);
     }
 
     /**
@@ -349,6 +319,31 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
+     * @param User   $user
+     * @param string $role
+     *
+     * @return bool
+     */
+    public function attachRole(User $user, string $role): bool
+    {
+        $roleObject = Role::where('name', $role)->first();
+        if (null === $roleObject) {
+            Log::error(sprintf('Could not find role "%s" in attachRole()', $role));
+
+            return false;
+        }
+
+        try {
+            $user->roles()->attach($roleObject);
+        } catch (QueryException $e) {
+            // don't care
+            Log::error(sprintf('Query exception when giving user a role: %s', $e->getMessage()));
+        }
+
+        return true;
+    }
+
+    /**
      * @param User $user
      */
     public function unblockUser(User $user): void
@@ -366,6 +361,7 @@ class UserRepository implements UserRepositoryInterface
      * @param array $data
      *
      * @return User
+     * @throws FireflyException
      */
     public function update(User $user, array $data): User
     {
@@ -394,8 +390,8 @@ class UserRepository implements UserRepositoryInterface
      * @param string $newEmail
      *
      * @return bool
+     * @throws FireflyException
      * @see changeEmail
-     *
      */
     public function updateEmail(User $user, string $newEmail): bool
     {
@@ -426,5 +422,30 @@ class UserRepository implements UserRepositoryInterface
     public function hasFeature(User $user, SubProductInterface $product): bool
     {
         return $user->active_product_index >= $product->index;
+    }
+
+    /**
+     * Remove any role the user has.
+     *
+     * @param User   $user
+     * @param string $role
+     */
+    public function removeRole(User $user, string $role): void
+    {
+        $roleObj = $this->getRole($role);
+        if (null === $roleObj) {
+            return;
+        }
+        $user->roles()->detach($roleObj->id);
+    }
+
+    /**
+     * @param string $role
+     *
+     * @return Role|null
+     */
+    public function getRole(string $role): ?Role
+    {
+        return Role::where('name', $role)->first();
     }
 }

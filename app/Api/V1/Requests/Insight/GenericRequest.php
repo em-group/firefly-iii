@@ -58,8 +58,8 @@ class GenericRequest extends FormRequest
     public function getAll(): array
     {
         return [
-            'start' => $this->date('start'),
-            'end'   => $this->date('end'),
+            'start' => $this->getCarbonDate('start'),
+            'end'   => $this->getCarbonDate('end'),
         ];
     }
 
@@ -94,8 +94,8 @@ class GenericRequest extends FormRequest
         $array = $this->get('accounts');
         if (is_array($array)) {
             foreach ($array as $accountId) {
-                $accountId = (int)$accountId;
-                $account   = $repository->findNull($accountId);
+                $accountId = (int) $accountId;
+                $account   = $repository->find($accountId);
                 if (null !== $account) {
                     $this->accounts->push($account);
                 }
@@ -126,9 +126,9 @@ class GenericRequest extends FormRequest
         $array = $this->get('bills');
         if (is_array($array)) {
             foreach ($array as $billId) {
-                $billId = (int)$billId;
+                $billId = (int) $billId;
                 $bill   = $repository->find($billId);
-                if (null !== $billId) {
+                if (null !== $bill) {
                     $this->bills->push($bill);
                 }
             }
@@ -158,9 +158,9 @@ class GenericRequest extends FormRequest
         $array = $this->get('budgets');
         if (is_array($array)) {
             foreach ($array as $budgetId) {
-                $budgetId = (int)$budgetId;
-                $budget   = $repository->findNull($budgetId);
-                if (null !== $budgetId) {
+                $budgetId = (int) $budgetId;
+                $budget   = $repository->find($budgetId);
+                if (null !== $budget) {
                     $this->budgets->push($budget);
                 }
             }
@@ -190,9 +190,9 @@ class GenericRequest extends FormRequest
         $array = $this->get('categories');
         if (is_array($array)) {
             foreach ($array as $categoryId) {
-                $categoryId = (int)$categoryId;
-                $category   = $repository->findNull($categoryId);
-                if (null !== $categoryId) {
+                $categoryId = (int) $categoryId;
+                $category   = $repository->find($categoryId);
+                if (null !== $category) {
                     $this->categories->push($category);
                 }
             }
@@ -204,7 +204,7 @@ class GenericRequest extends FormRequest
      */
     public function getEnd(): Carbon
     {
-        $date = $this->date('end');
+        $date = $this->getCarbonDate('end');
         $date->endOfDay();
 
         return $date;
@@ -220,7 +220,7 @@ class GenericRequest extends FormRequest
         /** @var Account $account */
         foreach ($this->accounts as $account) {
             $type = $account->accountType->type;
-            if (in_array($type, [AccountType::EXPENSE])) {
+            if ($type === AccountType::EXPENSE) {
                 $return->push($account);
             }
         }
@@ -238,7 +238,7 @@ class GenericRequest extends FormRequest
         /** @var Account $account */
         foreach ($this->accounts as $account) {
             $type = $account->accountType->type;
-            if (in_array($type, [AccountType::REVENUE])) {
+            if ($type === AccountType::REVENUE) {
                 $return->push($account);
             }
         }
@@ -251,7 +251,7 @@ class GenericRequest extends FormRequest
      */
     public function getStart(): Carbon
     {
-        $date = $this->date('start');
+        $date = $this->getCarbonDate('start');
         $date->startOfDay();
 
         return $date;
@@ -280,9 +280,9 @@ class GenericRequest extends FormRequest
         $array = $this->get('tags');
         if (is_array($array)) {
             foreach ($array as $tagId) {
-                $tagId = (int)$tagId;
-                $tag   = $repository->findNull($tagId);
-                if (null !== $tagId) {
+                $tagId = (int) $tagId;
+                $tag   = $repository->find($tagId);
+                if (null !== $tag) {
                     $this->tags->push($tag);
                 }
             }

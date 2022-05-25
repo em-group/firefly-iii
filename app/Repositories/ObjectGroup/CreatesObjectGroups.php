@@ -25,7 +25,6 @@ declare(strict_types=1);
 namespace FireflyIII\Repositories\ObjectGroup;
 
 use FireflyIII\Models\ObjectGroup;
-use FireflyIII\User;
 
 /**
  * Trait CreatesObjectGroups
@@ -68,7 +67,7 @@ trait CreatesObjectGroups
      */
     protected function getObjectGroupMaxOrder(): int
     {
-        return (int)$this->user->objectGroups()->max('order');
+        return (int) $this->user->objectGroups()->max('order');
     }
 
     /**

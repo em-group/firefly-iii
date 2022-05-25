@@ -43,10 +43,10 @@ trait VerifiesAccessToken
      */
     public function getUser(): User
     {
-        $userId = (int)$this->option('user');
+        $userId = (int) $this->option('user');
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
-        $user       = $repository->findNull($userId);
+        $user       = $repository->find($userId);
         if (null === $user) {
             throw new FireflyException('User is unexpectedly NULL');
         }
@@ -67,21 +67,22 @@ trait VerifiesAccessToken
      * Returns false when given token does not match given user token.
      *
      * @return bool
+     * @throws FireflyException
      */
     protected function verifyAccessToken(): bool
     {
-        $userId = (int)$this->option('user');
-        $token  = (string)$this->option('token');
+        $userId = (int) $this->option('user');
+        $token  = (string) $this->option('token');
         /** @var UserRepositoryInterface $repository */
         $repository = app(UserRepositoryInterface::class);
-        $user       = $repository->findNull($userId);
+        $user       = $repository->find($userId);
 
         if (null === $user) {
             Log::error(sprintf('verifyAccessToken(): no such user for input "%d"', $userId));
 
             return false;
         }
-        $accessToken = app('preferences')->getForUser($user, 'access_token', null);
+        $accessToken = app('preferences')->getForUser($user, 'access_token');
         if (null === $accessToken) {
             Log::error(sprintf('User #%d has no access token, so cannot access command line options.', $userId));
 

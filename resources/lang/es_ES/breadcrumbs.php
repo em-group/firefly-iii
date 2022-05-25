@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Inicio',
+    'budgets'                => 'Presupuestos',
+    'subscriptions'          => 'Suscripciones',
+    'transactions'           => 'Transacciones',
+    'title_expenses'         => 'Gastos',
+    'title_withdrawal'       => 'Gastos',
+    'title_revenue'          => 'Ingresos / salario',
+    'title_deposit'          => 'Ingresos / salario',
+    'title_transfer'         => 'Transferencias',
+    'title_transfers'        => 'Transferencias',
     'edit_currency'          => 'Editar moneda ":name"',
     'delete_currency'        => 'Eliminar moneda ":name"',
     'newPiggyBank'           => 'Crear nueva hucha',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Editar etiqueta ":tag"',
     'delete_tag'             => 'Eliminar etiqueta ":tag"',
     'delete_journal_link'    => 'Eliminar enlace entre transacciones',
-    'telemetry_index'        => 'Telemetría',
-    'telemetry_view'         => 'Ver telemetría',
     'edit_object_group'      => 'Editar grupo ":title"',
     'delete_object_group'    => 'Eliminar grupo ":title"',
-    'logout_others'          => 'Desconectar otras sesiones'
+    'logout_others'          => 'Desconectar otras sesiones',
+    'asset_accounts'         => 'Cuentas de activos',
+    'expense_accounts'       => 'Cuentas de gastos',
+    'revenue_accounts'       => 'Cuentas de ingresos',
+    'liabilities_accounts'   => 'Pasivos',
+    'placeholder'            => '[Placeholder]',
 ];

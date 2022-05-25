@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Transaction;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Repositories\Journal\JournalCLIRepositoryInterface;
@@ -67,6 +68,7 @@ class TransactionIdentifier extends Command
      * think. So each set gets a number (1,2,3) to keep them apart.
      *
      * @return int
+     * @throws FireflyException
      */
     public function handle(): int
     {
@@ -120,12 +122,15 @@ class TransactionIdentifier extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false;
@@ -170,7 +175,7 @@ class TransactionIdentifier extends Command
     private function findOpposing(Transaction $transaction, array $exclude): ?Transaction
     {
         // find opposing:
-        $amount = bcmul((string)$transaction->amount, '-1');
+        $amount = bcmul((string) $transaction->amount, '-1');
 
         try {
             /** @var Transaction $opposing */
@@ -188,6 +193,7 @@ class TransactionIdentifier extends Command
 
             return null;
         }
+
         return $opposing;
     }
 

@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Главная',
+    'budgets'                => 'Budgets',
+    'subscriptions'          => 'Subscriptions',
+    'transactions'           => 'Transactions',
+    'title_expenses'         => 'Expenses',
+    'title_withdrawal'       => 'Expenses',
+    'title_revenue'          => 'Revenue / income',
+    'title_deposit'          => 'Revenue / income',
+    'title_transfer'         => 'Перевод',
+    'title_transfers'        => 'Переводы',
     'edit_currency'          => 'Редактирование валюты ":name"',
     'delete_currency'        => 'Удаление валюты ":name"',
     'newPiggyBank'           => 'Создание новой копилки',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Редактирование метки ":tag"',
     'delete_tag'             => 'Удаление метки ":tag"',
     'delete_journal_link'    => 'Удалить связь между транзакциями',
-    'telemetry_index'        => 'Телеметрия',
-    'telemetry_view'         => 'Просмотр телеметрии',
     'edit_object_group'      => 'Редактировать группу ":title"',
     'delete_object_group'    => 'Удалить группу ":title"',
-    'logout_others'          => 'Завершить другие сессии'
+    'logout_others'          => 'Завершить другие сессии',
+    'asset_accounts'         => 'Asset accounts',
+    'expense_accounts'       => 'Expense accounts',
+    'revenue_accounts'       => 'Revenue accounts',
+    'liabilities_accounts'   => 'Liabilities',
+    'placeholder'            => '[Placeholder]',
 ];

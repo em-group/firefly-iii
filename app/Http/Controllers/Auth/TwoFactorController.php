@@ -24,6 +24,8 @@ namespace FireflyIII\Http\Controllers\Auth;
 
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\User;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -38,16 +40,16 @@ class TwoFactorController extends Controller
     /**
      * What to do if 2FA lost?
      *
-     * @return mixed
+     * @return Factory|View
      */
     public function lostTwoFactor()
     {
         /** @var User $user */
         $user      = auth()->user();
         $siteOwner = config('firefly.site_owner');
-        $title     = (string)trans('firefly.two_factor_forgot_title');
+        $title     = (string) trans('firefly.two_factor_forgot_title');
 
-        return prefixView('auth.lost-two-factor', compact('user', 'siteOwner', 'title'));
+        return view('auth.lost-two-factor', compact('user', 'siteOwner', 'title'));
     }
 
     /**
@@ -59,7 +61,7 @@ class TwoFactorController extends Controller
     {
         /** @var array $mfaHistory */
         $mfaHistory = Preferences::get('mfa_history', [])->data;
-        $mfaCode    = (string)$request->get('one_time_password');
+        $mfaCode    = (string) $request->get('one_time_password');
 
         // is in history? then refuse to use it.
         if ($this->inMFAHistory($mfaCode, $mfaHistory)) {

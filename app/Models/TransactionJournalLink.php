@@ -22,32 +22,32 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * FireflyIII\Models\TransactionJournalLink
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $link_type_id
- * @property int $source_id
- * @property int $destination_id
- * @property string|null $comment
- * @property-read \FireflyIII\Models\TransactionJournal $destination
- * @property-read \FireflyIII\Models\LinkType $linkType
- * @property-read Collection|\FireflyIII\Models\Note[] $notes
- * @property-read int|null $notes_count
- * @property-read \FireflyIII\Models\TransactionJournal $source
- * @property-read string $inward
- * @property-read string $outward
+ * @property int                     $id
+ * @property Carbon|null             $created_at
+ * @property Carbon|null             $updated_at
+ * @property int                     $link_type_id
+ * @property int                     $source_id
+ * @property int                     $destination_id
+ * @property string|null             $comment
+ * @property-read TransactionJournal $destination
+ * @property-read LinkType           $linkType
+ * @property-read Collection|Note[]  $notes
+ * @property-read int|null           $notes_count
+ * @property-read TransactionJournal $source
+ * @property-read string             $inward
+ * @property-read string             $outward
  * @method static Builder|TransactionJournalLink newModelQuery()
  * @method static Builder|TransactionJournalLink newQuery()
  * @method static Builder|TransactionJournalLink query()
@@ -80,9 +80,9 @@ class TransactionJournalLink extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return TransactionJournalLink
      *
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): TransactionJournalLink
     {

@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'Това е невалиден IBAN.',
     'zero_or_more'                   => 'Стойността не може да бъде отрицателна.',
     'date_or_time'                   => 'Стойността трябва да е валидна дата и време (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute трябва да бъде приет.',
     'bic'                            => 'Това е невалиден BIC.',
     'at_least_one_trigger'           => 'Правилото трябва да има поне еднo задействане.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Правилото трябва да има поне еднo действие.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Това не са валидни base64 кодирани данни.',
     'model_id_invalid'               => 'Даденото ID изглежда невалидно за този модел.',
     'less'                           => ':attribute трябва да е по-малко от 10 000 000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Трябва да използвате валидно ID на приходната сметка и / или валидно име на приходната сметка, за да продължите.',
     'withdrawal_dest_bad_data'    => 'Не може да се намери валидна приходна сметка при търсене на ID ":id" или име ":name".',
 
-    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
+    'generic_source_bad_data' => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => 'Трябва да използвате валидно ID на разходната сметка и / или валидно име на разходната сметка, за да продължите.',
     'deposit_source_bad_data'  => 'Не може да се намери валидна разходна сметка при търсене на ID ":id" или име ":name".',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Всяко разделяне трябва да има transaction_journal_id (или валидно ID или 0).',
 
     'ob_source_need_data' => 'Трябва да използвате валидно ID на разходната сметка и / или валидно име на разходната сметка, за да продължите.',
+    'lc_source_need_data' => 'Need to get a valid source account ID to continue.',
     'ob_dest_need_data'   => 'Трябва да използвате валидно ID на приходната сметка и / или валидно име на приходната сметка, за да продължите.',
     'ob_dest_bad_data'    => 'Не може да се намери валидна приходна сметка при търсене на ID ":id" или име ":name".',
 
     'generic_invalid_source'      => 'Не може да използвате тази сметка като разходна сметка.',
     'generic_invalid_destination' => 'Не може да използвате тази сметка като приходна сметка.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => ':attribute трябва да е по-голямо или равно на :value.',
     'gt.numeric'  => ':attribute трябва да бъде по-голям от :value.',

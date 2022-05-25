@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers\Admin;
 
 use FireflyIII\Events\AdminRequestedTestMessage;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\User;
@@ -53,20 +54,23 @@ class HomeController extends Controller
      * Index of the admin.
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function index()
     {
         Log::channel('audit')->info('User visits admin index.');
-        $title         = (string)trans('firefly.administration');
+        $title         = (string) trans('firefly.administration');
         $mainTitleIcon = 'fa-hand-spock-o';
         $email         = auth()->user()->email;
-        $pref          = app('preferences')->get('remote_guard_alt_email', null);
+        $pref          = app('preferences')->get('remote_guard_alt_email');
         if (null !== $pref && is_string($pref->data)) {
             $email = $pref->data;
         }
         Log::debug('Email is ', [$email]);
 
-        return prefixView('admin.index', compact('title', 'mainTitleIcon', 'email'));
+        return view('admin.index', compact('title', 'mainTitleIcon', 'email'));
     }
 
     /**
@@ -80,11 +84,10 @@ class HomeController extends Controller
     {
         Log::channel('audit')->info('User sends test message.');
         /** @var User $user */
-        $user      = auth()->user();
-        $ipAddress = $request->ip();
-        Log::debug(sprintf('Now in testMessage() controller. IP is %s', $ipAddress));
-        event(new AdminRequestedTestMessage($user, $ipAddress));
-        session()->flash('info', (string)trans('firefly.send_test_triggered'));
+        $user = auth()->user();
+        Log::debug('Now in testMessage() controller.');
+        event(new AdminRequestedTestMessage($user));
+        session()->flash('info', (string) trans('firefly.send_test_triggered'));
 
         return redirect(route('admin.index'));
     }

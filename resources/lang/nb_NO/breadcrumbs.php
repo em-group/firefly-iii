@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Hjem',
+    'budgets'                => 'Budgets',
+    'subscriptions'          => 'Subscriptions',
+    'transactions'           => 'Transactions',
+    'title_expenses'         => 'Expenses',
+    'title_withdrawal'       => 'Expenses',
+    'title_revenue'          => 'Revenue / income',
+    'title_deposit'          => 'Revenue / income',
+    'title_transfer'         => 'Transfers',
+    'title_transfers'        => 'Transfers',
     'edit_currency'          => 'Rediger valuta ":name"',
     'delete_currency'        => 'Slett valuta ":name"',
     'newPiggyBank'           => 'Lag en ny sparegris',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Rediger tagg ":tag"',
     'delete_tag'             => 'Slett tagg ":tag"',
     'delete_journal_link'    => 'Slett kobling mellom transaksjoner',
-    'telemetry_index'        => 'Telemetry',
-    'telemetry_view'         => 'View telemetry',
     'edit_object_group'      => 'Edit group ":title"',
     'delete_object_group'    => 'Delete group ":title"',
-    'logout_others'          => 'Logout other sessions'
+    'logout_others'          => 'Logout other sessions',
+    'asset_accounts'         => 'Asset accounts',
+    'expense_accounts'       => 'Expense accounts',
+    'revenue_accounts'       => 'Revenue accounts',
+    'liabilities_accounts'   => 'Liabilities',
+    'placeholder'            => '[Placeholder]',
 ];

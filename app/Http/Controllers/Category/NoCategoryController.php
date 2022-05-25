@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers\Category;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionType;
@@ -57,7 +58,7 @@ class NoCategoryController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.categories'));
+                app('view')->share('title', (string) trans('firefly.categories'));
                 app('view')->share('mainTitleIcon', 'fa-bookmark');
                 $this->journalRepos = app(JournalRepositoryInterface::class);
 
@@ -74,6 +75,10 @@ class NoCategoryController extends Controller
      * @param Carbon|null $end
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \JsonException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function show(Request $request, Carbon $start = null, Carbon $end = null)
     {
@@ -82,11 +87,11 @@ class NoCategoryController extends Controller
         $start = $start ?? session('start');
         /** @var Carbon $end */
         $end      = $end ?? session('end');
-        $page     = (int)$request->get('page');
-        $pageSize = (int)app('preferences')->get('listPageSize', 50)->data;
+        $page     = (int) $request->get('page');
+        $pageSize = (int) app('preferences')->get('listPageSize', 50)->data;
         $subTitle = trans(
             'firefly.without_category_between',
-            ['start' => $start->formatLocalized($this->monthAndDayFormat), 'end' => $end->formatLocalized($this->monthAndDayFormat)]
+            ['start' => $start->isoFormat($this->monthAndDayFormat), 'end' => $end->isoFormat($this->monthAndDayFormat)]
         );
         $periods  = $this->getNoCategoryPeriodOverview($start);
 
@@ -102,7 +107,7 @@ class NoCategoryController extends Controller
         $groups = $collector->getPaginatedGroups();
         $groups->setPath(route('categories.no-category'));
 
-        return prefixView('categories.no-category', compact('groups', 'subTitle', 'periods', 'start', 'end'));
+        return view('categories.no-category', compact('groups', 'subTitle', 'periods', 'start', 'end'));
     }
 
     /**
@@ -111,6 +116,9 @@ class NoCategoryController extends Controller
      * @param Request $request
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function showAll(Request $request)
     {
@@ -118,10 +126,10 @@ class NoCategoryController extends Controller
         $start    = null;
         $end      = null;
         $periods  = new Collection;
-        $page     = (int)$request->get('page');
-        $pageSize = (int)app('preferences')->get('listPageSize', 50)->data;
+        $page     = (int) $request->get('page');
+        $pageSize = (int) app('preferences')->get('listPageSize', 50)->data;
         Log::debug('Start of noCategory()');
-        $subTitle = (string)trans('firefly.all_journals_without_category');
+        $subTitle = (string) trans('firefly.all_journals_without_category');
         $first    = $this->journalRepos->firstNull();
         $start    = null === $first ? new Carbon : $first->date;
         $end      = today(config('app.timezone'));
@@ -136,6 +144,6 @@ class NoCategoryController extends Controller
         $groups = $collector->getPaginatedGroups();
         $groups->setPath(route('categories.no-category.all'));
 
-        return prefixView('categories.no-category', compact('groups', 'subTitle', 'periods', 'start', 'end'));
+        return view('categories.no-category', compact('groups', 'subTitle', 'periods', 'start', 'end'));
     }
 }

@@ -30,6 +30,7 @@ use FireflyIII\Models\Bill;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\Category;
 use FireflyIII\Models\PiggyBank;
+use FireflyIII\Models\TransactionJournal;
 use Illuminate\Contracts\Validation\Rule;
 use Log;
 
@@ -57,7 +58,7 @@ class BelongsUser implements Rule
      */
     public function message(): string
     {
-        return (string)trans('validation.belongs_user');
+        return (string) trans('validation.belongs_user');
     }
 
     /**
@@ -74,31 +75,23 @@ class BelongsUser implements Rule
     {
         $attribute = $this->parseAttribute($attribute);
         if (!auth()->check()) {
-            return true; 
+            return true;
         }
-        $attribute = (string)$attribute;
+        $attribute = (string) $attribute;
         Log::debug(sprintf('Going to validate %s', $attribute));
-        switch ($attribute) {
-            case 'piggy_bank_id':
-                return $this->validatePiggyBankId((int)$value);
-            case 'piggy_bank_name':
-                return $this->validatePiggyBankName($value);
-            case 'bill_id':
-                return $this->validateBillId((int)$value);
-            case 'bill_name':
-                return $this->validateBillName($value);
-            case 'budget_id':
-                return $this->validateBudgetId((int)$value);
-            case 'category_id':
-                return $this->validateCategoryId((int)$value);
-            case 'budget_name':
-                return $this->validateBudgetName($value);
-            case 'source_id':
-            case 'destination_id':
-                return $this->validateAccountId((int)$value);
-            default:
-                throw new FireflyException(sprintf('Rule BelongUser cannot handle "%s"', $attribute)); 
-        }
+
+        return match ($attribute) {
+            'piggy_bank_id' => $this->validatePiggyBankId((int) $value),
+            'piggy_bank_name' => $this->validatePiggyBankName($value),
+            'bill_id' => $this->validateBillId((int) $value),
+            'transaction_journal_id' => $this->validateJournalId((int) $value),
+            'bill_name' => $this->validateBillName($value),
+            'budget_id' => $this->validateBudgetId((int) $value),
+            'category_id' => $this->validateCategoryId((int) $value),
+            'budget_name' => $this->validateBudgetName($value),
+            'source_id', 'destination_id' => $this->validateAccountId((int) $value),
+            default => throw new FireflyException(sprintf('Rule BelongUser cannot handle "%s"', $attribute)),
+        };
     }
 
     /**
@@ -116,7 +109,7 @@ class BelongsUser implements Rule
             return $parts[2];
         }
 
-        return $attribute; 
+        return $attribute;
     }
 
     /**
@@ -168,7 +161,7 @@ class BelongsUser implements Rule
         }
         $count = 0;
         foreach ($objects as $object) {
-            $objectValue = trim((string)$object->$field);
+            $objectValue = trim((string) $object->$field);
             Log::debug(sprintf('Comparing object "%s" with value "%s"', $objectValue, $value));
             if ($objectValue === $value) {
                 $count++;
@@ -190,6 +183,21 @@ class BelongsUser implements Rule
             return true;
         }
         $count = Bill::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
+
+        return 1 === $count;
+    }
+
+    /**
+     * @param int $value
+     *
+     * @return bool
+     */
+    private function validateJournalId(int $value): bool
+    {
+        if (0 === $value) {
+            return true;
+        }
+        $count = TransactionJournal::where('id', '=', $value)->where('user_id', '=', auth()->user()->id)->count();
 
         return 1 === $count;
     }

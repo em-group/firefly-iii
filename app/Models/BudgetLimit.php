@@ -22,29 +22,29 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * FireflyIII\Models\BudgetLimit
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int $budget_id
- * @property int|null $transaction_currency_id
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon|null $end_date
- * @property string $amount
- * @property string $spent
- * @property string|null $period
- * @property int $generated
- * @property-read \FireflyIII\Models\Budget $budget
- * @property-read \FireflyIII\Models\TransactionCurrency|null $transactionCurrency
+ * @property int                           $id
+ * @property Carbon|null                   $created_at
+ * @property Carbon|null                   $updated_at
+ * @property int                           $budget_id
+ * @property int|null                      $transaction_currency_id
+ * @property Carbon                        $start_date
+ * @property Carbon|null                   $end_date
+ * @property string                        $amount
+ * @property string                        $spent
+ * @property string|null                   $period
+ * @property int                           $generated
+ * @property-read Budget                   $budget
+ * @property-read TransactionCurrency|null $transactionCurrency
  * @method static Builder|BudgetLimit newModelQuery()
  * @method static Builder|BudgetLimit newQuery()
  * @method static Builder|BudgetLimit query()
@@ -90,7 +90,7 @@ class BudgetLimit extends Model
     public static function routeBinder(string $value): BudgetLimit
     {
         if (auth()->check()) {
-            $budgetLimitId = (int)$value;
+            $budgetLimitId = (int) $value;
             $budgetLimit   = self::where('budget_limits.id', $budgetLimitId)
                                  ->leftJoin('budgets', 'budgets.id', '=', 'budget_limits.budget_id')
                                  ->where('budgets.user_id', auth()->user()->id)

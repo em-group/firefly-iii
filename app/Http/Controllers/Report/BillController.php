@@ -28,6 +28,7 @@ use FireflyIII\Helpers\Report\ReportHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Support\CacheProperties;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 use Throwable;
 
@@ -40,6 +41,8 @@ class BillController extends Controller
      * @param Collection $accounts
      * @param Carbon     $start
      * @param Carbon     $end
+     *
+     * @return mixed|string
      */
     public function overview(Collection $accounts, Carbon $start, Carbon $end)
     {   // chart properties for cache:
@@ -49,13 +52,13 @@ class BillController extends Controller
         $cache->addProperty('bill-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         /** @var ReportHelperInterface $helper */
         $helper = app(ReportHelperInterface::class);
         $report = $helper->getBillReport($accounts, $start, $end);
         try {
-            $result = prefixView('reports.partials.bills', compact('report'))->render();
+            $result = view('reports.partials.bills', compact('report'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budgets: %s', $e->getMessage()));

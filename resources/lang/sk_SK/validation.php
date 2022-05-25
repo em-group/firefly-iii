@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'Toto nie je platný IBAN.',
     'zero_or_more'                   => 'Hodnota nemôže byť záporná.',
     'date_or_time'                   => 'Je třeba, aby hodnota byla platné datum nebo čas (ve formátu dle normy ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'Atribút :attribute je potrebné potvrdiť.',
     'bic'                            => 'Toto nie je platný BIC.',
     'at_least_one_trigger'           => 'Pravidlo musí mať aspoň jeden spúšťač.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Pravidlo musí obsahovať aspoň jednu akciu.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Údaje nie sú v platnom kódovaní Base64.',
     'model_id_invalid'               => 'Zdá sa, že dané ID je pre tento model neplatné.',
     'less'                           => ':attribute musí byť menej než 10.000.000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Pro pokračovanie je potrebné platné ID zdrojového účtu a/alebo platný názov zdrojového účtu.',
     'withdrawal_dest_bad_data'    => 'Pre ID „:id“ alebo mena „:name“ sa nenašiel žiadny platný cieľový účet.',
 
-    'generic_source_bad_data'  => 'Pre ID ":id" alebo meno ":name" sa nenašiel žiadny platný zdrojový účet.',
+    'generic_source_bad_data' => 'Pre ID ":id" alebo meno ":name" sa nenašiel žiadny platný zdrojový účet.',
 
     'deposit_source_need_data' => 'Pre pokračovanie je potrebné platné ID zdrojového účtu a/alebo platný názov zdrojového účtu.',
     'deposit_source_bad_data'  => 'Pre ID „:id“ alebo „:name“ sa nenašiel žiadny platný zdrojový účet.',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Každé rozdelenie musí mať platné transaction_journal_id (platné ID alebo 0).',
 
     'ob_source_need_data' => 'Pre pokračovanie je potrebné platné ID zdrojového účtu a/alebo platný názov zdrojového účtu.',
+    'lc_source_need_data' => 'Need to get a valid source account ID to continue.',
     'ob_dest_need_data'   => 'Pre pokračovanie je potrebné platné ID cieľového účtu a/alebo platný názov cieľového účtu.',
     'ob_dest_bad_data'    => 'Pre ID „:id“ alebo mena „:name“ sa nenašiel žiadny platný cieľový účet.',
 
     'generic_invalid_source'      => 'Tento účet nie je možné použiť ako zdrojový účet.',
     'generic_invalid_destination' => 'Tento účet nie je možné použiť ako cieľový účet.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => 'Hodnota :attribute musí byť väčšia alebo rovná :value.',
     'gt.numeric'  => 'Hodnota :attribute musí byť väčšia ako :value.',

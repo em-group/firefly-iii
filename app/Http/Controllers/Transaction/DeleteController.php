@@ -27,11 +27,12 @@ use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Providers\RouteServiceProvider;
 use FireflyIII\Repositories\TransactionGroup\TransactionGroupRepositoryInterface;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Log;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use URL;
 
 /**
  * Class DeleteController
@@ -52,7 +53,7 @@ class DeleteController extends Controller
         // translations:
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 $this->repository = app(TransactionGroupRepositoryInterface::class);
@@ -67,12 +68,12 @@ class DeleteController extends Controller
      *
      * @param TransactionGroup $group
      *
-     * @return mixed
+     * @return Factory|View|Redirector|RedirectResponse
      */
     public function delete(TransactionGroup $group)
     {
         if (!$this->isEditableGroup($group)) {
-            return $this->redirectGroupToAccount($group); 
+            return $this->redirectGroupToAccount($group);
         }
 
         Log::debug(sprintf('Start of delete view for group #%d', $group->id));
@@ -82,13 +83,13 @@ class DeleteController extends Controller
             throw new NotFoundHttpException;
         }
         $objectType = strtolower($journal->transaction_type_type ?? $journal->transactionType->type);
-        $subTitle   = (string)trans('firefly.delete_' . $objectType, ['description' => $group->title ?? $journal->description]);
-        $previous   = URL::previous(route(RouteServiceProvider::HOME));
+        $subTitle   = (string) trans('firefly.delete_' . $objectType, ['description' => $group->title ?? $journal->description]);
+        $previous   = app('steam')->getSafePreviousUrl(route('index'));
         // put previous url in session
-        Log::debug('Will try to remember previous URI');
-        $this->rememberPreviousUri('transactions.delete.uri');
+        Log::debug('Will try to remember previous URL');
+        $this->rememberPreviousUrl('transactions.delete.url');
 
-        return prefixView('transactions.delete', compact('group', 'journal', 'subTitle', 'objectType', 'previous'));
+        return view('transactions.delete', compact('group', 'journal', 'subTitle', 'objectType', 'previous'));
     }
 
     /**
@@ -101,7 +102,7 @@ class DeleteController extends Controller
     public function destroy(TransactionGroup $group): RedirectResponse
     {
         if (!$this->isEditableGroup($group)) {
-            return $this->redirectGroupToAccount($group); 
+            return $this->redirectGroupToAccount($group);
         }
 
         $journal = $group->transactionJournals->first();
@@ -109,12 +110,12 @@ class DeleteController extends Controller
             throw new NotFoundHttpException;
         }
         $objectType = strtolower($journal->transaction_type_type ?? $journal->transactionType->type);
-        session()->flash('success', (string)trans('firefly.deleted_' . strtolower($objectType), ['description' => $group->title ?? $journal->description]));
+        session()->flash('success', (string) trans('firefly.deleted_' . strtolower($objectType), ['description' => $group->title ?? $journal->description]));
 
         $this->repository->destroy($group);
 
         app('preferences')->mark();
 
-        return redirect($this->getPreviousUri('transactions.delete.uri'));
+        return redirect($this->getPreviousUrl('transactions.delete.url'));
     }
 }

@@ -54,7 +54,7 @@ class ShowController extends Controller
             function ($request, $next) {
                 $this->repository = app(TransactionGroupRepositoryInterface::class);
 
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -73,6 +73,7 @@ class ShowController extends Controller
     }
 
     /**
+     * @param Request          $request
      * @param TransactionGroup $transactionGroup
      *
      * @return Factory|View
@@ -88,7 +89,7 @@ class ShowController extends Controller
             throw new FireflyException('This transaction is broken :(.');
         }
 
-        $type     = (string)trans(sprintf('firefly.%s', $first->transactionType->type));
+        $type     = (string) trans(sprintf('firefly.%s', $first->transactionType->type));
         $title    = 1 === $splits ? $first->description : $transactionGroup->title;
         $subTitle = sprintf('%s: "%s"', $type, $title);
 
@@ -109,7 +110,7 @@ class ShowController extends Controller
         $attachments = $this->repository->getAttachments($transactionGroup);
         $links       = $this->repository->getLinks($transactionGroup);
 
-        return prefixView(
+        return view(
             'transactions.show',
             compact(
                 'transactionGroup',

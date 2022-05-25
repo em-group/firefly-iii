@@ -31,6 +31,7 @@ use FireflyIII\Transformers\AccountTransformer;
 use Illuminate\Http\JsonResponse;
 use League\Fractal\Resource\Item;
 use Log;
+use Preferences;
 
 /**
  * Class UpdateController
@@ -60,6 +61,9 @@ class UpdateController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/accounts/updateAccount
+     *
      * Update account.
      *
      * @param UpdateRequest $request
@@ -75,6 +79,7 @@ class UpdateController extends Controller
         $account      = $this->repository->update($account, $data);
         $manager      = $this->getManager();
         $account->refresh();
+        Preferences::mark();
 
         /** @var AccountTransformer $transformer */
         $transformer = app(AccountTransformer::class);

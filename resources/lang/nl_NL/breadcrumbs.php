@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Home',
+    'budgets'                => 'Budgetten',
+    'subscriptions'          => 'Abonnementen',
+    'transactions'           => 'Transacties',
+    'title_expenses'         => 'Uitgaven',
+    'title_withdrawal'       => 'Uitgaven',
+    'title_revenue'          => 'Inkomsten',
+    'title_deposit'          => 'Inkomsten',
+    'title_transfer'         => 'Overschrijvingen',
+    'title_transfers'        => 'Overschrijvingen',
     'edit_currency'          => 'Wijzig valuta ":name"',
     'delete_currency'        => 'Verwijder valuta ":name"',
     'newPiggyBank'           => 'Nieuw spaarpotje',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Wijzig tag ":tag"',
     'delete_tag'             => 'Verwijder tag ":tag"',
     'delete_journal_link'    => 'Verwijder koppeling tussen transacties',
-    'telemetry_index'        => 'Telemetrie',
-    'telemetry_view'         => 'Bekijk telemetrie',
     'edit_object_group'      => 'Wijzig groep ":title"',
     'delete_object_group'    => 'Verwijder groep ":title"',
-    'logout_others'          => 'Andere sessies afmelden'
+    'logout_others'          => 'Andere sessies afmelden',
+    'asset_accounts'         => 'Betaalrekeningen',
+    'expense_accounts'       => 'Crediteuren',
+    'revenue_accounts'       => 'Debiteuren',
+    'liabilities_accounts'   => 'Passiva',
+    'placeholder'            => '[Placeholder]',
 ];

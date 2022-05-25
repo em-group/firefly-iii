@@ -27,6 +27,8 @@ namespace FireflyIII\Jobs;
 use Carbon\Carbon;
 use FireflyIII\Events\RequestedReportOnJournals;
 use FireflyIII\Events\StoredTransactionGroup;
+use FireflyIII\Exceptions\DuplicateTransactionException;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Models\RecurrenceRepetition;
 use FireflyIII\Models\RecurrenceTransaction;
@@ -64,7 +66,7 @@ class CreateRecurringTransactions implements ShouldQueue
      *
      * @codeCoverageIgnore
      *
-     * @param Carbon $date
+     * @param Carbon|null $date
      */
     public function __construct(?Carbon $date)
     {
@@ -248,6 +250,7 @@ class CreateRecurringTransactions implements ShouldQueue
     private function hasNotStartedYet(Recurrence $recurrence): bool
     {
         $startDate = $this->getStartDate($recurrence);
+        Log::debug(sprintf('Start date is %s', $startDate->format('Y-m-d')));
 
         return $startDate->gt($this->date);
     }
@@ -288,6 +291,8 @@ class CreateRecurringTransactions implements ShouldQueue
      * @param Recurrence $recurrence
      *
      * @return Collection
+     * @throws DuplicateTransactionException
+     * @throws FireflyException
      */
     private function handleRepetitions(Recurrence $recurrence): Collection
     {
@@ -326,6 +331,8 @@ class CreateRecurringTransactions implements ShouldQueue
      * @param array                $occurrences
      *
      * @return Collection
+     * @throws DuplicateTransactionException
+     * @throws FireflyException
      */
     private function handleOccurrences(Recurrence $recurrence, RecurrenceRepetition $repetition, array $occurrences): Collection
     {
@@ -347,6 +354,8 @@ class CreateRecurringTransactions implements ShouldQueue
      * @param Carbon               $date
      *
      * @return TransactionGroup|null
+     * @throws DuplicateTransactionException
+     * @throws FireflyException
      */
     private function handleOccurrence(Recurrence $recurrence, RecurrenceRepetition $repetition, Carbon $date): ?TransactionGroup
     {
@@ -384,6 +393,7 @@ class CreateRecurringTransactions implements ShouldQueue
             'group_title'  => $groupTitle,
             'transactions' => $this->getTransactionData($recurrence, $repetition, $date),
         ];
+
         /** @var TransactionGroup $group */
         $group = $this->groupRepository->store($array);
         $this->created++;
@@ -422,14 +432,14 @@ class CreateRecurringTransactions implements ShouldQueue
                 'type'                  => strtolower($recurrence->transactionType->type),
                 'date'                  => $date,
                 'user'                  => $recurrence->user_id,
-                'currency_id'           => (int)$transaction->transaction_currency_id,
+                'currency_id'           => (int) $transaction->transaction_currency_id,
                 'currency_code'         => null,
-                'description'           => $recurrence->recurrenceTransactions()->first()->description,
+                'description'           => $transactions->first()->description,
                 'amount'                => $transaction->amount,
                 'budget_id'             => $this->repository->getBudget($transaction),
                 'budget_name'           => null,
-                'category_id'           => null,
-                'category_name'         => $this->repository->getCategory($transaction),
+                'category_id'           => $this->repository->getCategoryId($transaction),
+                'category_name'         => $this->repository->getCategoryName($transaction),
                 'source_id'             => $transaction->source_id,
                 'source_name'           => null,
                 'destination_id'        => $transaction->destination_id,
@@ -439,13 +449,13 @@ class CreateRecurringTransactions implements ShouldQueue
                 'foreign_amount'        => $transaction->foreign_amount,
                 'reconciled'            => false,
                 'identifier'            => $index,
-                'recurrence_id'         => (int)$recurrence->id,
+                'recurrence_id'         => (int) $recurrence->id,
                 'order'                 => $index,
-                'notes'                 => (string)trans('firefly.created_from_recurrence', ['id' => $recurrence->id, 'title' => $recurrence->title]),
+                'notes'                 => (string) trans('firefly.created_from_recurrence', ['id' => $recurrence->id, 'title' => $recurrence->title]),
                 'tags'                  => $this->repository->getTags($transaction),
                 'piggy_bank_id'         => $this->repository->getPiggyBank($transaction),
                 'piggy_bank_name'       => null,
-                'bill_id'               => null,
+                'bill_id'               => $this->repository->getBillId($transaction),
                 'bill_name'             => null,
                 'recurrence_total'      => $total,
                 'recurrence_count'      => $count,

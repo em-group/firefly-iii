@@ -36,6 +36,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View;
 use Log;
+use ValueError;
 
 /**
  *
@@ -58,7 +59,7 @@ class AvailableBudgetController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.budgets'));
+                app('view')->share('title', (string) trans('firefly.budgets'));
                 app('view')->share('mainTitleIcon', 'fa-pie-chart');
                 $this->abRepository  = app(AvailableBudgetRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -95,9 +96,9 @@ class AvailableBudgetController extends Controller
 
             return redirect(route('available-budgets.edit', [$first->id]));
         }
-        $page = (int)($request->get('page') ?? 1);
+        $page = (int) ($request->get('page') ?? 1);
 
-        return prefixView('budgets.available-budgets.create', compact('start', 'end', 'page', 'currency'));
+        return view('budgets.available-budgets.create', compact('start', 'end', 'page', 'currency'));
     }
 
     /**
@@ -127,20 +128,26 @@ class AvailableBudgetController extends Controller
                 return true;
             }
         );
-        $page       = (int)($request->get('page') ?? 1);
+        $page       = (int) ($request->get('page') ?? 1);
 
-        return prefixView('budgets.available-budgets.create-alternative', compact('start', 'end', 'page', 'currencies'));
+        return view('budgets.available-budgets.create-alternative', compact('start', 'end', 'page', 'currencies'));
     }
 
     /**
-     * @param AvailableBudget $availableBudget
+     * @param Request $request
      *
      * @return RedirectResponse|Redirector
      */
-    public function delete(AvailableBudget $availableBudget)
+    public function delete(Request $request)
     {
-        $this->abRepository->destroyAvailableBudget($availableBudget);
-        session()->flash('success', trans('firefly.deleted_ab'));
+        $id = (int) $request->get('id');
+        if (0 !== $id) {
+            $availableBudget = $this->abRepository->findById($id);
+            if (null !== $availableBudget) {
+                $this->abRepository->destroyAvailableBudget($availableBudget);
+                session()->flash('success', trans('firefly.deleted_ab'));
+            }
+        }
 
         return redirect(route('budgets.index'));
     }
@@ -155,15 +162,17 @@ class AvailableBudgetController extends Controller
      */
     public function edit(AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
-        $availableBudget->amount = number_format((float)$availableBudget->amount, $availableBudget->transactionCurrency->decimal_places, '.', '');
+        $availableBudget->amount = number_format((float) $availableBudget->amount, $availableBudget->transactionCurrency->decimal_places, '.', '');
 
-        return prefixView('budgets.available-budgets.edit', compact('availableBudget', 'start', 'end'));
+        return view('budgets.available-budgets.edit', compact('availableBudget', 'start', 'end'));
     }
 
     /**
      * @param Request $request
      *
      * @return RedirectResponse|Redirector
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function store(Request $request)
     {
@@ -178,7 +187,7 @@ class AvailableBudgetController extends Controller
         }
 
         // validate amount
-        $amount = (string)$request->get('amount');
+        $amount = (string) $request->get('amount');
         if ('' === $amount) {
             session()->flash('error', trans('firefly.invalid_amount'));
 
@@ -191,7 +200,7 @@ class AvailableBudgetController extends Controller
         }
 
         // find currency
-        $currency = $this->currencyRepos->find((int)$request->get('currency_id'));
+        $currency = $this->currencyRepos->find((int) $request->get('currency_id'));
         if (null === $currency) {
             session()->flash('error', trans('firefly.invalid_currency'));
 
@@ -232,13 +241,20 @@ class AvailableBudgetController extends Controller
     public function update(Request $request, AvailableBudget $availableBudget, Carbon $start, Carbon $end)
     {
         // validate amount
-        $amount = (string)$request->get('amount');
+        $amount = (string) $request->get('amount');
         if ('' === $amount) {
             session()->flash('error', trans('firefly.invalid_amount'));
 
             return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
         }
-        if (bccomp($amount, '0') <= 0) {
+        try {
+            if (bccomp($amount, '0') <= 0) {
+                session()->flash('error', trans('firefly.invalid_amount'));
+
+                return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));
+            }
+        } catch (ValueError $e) {
+            Log::error(sprintf('Value "%s" is not a number: %s', $amount, $e->getMessage()));
             session()->flash('error', trans('firefly.invalid_amount'));
 
             return redirect(route('budgets.index', [$start->format('Y-m-d'), $end->format('Y-m-d')]));

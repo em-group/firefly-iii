@@ -58,7 +58,7 @@ class SelectController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.rules'));
+                app('view')->share('title', (string) trans('firefly.rules'));
                 app('view')->share('mainTitleIcon', 'fa-random');
 
                 return $next($request);
@@ -97,7 +97,7 @@ class SelectController extends Controller
         $newRuleEngine->fire();
         $resultCount = $newRuleEngine->getResults();
 
-        session()->flash('success', (string)trans_choice('firefly.applied_rule_selection', $resultCount, ['title' => $rule->title]));
+        session()->flash('success', (string) trans_choice('firefly.applied_rule_selection', $resultCount, ['title' => $rule->title]));
 
         return redirect()->route('rules.index');
     }
@@ -119,9 +119,9 @@ class SelectController extends Controller
         // does the user have shared accounts?
         $first    = session('first', Carbon::now()->subYear())->format('Y-m-d');
         $today    = Carbon::now()->format('Y-m-d');
-        $subTitle = (string)trans('firefly.apply_rule_selection', ['title' => $rule->title]);
+        $subTitle = (string) trans('firefly.apply_rule_selection', ['title' => $rule->title]);
 
-        return prefixView('rules.rule.select-transactions', compact('first', 'today', 'rule', 'subTitle'));
+        return view('rules.rule.select-transactions', compact('first', 'today', 'rule', 'subTitle'));
     }
 
     /**
@@ -144,8 +144,8 @@ class SelectController extends Controller
         $textTriggers = $this->getValidTriggerList($request);
 
         // warn if nothing.
-        if (0 === count($textTriggers)) {
-            return response()->json(['html' => '', 'warning' => (string)trans('firefly.warning_no_valid_triggers')]); 
+        if (empty($textTriggers)) {
+            return response()->json(['html' => '', 'warning' => (string) trans('firefly.warning_no_valid_triggers')]);
         }
 
         foreach ($textTriggers as $textTrigger) {
@@ -168,20 +168,21 @@ class SelectController extends Controller
 
         // Warn the user if only a subset of transactions is returned
         $warning = '';
-        if (0 === count($collection)) {
-            $warning = (string)trans('firefly.warning_no_matching_transactions'); 
+        if (empty($collection)) {
+            $warning = (string) trans('firefly.warning_no_matching_transactions');
         }
 
         // Return json response
         $view = 'ERROR, see logs.';
         try {
-            $view = prefixView('list.journals-array-tiny', ['groups' => $collection])->render();
+            $view = view('list.journals-array-tiny', ['groups' => $collection])->render();
 
         } catch (Throwable $exception) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render view in testTriggers(): %s', $exception->getMessage()));
             Log::error($exception->getTraceAsString());
             $view = sprintf('Could not render list.journals-tiny: %s', $exception->getMessage());
         }
+
         return response()->json(['html' => $view, 'warning' => $warning]);
     }
 
@@ -198,8 +199,8 @@ class SelectController extends Controller
     {
         $triggers = $rule->ruleTriggers;
 
-        if (0 === count($triggers)) {
-            return response()->json(['html' => '', 'warning' => (string)trans('firefly.warning_no_valid_triggers')]); 
+        if (empty($triggers)) {
+            return response()->json(['html' => '', 'warning' => (string) trans('firefly.warning_no_valid_triggers')]);
         }
         // create new rule engine:
         $newRuleEngine = app(RuleEngineInterface::class);
@@ -210,19 +211,20 @@ class SelectController extends Controller
         $collection = $collection->slice(0, 20);
 
         $warning = '';
-        if (0 === count($collection)) {
-            $warning = (string)trans('firefly.warning_no_matching_transactions'); 
+        if (empty($collection)) {
+            $warning = (string) trans('firefly.warning_no_matching_transactions');
         }
 
         // Return json response
         $view = 'ERROR, see logs.';
         try {
-            $view = prefixView('list.journals-array-tiny', ['groups' => $collection])->render();
+            $view = view('list.journals-array-tiny', ['groups' => $collection])->render();
 
         } catch (Throwable $exception) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render view in testTriggersByRule(): %s', $exception->getMessage()));
             Log::error($exception->getTraceAsString());
         }
+
         return response()->json(['html' => $view, 'warning' => $warning]);
     }
 }

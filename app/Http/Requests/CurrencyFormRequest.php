@@ -42,9 +42,9 @@ class CurrencyFormRequest extends FormRequest
     public function getCurrencyData(): array
     {
         return [
-            'name'           => $this->string('name'),
-            'code'           => $this->string('code'),
-            'symbol'         => $this->string('symbol'),
+            'name'           => $this->convertString('name'),
+            'code'           => $this->convertString('code'),
+            'symbol'         => $this->convertString('symbol'),
             'decimal_places' => $this->integer('decimal_places'),
             'enabled'        => $this->boolean('enabled'),
         ];
@@ -59,9 +59,9 @@ class CurrencyFormRequest extends FormRequest
     {
         // fixed
         $rules = [
-            'name'           => 'required|max:48|min:1|unique:transaction_currencies,name',
-            'code'           => 'required|min:3|max:3|unique:transaction_currencies,code',
-            'symbol'         => 'required|min:1|max:8|unique:transaction_currencies,symbol',
+            'name'           => 'required|max:48|min:1|uniqueCurrencyName',
+            'code'           => 'required|min:3|max:51|uniqueCurrencyCode',
+            'symbol'         => 'required|min:1|max:51|uniqueCurrencySymbol',
             'decimal_places' => 'required|min:0|max:12|numeric',
             'enabled'        => 'in:0,1',
         ];
@@ -72,8 +72,8 @@ class CurrencyFormRequest extends FormRequest
         if (null !== $currency) {
             $rules = [
                 'name'           => 'required|max:48|min:1',
-                'code'           => 'required|min:3|max:3',
-                'symbol'         => 'required|min:1|max:8',
+                'code'           => 'required|min:3|max:51',
+                'symbol'         => 'required|min:1|max:51',
                 'decimal_places' => 'required|min:0|max:12|numeric',
                 'enabled'        => 'in:0,1',
             ];

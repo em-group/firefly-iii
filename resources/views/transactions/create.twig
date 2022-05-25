@@ -1,0 +1,24 @@
+{% set VUE_SCRIPT_NAME = 'create_transaction' %}
+{% extends './layout/default' %}
+{% block breadcrumbs %}
+    {{ Breadcrumbs.render(Route.getCurrentRoute.getName, objectType) }}
+{% endblock %}
+
+{% block content %}
+    <div id="create_transaction"></div>
+{% endblock %}
+{% block scripts %}
+    <script type="text/javascript" nonce="{{ JS_NONCE }}">
+        var allowedOpposingTypes = {{ allowedOpposingTypes|json_encode|raw }};
+        var accountToTypes = {{ accountToTypes|json_encode|raw }};
+        var defaultCurrency = {{ defaultCurrency.toArray()|json_encode|raw }};
+        var cashAccountId = {{ cash.id }};
+        var previousUrl = '{{ previousUrl }}';
+        window.sourceId = {{ sourceId }};
+        window.destinationId = {{ destinationId }};
+        window.showCategories = {{ app.feature.userHasAccessToPath('/categories') ? '1' : '0' }};
+        window.showTags = {{ app.feature.userHasAccessToPath('/tags') ? '1' : '0' }};
+        window.showPiggyBank = {{ app.feature.userHasAccessToPath('/piggy-banks') ? '1' : '0' }};
+        window.showBills = {{ app.feature.userHasAccessToPath('/bills') ? '1' : '0' }};
+    </script>
+{% endblock %}

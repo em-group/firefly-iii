@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Support\Http\Controllers;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Category;
@@ -32,12 +33,13 @@ use FireflyIII\Models\TransactionType;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Support\CacheProperties;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 
 /**
  * Trait PeriodOverview.
  *
- * TODO verify this all works as expected.
+ * See reference nr. 36
  *
  * - Always request start date and end date.
  * - Group expenses, income, etc. under this period.
@@ -76,6 +78,9 @@ trait PeriodOverview
      * @param Carbon  $end
      *
      * @return array
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getAccountPeriodOverview(Account $account, Carbon $start, Carbon $end): array
     {
@@ -89,7 +94,7 @@ trait PeriodOverview
         $cache->addProperty('account-show-period-entries');
         $cache->addProperty($account->id);
         if ($cache->has()) {
-            return $cache->get(); 
+            // return $cache->get();
         }
         /** @var array $dates */
         $dates   = app('navigation')->blockPeriods($start, $end, $range);
@@ -179,7 +184,7 @@ trait PeriodOverview
         $return = [];
         /** @var array $journal */
         foreach ($journals as $journal) {
-            if ($account->id === (int)$journal['source_account_id']) {
+            if ($account->id === (int) $journal['source_account_id']) {
                 $return[] = $journal;
             }
         }
@@ -201,7 +206,7 @@ trait PeriodOverview
         $return = [];
         /** @var array $journal */
         foreach ($journals as $journal) {
-            if ($account->id === (int)$journal['destination_account_id']) {
+            if ($account->id === (int) $journal['destination_account_id']) {
                 $return[] = $journal;
             }
         }
@@ -220,7 +225,7 @@ trait PeriodOverview
         $return = [];
         /** @var array $journal */
         foreach ($journals as $journal) {
-            $currencyId        = (int)$journal['currency_id'];
+            $currencyId        = (int) $journal['currency_id'];
             $foreignCurrencyId = $journal['foreign_currency_id'];
             if (!array_key_exists($currencyId, $return)) {
                 $return[$currencyId] = [
@@ -241,7 +246,7 @@ trait PeriodOverview
                     $return[$foreignCurrencyId] = [
                         'amount'                  => '0',
                         'count'                   => 0,
-                        'currency_id'             => (int)$foreignCurrencyId,
+                        'currency_id'             => (int) $foreignCurrencyId,
                         'currency_name'           => $journal['foreign_currency_name'],
                         'currency_code'           => $journal['foreign_currency_code'],
                         'currency_symbol'         => $journal['foreign_currency_symbol'],
@@ -266,6 +271,9 @@ trait PeriodOverview
      * @param Carbon   $end
      *
      * @return array
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getCategoryPeriodOverview(Category $category, Carbon $start, Carbon $end): array
     {
@@ -281,7 +289,7 @@ trait PeriodOverview
         $cache->addProperty($category->id);
 
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         /** @var array $dates */
         $dates   = app('navigation')->blockPeriods($start, $end, $range);
@@ -343,6 +351,9 @@ trait PeriodOverview
      * @param Carbon $end
      *
      * @return array
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getNoBudgetPeriodOverview(Carbon $start, Carbon $end): array
     {
@@ -356,7 +367,7 @@ trait PeriodOverview
         $cache->addProperty('no-budget-period-entries');
 
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         /** @var array $dates */
@@ -388,14 +399,16 @@ trait PeriodOverview
     }
 
     /**
-     * TODO fix date.
+     * See reference nr. 37
      *
      * Show period overview for no category view.
      *
      * @param Carbon $theDate
      *
      * @return array
-     *
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getNoCategoryPeriodOverview(Carbon $theDate): array
     {
@@ -415,7 +428,7 @@ trait PeriodOverview
         $cache->addProperty('no-category-period-entries');
 
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         $dates   = app('navigation')->blockPeriods($start, $end, $range);
@@ -475,7 +488,9 @@ trait PeriodOverview
      * @param Carbon $end
      *
      * @return array
-     * @throws \FireflyIII\Exceptions\FireflyException
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getTagPeriodOverview(Tag $tag, Carbon $start, Carbon $end): array // period overview for tags.
     {
@@ -490,7 +505,7 @@ trait PeriodOverview
         $cache->addProperty('tag-period-entries');
         $cache->addProperty($tag->id);
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         /** @var array $dates */
         $dates   = app('navigation')->blockPeriods($start, $end, $range);
@@ -549,7 +564,9 @@ trait PeriodOverview
      * @param Carbon $end
      *
      * @return array
-     * @throws \FireflyIII\Exceptions\FireflyException
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     protected function getTransactionPeriodOverview(string $transactionType, Carbon $start, Carbon $end): array
     {
@@ -564,7 +581,7 @@ trait PeriodOverview
         $cache->addProperty('transactions-period-entries');
         $cache->addProperty($transactionType);
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
         /** @var array $dates */
         $dates   = app('navigation')->blockPeriods($start, $end, $range);

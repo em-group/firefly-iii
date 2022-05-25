@@ -29,7 +29,6 @@ use FireflyIII\Models\Webhook;
 use FireflyIII\Models\WebhookMessage;
 use FireflyIII\Repositories\Webhook\WebhookRepositoryInterface;
 use FireflyIII\Transformers\WebhookMessageTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -58,14 +57,18 @@ class MessageController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/webhooks/getWebhookMessages
+     *
      * @param Webhook $webhook
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function index(Webhook $webhook): JsonResponse
     {
         $manager    = $this->getManager();
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getMessages($webhook);
 
         $count    = $collection->count();
@@ -86,6 +89,9 @@ class MessageController extends Controller
     }
 
     /**
+     * This endpoint is documented:
+     * https://api-docs.firefly-iii.org/#/webhooks/getSingleWebhookMessage
+     *
      * Show single instance.
      *
      * @param Webhook        $webhook

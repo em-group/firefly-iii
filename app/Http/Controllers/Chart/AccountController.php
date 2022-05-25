@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers\Chart;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Generator\Chart\Basic\GeneratorInterface;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Controllers\Controller;
@@ -38,6 +39,7 @@ use FireflyIII\Support\Http\Controllers\ChartGeneration;
 use FireflyIII\Support\Http\Controllers\DateCalculation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 
 /**
@@ -48,14 +50,9 @@ class AccountController extends Controller
 {
     use DateCalculation, AugumentData, ChartGeneration;
 
-    /** @var GeneratorInterface Chart generation methods. */
-    protected $generator;
-
-    /** @var AccountRepositoryInterface Account repository. */
-    private $accountRepository;
-
-    /** @var CurrencyRepositoryInterface */
-    private $currencyRepository;
+    protected GeneratorInterface        $generator;
+    private AccountRepositoryInterface  $accountRepository;
+    private CurrencyRepositoryInterface $currencyRepository;
 
     /**
      * AccountController constructor.
@@ -83,6 +80,7 @@ class AccountController extends Controller
      * This chart is (multi) currency aware.
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function expenseAccounts(): JsonResponse
     {
@@ -95,7 +93,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.account.expense-accounts');
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         $start->subDay();
 
@@ -114,22 +112,22 @@ class AccountController extends Controller
 
         // loop the end balances. This is an array for each account ($expenses)
         foreach ($endBalances as $accountId => $expenses) {
-            $accountId = (int)$accountId;
+            $accountId = (int) $accountId;
             // loop each expense entry (each entry can be a different currency).
             foreach ($expenses as $currencyId => $endAmount) {
-                $currencyId = (int)$currencyId;
+                $currencyId = (int) $currencyId;
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
                 $startAmount             = $startBalances[$accountId][$currencyId] ?? '0';
                 $diff                    = bcsub($endAmount, $startAmount);
-                $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->findNull($currencyId);
+                $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->find($currencyId);
                 if (0 !== bccomp($diff, '0')) {
                     // store the values in a temporary array.
                     $tempData[] = [
                         'name'        => $accountNames[$accountId],
                         'difference'  => $diff,
-                        'diff_float'  => (float)$diff,
+                        'diff_float'  => (float) $diff,
                         'currency_id' => $currencyId,
                     ];
                 }
@@ -148,7 +146,7 @@ class AccountController extends Controller
         foreach ($currencies as $currencyId => $currency) {
             $dataSet
                                     = [
-                'label'           => (string)trans('firefly.spent'),
+                'label'           => (string) trans('firefly.spent'),
                 'type'            => 'bar',
                 'currency_symbol' => $currency->symbol,
                 'currency_code'   => $currency->code,
@@ -177,6 +175,7 @@ class AccountController extends Controller
      * @param Account                    $account
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function expenseBudgetAll(AccountRepositoryInterface $repository, Account $account): JsonResponse
     {
@@ -203,7 +202,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.account.expense-budget');
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         /** @var GroupCollectorInterface $collector */
         $collector = app(GroupCollectorInterface::class);
@@ -214,7 +213,7 @@ class AccountController extends Controller
         $budgetIds = [];
         /** @var array $journal */
         foreach ($journals as $journal) {
-            $budgetId    = (int)$journal['budget_id'];
+            $budgetId    = (int) $journal['budget_id'];
             $key         = sprintf('%d-%d', $budgetId, $journal['currency_id']);
             $budgetIds[] = $budgetId;
             if (!array_key_exists($key, $result)) {
@@ -234,7 +233,7 @@ class AccountController extends Controller
         foreach ($result as $row) {
             $budgetId          = $row['budget_id'];
             $name              = $names[$budgetId];
-            $label             = (string)trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
+            $label             = (string) trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
             $chartData[$label] = ['amount' => $row['total'], 'currency_symbol' => $row['currency_symbol'], 'currency_code' => $row['currency_code']];
         }
 
@@ -251,6 +250,7 @@ class AccountController extends Controller
      * @param Account                    $account
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function expenseCategoryAll(AccountRepositoryInterface $repository, Account $account): JsonResponse
     {
@@ -277,7 +277,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.account.expense-category');
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
 
         /** @var GroupCollectorInterface $collector */
@@ -293,7 +293,7 @@ class AccountController extends Controller
             if (!array_key_exists($key, $result)) {
                 $result[$key] = [
                     'total'           => '0',
-                    'category_id'     => (int)$journal['category_id'],
+                    'category_id'     => (int) $journal['category_id'],
                     'currency_name'   => $journal['currency_name'],
                     'currency_symbol' => $journal['currency_symbol'],
                     'currency_code'   => $journal['currency_code'],
@@ -306,7 +306,7 @@ class AccountController extends Controller
         foreach ($result as $row) {
             $categoryId        = $row['category_id'];
             $name              = $names[$categoryId] ?? '(unknown)';
-            $label             = (string)trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
+            $label             = (string) trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
             $chartData[$label] = ['amount' => $row['total'], 'currency_symbol' => $row['currency_symbol'], 'currency_code' => $row['currency_code']];
         }
 
@@ -322,6 +322,10 @@ class AccountController extends Controller
      * @param AccountRepositoryInterface $repository
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function frontpage(AccountRepositoryInterface $repository): JsonResponse
     {
@@ -331,7 +335,7 @@ class AccountController extends Controller
         Log::debug('Default set is ', $defaultSet);
         $frontPage = app('preferences')->get('frontPageAccounts', $defaultSet);
         Log::debug('Frontpage preference set is ', $frontPage->data);
-        if (0 === count($frontPage->data)) {
+        if (empty($frontPage->data)) {
             app('preferences')->set('frontPageAccounts', $defaultSet);
             Log::debug('frontpage set is empty!');
         }
@@ -347,6 +351,7 @@ class AccountController extends Controller
      * @param Account                    $account
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function incomeCategoryAll(AccountRepositoryInterface $repository, Account $account): JsonResponse
     {
@@ -373,7 +378,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.account.income-category');
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
 
         // grab all journals:
@@ -403,7 +408,7 @@ class AccountController extends Controller
         foreach ($result as $row) {
             $categoryId        = $row['category_id'];
             $name              = $names[$categoryId] ?? '(unknown)';
-            $label             = (string)trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
+            $label             = (string) trans('firefly.name_in_currency', ['name' => $name, 'currency' => $row['currency_name']]);
             $chartData[$label] = ['amount' => $row['total'], 'currency_symbol' => $row['currency_symbol'], 'currency_code' => $row['currency_code']];
         }
         $data = $this->generator->multiCurrencyPieChart($chartData);
@@ -421,6 +426,8 @@ class AccountController extends Controller
      * @param Carbon  $end
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      */
     public function period(Account $account, Carbon $start, Carbon $end): JsonResponse
     {
@@ -431,7 +438,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty($account->id);
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            //return response()->json($cache->get());
         }
         $currencies = $this->accountRepository->getUsedCurrencies($account);
 
@@ -458,6 +465,8 @@ class AccountController extends Controller
      * @param TransactionCurrency $currency
      *
      * @return array
+     * @throws FireflyException
+     * @throws JsonException
      */
     private function periodByCurrency(Carbon $start, Carbon $end, Account $account, TransactionCurrency $currency): array
     {
@@ -476,14 +485,14 @@ class AccountController extends Controller
                 break;
             case '1D':
                 // per day the entire period, balance for every day.
-                $format   = (string)trans('config.month_and_day', [], $locale);
+                $format   = (string) trans('config.month_and_day_js', [], $locale);
                 $range    = app('steam')->balanceInRange($account, $start, $end, $currency);
                 $previous = array_values($range)[0];
                 while ($end >= $current) {
                     $theDate         = $current->format('Y-m-d');
                     $balance         = $range[$theDate] ?? $previous;
-                    $label           = $current->formatLocalized($format);
-                    $entries[$label] = (float)$balance;
+                    $label           = $current->isoFormat($format);
+                    $entries[$label] = (float) $balance;
                     $previous        = $balance;
                     $current->addDay();
                 }
@@ -493,7 +502,7 @@ class AccountController extends Controller
             case '1M':
             case '1Y':
                 while ($end >= $current) {
-                    $balance         = (float)app('steam')->balance($account, $current, $currency);
+                    $balance         = (float) app('steam')->balance($account, $current, $currency);
                     $label           = app('navigation')->periodShow($current, $step);
                     $entries[$label] = $balance;
                     $current         = app('navigation')->addPeriod($current, $step, 0);
@@ -509,13 +518,15 @@ class AccountController extends Controller
     /**
      * Shows the balances for a given set of dates and accounts.
      *
-     * TODO this chart is not multi-currency aware.
+     * See reference nr. 55
+     *
+     * @param Collection $accounts
      *
      * @param Carbon     $start
      * @param Carbon     $end
-     * @param Collection $accounts
-     *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      */
     public function report(Collection $accounts, Carbon $start, Carbon $end): JsonResponse
     {
@@ -528,6 +539,7 @@ class AccountController extends Controller
      * This chart is multi-currency aware.
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function revenueAccounts(): JsonResponse
     {
@@ -540,7 +552,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty('chart.account.revenue-accounts');
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         $start->subDay();
 
@@ -559,22 +571,22 @@ class AccountController extends Controller
 
         // loop the end balances. This is an array for each account ($expenses)
         foreach ($endBalances as $accountId => $expenses) {
-            $accountId = (int)$accountId;
+            $accountId = (int) $accountId;
             // loop each expense entry (each entry can be a different currency).
             foreach ($expenses as $currencyId => $endAmount) {
-                $currencyId = (int)$currencyId;
+                $currencyId = (int) $currencyId;
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
                 $startAmount             = $startBalances[$accountId][$currencyId] ?? '0';
                 $diff                    = bcsub($endAmount, $startAmount);
-                $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->findNull($currencyId);
+                $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->find($currencyId);
                 if (0 !== bccomp($diff, '0')) {
                     // store the values in a temporary array.
                     $tempData[] = [
                         'name'        => $accountNames[$accountId],
                         'difference'  => $diff,
-                        'diff_float'  => (float)$diff,
+                        'diff_float'  => (float) $diff,
                         'currency_id' => $currencyId,
                     ];
                 }
@@ -593,7 +605,7 @@ class AccountController extends Controller
         foreach ($currencies as $currencyId => $currency) {
             $dataSet
                                     = [
-                'label'           => (string)trans('firefly.earned'),
+                'label'           => (string) trans('firefly.earned'),
                 'type'            => 'bar',
                 'currency_symbol' => $currency->symbol,
                 'currency_code'   => $currency->code,

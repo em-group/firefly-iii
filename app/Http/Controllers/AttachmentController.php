@@ -26,6 +26,7 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Requests\AttachmentFormRequest;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Repositories\Attachment\AttachmentRepositoryInterface;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class AttachmentController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-paperclip');
-                app('view')->share('title', (string)trans('firefly.attachments'));
+                app('view')->share('title', (string) trans('firefly.attachments'));
                 $this->repository = app(AttachmentRepositoryInterface::class);
 
                 return $next($request);
@@ -73,12 +74,12 @@ class AttachmentController extends Controller
      */
     public function delete(Attachment $attachment)
     {
-        $subTitle = (string)trans('firefly.delete_attachment', ['name' => $attachment->filename]);
+        $subTitle = (string) trans('firefly.delete_attachment', ['name' => $attachment->filename]);
 
         // put previous url in session
-        $this->rememberPreviousUri('attachments.delete.uri');
+        $this->rememberPreviousUrl('attachments.delete.url');
 
-        return prefixView('attachments.delete', compact('attachment', 'subTitle'));
+        return view('attachments.delete', compact('attachment', 'subTitle'));
     }
 
     /**
@@ -95,10 +96,10 @@ class AttachmentController extends Controller
 
         $this->repository->destroy($attachment);
 
-        $request->session()->flash('success', (string)trans('firefly.attachment_deleted', ['name' => $name]));
+        $request->session()->flash('success', (string) trans('firefly.attachment_deleted', ['name' => $name]));
         app('preferences')->mark();
 
-        return redirect($this->getPreviousUri('attachments.delete.uri'));
+        return redirect($this->getPreviousUrl('attachments.delete.url'));
     }
 
     /**
@@ -106,7 +107,7 @@ class AttachmentController extends Controller
      *
      * @param Attachment $attachment
      *
-     * @return mixed
+     * @return LaravelResponse
      *
      * @throws FireflyException
      */
@@ -145,11 +146,11 @@ class AttachmentController extends Controller
     public function edit(Request $request, Attachment $attachment)
     {
         $subTitleIcon = 'fa-pencil';
-        $subTitle     = (string)trans('firefly.edit_attachment', ['name' => $attachment->filename]);
+        $subTitle     = (string) trans('firefly.edit_attachment', ['name' => $attachment->filename]);
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('attachments.edit.fromUpdate')) {
-            $this->rememberPreviousUri('attachments.edit.uri');
+            $this->rememberPreviousUrl('attachments.edit.url');
         }
         $request->session()->forget('attachments.edit.fromUpdate');
         $preFilled = [
@@ -157,7 +158,7 @@ class AttachmentController extends Controller
         ];
         $request->session()->flash('preFilled', $preFilled);
 
-        return prefixView('attachments.edit', compact('attachment', 'subTitleIcon', 'subTitle'));
+        return view('attachments.edit', compact('attachment', 'subTitleIcon', 'subTitle'));
     }
 
     /**
@@ -176,7 +177,7 @@ class AttachmentController extends Controller
             }
         );
 
-        return prefixView('attachments.index', compact('set'));
+        return view('attachments.index', compact('set'));
     }
 
     /**
@@ -192,11 +193,11 @@ class AttachmentController extends Controller
         $data = $request->getAttachmentData();
         $this->repository->update($attachment, $data);
 
-        $request->session()->flash('success', (string)trans('firefly.attachment_updated', ['name' => $attachment->filename]));
+        $request->session()->flash('success', (string) trans('firefly.attachment_updated', ['name' => $attachment->filename]));
         app('preferences')->mark();
 
-        $redirect = redirect($this->getPreviousUri('attachments.edit.uri'));
-        if (1 === (int)$request->get('return_to_edit')) {
+        $redirect = redirect($this->getPreviousUrl('attachments.edit.url'));
+        if (1 === (int) $request->get('return_to_edit')) {
 
             $request->session()->put('attachments.edit.fromUpdate', true);
 
@@ -211,10 +212,12 @@ class AttachmentController extends Controller
     /**
      * View attachment in browser.
      *
+     * @param Request    $request
      * @param Attachment $attachment
      *
      * @return LaravelResponse
      * @throws FireflyException
+     * @throws BindingResolutionException
      */
     public function view(Request $request, Attachment $attachment): LaravelResponse
     {

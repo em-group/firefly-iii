@@ -99,8 +99,6 @@ class ApplyRules extends Command
 
         $result = $this->verifyInput();
         if (false === $result) {
-            app('telemetry')->feature('system.command.errored', $this->signature);
-
             return 1;
         }
 
@@ -118,8 +116,6 @@ class ApplyRules extends Command
             $this->warn('    --rules=1,2,...');
             $this->warn('    --rule_groups=1,2,...');
             $this->warn('    --all_rules');
-
-            app('telemetry')->feature('system.command.errored', $this->signature);
 
             return 1;
         }
@@ -147,8 +143,6 @@ class ApplyRules extends Command
 
         // file the rule(s)
         $ruleEngine->fire();
-
-        app('telemetry')->feature('system.command.executed', $this->signature);
 
         $this->line('');
         $end = round(microtime(true) - $start, 2);
@@ -185,7 +179,7 @@ class ApplyRules extends Command
         // verify account.
         $result = $this->verifyInputAccounts();
         if (false === $result) {
-            return $result;
+            return false;
         }
 
         // verify rule groups.
@@ -218,8 +212,8 @@ class ApplyRules extends Command
         $accountRepository = app(AccountRepositoryInterface::class);
         $accountRepository->setUser($this->getUser());
         foreach ($accountList as $accountId) {
-            $accountId = (int)$accountId;
-            $account   = $accountRepository->findNull($accountId);
+            $accountId = (int) $accountId;
+            $account   = $accountRepository->find($accountId);
             if (null !== $account && in_array($account->accountType->type, $this->acceptedAccounts, true)) {
                 $finalList->push($account);
             }
@@ -249,7 +243,7 @@ class ApplyRules extends Command
         $ruleGroupList = explode(',', $ruleGroupString);
 
         foreach ($ruleGroupList as $ruleGroupId) {
-            $ruleGroup = $this->ruleGroupRepository->find((int)$ruleGroupId);
+            $ruleGroup = $this->ruleGroupRepository->find((int) $ruleGroupId);
             if ($ruleGroup->active) {
                 $this->ruleGroupSelection[] = $ruleGroup->id;
             }
@@ -274,7 +268,7 @@ class ApplyRules extends Command
         $ruleList = explode(',', $ruleString);
 
         foreach ($ruleList as $ruleId) {
-            $rule = $this->ruleRepository->find((int)$ruleId);
+            $rule = $this->ruleRepository->find((int) $ruleId);
             if (null !== $rule && $rule->active) {
                 $this->ruleSelection[] = $rule->id;
             }

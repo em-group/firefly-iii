@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace FireflyIII\Services\Internal\Update;
 
+use FireflyIII\Events\UpdatedAccount;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Location;
@@ -33,7 +35,7 @@ use Log;
 
 /**
  * Class AccountUpdateService
- * TODO this is a mess.
+ * See reference nr. 90
  */
 class AccountUpdateService
 {
@@ -43,6 +45,7 @@ class AccountUpdateService
     protected array                      $validAssetFields;
     protected array                      $validCCFields;
     protected array                      $validFields;
+    private array                        $canHaveOpeningBalance;
     private array                        $canHaveVirtual;
     private User                         $user;
 
@@ -51,11 +54,12 @@ class AccountUpdateService
      */
     public function __construct()
     {
-        $this->canHaveVirtual    = config('firefly.can_have_virtual_amounts');
-        $this->validAssetFields  = config('firefly.valid_asset_fields');
-        $this->validCCFields     = config('firefly.valid_cc_fields');
-        $this->validFields       = config('firefly.valid_account_fields');
-        $this->accountRepository = app(AccountRepositoryInterface::class);
+        $this->canHaveVirtual        = config('firefly.can_have_virtual_amounts');
+        $this->canHaveOpeningBalance = config('firefly.can_have_opening_balance');
+        $this->validAssetFields      = config('firefly.valid_asset_fields');
+        $this->validCCFields         = config('firefly.valid_cc_fields');
+        $this->validFields           = config('firefly.valid_account_fields');
+        $this->accountRepository     = app(AccountRepositoryInterface::class);
     }
 
     /**
@@ -73,6 +77,7 @@ class AccountUpdateService
      * @param array   $data
      *
      * @return Account
+     * @throws FireflyException
      */
     public function update(Account $account, array $data): Account
     {
@@ -84,7 +89,7 @@ class AccountUpdateService
 
         // find currency, or use default currency instead.
         if (array_key_exists('currency_id', $data) || array_key_exists('currency_code', $data)) {
-            $currency = $this->getCurrency((int)($data['currency_id'] ?? null), (string)($data['currency_code'] ?? null));
+            $currency = $this->getCurrency((int) ($data['currency_id'] ?? null), (string) ($data['currency_code'] ?? null));
             unset($data['currency_code'], $data['currency_id']);
             $data['currency_id'] = $currency->id;
         }
@@ -98,13 +103,18 @@ class AccountUpdateService
         // update opening balance.
         $this->updateOpeningBalance($account, $data);
 
+        // update opening balance.
+        $this->updateCreditLiability($account, $data);
+
         // update note:
         if (array_key_exists('notes', $data) && null !== $data['notes']) {
-            $this->updateNote($account, (string)$data['notes']);
+            $this->updateNote($account, (string) $data['notes']);
         }
 
         // update preferences if inactive:
         $this->updatePreferences($account);
+
+        event(new UpdatedAccount($account));
 
         return $account;
     }
@@ -125,21 +135,19 @@ class AccountUpdateService
             $account->active = $data['active'];
         }
         if (array_key_exists('iban', $data)) {
-            $account->iban = $data['iban'];
+            $account->iban = app('steam')->filterSpaces((string) $data['iban']);
         }
 
         // set liability, but account must already be a liability.
         //$liabilityType = $data['liability_type'] ?? '';
         if ($this->isLiability($account) && array_key_exists('liability_type', $data)) {
             $type = $this->getAccountType($data['liability_type']);
-            if (null !== $type) {
-                $account->account_type_id = $type->id;
-            }
+            $account->account_type_id = $type->id;
         }
         // set liability, alternative method used in v1 layout:
 
         if ($this->isLiability($account) && array_key_exists('account_type_id', $data)) {
-            $type = AccountType::find((int)$data['account_type_id']);
+            $type = AccountType::find((int) $data['account_type_id']);
 
             if (null !== $type && in_array($type->type, config('firefly.valid_liabilities'), true)) {
                 $account->account_type_id = $type->id;
@@ -170,6 +178,8 @@ class AccountUpdateService
 
     /**
      * @param string $type
+     *
+     * @return AccountType
      */
     private function getAccountType(string $type): AccountType
     {
@@ -198,11 +208,11 @@ class AccountUpdateService
             return $account;
         }
         // get account type ID's because a join and an update is hard:
-        $oldOrder = (int)$account->order;
+        $oldOrder = (int) $account->order;
         $newOrder = $data['order'];
         Log::debug(sprintf('Order is set to be updated from %s to %s', $oldOrder, $newOrder));
         $list = $this->getTypeIds([AccountType::MORTGAGE, AccountType::LOAN, AccountType::DEBT]);
-        if (in_array($type, [AccountType::ASSET], true)) {
+        if ($type === AccountType::ASSET) {
             $list = $this->getTypeIds([AccountType::ASSET]);
         }
 
@@ -210,7 +220,7 @@ class AccountUpdateService
             $this->user->accounts()->where('accounts.order', '<=', $newOrder)->where('accounts.order', '>', $oldOrder)
                        ->where('accounts.id', '!=', $account->id)
                        ->whereIn('accounts.account_type_id', $list)
-                       ->decrement('order', 1);
+                       ->decrement('order');
             $account->order = $newOrder;
             Log::debug(sprintf('Order of account #%d ("%s") is now %d', $account->id, $account->name, $newOrder));
             $account->save();
@@ -221,7 +231,7 @@ class AccountUpdateService
         $this->user->accounts()->where('accounts.order', '>=', $newOrder)->where('accounts.order', '<', $oldOrder)
                    ->where('accounts.id', '!=', $account->id)
                    ->whereIn('accounts.account_type_id', $list)
-                   ->increment('order', 1);
+                   ->increment('order');
         $account->order = $newOrder;
         Log::debug(sprintf('Order of account #%d ("%s") is now %d', $account->id, $account->name, $newOrder));
         $account->save();
@@ -236,7 +246,7 @@ class AccountUpdateService
         foreach ($array as $type) {
             /** @var AccountType $type */
             $type     = AccountType::whereType($type)->first();
-            $return[] = (int)$type->id;
+            $return[] = (int) $type->id;
         }
 
         return $return;
@@ -275,19 +285,20 @@ class AccountUpdateService
     /**
      * @param Account $account
      * @param array   $data
+     *
+     * @throws FireflyException
      */
     private function updateOpeningBalance(Account $account, array $data): void
     {
-
         // has valid initial balance (IB) data?
         $type = $account->accountType;
-        // if it can have a virtual balance, it can also have an opening balance.
-
-        if (in_array($type->type, $this->canHaveVirtual, true)) {
-
+        if (in_array($type->type, $this->canHaveOpeningBalance, true)) {
             // check if is submitted as empty, that makes it valid:
             if ($this->validOBData($data) && !$this->isEmptyOBData($data)) {
-                $this->updateOBGroup($account, $data);
+                $openingBalance     = $data['opening_balance'];
+                $openingBalanceDate = $data['opening_balance_date'];
+
+                $this->updateOBGroupV2($account, $openingBalance, $openingBalanceDate);
             }
 
             if (!$this->validOBData($data) && $this->isEmptyOBData($data)) {
@@ -298,6 +309,38 @@ class AccountUpdateService
 
     /**
      * @param Account $account
+     * @param array   $data
+     *
+     * @throws FireflyException
+     */
+    private function updateCreditLiability(Account $account, array $data): void
+    {
+        $type  = $account->accountType;
+        $valid = config('firefly.valid_liabilities');
+        if (in_array($type->type, $valid, true)) {
+            $direction = array_key_exists('liability_direction', $data) ? $data['liability_direction'] : 'empty';
+            // check if is submitted as empty, that makes it valid:
+            if ($this->validOBData($data) && !$this->isEmptyOBData($data)) {
+                $openingBalance     = $data['opening_balance'];
+                $openingBalanceDate = $data['opening_balance_date'];
+                if ('credit' === $direction) {
+                    $this->updateCreditTransaction($account, $openingBalance, $openingBalanceDate);
+                }
+            }
+
+            if (!$this->validOBData($data) && $this->isEmptyOBData($data)) {
+                $this->deleteCreditTransaction($account);
+            }
+            if ($this->validOBData($data) && !$this->isEmptyOBData($data) && 'credit' !== $direction) {
+                $this->deleteCreditTransaction($account);
+            }
+        }
+    }
+
+    /**
+     * @param Account $account
+     *
+     * @throws FireflyException
      */
     private function updatePreferences(Account $account): void
     {
@@ -312,12 +355,12 @@ class AccountUpdateService
         $array = $preference->data;
         Log::debug('Old array is: ', $array);
         Log::debug(sprintf('Must remove : %d', $account->id));
-        $removeAccountId = (int)$account->id;
+        $removeAccountId = (int) $account->id;
         $new             = [];
         foreach ($array as $value) {
-            if ((int)$value !== $removeAccountId) {
+            if ((int) $value !== $removeAccountId) {
                 Log::debug(sprintf('Will include: %d', $value));
-                $new[] = (int)$value;
+                $new[] = (int) $value;
             }
         }
         Log::debug('Final new array is', $new);

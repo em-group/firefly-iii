@@ -59,7 +59,6 @@ class WholePeriodChartGenerator
         $spent     = [];
         $earned    = [];
 
-        /** @var Carbon $current */
         $current = clone $start;
 
         while ($current <= $end) {
@@ -78,21 +77,20 @@ class WholePeriodChartGenerator
             $code                                     = $currency['currency_code'];
             $name                                     = $currency['currency_name'];
             $chartData[sprintf('spent-in-%s', $code)] = [
-                'label'           => (string)trans('firefly.box_spent_in_currency', ['currency' => $name]),
+                'label'           => (string) trans('firefly.box_spent_in_currency', ['currency' => $name]),
                 'entries'         => [],
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(219, 68, 55, 0.5)', // red
             ];
 
             $chartData[sprintf('earned-in-%s', $code)] = [
-                'label'           => (string)trans('firefly.box_earned_in_currency', ['currency' => $name]),
+                'label'           => (string) trans('firefly.box_earned_in_currency', ['currency' => $name]),
                 'entries'         => [],
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(0, 141, 76, 0.5)', // green
             ];
         }
 
-        /** @var Carbon $current */
         $current = clone $start;
 
         while ($current <= $end) {
@@ -107,8 +105,8 @@ class WholePeriodChartGenerator
                 $earnedInfoKey                                = sprintf('earned-in-%s', $code);
                 $spentAmount                                  = $spent[$key][$currencyId]['sum'] ?? '0';
                 $earnedAmount                                 = $earned[$key][$currencyId]['sum'] ?? '0';
-                $chartData[$spentInfoKey]['entries'][$label]  = round((float)$spentAmount, $currency['currency_decimal_places']);
-                $chartData[$earnedInfoKey]['entries'][$label] = round((float)$earnedAmount, $currency['currency_decimal_places']);
+                $chartData[$spentInfoKey]['entries'][$label]  = round((float) $spentAmount, $currency['currency_decimal_places']);
+                $chartData[$earnedInfoKey]['entries'][$label] = round((float) $earnedAmount, $currency['currency_decimal_places']);
             }
             $current = app('navigation')->addPeriod($current, $step, 0);
         }
@@ -117,7 +115,7 @@ class WholePeriodChartGenerator
     }
 
     /**
-     * TODO is a duplicate function.
+     * See reference nr. 32
      *
      * @param Carbon $start
      * @param Carbon $end
@@ -130,13 +128,13 @@ class WholePeriodChartGenerator
         $step   = '1D';
         $months = $start->diffInMonths($end);
         if ($months > 3) {
-            $step = '1W'; 
+            $step = '1W';
         }
         if ($months > 24) {
-            $step = '1M'; 
+            $step = '1M';
         }
         if ($months > 100) {
-            $step = '1Y'; 
+            $step = '1Y';
         }
 
         return $step;

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Validation\Account;
 
+use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use Log;
 
@@ -32,23 +33,26 @@ use Log;
  */
 trait ReconciliationValidation
 {
+    public ?Account $destination;
+    public ?Account $source;
 
     /**
-     * @param int|null $accountId
+     * @param array $array
      *
      * @return bool
      */
-    protected function validateReconciliationDestination(?int $accountId): bool
+    protected function validateReconciliationDestination(array $array): bool
     {
-        Log::debug('Now in validateReconciliationDestination');
+        $accountId = array_key_exists('id', $array) ? $array['id'] : null;
+        Log::debug('Now in validateReconciliationDestination', $array);
         if (null === $accountId) {
             Log::debug('Return FALSE');
 
             return false;
         }
-        $result = $this->accountRepository->findNull($accountId);
+        $result = $this->accountRepository->find($accountId);
         if (null === $result) {
-            $this->destError = (string)trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => '']);
+            $this->destError = (string) trans('validation.deposit_dest_bad_data', ['id' => $accountId, 'name' => '']);
             Log::debug('Return FALSE');
 
             return false;
@@ -73,26 +77,27 @@ trait ReconciliationValidation
 
             return true;
         }
-        $this->destError = (string)trans('validation.deposit_dest_wrong_type');
+        $this->destError = (string) trans('validation.deposit_dest_wrong_type');
         Log::debug('Return FALSE');
 
         return false;
     }
 
     /**
-     * @param int|null $accountId
+     * @param array $array
      *
      * @return bool
      */
-    protected function validateReconciliationSource(?int $accountId): bool
+    protected function validateReconciliationSource(array $array): bool
     {
-        Log::debug('In validateReconciliationSource');
+        $accountId = array_key_exists('id', $array) ? $array['id'] : null;
+        Log::debug('In validateReconciliationSource', $array);
         if (null === $accountId) {
             Log::debug('Return FALSE');
 
             return false;
         }
-        $result = $this->accountRepository->findNull($accountId);
+        $result = $this->accountRepository->find($accountId);
         $types  = [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::RECONCILIATION];
         if (null === $result) {
             Log::debug('Return FALSE');

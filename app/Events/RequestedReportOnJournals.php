@@ -24,7 +24,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
@@ -41,10 +40,9 @@ class RequestedReportOnJournals
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /** @var Collection The transaction groups to report on. */
-    public $groups;
-    /** @var int The ID of the user. */
-    public $userId;
+    public Collection $groups;
+    public int        $userId;
+
     /**
      * Create a new event instance.
      *
@@ -61,7 +59,7 @@ class RequestedReportOnJournals
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return Channel|array
+     * @return PrivateChannel
      */
     public function broadcastOn()
     {

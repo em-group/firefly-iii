@@ -22,28 +22,29 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 /**
  * FireflyIII\Models\LinkType
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string $name
- * @property string $outward
- * @property string $inward
- * @property int $journalCount
- * @property bool $editable
- * @property-read Collection|\FireflyIII\Models\TransactionJournalLink[] $transactionJournalLinks
- * @property-read int|null $transaction_journal_links_count
+ * @property int                                      $id
+ * @property Carbon|null                              $created_at
+ * @property Carbon|null                              $updated_at
+ * @property Carbon|null                              $deleted_at
+ * @property string                                   $name
+ * @property string                                   $outward
+ * @property string                                   $inward
+ * @property int                                      $journalCount
+ * @property bool                                     $editable
+ * @property-read Collection|TransactionJournalLink[] $transactionJournalLinks
+ * @property-read int|null                            $transaction_journal_links_count
  * @method static \Illuminate\Database\Eloquent\Builder|LinkType newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|LinkType newQuery()
  * @method static Builder|LinkType onlyTrashed()
@@ -63,6 +64,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class LinkType extends Model
 {
     use SoftDeletes;
+
     /**
      * The attributes that should be casted to native types.
      *
@@ -84,9 +86,9 @@ class LinkType extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return LinkType
      *
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): LinkType
     {

@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Transaction;
@@ -70,6 +71,7 @@ class OtherCurrenciesCorrections extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws FireflyException
      */
     public function handle(): int
     {
@@ -112,15 +114,18 @@ class OtherCurrenciesCorrections extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
-        return false; 
+        return false;
     }
 
     /**
@@ -161,7 +166,6 @@ class OtherCurrenciesCorrections extends Command
 
         }
 
-        /** @var Account $account */
         $account  = $leadTransaction->account;
         $currency = $this->getCurrency($account);
         if (null === $currency) {
@@ -185,8 +189,8 @@ class OtherCurrenciesCorrections extends Command
                 }
 
                 // when mismatch in transaction:
-                if ((int)$transaction->transaction_currency_id !== (int)$currency->id) {
-                    $transaction->foreign_currency_id     = (int)$transaction->transaction_currency_id;
+                if ((int) $transaction->transaction_currency_id !== (int) $currency->id) {
+                    $transaction->foreign_currency_id     = (int) $transaction->transaction_currency_id;
                     $transaction->foreign_amount          = $transaction->amount;
                     $transaction->transaction_currency_id = $currency->id;
                     $transaction->save();
@@ -246,10 +250,10 @@ class OtherCurrenciesCorrections extends Command
     {
         $accountId = $account->id;
         if (array_key_exists($accountId, $this->accountCurrencies) && 0 === $this->accountCurrencies[$accountId]) {
-            return null; 
+            return null;
         }
         if (array_key_exists($accountId, $this->accountCurrencies) && $this->accountCurrencies[$accountId] instanceof TransactionCurrency) {
-            return $this->accountCurrencies[$accountId]; 
+            return $this->accountCurrencies[$accountId];
         }
         $currency = $this->accountRepos->getAccountCurrency($account);
         if (null === $currency) {

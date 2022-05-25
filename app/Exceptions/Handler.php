@@ -29,15 +29,18 @@ namespace FireflyIII\Exceptions;
 use ErrorException;
 use FireflyIII\Jobs\MailError;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException as LaravelValidationException;
-use League\OAuth2\Server\Exception\OAuthServerException;
 use Laravel\Passport\Exceptions\OAuthServerException as LaravelOAuthException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 /**
@@ -58,7 +61,7 @@ class Handler extends ExceptionHandler
             OAuthServerException::class,
             LaravelOAuthException::class,
             TokenMismatchException::class,
-            HttpException::class
+            HttpException::class,
         ];
 
     /**
@@ -68,6 +71,7 @@ class Handler extends ExceptionHandler
      * @param Throwable $e
      *
      * @return mixed
+     * @throws Throwable
      */
     public function render($request, Throwable $e)
     {
@@ -132,8 +136,6 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * This is a great spot to send exceptions to Sentry etc.
-     *
      * @param Throwable $e
      *
      * @return void
@@ -161,6 +163,12 @@ class Handler extends ExceptionHandler
             $userData['id']    = auth()->user()->id;
             $userData['email'] = auth()->user()->email;
         }
+
+        $headers = [];
+        if (request()->headers) {
+            $headers = request()->headers->all();
+        }
+
         $data = [
             'class'        => get_class($e),
             'errorMessage' => $e->getMessage(),
@@ -173,11 +181,13 @@ class Handler extends ExceptionHandler
             'url'          => request()->fullUrl(),
             'userAgent'    => request()->userAgent(),
             'json'         => request()->acceptsJson(),
+            'method'       => request()->method(),
+            'headers'      => $headers,
         ];
 
         // create job that will mail.
         $ipAddress = request()->ip() ?? '0.0.0.0';
-        $job       = new MailError($userData, (string)config('firefly.site_owner'), $ipAddress, $data);
+        $job       = new MailError($userData, (string) config('firefly.site_owner'), $ipAddress, $data);
         dispatch($job);
 
         parent::report($e);
@@ -197,5 +207,44 @@ class Handler extends ExceptionHandler
             }
             )
         );
+    }
+
+    /**
+     * Convert a validation exception into a response.
+     *
+     * @param Request                    $request
+     * @param LaravelValidationException $exception
+     *
+     * @return Application|RedirectResponse|Redirector
+     */
+    protected function invalid($request, LaravelValidationException $exception): Application|RedirectResponse|Redirector
+    {
+        // protect against open redirect when submitting invalid forms.
+        $previous = app('steam')->getSafePreviousUrl();
+        $redirect = $this->getRedirectUrl($exception);
+
+        return redirect($redirect ?? $previous)
+            ->withInput(Arr::except($request->input(), $this->dontFlash))
+            ->withErrors($exception->errors(), $request->input('_error_bag', $exception->errorBag));
+    }
+
+    /**
+     * Only return the redirectTo property from the exception if it is a valid URL. Return NULL otherwise.
+     *
+     * @param LaravelValidationException $exception
+     *
+     * @return string|null
+     */
+    private function getRedirectUrl(LaravelValidationException $exception): ?string
+    {
+        if (null === $exception->redirectTo) {
+            return null;
+        }
+        $safe         = route('index');
+        $previous     = $exception->redirectTo;
+        $previousHost = parse_url($previous, PHP_URL_HOST);
+        $safeHost     = parse_url($safe, PHP_URL_HOST);
+
+        return null !== $previousHost && $previousHost === $safeHost ? $previous : $safe;
     }
 }

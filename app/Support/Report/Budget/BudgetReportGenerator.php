@@ -51,7 +51,6 @@ class BudgetReportGenerator
     private array                          $report;
     private BudgetRepositoryInterface      $repository;
     private Carbon                         $start;
-    private User                           $user;
 
     /**
      * BudgetReportGenerator constructor.
@@ -111,8 +110,8 @@ class BudgetReportGenerator
      */
     private function processBudgetExpenses(array $expenses, array $budget): void
     {
-        $budgetId   = (int)$budget['id'];
-        $currencyId = (int)$expenses['currency_id'];
+        $budgetId   = (int) $budget['id'];
+        $currencyId = (int) $expenses['currency_id'];
         foreach ($budget['transaction_journals'] as $journal) {
             $sourceAccountId = $journal['source_account_id'];
 
@@ -168,7 +167,7 @@ class BudgetReportGenerator
      */
     private function processBudget(Budget $budget): void
     {
-        $budgetId                           = (int)$budget->id;
+        $budgetId                           = (int) $budget->id;
         $this->report['budgets'][$budgetId] = $this->report['budgets'][$budgetId] ?? [
                 'budget_id'     => $budgetId,
                 'budget_name'   => $budget->name,
@@ -192,10 +191,10 @@ class BudgetReportGenerator
      */
     private function processLimit(Budget $budget, BudgetLimit $limit): void
     {
-        $budgetId      = (int)$budget->id;
-        $limitId       = (int)$limit->id;
+        $budgetId      = (int) $budget->id;
+        $limitId       = (int) $limit->id;
         $limitCurrency = $limit->transactionCurrency ?? $this->currency;
-        $currencyId    = (int)$limitCurrency->id;
+        $currencyId    = (int) $limitCurrency->id;
         $expenses      = $this->opsRepository->sumExpenses($limit->start_date, $limit->end_date, $this->accounts, new Collection([$budget]));
         $spent         = $expenses[$currencyId]['sum'] ?? '0';
         $left          = -1 === bccomp(bcadd($limit->amount, $spent), '0') ? '0' : bcadd($limit->amount, $spent);
@@ -250,11 +249,11 @@ class BudgetReportGenerator
             'budget_limits' => [],
         ];
 
-        $noBudget = $this->nbRepository->sumExpenses($this->start, $this->end);
+        $noBudget = $this->nbRepository->sumExpenses($this->start, $this->end, $this->accounts);
         foreach ($noBudget as $noBudgetEntry) {
 
             // currency information:
-            $nbCurrencyId     = (int)($noBudgetEntry['currency_id'] ?? $this->currency->id);
+            $nbCurrencyId     = (int) ($noBudgetEntry['currency_id'] ?? $this->currency->id);
             $nbCurrencyCode   = $noBudgetEntry['currency_code'] ?? $this->currency->code;
             $nbCurrencyName   = $noBudgetEntry['currency_name'] ?? $this->currency->name;
             $nbCurrencySymbol = $noBudgetEntry['currency_symbol'] ?? $this->currency->symbol;
@@ -299,9 +298,9 @@ class BudgetReportGenerator
         // make percentages based on total amount.
         foreach ($this->report['budgets'] as $budgetId => $data) {
             foreach ($data['budget_limits'] as $limitId => $entry) {
-                $budgetId      = (int)$budgetId;
-                $limitId       = (int)$limitId;
-                $currencyId    = (int)$entry['currency_id'];
+                $budgetId      = (int) $budgetId;
+                $limitId       = (int) $limitId;
+                $currencyId    = (int) $entry['currency_id'];
                 $spent         = $entry['spent'];
                 $totalSpent    = $this->report['sums'][$currencyId]['spent'] ?? '0';
                 $spentPct      = '0';
@@ -310,10 +309,10 @@ class BudgetReportGenerator
                 $budgetedPct   = '0';
 
                 if (0 !== bccomp($spent, '0') && 0 !== bccomp($totalSpent, '0')) {
-                    $spentPct = round((float)bcmul(bcdiv($spent, $totalSpent), '100'));
+                    $spentPct = round((float) bcmul(bcdiv($spent, $totalSpent), '100'));
                 }
                 if (0 !== bccomp($budgeted, '0') && 0 !== bccomp($totalBudgeted, '0')) {
-                    $budgetedPct = round((float)bcmul(bcdiv($budgeted, $totalBudgeted), '100'));
+                    $budgetedPct = round((float) bcmul(bcdiv($budgeted, $totalBudgeted), '100'));
                 }
                 $this->report['sums'][$currencyId]['budgeted']                                 = $this->report['sums'][$currencyId]['budgeted'] ?? '0';
                 $this->report['budgets'][$budgetId]['budget_limits'][$limitId]['spent_pct']    = $spentPct;
@@ -364,14 +363,15 @@ class BudgetReportGenerator
 
     /**
      * @param User $user
+     * @throws \FireflyIII\Exceptions\FireflyException
+     * @throws \JsonException
      */
     public function setUser(User $user): void
     {
-        $this->user = $user;
         $this->repository->setUser($user);
         $this->blRepository->setUser($user);
         $this->opsRepository->setUser($user);
         $this->nbRepository->setUser($user);
-        $this->currency = app('amount')->getDefaultCurrencyByUser($this->user);
+        $this->currency = app('amount')->getDefaultCurrencyByUser($user);
     }
 }

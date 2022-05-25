@@ -47,5 +47,8 @@ return [
     'tell_more'               => 'Diga-nos mais que "diz Whoops! no ecrã"',
     'include_logs'            => 'Incluir relatório de erros (ver acima).',
     'what_did_you_do'         => 'Diga-nos o que estava a fazer.',
+    'offline_header'          => 'Você provavelmente está offline',
+    'offline_unreachable'     => 'O Firefly III está inacessível. O seu dispositivo está offline ou o servidor não está a funcionar.',
+    'offline_github'          => 'Se tem a certeza que o seu dispositivo e o servidor estão online, por favor, abra um ticket no <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

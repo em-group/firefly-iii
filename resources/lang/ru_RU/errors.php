@@ -47,5 +47,8 @@ return [
     'tell_more'               => 'Я хочу знать больше, чем просто "Упс!"',
     'include_logs'            => 'Прикрепить журналы ошибок (см. выше).',
     'what_did_you_do'         => 'Расскажите нам, что именно вы делали.',
+    'offline_header'          => 'Вы возможно офлайн',
+    'offline_unreachable'     => 'Firefly III не доступен. Ваше устройство сейчас не в сети или сервер выключен.',
+    'offline_github'          => 'Если вы уверены что ваше устройство и сервер в сети то откройте заявку <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'Acesta nu este un IBAN valabil.',
     'zero_or_more'                   => 'Valoarea nu poate fi negativă.',
     'date_or_time'                   => 'Valoarea trebuie să fie o dată validă sau o valoare în timp (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'Câmpul :attribute trebuie să fie acceptat.',
     'bic'                            => 'Acesta nu este un BIC valabil.',
     'at_least_one_trigger'           => 'Regula trebuie să aibă cel puțin un declanșator.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Regula trebuie să aibă cel puțin o acțiune.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Acest lucru nu este valabil pentru datele encoded base64.',
     'model_id_invalid'               => 'ID-ul dat nu pare valid pentru acest model.',
     'less'                           => ':attribute trebuie să fie mai mic decât 10,000,000',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Trebuie să continuați să obțineți un ID de cont de destinație valabil și / sau un nume de cont de destinație valabil.',
     'withdrawal_dest_bad_data'    => 'Nu s-a găsit un cont de destinaţie valabil la căutarea ID ":id" sau nume ":name".',
 
-    'generic_source_bad_data'  => 'Nu s-a găsit un cont sursă valid la căutarea ID-ului ":id" sau a numelui ":name".',
+    'generic_source_bad_data' => 'Nu s-a găsit un cont sursă valid la căutarea ID-ului ":id" sau a numelui ":name".',
 
     'deposit_source_need_data' => 'Trebuie să continuați să obțineți un ID de cont sursă valabil și / sau un nume de cont sursă valabil.',
     'deposit_source_bad_data'  => 'Nu s-a găsit un cont sursă valabil la căutarea ID ":id" sau nume ":name".',
@@ -200,11 +209,15 @@ return [
     'need_id_in_edit'           => 'Fiecare împărțire trebuie să aibă transaction_journal_id (fie ID valid sau 0).',
 
     'ob_source_need_data' => 'Pentru a continua, trebuie să obțineți un ID sursă validă și / sau un nume valid al contului sursă valabil.',
+    'lc_source_need_data' => 'Need to get a valid source account ID to continue.',
     'ob_dest_need_data'   => 'Trebuie să continuați să obțineți un ID de cont de destinație valabil și / sau un nume de cont de destinație valabil.',
     'ob_dest_bad_data'    => 'Nu s-a găsit un cont de destinaţie valabil la căutarea ID ":id" sau nume ":name".',
 
     'generic_invalid_source'      => 'Nu puteți utiliza acest cont ca și cont sursă.',
     'generic_invalid_destination' => 'Nu puteți utiliza acest cont ca și cont de destinație.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => ':attribute trebuie să fie mai mare sau egal cu :value.',
     'gt.numeric'  => ':attribute trebuie să fie mai mare decât :value.',
