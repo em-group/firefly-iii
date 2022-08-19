@@ -29,7 +29,7 @@ use DB;
 use Exception;
 use FireflyConfig;
 use FireflyIII\Exceptions\FireflyException;
-use FireflyIII\Http\Middleware\IsDemoUser;
+use FireflyIII\Http\Middleware\IsAdmin;
 use FireflyIII\Support\Http\Controllers\GetConfigurationData;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
@@ -57,7 +57,7 @@ class DebugController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->middleware(IsDemoUser::class)->except(['displayError']);
+        $this->middleware(IsAdmin::class);
     }
 
     /**
