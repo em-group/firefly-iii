@@ -2,8 +2,10 @@
 
 namespace FireflyIII\Http\Controllers;
 
+use EM\Hub\Library\FormatsCurrencyObject;
 use EM\Hub\Library\SubProducts;
 use EM\Hub\Library\HubClient;
+use EM\Hub\Models\HubCountryInterface;
 use EM\Hub\Models\SubProduct;
 use FireflyIII\User;
 use Illuminate\Support\Facades\Mail;
@@ -20,12 +22,15 @@ class FrontpageController extends Controller
         $subProducts = SubProducts::getSubProducts($locale)->keyBy(function(SubProduct $subProduct){
             return $subProduct->index;
         });
+        /** @var HubCountryInterface $country */
+        $country = app(HubCountryInterface::class)->where('iso_currency', $currency)->first();
+        $trial_price = $country ? FormatsCurrencyObject::formatCurrency($country->currency_object, $country->trial_price) : '$1';
         $domain = config('whitelabels.domain');
         $terms = Cache::remember('frontpage_terms_'.$domain.'_'.$locale, now()->addDay(), function() use($locale){
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
-        return prefixView('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency'));
+        return prefixView('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency', 'trial_price'));
     }
 
     public function terms(Request $request)
