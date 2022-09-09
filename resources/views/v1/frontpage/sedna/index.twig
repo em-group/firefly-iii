@@ -179,7 +179,7 @@
                 <table class="table table-striped" id="price-compare">
                     <thead>
                     <tr>
-                        <th></th>
+                        <th style="min-width: 200px;"></th>
                         <th>{{ subProducts.0.name }}</th>
                         <th>{{ subProducts.1.name }}</th>
                     </tr>
@@ -243,7 +243,8 @@
                         <tr>
                             <td></td>
                             <td>
-                                {% if (config('whitelabels.extended_notice')) %}
+                                <!--{{ config('whitelabels.extended_notice', 0) }}-->
+                                {% if (config('whitelabels.extended_notice', 0)) %}
                                 <small>
                                     Click below to register for a 14 day trial for {{ trial_price }}.
                                     Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
@@ -255,7 +256,7 @@
                                 <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-success">SIGN UP</a>
                             </td>
                             <td>
-                                {% if (config('whitelabels.extended_notice')) %}
+                                {% if (config('whitelabels.extended_notice', 0)) %}
                                     <small>
                                         Click below to register for a 14 day trial for {{ trial_price }}.
                                         Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
