@@ -30,7 +30,6 @@ class FrontpageController extends Controller
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
-        header('X-WL-EXT: '.config('whitelabels.extended_notice', 0));
         return prefixView('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency', 'trial_price'));
     }
 
