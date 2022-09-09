@@ -231,7 +231,8 @@
                         <img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
                     </div>
                     <hr>
-                    {% if (config('whitelabels.extended_notice')) %}
+                    <!--{{ config('whitelabels.extended_notice', 0) }}-->
+                    {% if (config('whitelabels.extended_notice', 0)) %}
                         <small>
                             Click below to register for a 14 day trial for {{ trial_price }}.
                             Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
@@ -301,7 +302,7 @@
                         <img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
                     </div>
                     <hr>
-                    {% if (config('whitelabels.extended_notice')) %}
+                    {% if (config('whitelabels.extended_notice', 0)) %}
                         <small>
                             Click below to register for a 14 day trial for {{ trial_price }}.
                             Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
