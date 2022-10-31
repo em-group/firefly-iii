@@ -22,7 +22,7 @@
         "sass-loader": "8.*",
         "uiv": "^1.2",
         "vue": "^2.6",
-        "vue-i18n": "^8.23",
+        "vue-i18n": "^8.28",
         "vue-loader": "^15.9.5",
         "vue-template-compiler": "^2.6"
     }
