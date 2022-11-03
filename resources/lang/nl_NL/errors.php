@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Zo terug!',
     'check_back'              => 'Firefly III is offline voor onderhoud. Kom later terug.',
     'error_occurred'          => 'Oeps! Er is een fout opgetreden.',
+    'db_error_occurred'       => 'Oeps! Er is een database-fout opgetreden.',
     'error_not_recoverable'   => 'Helaas was deze fout niet te herstellen :(. Firefly III is stuk. De fout is:',
     'error'                   => 'Fout',
     'error_location'          => 'De fout is opgetreden in bestand <span style="font-family: monospace;">:file</span> op regel :line met code :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Meer info dan "hij is stuk" gaarne',
     'include_logs'            => 'Inclusief foutlogs (zie hierboven).',
     'what_did_you_do'         => 'Zet er bij wat je deed.',
+    'offline_header'          => 'Je bent waarschijnlijk offline',
+    'offline_unreachable'     => 'Firefly III is onbereikbaar. Je apparaat is momenteel offline of de server werkt niet.',
+    'offline_github'          => 'Als je zeker weet dat zowel je apparaat als de server online zijn, open dan een ticket op <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

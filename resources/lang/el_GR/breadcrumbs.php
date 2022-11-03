@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Αρχική',
+    'budgets'                => 'Προϋπολογισμοί',
+    'subscriptions'          => 'Συνδρομές',
+    'transactions'           => 'Συναλλαγές',
+    'title_expenses'         => 'Δαπάνες',
+    'title_withdrawal'       => 'Δαπάνες',
+    'title_revenue'          => 'Έσοδα',
+    'title_deposit'          => 'Έσοδα',
+    'title_transfer'         => 'Μεταφορές',
+    'title_transfers'        => 'Μεταφορές',
     'edit_currency'          => 'Επεξεργασία νομίσματος ":name"',
     'delete_currency'        => 'Διαγραφή νομίσματος ":name"',
     'newPiggyBank'           => 'Δημιουργία ενός νέου κουμπαρά',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Επεξεργασία ετικέτας ":tag"',
     'delete_tag'             => 'Διαγραφή ετικέτας ":tag"',
     'delete_journal_link'    => 'Διαγραφή συνδέσμου μεταξύ των συναλλαγών',
-    'telemetry_index'        => 'Τηλεμετρία',
-    'telemetry_view'         => 'Προβολή τηλεμετρίας',
     'edit_object_group'      => 'Επεξεργασία ομάδας ":title"',
     'delete_object_group'    => 'Διαγραφή ομάδας ":title"',
-    'logout_others'          => 'Αποσυνδέσετε τις άλλες συνεδρίες'
+    'logout_others'          => 'Αποσυνδέσετε τις άλλες συνεδρίες',
+    'asset_accounts'         => 'Λογαριασμοί κεφαλαίου',
+    'expense_accounts'       => 'Λογαριασμοί δαπανών',
+    'revenue_accounts'       => 'Λογαριασμοί εσόδων',
+    'liabilities_accounts'   => 'Υποχρεώσεις',
+    'placeholder'            => '[Placeholder]',
 ];

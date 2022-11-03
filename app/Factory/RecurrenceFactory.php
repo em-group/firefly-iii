@@ -84,7 +84,7 @@ class RecurrenceFactory
             $firstDate = $data['recurrence']['first_date'];
         }
         if (array_key_exists('nr_of_repetitions', $data['recurrence'])) {
-            $repetitions = (int)$data['recurrence']['nr_of_repetitions'];
+            $repetitions = (int) $data['recurrence']['nr_of_repetitions'];
         }
         if (array_key_exists('repeat_until', $data['recurrence'])) {
             $repeatUntil = $data['recurrence']['repeat_until'];
@@ -101,9 +101,7 @@ class RecurrenceFactory
         if (array_key_exists('active', $data['recurrence'])) {
             $active = $data['recurrence']['active'];
         }
-        if (null !== $repeatUntil) {
-            $repeatUntilString = $repeatUntil->format('Y-m-d');
-        }
+        $repeatUntilString = $repeatUntil?->format('Y-m-d');
 
         $recurrence = new Recurrence(
             [
@@ -111,7 +109,7 @@ class RecurrenceFactory
                 'transaction_type_id' => $type->id,
                 'title'               => $title,
                 'description'         => $description,
-                'first_date'          => $firstDate ? $firstDate->format('Y-m-d') : null,
+                'first_date'          => $firstDate?->format('Y-m-d'),
                 'repeat_until'        => $repetitions > 0 ? null : $repeatUntilString,
                 'latest_date'         => null,
                 'repetitions'         => $repetitions,
@@ -122,7 +120,7 @@ class RecurrenceFactory
         $recurrence->save();
 
         if (array_key_exists('notes', $data['recurrence'])) {
-            $this->updateNote($recurrence, (string)$data['recurrence']['notes']);
+            $this->updateNote($recurrence, (string) $data['recurrence']['notes']);
 
         }
 
@@ -144,19 +142,19 @@ class RecurrenceFactory
     }
 
     /**
-     * @param User $user
-     */
-    public function setUser(User $user): void
-    {
-        $this->user = $user;
-    }
-
-    /**
      * @return MessageBag
      */
     public function getErrors(): MessageBag
     {
         return $this->errors;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 
 

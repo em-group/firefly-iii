@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
@@ -31,7 +30,6 @@ use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Password;
 use Illuminate\View\View;
 use Log;
 
@@ -77,7 +75,7 @@ class ForgotPasswordController extends Controller
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
             Log::error($message);
 
-            return prefixView('error', compact('message'));
+            return view('error', compact('message'));
         }
 
 
@@ -88,21 +86,21 @@ class ForgotPasswordController extends Controller
         $user = User::where('email', $request->get('email'))->first();
 
         if (null !== $user && $repository->hasRole($user, 'demo')) {
-            return back()->withErrors(['email' => (string)trans('firefly.cannot_reset_demo_user')]);
+            return back()->withErrors(['email' => (string) trans('firefly.cannot_reset_demo_user')]);
         }
 
         // We will send the password reset link to this user. Once we have attempted
         // to send the link, we will examine the response then see the message we
         // need to show to the user. Finally, we'll send out a proper response.
-        $response = $this->broker()->sendResetLink(
-            $request->only('email')
-        );
-
-        if ($response === Password::RESET_LINK_SENT) {
-            return back()->with('status', trans($response));
+        $result = $this->broker()->sendResetLink($request->only('email'));
+        if ('passwords.throttled' === $result) {
+            Log::error(sprintf('Cowardly refuse to send a password reset message to user #%d because the reset button has been throttled.', $user->id));
         }
 
-        return back()->withErrors(['email' => trans($response)]); 
+        // always send the same response to the user:
+        $response = trans('firefly.forgot_password_response');
+
+        return back()->with('status', trans($response));
     }
 
     /**
@@ -111,6 +109,9 @@ class ForgotPasswordController extends Controller
      * @codeCoverageIgnore
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function showLinkRequestForm()
     {
@@ -118,18 +119,18 @@ class ForgotPasswordController extends Controller
         if ('eloquent' !== $loginProvider) {
             $message = sprintf('Cannot reset password when authenticating over "%s".', $loginProvider);
 
-            return prefixView('error', compact('message'));
+            return view('error', compact('message'));
         }
 
         // is allowed to?
         $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
         $userCount         = User::count();
         $allowRegistration = true;
-        $pageTitle         = (string)trans('firefly.forgot_pw_page_title');
+        $pageTitle         = (string) trans('firefly.forgot_pw_page_title');
         if (true === $singleUserMode && $userCount > 0) {
             $allowRegistration = false;
         }
 
-        return prefixView('auth.passwords.email')->with(compact('allowRegistration', 'pageTitle'));
+        return view('auth.passwords.email')->with(compact('allowRegistration', 'pageTitle'));
     }
 }

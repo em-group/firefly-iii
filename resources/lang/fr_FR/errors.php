@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Je reviens tout de suite !',
     'check_back'              => 'Firefly III est fermé pour cause de maintenace. Veuillez revenir dans une seconde.',
     'error_occurred'          => 'Oups ! Une erreur est survenue.',
+    'db_error_occurred'       => 'Oups! Une erreur de base de données s\'est produite.',
     'error_not_recoverable'   => 'Malheureusement, cette erreur n\'a pas pu être récupérée :(. Firefly III s\'est cassé. L\'erreur est :',
     'error'                   => 'Erreur',
     'error_location'          => 'Cette erreur est survenue dans le fichier "<span style="font-family: monospace;">:file</span>" à la ligne :line avec le code :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Dites-nous plus que "ça dit Oups !"',
     'include_logs'            => 'Incluez les logs d\'erreur (voir plus bas).',
     'what_did_you_do'         => 'Dites-nous ce que vous faisiez.',
+    'offline_header'          => 'Vous êtes probablement déconnecté',
+    'offline_unreachable'     => 'Firefly III est inaccessible. Votre appareil est actuellement déconnecté ou le serveur ne fonctionne pas.',
+    'offline_github'          => 'Si vous êtes sûr que votre appareil et le serveur sont en ligne, veuillez ouvrir un ticket sur <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

@@ -24,6 +24,7 @@ namespace FireflyIII\Handlers\Events;
 
 use Exception;
 use FireflyIII\Events\AdminRequestedTestMessage;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Mail\AdminTestMail;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Log;
@@ -41,6 +42,7 @@ class AdminEventHandler
      * @param AdminRequestedTestMessage $event
      *
      * @return bool
+     * @throws FireflyException
      */
     public function sendTestMessage(AdminRequestedTestMessage $event): bool
     {
@@ -49,8 +51,7 @@ class AdminEventHandler
 
         // is user even admin?
         if ($repository->hasRole($event->user, 'owner')) {
-            $email     = $event->user->email;
-            $ipAddress = $event->ipAddress;
+            $email = $event->user->email;
 
             // if user is demo user, send to owner:
             if ($event->user->hasRole('demo')) {
@@ -58,15 +59,15 @@ class AdminEventHandler
             }
 
             // see if user has alternative email address:
-            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email', null);
+            $pref = app('preferences')->getForUser($event->user, 'remote_guard_alt_email');
             if (null !== $pref) {
                 $email = $pref->data;
             }
 
-            Log::debug(sprintf('Now in sendTestMessage event handler. Email is %s, IP is %s', $email, $ipAddress));
+            Log::debug(sprintf('Now in sendTestMessage event handler. Email is %s', $email));
             try {
                 Log::debug('Trying to send message...');
-                Mail::to($email)->send(new AdminTestMail($email, $ipAddress));
+                Mail::to($email)->send(new AdminTestMail($email));
 
                 // Laravel cannot pretend this process failed during testing.
             } catch (Exception $e) { // @phpstan-ignore-line

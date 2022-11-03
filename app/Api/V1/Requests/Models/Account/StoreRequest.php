@@ -56,34 +56,35 @@ class StoreRequest extends FormRequest
             $includeNetWorth = $this->boolean('include_net_worth');
         }
         $data = [
-            'name'                    => $this->string('name'),
+            'name'                    => $this->convertString('name'),
             'active'                  => $active,
             'include_net_worth'       => $includeNetWorth,
-            'account_type_name'       => $this->string('type'),
+            'account_type_name'       => $this->convertString('type'),
             'account_type_id'         => null,
-            'currency_id'             => $this->integer('currency_id'),
-            'order'                   => $this->integer('order'),
-            'currency_code'           => $this->string('currency_code'),
-            'virtual_balance'         => $this->string('virtual_balance'),
-            'iban'                    => $this->string('iban'),
-            'BIC'                     => $this->string('bic'),
-            'account_number'          => $this->string('account_number'),
-            'account_role'            => $this->string('account_role'),
-            'opening_balance'         => $this->string('opening_balance'),
-            'opening_balance_date'    => $this->date('opening_balance_date'),
-            'cc_type'                 => $this->string('credit_card_type'),
-            'cc_monthly_payment_date' => $this->string('monthly_payment_date'),
+            'currency_id'             => $this->convertInteger('currency_id'),
+            'order'                   => $this->convertInteger('order'),
+            'currency_code'           => $this->convertString('currency_code'),
+            'virtual_balance'         => $this->convertString('virtual_balance'),
+            'iban'                    => $this->convertString('iban'),
+            'BIC'                     => $this->convertString('bic'),
+            'account_number'          => $this->convertString('account_number'),
+            'account_role'            => $this->convertString('account_role'),
+            'opening_balance'         => $this->convertString('opening_balance'),
+            'opening_balance_date'    => $this->getCarbonDate('opening_balance_date'),
+            'cc_type'                 => $this->convertString('credit_card_type'),
+            'cc_monthly_payment_date' => $this->convertString('monthly_payment_date'),
             'notes'                   => $this->stringWithNewlines('notes'),
-            'interest'                => $this->string('interest'),
-            'interest_period'         => $this->string('interest_period'),
+            'interest'                => $this->convertString('interest'),
+            'interest_period'         => $this->convertString('interest_period'),
         ];
-        // append Location information.
+        // append location information.
         $data = $this->appendLocationData($data, null);
 
         if ('liability' === $data['account_type_name'] || 'liabilities' === $data['account_type_name']) {
-            $data['opening_balance']      = bcmul($this->string('liability_amount'), '-1');
-            $data['opening_balance_date'] = $this->date('liability_start_date');
-            $data['account_type_name']         = $this->string('liability_type');
+            $data['opening_balance']      = app('steam')->negative($this->convertString('liability_amount'));
+            $data['opening_balance_date'] = $this->getCarbonDate('liability_start_date');
+            $data['account_type_name']    = $this->convertString('liability_type');
+            $data['liability_direction']  = $this->convertString('liability_direction');
             $data['account_type_id']      = null;
         }
 
@@ -100,7 +101,7 @@ class StoreRequest extends FormRequest
         $accountRoles   = implode(',', config('firefly.accountRoles'));
         $types          = implode(',', array_keys(config('firefly.subTitlesByIdentifier')));
         $ccPaymentTypes = implode(',', array_keys(config('firefly.ccTypes')));
-        $type           = $this->string('type');
+        $type           = $this->convertString('type');
         $rules          = [
             'name'                 => 'required|min:1|uniqueAccountForUser',
             'type'                 => 'required|' . sprintf('in:%s', $types),
@@ -115,14 +116,15 @@ class StoreRequest extends FormRequest
             'currency_code'        => 'min:3|max:3|exists:transaction_currencies,code',
             'active'               => [new IsBoolean],
             'include_net_worth'    => [new IsBoolean],
-            'account_role'         => sprintf('in:%s|required_if:type,asset', $accountRoles),
-            'credit_card_type'     => sprintf('in:%s|required_if:account_role,ccAsset', $ccPaymentTypes),
-            'monthly_payment_date' => 'date' . '|required_if:account_role,ccAsset|required_if:credit_card_type,monthlyFull',
-            'liability_type'       => 'required_if:type,liability|in:loan,debt,mortgage',
-            'liability_amount'     => 'required_if:type,liability|min:0|numeric',
-            'liability_start_date' => 'required_if:type,liability|date',
-            'interest'             => 'required_if:type,liability|between:0,100|numeric',
-            'interest_period'      => 'required_if:type,liability|in:daily,monthly,yearly',
+            'account_role'         => sprintf('nullable|in:%s|required_if:type,asset', $accountRoles),
+            'credit_card_type'     => sprintf('nullable|in:%s|required_if:account_role,ccAsset', $ccPaymentTypes),
+            'monthly_payment_date' => 'nullable|date|required_if:account_role,ccAsset|required_if:credit_card_type,monthlyFull',
+            'liability_type'       => 'nullable|required_if:type,liability|required_if:type,liabilities|in:loan,debt,mortgage',
+            'liability_amount'     => 'required_with:liability_start_date|min:0|numeric',
+            'liability_start_date' => 'required_with:liability_amount|date',
+            'liability_direction'  => 'nullable|required_if:type,liability|required_if:type,liabilities|in:credit,debit',
+            'interest'             => 'between:0,100|numeric',
+            'interest_period'      => sprintf('nullable|in:%s', join(',', config('firefly.interest_periods'))),
             'notes'                => 'min:0|max:65536',
         ];
 

@@ -31,7 +31,7 @@ use FireflyIII\Repositories\PiggyBank\PiggyBankRepositoryInterface;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\Support\Http\Controllers\DateCalculation;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Class PiggyBankController.
@@ -58,13 +58,13 @@ class PiggyBankController extends Controller
     /**
      * Shows the piggy bank history.
      *
-     * TODO this chart is not multi-currency aware.
+     * See reference nr. 53
      *
      * @param PiggyBankRepositoryInterface $repository
      * @param PiggyBank                    $piggyBank
      *
      * @return JsonResponse
-     *
+     * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function history(PiggyBankRepositoryInterface $repository, PiggyBank $piggyBank): JsonResponse
     {
@@ -73,7 +73,7 @@ class PiggyBankController extends Controller
         $cache->addProperty('chart.piggy-bank.history');
         $cache->addProperty($piggyBank->id);
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         $set    = $repository->getEvents($piggyBank);
         $set    = $set->reverse();
@@ -94,25 +94,23 @@ class PiggyBankController extends Controller
 
         $chartData = [];
         while ($oldest <= $today) {
-            /** @var Collection $filtered */
             $filtered          = $set->filter(
                 function (PiggyBankEvent $event) use ($oldest) {
                     return $event->date->lte($oldest);
                 }
             );
             $currentSum        = $filtered->sum('amount');
-            $label             = $oldest->formatLocalized((string)trans('config.month_and_day', [], $locale));
+            $label             = $oldest->isoFormat((string) trans('config.month_and_day_js', [], $locale));
             $chartData[$label] = $currentSum;
             $oldest            = app('navigation')->addPeriod($oldest, $step, 0);
         }
-        /** @var Collection $finalFiltered */
         $finalFiltered          = $set->filter(
             function (PiggyBankEvent $event) use ($today) {
                 return $event->date->lte($today);
             }
         );
         $finalSum               = $finalFiltered->sum('amount');
-        $finalLabel             = $today->formatLocalized((string)trans('config.month_and_day', [], $locale));
+        $finalLabel             = $today->isoFormat((string) trans('config.month_and_day_js', [], $locale));
         $chartData[$finalLabel] = $finalSum;
 
         $data = $this->generator->singleSet($piggyBank->name, $chartData);

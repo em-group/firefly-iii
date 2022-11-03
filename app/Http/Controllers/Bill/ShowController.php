@@ -24,7 +24,6 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers\Bill;
 
 use Carbon\Carbon;
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Attachment;
@@ -64,7 +63,7 @@ class ShowController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.bills'));
+                app('view')->share('title', (string) trans('firefly.bills'));
                 app('view')->share('mainTitleIcon', 'fa-calendar-o');
                 $this->repository = app(BillRepositoryInterface::class);
 
@@ -80,13 +79,12 @@ class ShowController extends Controller
      * @param Bill    $bill
      *
      * @return RedirectResponse|Redirector
-     * @throws FireflyException
      */
     public function rescan(Request $request, Bill $bill)
     {
         $total = 0;
         if (false === $bill->active) {
-            $request->session()->flash('warning', (string)trans('firefly.cannot_scan_inactive_bill'));
+            $request->session()->flash('warning', (string) trans('firefly.cannot_scan_inactive_bill'));
 
             return redirect(route('bills.show', [$bill->id]));
         }
@@ -96,7 +94,7 @@ class ShowController extends Controller
             $total = 0;
         }
         if (0 === $set->count()) {
-            $request->session()->flash('error', (string)trans('firefly.no_rules_for_bill'));
+            $request->session()->flash('error', (string) trans('firefly.no_rules_for_bill'));
 
             return redirect(route('bills.show', [$bill->id]));
         }
@@ -112,7 +110,7 @@ class ShowController extends Controller
         // file the rule(s)
         $ruleEngine->fire();
 
-        $request->session()->flash('success', (string)trans_choice('firefly.rescanned_bill', $total));
+        $request->session()->flash('success', (string) trans_choice('firefly.rescanned_bill', $total));
         app('preferences')->mark();
 
         return redirect(route('bills.show', [$bill->id]));
@@ -125,6 +123,9 @@ class ShowController extends Controller
      * @param Bill    $bill
      *
      * @return Factory|View
+     * @throws \FireflyIII\Exceptions\FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function show(Request $request, Bill $bill)
     {
@@ -136,8 +137,8 @@ class ShowController extends Controller
         /** @var Carbon $end */
         $end            = session('end');
         $year           = $start->year;
-        $page           = (int)$request->get('page');
-        $pageSize       = (int)app('preferences')->get('listPageSize', 50)->data;
+        $page           = (int) $request->get('page');
+        $pageSize       = (int) app('preferences')->get('listPageSize', 50)->data;
         $yearAverage    = $this->repository->getYearAverage($bill, $start);
         $overallAverage = $this->repository->getOverallAverage($bill);
         $manager        = new Manager();
@@ -180,7 +181,7 @@ class ShowController extends Controller
         }
 
 
-        return prefixView('bills.show', compact('attachments', 'groups', 'rules', 'yearAverage', 'overallAverage', 'year', 'object', 'bill', 'subTitle'));
+        return view('bills.show', compact('attachments', 'groups', 'rules', 'yearAverage', 'overallAverage', 'year', 'object', 'bill', 'subTitle'));
     }
 
 }

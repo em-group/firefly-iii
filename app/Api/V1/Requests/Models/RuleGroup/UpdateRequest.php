@@ -45,10 +45,10 @@ class UpdateRequest extends FormRequest
     {
         // This is the way.
         $fields = [
-            'title'       => ['title', 'string'],
+            'title'       => ['title', 'convertString'],
             'description' => ['description', 'stringWithNewlines'],
             'active'      => ['active', 'boolean'],
-            'order'       => ['order', 'integer'],
+            'order'       => ['order', 'convertInteger'],
         ];
 
         return $this->getAllData($fields);

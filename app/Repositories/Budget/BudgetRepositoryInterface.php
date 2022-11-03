@@ -35,6 +35,22 @@ use Illuminate\Support\Collection;
 interface BudgetRepositoryInterface
 {
     /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function budgetEndsWith(string $query, int $limit): Collection;
+
+    /**
+     * @param string $query
+     * @param int    $limit
+     *
+     * @return Collection
+     */
+    public function budgetStartsWith(string $query, int $limit): Collection;
+
+    /**
      * @return bool
      */
     public function cleanupBudgets(): bool;
@@ -57,6 +73,14 @@ interface BudgetRepositoryInterface
     public function destroyAutoBudget(Budget $budget): void;
 
     /**
+     *
+     * @param int|null $budgetId
+     *
+     * @return Budget|null
+     */
+    public function find(int $budgetId = null): ?Budget;
+
+    /**
      * @param int|null    $budgetId
      * @param string|null $budgetName
      *
@@ -74,21 +98,12 @@ interface BudgetRepositoryInterface
     public function findByName(?string $name): ?Budget;
 
     /**
-     * TODO refactor to "find"
-     *
-     * @param int|null $budgetId
-     *
-     * @return Budget|null
-     */
-    public function findNull(int $budgetId = null): ?Budget;
-
-    /**
      * This method returns the oldest journal or transaction date known to this budget.
      * Will cache result.
      *
      * @param Budget $budget
      *
-     * @return Carbon
+     * @return Carbon|null
      */
     public function firstUseDate(Budget $budget): ?Carbon;
 
@@ -136,6 +151,12 @@ interface BudgetRepositoryInterface
     public function getMaxOrder(): int;
 
     /**
+     * @param Budget $budget
+     * @return string|null
+     */
+    public function getNoteText(Budget $budget): ?string;
+
+    /**
      * @param string $query
      * @param int    $limit
      *
@@ -169,4 +190,5 @@ interface BudgetRepositoryInterface
      * @return Budget
      */
     public function update(Budget $budget, array $data): Budget;
+
 }

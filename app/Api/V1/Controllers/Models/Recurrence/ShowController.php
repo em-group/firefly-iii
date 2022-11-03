@@ -24,10 +24,10 @@ declare(strict_types=1);
 namespace FireflyIII\Api\V1\Controllers\Models\Recurrence;
 
 use FireflyIII\Api\V1\Controllers\Controller;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Transformers\RecurrenceTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
@@ -60,9 +60,13 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/recurrences/listRecurrence
+     *
      * List all of them.
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function index(): JsonResponse
@@ -70,10 +74,10 @@ class ShowController extends Controller
         $manager = $this->getManager();
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
-        $collection = $this->repository->getAll();
+        $collection = $this->repository->get();
         $count      = $collection->count();
         $piggyBanks = $collection->slice(($this->parameters->get('page') - 1) * $pageSize, $pageSize);
 
@@ -93,6 +97,9 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/recurrences/getRecurrence
+     *
      * List single resource.
      *
      * @param Recurrence $recurrence

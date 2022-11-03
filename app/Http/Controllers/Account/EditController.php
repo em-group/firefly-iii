@@ -44,11 +44,9 @@ class EditController extends Controller
 {
     use ModelInformation;
 
-    private AttachmentHelperInterface $attachments;
-    /** @var CurrencyRepositoryInterface The currency repository */
-    private $currencyRepos;
-    /** @var AccountRepositoryInterface The account repository */
-    private $repository;
+    private AttachmentHelperInterface   $attachments;
+    private CurrencyRepositoryInterface $currencyRepos;
+    private AccountRepositoryInterface  $repository;
 
     /**
      * EditController constructor.
@@ -61,7 +59,7 @@ class EditController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string)trans('firefly.accounts'));
+                app('view')->share('title', (string) trans('firefly.accounts'));
 
                 $this->repository    = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -84,11 +82,11 @@ class EditController extends Controller
     public function edit(Request $request, Account $account, AccountRepositoryInterface $repository)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); 
+            return $this->redirectAccountToAccount($account);
         }
 
         $objectType     = config('firefly.shortNamesByFullName')[$account->accountType->type];
-        $subTitle       = (string)trans(sprintf('firefly.edit_%s_account', $objectType), ['name' => $account->name]);
+        $subTitle       = (string) trans(sprintf('firefly.edit_%s_account', $objectType), ['name' => $account->name]);
         $subTitleIcon   = config(sprintf('firefly.subIconsByIdentifier.%s', $objectType));
         $roles          = $this->getRoles();
         $liabilityTypes = $this->getLiabilityTypes();
@@ -106,22 +104,30 @@ class EditController extends Controller
             ],
         ];
 
+        $liabilityDirections = [
+            'debit'  => trans('firefly.liability_direction_debit'),
+            'credit' => trans('firefly.liability_direction_credit'),
+        ];
+
         // interest calculation periods:
         $interestPeriods = [
-            'daily'   => (string)trans('firefly.interest_calc_daily'),
-            'monthly' => (string)trans('firefly.interest_calc_monthly'),
-            'yearly'  => (string)trans('firefly.interest_calc_yearly'),
+            'daily'   => (string) trans('firefly.interest_calc_daily'),
+            'monthly' => (string) trans('firefly.interest_calc_monthly'),
+            'yearly'  => (string) trans('firefly.interest_calc_yearly'),
         ];
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('accounts.edit.fromUpdate')) {
-            $this->rememberPreviousUri('accounts.edit.uri');
+            $this->rememberPreviousUrl('accounts.edit.url');
         }
         $request->session()->forget('accounts.edit.fromUpdate');
 
-        $openingBalanceAmount = (string)$repository->getOpeningBalanceAmount($account);
-        $openingBalanceDate   = $repository->getOpeningBalanceDate($account);
-        $currency             = $this->repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
+        $openingBalanceAmount = (string) $repository->getOpeningBalanceAmount($account);
+        if ('0' === $openingBalanceAmount) {
+            $openingBalanceAmount = '';
+        }
+        $openingBalanceDate = $repository->getOpeningBalanceDate($account);
+        $currency           = $this->repository->getAccountCurrency($account) ?? app('amount')->getDefaultCurrency();
 
         // include this account in net-worth charts?
         $includeNetWorth = $repository->getMetaValue($account, 'include_net_worth');
@@ -137,19 +143,23 @@ class EditController extends Controller
             'BIC'                     => $repository->getMetaValue($account, 'BIC'),
             'opening_balance_date'    => $openingBalanceDate,
             'liability_type_id'       => $account->account_type_id,
-            'opening_balance'         => $openingBalanceAmount,
-            'virtual_balance'         => $account->virtual_balance,
+            'opening_balance'         => number_format((float) $openingBalanceAmount, $currency->decimal_places, '.', ''),
+            'liability_direction'     => $this->repository->getMetaValue($account, 'liability_direction'),
+            'virtual_balance'         => number_format((float) $account->virtual_balance, $currency->decimal_places, '.', ''),
             'currency_id'             => $currency->id,
             'include_net_worth'       => $includeNetWorth,
             'interest'                => $repository->getMetaValue($account, 'interest'),
             'interest_period'         => $repository->getMetaValue($account, 'interest_period'),
             'notes'                   => $this->repository->getNoteText($account),
-            'active'                  => $hasOldInput ? (bool)$request->old('active') : $account->active,
+            'active'                  => $hasOldInput ? (bool) $request->old('active') : $account->active,
         ];
+        if ('' === $openingBalanceAmount) {
+            $preFilled['opening_balance'] = '';
+        }
 
         $request->session()->flash('preFilled', $preFilled);
 
-        return prefixView(
+        return view(
             'accounts.edit',
             compact(
                 'account',
@@ -157,6 +167,7 @@ class EditController extends Controller
                 'subTitle',
                 'subTitleIcon',
                 'locations',
+                'liabilityDirections',
                 'objectType',
                 'roles',
                 'preFilled',
@@ -177,30 +188,31 @@ class EditController extends Controller
     public function update(AccountFormRequest $request, Account $account)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); 
+            return $this->redirectAccountToAccount($account);
         }
 
         $data = $request->getAccountData();
         $this->repository->update($account, $data);
 
-        $request->session()->flash('success', (string)trans('firefly.updated_account', ['name' => $account->name]));
+        $request->session()->flash('success', (string) trans('firefly.updated_account', ['name' => $account->name]));
 
         // store new attachment(s):
+
         $files = $request->hasFile('attachments') ? $request->file('attachments') : null;
         if (null !== $files && !auth()->user()->hasRole('demo')) {
             $this->attachments->saveAttachmentsForModel($account, $files);
         }
         if (null !== $files && auth()->user()->hasRole('demo')) {
-            session()->flash('info', (string)trans('firefly.no_att_demo_user'));
+            session()->flash('info', (string) trans('firefly.no_att_demo_user'));
         }
 
         if (count($this->attachments->getMessages()->get('attachments')) > 0) {
-            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments'));
         }
 
         // redirect
-        $redirect = redirect($this->getPreviousUri('accounts.edit.uri'));
-        if (1 === (int)$request->get('return_to_edit')) {
+        $redirect = redirect($this->getPreviousUrl('accounts.edit.url'));
+        if (1 === (int) $request->get('return_to_edit')) {
             // set value so edit routine will not overwrite URL:
             $request->session()->put('accounts.edit.fromUpdate', true);
 

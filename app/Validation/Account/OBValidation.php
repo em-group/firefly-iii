@@ -34,22 +34,30 @@ use Log;
 trait OBValidation
 {
     /**
-     * @param int|null $accountId
-     * @param mixed    $accountName
+     * @param array $accountTypes
      *
      * @return bool
      */
-    protected function validateOBDestination(?int $accountId, $accountName): bool
+    abstract protected function canCreateTypes(array $accountTypes): bool;
+
+    /**
+     * @param array $array
+     *
+     * @return bool
+     */
+    protected function validateOBDestination(array $array): bool
     {
-        $result = null;
-        Log::debug(sprintf('Now in validateOBDestination(%d, "%s")', $accountId, $accountName));
+        $result      = null;
+        $accountId   = array_key_exists('id', $array) ? $array['id'] : null;
+        $accountName = array_key_exists('name', $array) ? $array['name'] : null;
+        Log::debug('Now in validateOBDestination', $array);
 
         // source can be any of the following types.
         $validTypes = $this->combinations[$this->transactionType][$this->source->accountType->type] ?? [];
         if (null === $accountId && null === $accountName && false === $this->canCreateTypes($validTypes)) {
             // if both values are NULL we return false,
             // because the destination of a deposit can't be created.
-            $this->destError = (string)trans('validation.ob_dest_need_data');
+            $this->destError = (string) trans('validation.ob_dest_need_data');
             Log::error('Both values are NULL, cant create OB destination.');
             $result = false;
         }
@@ -61,10 +69,10 @@ trait OBValidation
 
         if (null === $result) {
             // otherwise try to find the account:
-            $search = $this->findExistingAccount($validTypes, (int)$accountId, (string)$accountName);
+            $search = $this->findExistingAccount($validTypes, $array);
             if (null === $search) {
                 Log::debug('findExistingAccount() returned NULL, so the result is false.', $validTypes);
-                $this->destError = (string)trans('validation.ob_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
+                $this->destError = (string) trans('validation.ob_dest_bad_data', ['id' => $accountId, 'name' => $accountName]);
                 $result          = false;
             }
             if (null !== $search) {
@@ -80,25 +88,18 @@ trait OBValidation
     }
 
     /**
-     * @param array $accountTypes
-     *
-     * @return bool
-     */
-    abstract protected function canCreateTypes(array $accountTypes): bool;
-
-    /**
      * Source of an opening balance can either be an asset account
      * or an "initial balance account". The latter can be created.
      *
-     * @param int|null    $accountId
-     * @param string|null $accountName
+     * @param array $array
      *
      * @return bool
      */
-    protected function validateOBSource(?int $accountId, ?string $accountName): bool
+    protected function validateOBSource(array $array): bool
     {
-        Log::debug(sprintf('Now in validateOBSource(%d, "%s")', $accountId, $accountName));
-        Log::debug(sprintf('The account name is null: %s', var_export(null === $accountName, true)));
+        $accountId   = array_key_exists('id', $array) ? $array['id'] : null;
+        $accountName = array_key_exists('name', $array) ? $array['name'] : null;
+        Log::debug('Now in validateOBSource', $array);
         $result = null;
         // source can be any of the following types.
         $validTypes = array_keys($this->combinations[$this->transactionType]);
@@ -107,7 +108,7 @@ trait OBValidation
             // if both values are NULL return false,
             // because the source of a deposit can't be created.
             // (this never happens).
-            $this->sourceError = (string)trans('validation.ob_source_need_data');
+            $this->sourceError = (string) trans('validation.ob_source_need_data');
             $result            = false;
         }
 
@@ -115,7 +116,7 @@ trait OBValidation
         // return false.
         if (null !== $accountId && null === $accountName) {
             Log::debug('Source ID is not null, but name is null.');
-            $search = $this->accountRepository->findNull($accountId);
+            $search = $this->accountRepository->find($accountId);
 
             // the source resulted in an account, but it's not of a valid type.
             if (null !== $search && !in_array($search->accountType->type, $validTypes, true)) {

@@ -41,17 +41,19 @@ class BillStoreRequest extends FormRequest
     public function getBillData(): array
     {
         return [
-            'name'               => $this->string('name'),
-            'amount_min'         => $this->string('amount_min'),
-            'currency_id'        => $this->integer('transaction_currency_id'),
+            'name'               => $this->convertString('name'),
+            'amount_min'         => $this->convertString('amount_min'),
+            'currency_id'        => $this->convertInteger('transaction_currency_id'),
             'currency_code'      => '',
-            'amount_max'         => $this->string('amount_max'),
-            'date'               => $this->date('date'),
-            'repeat_freq'        => $this->string('repeat_freq'),
-            'skip'               => $this->integer('skip'),
+            'amount_max'         => $this->convertString('amount_max'),
+            'date'               => $this->getCarbonDate('date'),
+            'end_date'           => $this->getCarbonDate('bill_end_date'),
+            'extension_date'     => $this->getCarbonDate('extension_date'),
+            'repeat_freq'        => $this->convertString('repeat_freq'),
+            'skip'               => $this->convertInteger('skip'),
             'notes'              => $this->stringWithNewlines('notes'),
             'active'             => $this->boolean('active'),
-            'object_group_title' => $this->string('object_group'),
+            'object_group_title' => $this->convertString('object_group'),
         ];
     }
 
@@ -68,8 +70,10 @@ class BillStoreRequest extends FormRequest
             'amount_max'              => 'required|numeric|gt:0|max:1000000000',
             'transaction_currency_id' => 'required|exists:transaction_currencies,id',
             'date'                    => 'required|date',
-            'repeat_freq'             => 'required|in:weekly,monthly,quarterly,half-year,yearly',
-            'skip'                    => 'required|between:0,31',
+            'bill_end_date'           => 'nullable|date',
+            'extension_date'          => 'nullable|date',
+            'repeat_freq'             => sprintf('required|in:%s', join(',', config('firefly.bill_periods'))),
+            'skip'                    => 'required|integer|gte:0|lte:31',
             'active'                  => 'boolean',
         ];
     }

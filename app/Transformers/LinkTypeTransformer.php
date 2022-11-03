@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
+
 use FireflyIII\Models\LinkType;
 
 /**
@@ -40,7 +41,7 @@ class LinkTypeTransformer extends AbstractTransformer
     public function transform(LinkType $linkType): array
     {
         return [
-            'id'         => (int)$linkType->id,
+            'id'         => (int) $linkType->id,
             'created_at' => $linkType->created_at->toAtomString(),
             'updated_at' => $linkType->updated_at->toAtomString(),
             'name'       => $linkType->name,

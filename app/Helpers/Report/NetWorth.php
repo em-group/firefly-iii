@@ -30,7 +30,7 @@ use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Log;
+use JsonException;
 
 /**
  *
@@ -62,6 +62,8 @@ class NetWorth implements NetWorthInterface
      * @param Carbon     $date
      *
      * @return array
+     * @throws JsonException
+     * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function getNetWorthByCurrency(Collection $accounts, Carbon $date): array
     {
@@ -72,12 +74,12 @@ class NetWorth implements NetWorthInterface
         $cache->addProperty('net-worth-by-currency');
         $cache->addProperty(implode(',', $accounts->pluck('id')->toArray()));
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         $netWorth = [];
         $result   = [];
-        Log::debug(sprintf('Now in getNetWorthByCurrency(%s)', $date->format('Y-m-d')));
+        //Log::debug(sprintf('Now in getNetWorthByCurrency(%s)', $date->format('Y-m-d')));
 
         // get default currency
         $default = app('amount')->getDefaultCurrencyByUser($this->user);
@@ -88,38 +90,38 @@ class NetWorth implements NetWorthInterface
         // get the preferred currency for this account
         /** @var Account $account */
         foreach ($accounts as $account) {
-            Log::debug(sprintf('Now at account #%d: "%s"', $account->id, $account->name));
-            $currencyId = (int)$this->accountRepository->getMetaValue($account, 'currency_id');
+            //Log::debug(sprintf('Now at account #%d: "%s"', $account->id, $account->name));
+            $currencyId = (int) $this->accountRepository->getMetaValue($account, 'currency_id');
             $currencyId = 0 === $currencyId ? $default->id : $currencyId;
 
-            Log::debug(sprintf('Currency ID is #%d', $currencyId));
+            //Log::debug(sprintf('Currency ID is #%d', $currencyId));
 
             // balance in array:
             $balance = $balances[$account->id] ?? '0';
 
-            Log::debug(sprintf('Balance is %s', $balance));
+            //Log::debug(sprintf('Balance is %s', $balance));
 
             // always subtract virtual balance.
-            $virtualBalance = (string)$account->virtual_balance;
+            $virtualBalance = (string) $account->virtual_balance;
             if ('' !== $virtualBalance) {
                 $balance = bcsub($balance, $virtualBalance);
             }
 
-            Log::debug(sprintf('Balance corrected to %s because of virtual balance (%s)', $balance, $virtualBalance));
+            //Log::debug(sprintf('Balance corrected to %s because of virtual balance (%s)', $balance, $virtualBalance));
 
             if (!array_key_exists($currencyId, $netWorth)) {
                 $netWorth[$currencyId] = '0';
             }
             $netWorth[$currencyId] = bcadd($balance, $netWorth[$currencyId]);
 
-            Log::debug(sprintf('Total net worth for currency #%d is %s', $currencyId, $netWorth[$currencyId]));
+            //Log::debug(sprintf('Total net worth for currency #%d is %s', $currencyId, $netWorth[$currencyId]));
         }
         ksort($netWorth);
 
         // loop results and add currency information:
         foreach ($netWorth as $currencyId => $balance) {
             $result[] = [
-                'currency' => $this->currencyRepos->findNull($currencyId),
+                'currency' => $this->currencyRepos->find($currencyId),
                 'balance'  => $balance,
             ];
         }

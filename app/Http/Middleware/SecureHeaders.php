@@ -57,14 +57,21 @@ class SecureHeaders
             "style-src 'self' 'unsafe-inline' https://maxcdn.bootstrapcdn.com/ https://fonts.googleapis.com/ https://kit-free.fontawesome.com",
             "base-uri 'self'",
             "font-src 'self' https://fonts.googleapis.com/ https://maxcdn.bootstrapcdn.com/ https://fonts.gstatic.com/ https://kit-free.fontawesome.com/ https://ka-f.fontawesome.com/ data:",
-            "connect-src 'self' https://ka-f.fontawesome.com/",
+            sprintf("connect-src 'self' https://ka-f.fontawesome.com/ %s", $trackingScriptSrc),
             sprintf("img-src * 'self' data: 'strict-dynamic' *.tile.openstreetmap.org https://api.tiles.mapbox.com %s", $trackingScriptSrc),
             "manifest-src 'self'",
         ];
 
-        $route = $request->route();
+        $route     = $request->route();
+        $customUrl = '';
+        $authGuard = (string) config('firefly.authentication_guard');
+        $logoutUrl = (string) config('firefly.custom_logout_url');
+        if ('remote_user_guard' === $authGuard && '' !== $logoutUrl) {
+            $customUrl = $logoutUrl;
+        }
+
         if (null !== $route && 'oauth/authorize' !== $route->uri) {
-            $csp[] = "form-action 'self'";
+            $csp[] = sprintf("form-action 'self' %s", $customUrl);
         }
 
         $featurePolicies = [
@@ -96,7 +103,6 @@ class SecureHeaders
         $response->header('X-XSS-Protection', '1; mode=block');
         $response->header('X-Content-Type-Options', 'nosniff');
         $response->header('Referrer-Policy', 'no-referrer');
-        $response->header('X-Download-Options', 'noopen');
         $response->header('X-Permitted-Cross-Domain-Policies', 'none');
         $response->header('X-Robots-Tag', 'none');
         $response->header('Feature-Policy', implode('; ', $featurePolicies));
@@ -105,14 +111,14 @@ class SecureHeaders
     }
 
     /**
-     * Return part of a CSP header allowing scripts from Google.
+     * Return part of a CSP header allowing scripts from Matomo.
      *
      * @return string
      */
     private function getTrackingScriptSource(): string
     {
-        if ('' !== (string)config('firefly.tracker_site_id') && '' !== (string)config('firefly.tracker_url')) {
-            return (string)config('firefly.tracker_url');
+        if ('' !== (string) config('firefly.tracker_site_id') && '' !== (string) config('firefly.tracker_url')) {
+            return (string) config('firefly.tracker_url');
         }
 
         return '';

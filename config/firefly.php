@@ -90,55 +90,136 @@ use FireflyIII\User;
  */
 
 return [
-    'configuration' => [
+    // default values for certain things:
+    'configuration'                => [
         'single_user_mode' => true,
         'is_demo_site'     => false,
     ],
     'frontpage_template'           => env('FRONTPAGE_TEMPLATE'),
     'encryption'                   => null === env('USE_ENCRYPTION') || env('USE_ENCRYPTION') === true,
-    'feature_flags' => [
+    // some feature flags:
+    'feature_flags'                => [
         'export'       => true,
-        'telemetry'    => true,
+        'telemetry'    => false,
         'webhooks'     => false,
         'handle_debts' => true,
     ],
+    'version'                      => '5.7.15',
+    'api_version'                  => '1.5.6',
+    'db_version'                   => 18,
 
-    'version'                      => '5.5.12',
-    'api_version'                  => '1.5.2',
-    'db_version'                   => 16,
+    // generic settings
     'maxUploadSize'                => 1073741824, // 1 GB
     'send_error_message'           => env('SEND_ERROR_MESSAGE', true),
     'site_owner'                   => env('SITE_OWNER', ''),
 
-    // send emails?
-    'send_registration_mail'       => env('SEND_REGISTRATION_MAIL', true),
-    'warn_new_ip'                  => env('SEND_LOGIN_NEW_IP_WARNING', true),
-    'demo_username'                => env('DEMO_USERNAME', ''),
-    'demo_password'                => env('DEMO_PASSWORD', ''),
+    // tokens and keys
     'fixer_api_key'                => env('FIXER_API_KEY', ''),
     'mapbox_api_key'               => env('MAPBOX_API_KEY', ''),
+    'ipinfo_token'                 => env('IPINFO_TOKEN', ''),
+    'static_cron_token'            => envNonEmpty('STATIC_CRON_TOKEN'),
+
+    // flags
     'enable_external_map'          => env('ENABLE_EXTERNAL_MAP', false),
-    'trusted_proxies'              => env('TRUSTED_PROXIES', ''),
-    'send_report_journals'         => envNonEmpty('SEND_REPORT_JOURNALS', true),
-    'tracker_site_id'              => env('TRACKER_SITE_ID', ''),
-    'tracker_url'                  => env('TRACKER_URL', ''),
     'disable_frame_header'         => env('DISABLE_FRAME_HEADER', false),
     'disable_csp_header'           => env('DISABLE_CSP_HEADER', false),
+    'allow_webhooks'               => env('ALLOW_WEBHOOKS', false),
+
+    // email flags
+    'send_registration_mail'       => env('SEND_REGISTRATION_MAIL', true),
+    'warn_new_ip'                  => env('SEND_LOGIN_NEW_IP_WARNING', true),
+    'send_report_journals'         => envNonEmpty('SEND_REPORT_JOURNALS', true),
+
+    // info for demo site
+    'demo_username'                => env('DEMO_USERNAME', ''),
+    'demo_password'                => env('DEMO_PASSWORD', ''),
+    'tracker_site_id'              => env('TRACKER_SITE_ID', ''),
+    'tracker_url'                  => env('TRACKER_URL', ''),
+
+    // authentication settings
     'login_provider'               => envNonEmpty('LOGIN_PROVIDER', 'eloquent'),
     'authentication_guard'         => envNonEmpty('AUTHENTICATION_GUARD', 'web'),
-    'custom_logout_uri'            => envNonEmpty('CUSTOM_LOGOUT_URI', ''),
-    'ipinfo_token'                 => env('IPINFO_TOKEN', ''),
+    'custom_logout_url'            => envNonEmpty('CUSTOM_LOGOUT_URL', ''),
+
+    // static config (cannot be changed by user)
     'update_endpoint'              => 'https://version.firefly-iii.org/index.json',
-    'send_telemetry'               => env('SEND_TELEMETRY', false),
-    'allow_webhooks'               => env('ALLOW_WEBHOOKS', false),
-    'telemetry_endpoint'           => 'https://telemetry.firefly-iii.org',
-    'layout'                       => envNonEmpty('FIREFLY_III_LAYOUT', 'v1'),
     'update_minimum_age'           => 7,
+
+    // enabled languages
+    'languages'                    => [
+        // currently enabled languages
+        'bg_BG' => ['name_locale' => 'Български', 'name_english' => 'Bulgarian'],
+//        'ca_ES' => ['name_locale' => 'Catalan', 'name_english' => 'Catalan'],
+        'cs_CZ' => ['name_locale' => 'Czech', 'name_english' => 'Czech'],
+        'da_DK' => ['name_locale' => 'Danish', 'name_english' => 'Danish'],
+        'de_DE' => ['name_locale' => 'Deutsch', 'name_english' => 'German'],
+        'el_GR' => ['name_locale' => 'Ελληνικά', 'name_english' => 'Greek'],
+        'en_GB' => ['name_locale' => 'English (GB)', 'name_english' => 'English (GB)'],
+        'en_US' => ['name_locale' => 'English (US)', 'name_english' => 'English (US)'],
+        'es_ES' => ['name_locale' => 'Español', 'name_english' => 'Spanish'],
+//        'et_EE' => ['name_locale' => 'Estonian', 'name_english' => 'Estonian'],
+//        'fa_IR' => ['name_locale' => 'فارسی', 'name_english' => 'Persian'],
+        'fi_FI' => ['name_locale' => 'Suomi', 'name_english' => 'Finnish'],
+        'fr_FR' => ['name_locale' => 'Français', 'name_english' => 'French'],
+//        'he_IL' => ['name_locale' => 'Hebrew', 'name_english' => 'Hebrew'],
+        'hu_HU' => ['name_locale' => 'Hungarian', 'name_english' => 'Hungarian'],
+        'id_ID' => ['name_locale' => 'Bahasa Indonesia', 'name_english' => 'Indonesian'],
+//        'is_IS' => ['name_locale' => 'Icelandic', 'name_english' => 'Icelandic'],
+        'it_IT' => ['name_locale' => 'Italiano', 'name_english' => 'Italian'],
+        'ja_JP' => ['name_locale' => 'Japanese', 'name_english' => 'Japanese'],
+//        'lt_LT' => ['name_locale' => 'Lietuvių', 'name_english' => 'Lithuanian'],
+        'nb_NO' => ['name_locale' => 'Norsk', 'name_english' => 'Norwegian'],
+        'nl_NL' => ['name_locale' => 'Nederlands', 'name_english' => 'Dutch'],
+        'pl_PL' => ['name_locale' => 'Polski', 'name_english' => 'Polish'],
+        'pt_BR' => ['name_locale' => 'Português do Brasil', 'name_english' => 'Portuguese (Brazil)'],
+        'pt_PT' => ['name_locale' => 'Português', 'name_english' => 'Portuguese'],
+        'ro_RO' => ['name_locale' => 'Română', 'name_english' => 'Romanian'],
+        'ru_RU' => ['name_locale' => 'Русский', 'name_english' => 'Russian'],
+//        'si_LK' => ['name_locale' => 'සිංහල', 'name_english' => 'Sinhala (Sri Lanka)'],
+        'sk_SK' => ['name_locale' => 'Slovenčina', 'name_english' => 'Slovak'],
+        'sl_SI' => ['name_locale' => 'Slovenian', 'name_english' => 'Slovenian'],
+////        'sr_CS' => ['name_locale' => 'Serbian (Latin)', 'name_english' => 'Serbian (Latin)'],
+        'sv_SE' => ['name_locale' => 'Svenska', 'name_english' => 'Swedish'],
+//        // 'tlh_AA' => ['name_locale' => 'tlhIngan Hol', 'name_english' => 'Klingon'],
+        'tr_TR' => ['name_locale' => 'Türkçe', 'name_english' => 'Turkish'],
+        'uk_UA' => ['name_locale' => 'Ukranian', 'name_english' => 'Ukranian'],
+        'vi_VN' => ['name_locale' => 'Tiếng Việt', 'name_english' => 'Vietnamese'],
+        'zh_TW' => ['name_locale' => 'Chinese Traditional', 'name_english' => 'Chinese Traditional'],
+        'zh_CN' => ['name_locale' => 'Chinese Simplified', 'name_english' => 'Chinese Simplified'],
+    ],
+
+    // web configuration:
+    'trusted_proxies'              => env('TRUSTED_PROXIES', ''),
+    'layout'                       => envNonEmpty('FIREFLY_III_LAYOUT', 'v1'),
+
+    // map configuration
     'default_location'             => [
         'longitude'  => env('MAP_DEFAULT_LONG', '5.916667'),
         'latitude'   => env('MAP_DEFAULT_LAT', '51.983333'),
         'zoom_level' => env('MAP_DEFAULT_ZOOM', '6'),
     ],
+
+    // default user-related values
+    'list_length'                  => 10, // to be removed if v1 is cancelled.
+    'default_preferences'          => [
+        'frontPageAccounts'  => [],
+        'listPageSize'       => 50,
+        'currencyPreference' => 'EUR',
+        'language'           => 'en_US',
+        'locale'             => 'equal',
+    ],
+    'default_currency'             => 'EUR',
+    'default_language'             => envNonEmpty('DEFAULT_LANGUAGE', 'en_US'),
+    'default_locale'               => envNonEmpty('DEFAULT_LOCALE', 'equal'),
+
+    // account types that may have or set a currency
+    'valid_currency_account_types' => [
+        AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE,
+        AccountType::CASH, AccountType::INITIAL_BALANCE, AccountType::LIABILITY_CREDIT,
+        AccountType::RECONCILIATION
+    ],
+
+    // "value must be in this list" values
     'valid_attachment_models'      => [
         Account::class,
         Bill::class,
@@ -150,6 +231,8 @@ return [
         TransactionJournal::class,
         Recurrence::class,
     ],
+    'bill_reminder_periods'        => [90, 30, 14, 7, 0],
+    'valid_view_ranges'            => ['1D', '1W', '1M', '3M', '6M', '1Y',],
     'allowedMimes'                 => [
         /* plain files */
         'text/plain',
@@ -163,6 +246,9 @@ return [
 
         /* PDF */
         'application/pdf',
+
+        /* Generic upload */
+        'application/octet-stream',
 
         /* MS word */
         'application/msword',
@@ -210,15 +296,23 @@ return [
         'application/vnd.oasis.opendocument.formula',
         'application/vnd.oasis.opendocument.database',
         'application/vnd.oasis.opendocument.image',
+
+        /* EML */
+        'message/rfc822',
+
+        /* JSON */
+        'application/json',
     ],
-    'list_length'                  => 10, // to be removed if v1 is cancelled.
-    'bill_periods'                 => ['weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
-    'interest_periods'             => ['weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
     'accountRoles'                 => ['defaultAsset', 'sharedAsset', 'savingAsset', 'ccAsset', 'cashWalletAsset'],
     'valid_liabilities'            => [AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
-    'ccTypes'                      => [
-        'monthlyFull' => 'Full payment every month',
-    ],
+    'ccTypes'                      => ['monthlyFull' => 'Full payment every month',],
+    'credit_card_types'            => ['monthlyFull'],
+
+    // "period must be in this list" values
+    'bill_periods'                 => ['daily', 'weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
+    'interest_periods'             => ['weekly', 'monthly', 'quarterly', 'half-year', 'yearly'],
+
+    // settings to translate X to Y
     'range_to_repeat_freq'         => [
         '1D'     => 'weekly',
         '1W'     => 'weekly',
@@ -292,50 +386,6 @@ return [
         AccountType::DEBT       => AccountType::DEBT,
         AccountType::MORTGAGE   => AccountType::MORTGAGE,
     ],
-    /**
-     * Languages configuration.
-     */
-    'languages'                    => [
-        // currently enabled languages
-        'bg_BG' => ['name_locale' => 'Български', 'name_english' => 'Bulgarian'],
-        // 'ca_ES' => ['name_locale' => 'Catalan', 'name_english' => 'Catalan'],
-        'cs_CZ' => ['name_locale' => 'Czech', 'name_english' => 'Czech'],
-        // 'da_DK' => ['name_locale' => 'Danish', 'name_english' => 'Danish'],
-        'de_DE' => ['name_locale' => 'Deutsch', 'name_english' => 'German'],
-        'el_GR' => ['name_locale' => 'Ελληνικά', 'name_english' => 'Greek'],
-        'en_GB' => ['name_locale' => 'English (GB)', 'name_english' => 'English (GB)'],
-        'en_US' => ['name_locale' => 'English (US)', 'name_english' => 'English (US)'],
-        'es_ES' => ['name_locale' => 'Español', 'name_english' => 'Spanish'],
-        // 'et_EE' => ['name_locale' => 'Estonian', 'name_english' => 'Estonian'],
-        // 'fa_IR' => ['name_locale' => 'فارسی', 'name_english' => 'Persian'],
-        'fi_FI' => ['name_locale' => 'Suomi', 'name_english' => 'Finnish'],
-        'fr_FR' => ['name_locale' => 'Français', 'name_english' => 'French'],
-        // 'he_IL' => ['name_locale' => 'Hebrew', 'name_english' => 'Hebrew'],
-        'hu_HU' => ['name_locale' => 'Hungarian', 'name_english' => 'Hungarian'],
-        // 'id_ID' => ['name_locale' => 'Bahasa Indonesia', 'name_english' => 'Indonesian'],
-        // 'is_IS' => ['name_locale' => 'Icelandic', 'name_english' => 'Icelandic'],
-        'it_IT' => ['name_locale' => 'Italiano', 'name_english' => 'Italian'],
-        // 'ja_JA' => ['name_locale' => 'Japanese', 'name_english' => 'Japanese'],
-        // 'lt_LT' => ['name_locale' => 'Lietuvių', 'name_english' => 'Lithuanian'],
-        'nb_NO' => ['name_locale' => 'Norsk', 'name_english' => 'Norwegian'],
-        'nl_NL' => ['name_locale' => 'Nederlands', 'name_english' => 'Dutch'],
-        'pl_PL' => ['name_locale' => 'Polski', 'name_english' => 'Polish '],
-        'pt_BR' => ['name_locale' => 'Português do Brasil', 'name_english' => 'Portuguese (Brazil)'],
-        'pt_PT' => ['name_locale' => 'Português', 'name_english' => 'Portuguese'],
-        'ro_RO' => ['name_locale' => 'Română', 'name_english' => 'Romanian'],
-        'ru_RU' => ['name_locale' => 'Русский', 'name_english' => 'Russian'],
-        // 'si_LK' => ['name_locale' => 'සිංහල', 'name_english' => 'Sinhala (Sri Lanka)'],
-        'sk_SK' => ['name_locale' => 'Slovenčina', 'name_english' => 'Slovak'],
-        // 'sl_SI' => ['name_locale' => 'Slovenian', 'name_english' => 'Slovenian'],
-        // 'sr_CS' => ['name_locale' => 'Serbian (Latin)', 'name_english' => 'Serbian (Latin)'],
-        'sv_SE' => ['name_locale' => 'Svenska', 'name_english' => 'Swedish'],
-        // 'tlh_AA' => ['name_locale' => 'tlhIngan Hol', 'name_english' => 'Klingon'],
-        // 'tr_TR' => ['name_locale' => 'Türkçe', 'name_english' => 'Turkish'],
-        // 'uk_UA' => ['name_locale' => 'Ukranian', 'name_english' => 'Ukranian'],
-        'vi_VN' => ['name_locale' => 'Tiếng Việt', 'name_english' => 'Vietnamese'],
-        'zh_TW' => ['name_locale' => 'Chinese Traditional', 'name_english' => 'Chinese Traditional'],
-        'zh_CN' => ['name_locale' => 'Chinese Simplified', 'name_english' => 'Chinese Simplified'],
-    ],
     'transactionTypesByType'       => [
         'expenses'   => ['Withdrawal'],
         'withdrawal' => ['Withdrawal'],
@@ -358,9 +408,9 @@ return [
         'deposit'    => 'fa-long-arrow-right',
         'transfer'   => 'fa-exchange',
         'transfers'  => 'fa-exchange',
-
     ],
-    'bindables'                    => [
+
+    'bindables'            => [
         // models
         'account'          => Account::class,
         'attachment'       => Attachment::class,
@@ -413,7 +463,7 @@ return [
         'eitherConfigKey'  => EitherConfigKey::class,
 
     ],
-    'rule-actions'                 => [
+    'rule-actions'         => [
         'set_category'            => SetCategory::class,
         'clear_category'          => ClearCategory::class,
         'set_budget'              => SetBudget::class,
@@ -437,7 +487,7 @@ return [
         'update_piggy'            => UpdatePiggybank::class,
         'delete_transaction'      => DeleteTransaction::class,
     ],
-    'context-rule-actions'         => [
+    'context-rule-actions' => [
         'set_category',
         'set_budget',
         'add_tag',
@@ -456,192 +506,24 @@ return [
         'convert_transfer',
     ],
 
-    'test-triggers'    => [
+    'test-triggers'             => [
         'limit' => 10,
         'range' => 200,
     ],
-    'default_currency' => 'EUR',
-    'default_language' => envNonEmpty('DEFAULT_LANGUAGE', 'en_US'),
-    'default_locale'   => envNonEmpty('DEFAULT_LOCALE', 'equal'),
 
-    'search'                    => [
-        'operators' => [
-            'user_action'          => ['alias' => false, 'needs_context' => true,],
-            'description_starts'   => ['alias' => false, 'needs_context' => true,],
-            'description_ends'     => ['alias' => false, 'needs_context' => true,],
-            'description_contains' => ['alias' => false, 'needs_context' => true,],
-            'description_is'       => ['alias' => false, 'needs_context' => true,],
-            'description'          => ['alias' => true, 'alias_for' => 'description_contains', 'needs_context' => true,],
-
-            'currency_is'         => ['alias' => false, 'needs_context' => true,],
-            'foreign_currency_is' => ['alias' => false, 'needs_context' => true,],
-
-            'has_attachments'                 => ['alias' => false, 'needs_context' => false,],
-            'has_no_category'                 => ['alias' => false, 'needs_context' => false,],
-            'has_any_category'                => ['alias' => false, 'needs_context' => false,],
-            'has_no_budget'                   => ['alias' => false, 'needs_context' => false,],
-            'has_any_budget'                  => ['alias' => false, 'needs_context' => false,],
-            'has_no_bill'                     => ['alias' => false, 'needs_context' => false,],
-            'has_any_bill'                    => ['alias' => false, 'needs_context' => false,],
-            'has_no_tag'                      => ['alias' => false, 'needs_context' => false,],
-            'has_any_tag'                     => ['alias' => false, 'needs_context' => false,],
-            'notes_contain'                   => ['alias' => false, 'needs_context' => true,],
-            'notes_start'                     => ['alias' => false, 'needs_context' => true,],
-            'notes_end'                       => ['alias' => false, 'needs_context' => true,],
-            'notes_are'                       => ['alias' => false, 'needs_context' => true,],
-            'no_notes'                        => ['alias' => false, 'needs_context' => false,],
-            'any_notes'                       => ['alias' => false, 'needs_context' => false,],
-
-            // one exact (or array of) journals:
-            'id'                              => ['alias' => false, 'trigger_class' => null, 'needs_context' => true,],
-            'journal_id'                      => ['alias' => false, 'trigger_class' => null, 'needs_context' => true,],
-
-            // exact amount
-            'amount_exactly'                  => ['alias' => false, 'needs_context' => true,],
-            'amount_is'                       => ['alias' => true, 'alias_for' => 'amount_exactly', 'needs_context' => true,],
-            'amount'                          => ['alias' => true, 'alias_for' => 'amount_exactly', 'needs_context' => true,],
-
-            // is less than
-            'amount_less'                     => ['alias' => false, 'needs_context' => true,],
-            'amount_max'                      => ['alias' => true, 'alias_for' => 'amount_less', 'needs_context' => true,],
-
-            // is more than
-            'amount_more'                     => ['alias' => false, 'needs_context' => true,],
-            'amount_min'                      => ['alias' => true, 'alias_for' => 'amount_more', 'needs_context' => true,],
-
-            // source account name is + alias:
-            'source_account_is'               => ['alias' => false, 'needs_context' => true,],
-            'from_account_is'                 => ['alias' => true, 'alias_for' => 'source_account_is', 'needs_context' => true,],
-
-            // source or dest is cash account?
-            'source_is_cash'                  => ['alias' => false, 'needs_context' => false],
-            'destination_is_cash'             => ['alias' => false, 'needs_context' => false],
-            'account_is_cash'                 => ['alias' => false, 'needs_context' => false],
-
-            // source account name contains + alias
-            'source_account_contains'         => ['alias' => false, 'needs_context' => true,],
-            'from_account_contains'           => ['alias' => true, 'alias_for' => 'source_account_contains', 'needs_context' => true,],
-            'source'                          => ['alias' => true, 'alias_for' => 'source_account_contains', 'needs_context' => true,],
-            'from'                            => ['alias' => true, 'alias_for' => 'source_account_contains', 'needs_context' => true,],
-
-            // source account name starts with + alias
-            'source_account_starts'           => ['alias' => false, 'needs_context' => true,],
-            'from_account_starts'             => ['alias' => true, 'alias_for' => 'source_account_starts', 'needs_context' => true,],
-
-            // source account name ends with + alias
-            'source_account_ends'             => ['alias' => false, 'needs_context' => true,],
-            'from_account_ends'               => ['alias' => true, 'alias_for' => 'source_account_ends', 'needs_context' => true,],
-
-            // source account ID + alias
-            'source_account_id'               => ['alias' => false, 'needs_context' => true,],
-            'from_account_id'                 => ['alias' => true, 'alias_for' => 'source_account_id', 'needs_context' => true,],
-
-            // source account number is
-            'source_account_nr_is'            => ['alias' => false, 'needs_context' => true,],
-            'from_account_nr_is'              => ['alias' => true, 'alias_for' => 'source_account_nr_is', 'needs_context' => true,],
-
-            // source account number contains
-            'source_account_nr_contains'      => ['alias' => false, 'needs_context' => true,],
-            'from_account_nr_contains'        => ['alias' => true, 'alias_for' => 'source_account_nr_contains', 'needs_context' => true,],
-
-            // source account number starts with
-            'source_account_nr_starts'        => ['alias' => false, 'needs_context' => true,],
-            'from_account_nr_starts'          => ['alias' => true, 'alias_for' => 'source_account_nr_starts', 'needs_context' => true,],
-
-            // source account number ends with
-            'source_account_nr_ends'          => ['alias' => false, 'needs_context' => true,],
-            'from_account_nr_ends'            => ['alias' => true, 'alias_for' => 'source_account_nr_ends', 'needs_context' => true,],
-
-            // destination account name is + alias
-            'destination_account_is'          => ['alias' => false, 'needs_context' => true,],
-            'to_account_is'                   => ['alias' => true, 'alias_for' => 'destination_account_is', 'needs_context' => true,],
-
-            // destination account name contains + alias
-            'destination_account_contains'    => ['alias' => false, 'needs_context' => true,],
-            'to_account_contains'             => ['alias' => true, 'alias_for' => 'destination_account_contains', 'needs_context' => true,],
-            'destination'                     => ['alias' => true, 'alias_for' => 'destination_account_contains', 'needs_context' => true,],
-            'to'                              => ['alias' => true, 'alias_for' => 'destination_account_contains', 'needs_context' => true,],
-
-            // destination account name starts with + alias
-            'destination_account_starts'      => ['alias' => false, 'needs_context' => true,],
-            'to_account_starts'               => ['alias' => true, 'alias_for' => 'destination_account_starts', 'needs_context' => true,],
-
-            // destination account name ends with + alias
-            'destination_account_ends'        => ['alias' => false, 'needs_context' => true,],
-            'to_account_ends'                 => ['alias' => true, 'alias_for' => 'destination_account_ends', 'needs_context' => true,],
-
-            // destination account ID + alias
-            'destination_account_id'          => ['alias' => false, 'needs_context' => true,],
-            'to_account_id'                   => ['alias' => true, 'alias_for' => 'destination_account_id', 'needs_context' => true,],
-
-            // destination account number is
-            'destination_account_nr_is'       => ['alias' => false, 'needs_context' => true,],
-            'to_account_nr_is'                => ['alias' => true, 'alias_for' => 'destination_account_nr_is', 'needs_context' => true,],
-
-            // destination account number contains
-            'destination_account_nr_contains' => ['alias' => false, 'needs_context' => true,],
-            'to_account_nr_contains'          => ['alias' => true, 'alias_for' => 'destination_account_nr_contains', 'needs_context' => true,],
-
-            // destination account number starts with
-            'destination_account_nr_starts'   => ['alias' => false, 'needs_context' => true,],
-            'to_account_nr_starts'            => ['alias' => true, 'alias_for' => 'destination_account_nr_starts', 'needs_context' => true,],
-
-            // destination account number ends with
-            'destination_account_nr_ends'     => ['alias' => false, 'needs_context' => true,],
-            'to_account_nr_ends'              => ['alias' => true, 'alias_for' => 'destination_account_nr_ends', 'needs_context' => true,],
-
-            // any account id is
-            'account_id'                      => ['alias' => false, 'needs_context' => true,],
-
-            // category
-            'category_is'                     => ['alias' => false, 'needs_context' => true,],
-            'category'                        => ['alias' => true, 'alias_for' => 'category_is', 'needs_context' => true,],
-
-            // budget
-            'budget_is'                       => ['alias' => false, 'needs_context' => true,],
-            'budget'                          => ['alias' => true, 'alias_for' => 'budget_is', 'needs_context' => true,],
-
-            // bill
-            'bill_is'                         => ['alias' => false, 'needs_context' => true,],
-            'bill'                            => ['alias' => true, 'alias_for' => 'bill_is', 'needs_context' => true,],
-
-            // type
-            'transaction_type'                => ['alias' => false, 'needs_context' => true,],
-            'type'                            => ['alias' => true, 'alias_for' => 'transaction_type', 'needs_context' => true,],
-
-            // date:
-            'date_is'                         => ['alias' => false, 'needs_context' => true,],
-            'date'                            => ['alias' => true, 'alias_for' => 'date_is', 'needs_context' => true,],
-            'on'                              => ['alias' => true, 'alias_for' => 'date_is', 'needs_context' => true,],
-            'date_before'                     => ['alias' => false, 'needs_context' => true,],
-            'before'                          => ['alias' => true, 'alias_for' => 'date_before', 'needs_context' => true,],
-            'date_after'                      => ['alias' => false, 'needs_context' => true,],
-            'after'                           => ['alias' => true, 'alias_for' => 'date_after', 'needs_context' => true,],
-
-            // other interesting fields
-            'tag_is'                          => ['alias' => false, 'needs_context' => true,],
-            'tag'                             => ['alias' => true, 'alias_for' => 'tag_is', 'needs_context' => true,],
-            'created_on'                      => ['alias' => false, 'needs_context' => true,],
-            'created_at'                      => ['alias' => true, 'alias_for' => 'created_on', 'needs_context' => true,],
-            'updated_on'                      => ['alias' => false, 'needs_context' => true,],
-            'updated_at'                      => ['alias' => true, 'alias_for' => 'updated_on', 'needs_context' => true,],
-            'external_id'                     => ['alias' => false, 'needs_context' => true,],
-            'internal_reference'              => ['alias' => false, 'needs_context' => true,],
-
-        ],
-    ],
 
     // expected source types for each transaction type, in order of preference.
     'expected_source_types'     => [
         'source'      => [
-            TransactionTypeModel::WITHDRAWAL      => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::DEPOSIT         => [AccountType::REVENUE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::TRANSFER        => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::OPENING_BALANCE => [AccountType::INITIAL_BALANCE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT,
-                                                      AccountType::MORTGAGE,],
-            TransactionTypeModel::RECONCILIATION  => [AccountType::RECONCILIATION, AccountType::ASSET],
+            TransactionTypeModel::WITHDRAWAL       => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
+            TransactionTypeModel::DEPOSIT          => [AccountType::REVENUE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
+            TransactionTypeModel::TRANSFER         => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
+            TransactionTypeModel::OPENING_BALANCE  => [AccountType::INITIAL_BALANCE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT,
+                                                       AccountType::MORTGAGE,],
+            TransactionTypeModel::RECONCILIATION   => [AccountType::RECONCILIATION, AccountType::ASSET],
+            TransactionTypeModel::LIABILITY_CREDIT => [AccountType::LIABILITY_CREDIT, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             // in case no transaction type is known yet, it could be anything.
-            'none'                                => [
+            'none'                                 => [
                 AccountType::ASSET,
                 AccountType::EXPENSE,
                 AccountType::REVENUE,
@@ -651,84 +533,89 @@ return [
             ],
         ],
         'destination' => [
-            TransactionTypeModel::WITHDRAWAL      => [AccountType::EXPENSE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT,
-                                                      AccountType::MORTGAGE,],
-            TransactionTypeModel::DEPOSIT         => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::TRANSFER        => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
-            TransactionTypeModel::OPENING_BALANCE => [AccountType::INITIAL_BALANCE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT,
-                                                      AccountType::MORTGAGE,],
-            TransactionTypeModel::RECONCILIATION  => [AccountType::RECONCILIATION, AccountType::ASSET],
+            TransactionTypeModel::WITHDRAWAL       => [AccountType::EXPENSE, AccountType::CASH, AccountType::LOAN, AccountType::DEBT,
+                                                       AccountType::MORTGAGE,],
+            TransactionTypeModel::DEPOSIT          => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
+            TransactionTypeModel::TRANSFER         => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
+            TransactionTypeModel::OPENING_BALANCE  => [AccountType::INITIAL_BALANCE, AccountType::ASSET, AccountType::LOAN, AccountType::DEBT,
+                                                       AccountType::MORTGAGE,],
+            TransactionTypeModel::RECONCILIATION   => [AccountType::RECONCILIATION, AccountType::ASSET],
+            TransactionTypeModel::LIABILITY_CREDIT => [AccountType::LIABILITY_CREDIT, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
         ],
     ],
     'allowed_opposing_types'    => [
         'source'      => [
-            AccountType::ASSET           => [AccountType::ASSET, AccountType::CASH, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE,
-                                             AccountType::LOAN, AccountType::RECONCILIATION, AccountType::MORTGAGE],
-            AccountType::CASH            => [AccountType::ASSET],
-            AccountType::DEBT            => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
-                                             AccountType::MORTGAGE,],
-            AccountType::EXPENSE         => [], // is not allowed as a source.
-            AccountType::INITIAL_BALANCE => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
-            AccountType::LOAN            => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
-                                             AccountType::MORTGAGE,],
-            AccountType::MORTGAGE        => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
-                                             AccountType::MORTGAGE,],
-            AccountType::RECONCILIATION  => [AccountType::ASSET],
-            AccountType::REVENUE         => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
+            AccountType::ASSET            => [AccountType::ASSET, AccountType::CASH, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE,
+                                              AccountType::LOAN, AccountType::RECONCILIATION, AccountType::MORTGAGE],
+            AccountType::CASH             => [AccountType::ASSET],
+            AccountType::DEBT             => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
+                                              AccountType::MORTGAGE, AccountType::LIABILITY_CREDIT],
+            AccountType::EXPENSE          => [], // is not allowed as a source.
+            AccountType::INITIAL_BALANCE  => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
+            AccountType::LOAN             => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
+                                              AccountType::MORTGAGE, AccountType::LIABILITY_CREDIT],
+            AccountType::MORTGAGE         => [AccountType::ASSET, AccountType::DEBT, AccountType::EXPENSE, AccountType::INITIAL_BALANCE, AccountType::LOAN,
+                                              AccountType::MORTGAGE, AccountType::LIABILITY_CREDIT],
+            AccountType::RECONCILIATION   => [AccountType::ASSET],
+            AccountType::REVENUE          => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
+            AccountType::LIABILITY_CREDIT => [AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
 
         ],
         'destination' => [
-            AccountType::ASSET           => [AccountType::ASSET, AccountType::CASH, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN,
-                                             AccountType::MORTGAGE, AccountType::RECONCILIATION, AccountType::REVENUE,],
-            AccountType::CASH            => [AccountType::ASSET],
-            AccountType::DEBT            => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
-                                             AccountType::REVENUE,],
-            AccountType::EXPENSE         => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
-            AccountType::INITIAL_BALANCE => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
-            AccountType::LOAN            => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
-                                             AccountType::REVENUE,],
-            AccountType::MORTGAGE        => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
-                                             AccountType::REVENUE,],
-            AccountType::RECONCILIATION  => [AccountType::ASSET],
-            AccountType::REVENUE         => [], // is not allowed as a destination
+            AccountType::ASSET            => [AccountType::ASSET, AccountType::CASH, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN,
+                                              AccountType::MORTGAGE, AccountType::RECONCILIATION, AccountType::REVENUE,],
+            AccountType::CASH             => [AccountType::ASSET],
+            AccountType::DEBT             => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
+                                              AccountType::REVENUE,],
+            AccountType::EXPENSE          => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
+            AccountType::INITIAL_BALANCE  => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE],
+            AccountType::LOAN             => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
+                                              AccountType::REVENUE,],
+            AccountType::MORTGAGE         => [AccountType::ASSET, AccountType::DEBT, AccountType::INITIAL_BALANCE, AccountType::LOAN, AccountType::MORTGAGE,
+                                              AccountType::REVENUE,],
+            AccountType::RECONCILIATION   => [AccountType::ASSET],
+            AccountType::REVENUE          => [], // is not allowed as a destination
+            AccountType::LIABILITY_CREDIT => [],// is not allowed as a destination
         ],
     ],
     // depending on the account type, return the allowed transaction types:
     'allowed_transaction_types' => [
         'source'      => [
-            AccountType::ASSET           => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::TRANSFER, TransactionTypeModel::OPENING_BALANCE,
-                                             TransactionTypeModel::RECONCILIATION,],
-            AccountType::EXPENSE         => [], // is not allowed as a source.
-            AccountType::REVENUE         => [TransactionTypeModel::DEPOSIT],
-            AccountType::LOAN            => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::DEBT            => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::MORTGAGE        => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::INITIAL_BALANCE => [TransactionTypeModel::OPENING_BALANCE],
-            AccountType::RECONCILIATION  => [TransactionTypeModel::RECONCILIATION],
+            AccountType::ASSET            => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::TRANSFER, TransactionTypeModel::OPENING_BALANCE,
+                                              TransactionTypeModel::RECONCILIATION,],
+            AccountType::EXPENSE          => [], // is not allowed as a source.
+            AccountType::REVENUE          => [TransactionTypeModel::DEPOSIT],
+            AccountType::LOAN             => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE, TransactionTypeModel::LIABILITY_CREDIT],
+            AccountType::DEBT             => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE, TransactionTypeModel::LIABILITY_CREDIT],
+            AccountType::MORTGAGE         => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE, TransactionTypeModel::LIABILITY_CREDIT],
+            AccountType::INITIAL_BALANCE  => [TransactionTypeModel::OPENING_BALANCE],
+            AccountType::RECONCILIATION   => [TransactionTypeModel::RECONCILIATION],
+            AccountType::LIABILITY_CREDIT => [TransactionTypeModel::LIABILITY_CREDIT],
         ],
         'destination' => [
-            AccountType::ASSET           => [TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER, TransactionTypeModel::OPENING_BALANCE,
-                                             TransactionTypeModel::RECONCILIATION,],
-            AccountType::EXPENSE         => [TransactionTypeModel::WITHDRAWAL],
-            AccountType::REVENUE         => [], // is not allowed as destination.
-            AccountType::LOAN            => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::DEBT            => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::MORTGAGE        => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
-                                             TransactionTypeModel::OPENING_BALANCE,],
-            AccountType::INITIAL_BALANCE => [TransactionTypeModel::OPENING_BALANCE],
-            AccountType::RECONCILIATION  => [TransactionTypeModel::RECONCILIATION],
+            AccountType::ASSET            => [TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER, TransactionTypeModel::OPENING_BALANCE,
+                                              TransactionTypeModel::RECONCILIATION,],
+            AccountType::EXPENSE          => [TransactionTypeModel::WITHDRAWAL],
+            AccountType::REVENUE          => [], // is not allowed as destination.
+            AccountType::LOAN             => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE,],
+            AccountType::DEBT             => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE,],
+            AccountType::MORTGAGE         => [TransactionTypeModel::WITHDRAWAL, TransactionTypeModel::DEPOSIT, TransactionTypeModel::TRANSFER,
+                                              TransactionTypeModel::OPENING_BALANCE,],
+            AccountType::INITIAL_BALANCE  => [TransactionTypeModel::OPENING_BALANCE],
+            AccountType::RECONCILIATION   => [TransactionTypeModel::RECONCILIATION],
+            AccountType::LIABILITY_CREDIT => [], // is not allowed as a destination
         ],
 
     ],
 
     // having the source + dest will tell you the transaction type.
     'account_to_transaction'    => [
-        AccountType::ASSET           => [
+        AccountType::ASSET            => [
             AccountType::ASSET           => TransactionTypeModel::TRANSFER,
             AccountType::CASH            => TransactionTypeModel::WITHDRAWAL,
             AccountType::DEBT            => TransactionTypeModel::WITHDRAWAL,
@@ -738,10 +625,13 @@ return [
             AccountType::MORTGAGE        => TransactionTypeModel::WITHDRAWAL,
             AccountType::RECONCILIATION  => TransactionTypeModel::RECONCILIATION,
         ],
-        AccountType::CASH            => [
-            AccountType::ASSET => TransactionTypeModel::DEPOSIT,
+        AccountType::CASH             => [
+            AccountType::ASSET    => TransactionTypeModel::DEPOSIT,
+            AccountType::LOAN     => TransactionTypeModel::DEPOSIT,
+            AccountType::DEBT     => TransactionTypeModel::DEPOSIT,
+            AccountType::MORTGAGE => TransactionTypeModel::DEPOSIT,
         ],
-        AccountType::DEBT            => [
+        AccountType::DEBT             => [
             AccountType::ASSET           => TransactionTypeModel::DEPOSIT,
             AccountType::DEBT            => TransactionTypeModel::TRANSFER,
             AccountType::EXPENSE         => TransactionTypeModel::WITHDRAWAL,
@@ -749,13 +639,13 @@ return [
             AccountType::LOAN            => TransactionTypeModel::TRANSFER,
             AccountType::MORTGAGE        => TransactionTypeModel::TRANSFER,
         ],
-        AccountType::INITIAL_BALANCE => [
+        AccountType::INITIAL_BALANCE  => [
             AccountType::ASSET    => TransactionTypeModel::OPENING_BALANCE,
             AccountType::DEBT     => TransactionTypeModel::OPENING_BALANCE,
             AccountType::LOAN     => TransactionTypeModel::OPENING_BALANCE,
             AccountType::MORTGAGE => TransactionTypeModel::OPENING_BALANCE,
         ],
-        AccountType::LOAN            => [
+        AccountType::LOAN             => [
             AccountType::ASSET           => TransactionTypeModel::DEPOSIT,
             AccountType::DEBT            => TransactionTypeModel::TRANSFER,
             AccountType::EXPENSE         => TransactionTypeModel::WITHDRAWAL,
@@ -763,7 +653,7 @@ return [
             AccountType::LOAN            => TransactionTypeModel::TRANSFER,
             AccountType::MORTGAGE        => TransactionTypeModel::TRANSFER,
         ],
-        AccountType::MORTGAGE        => [
+        AccountType::MORTGAGE         => [
             AccountType::ASSET           => TransactionTypeModel::DEPOSIT,
             AccountType::DEBT            => TransactionTypeModel::TRANSFER,
             AccountType::EXPENSE         => TransactionTypeModel::WITHDRAWAL,
@@ -771,48 +661,60 @@ return [
             AccountType::LOAN            => TransactionTypeModel::TRANSFER,
             AccountType::MORTGAGE        => TransactionTypeModel::TRANSFER,
         ],
-        AccountType::RECONCILIATION  => [
+        AccountType::RECONCILIATION   => [
             AccountType::ASSET => TransactionTypeModel::RECONCILIATION,
         ],
-        AccountType::REVENUE         => [
+        AccountType::REVENUE          => [
             AccountType::ASSET    => TransactionTypeModel::DEPOSIT,
             AccountType::DEBT     => TransactionTypeModel::DEPOSIT,
             AccountType::LOAN     => TransactionTypeModel::DEPOSIT,
             AccountType::MORTGAGE => TransactionTypeModel::DEPOSIT,
         ],
+        AccountType::LIABILITY_CREDIT => [
+            AccountType::DEBT     => TransactionTypeModel::LIABILITY_CREDIT,
+            AccountType::LOAN     => TransactionTypeModel::LIABILITY_CREDIT,
+            AccountType::MORTGAGE => TransactionTypeModel::LIABILITY_CREDIT,
+        ],
+        // AccountType::EXPENSE unlisted because it cant be a source
     ],
 
     // allowed source -> destination accounts.
     'source_dests'              => [
-        TransactionTypeModel::WITHDRAWAL      => [
+        TransactionTypeModel::WITHDRAWAL       => [
             AccountType::ASSET    => [AccountType::EXPENSE, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE, AccountType::CASH],
             AccountType::LOAN     => [AccountType::EXPENSE, AccountType::CASH],
             AccountType::DEBT     => [AccountType::EXPENSE, AccountType::CASH],
             AccountType::MORTGAGE => [AccountType::EXPENSE, AccountType::CASH],
         ],
-        TransactionTypeModel::DEPOSIT         => [
+        TransactionTypeModel::DEPOSIT          => [
             AccountType::REVENUE  => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             AccountType::CASH     => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             AccountType::LOAN     => [AccountType::ASSET],
             AccountType::DEBT     => [AccountType::ASSET],
             AccountType::MORTGAGE => [AccountType::ASSET],
         ],
-        TransactionTypeModel::TRANSFER        => [
+        TransactionTypeModel::TRANSFER         => [
             AccountType::ASSET    => [AccountType::ASSET],
             AccountType::LOAN     => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             AccountType::DEBT     => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
             AccountType::MORTGAGE => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
         ],
-        TransactionTypeModel::OPENING_BALANCE => [
+        TransactionTypeModel::OPENING_BALANCE  => [
             AccountType::ASSET           => [AccountType::INITIAL_BALANCE],
             AccountType::LOAN            => [AccountType::INITIAL_BALANCE],
             AccountType::DEBT            => [AccountType::INITIAL_BALANCE],
             AccountType::MORTGAGE        => [AccountType::INITIAL_BALANCE],
             AccountType::INITIAL_BALANCE => [AccountType::ASSET, AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
         ],
-        TransactionTypeModel::RECONCILIATION  => [
+        TransactionTypeModel::RECONCILIATION   => [
             AccountType::RECONCILIATION => [AccountType::ASSET],
             AccountType::ASSET          => [AccountType::RECONCILIATION],
+        ],
+        TransactionTypeModel::LIABILITY_CREDIT => [
+            AccountType::LOAN             => [AccountType::LIABILITY_CREDIT],
+            AccountType::DEBT             => [AccountType::LIABILITY_CREDIT],
+            AccountType::MORTGAGE         => [AccountType::LIABILITY_CREDIT],
+            AccountType::LIABILITY_CREDIT => [AccountType::LOAN, AccountType::DEBT, AccountType::MORTGAGE],
         ],
     ],
     // if you add fields to this array, dont forget to update the export routine (ExportDataGenerator).
@@ -820,7 +722,7 @@ return [
         // sepa
         'sepa_cc', 'sepa_ct_op', 'sepa_ct_id',
         'sepa_db', 'sepa_country', 'sepa_ep',
-        'sepa_ci', 'sepa_batch_id', 'external_uri',
+        'sepa_ci', 'sepa_batch_id', 'external_url',
 
         // dates
         'interest_date', 'book_date', 'process_date',
@@ -849,15 +751,12 @@ return [
             Webhook::DELIVERY_JSON => 'DELIVERY_JSON',
         ],
     ],
-    'can_have_virtual_amounts'  => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE, AccountType::CREDITCARD],
+    'can_have_virtual_amounts'  => [AccountType::ASSET],
+    'can_have_opening_balance'  => [AccountType::ASSET, AccountType::DEBT, AccountType::LOAN, AccountType::MORTGAGE, AccountType::CREDITCARD],
     'valid_asset_fields'        => ['account_role', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
     'valid_cc_fields'           => ['account_role', 'cc_monthly_payment_date', 'cc_type', 'account_number', 'currency_id', 'BIC', 'include_net_worth'],
     'valid_account_fields'      => ['account_number', 'currency_id', 'BIC', 'interest', 'interest_period', 'include_net_worth', 'liability_direction'],
-    'default_preferences'       => [
-        'frontPageAccounts'  => [],
-        'listPageSize'       => 50,
-        'currencyPreference' => 'EUR',
-        'language'           => 'en_US',
-        'locale'             => 'equal',
-    ],
+
+    // only used in v1
+    'allowed_sort_parameters'   => ['order', 'name', 'iban'],
 ];

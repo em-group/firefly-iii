@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Revin imediat!',
     'check_back'              => 'Firefly III este oprit pentru o întreținere necesară. Vă rugăm să reveniți într-o secundă.',
     'error_occurred'          => 'Ups! A apărut o eroare.',
+    'db_error_occurred'       => 'Whoops! A database error occurred.',
     'error_not_recoverable'   => 'Din păcate, această eroare nu a putut fi recuperată :(. Firefly III s-a stricat. Eroarea este:',
     'error'                   => 'Eroare',
     'error_location'          => 'Această eroare a apărut în fișierul "<span style="font-family: monospace;">:file</span>" pe linia :line cu codul :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Spune-ne mai mult decât „spune Whoops!”',
     'include_logs'            => 'Include jurnalele de erori (a se vedea mai sus).',
     'what_did_you_do'         => 'Spune-ne ce făceai.',
+    'offline_header'          => 'You are probably offline',
+    'offline_unreachable'     => 'Firefly III is unreachable. Your device is currently offline or the server is not working.',
+    'offline_github'          => 'If you are sure both your device and the server are online, please open a ticket on <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Transformers;
+
 use FireflyIII\Models\Category;
 use FireflyIII\Repositories\Category\CategoryRepositoryInterface;
 use FireflyIII\Repositories\Category\OperationsRepositoryInterface;
@@ -69,7 +70,7 @@ class CategoryTransformer extends AbstractTransformer
         $notes = $this->repository->getNoteText($category);
 
         return [
-            'id'         => (int)$category->id,
+            'id'         => (int) $category->id,
             'created_at' => $category->created_at->toAtomString(),
             'updated_at' => $category->updated_at->toAtomString(),
             'name'       => $category->name,
@@ -94,7 +95,7 @@ class CategoryTransformer extends AbstractTransformer
     {
         $return = [];
         foreach ($array as $data) {
-            $data['sum'] = number_format((float)$data['sum'], (int)$data['currency_decimal_places'], '.', '');
+            $data['sum'] = number_format((float) $data['sum'], (int) $data['currency_decimal_places'], '.', '');
             $return[]    = $data;
         }
 

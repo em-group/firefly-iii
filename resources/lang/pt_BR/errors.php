@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Volto já!',
     'check_back'              => 'Firefly III está fora do ar devido a manutenção necessária. Acesse novamente em alguns instantes.',
     'error_occurred'          => 'Ops! Aconteceu um erro.',
+    'db_error_occurred'       => 'Ops! Ocorreu um erro no banco de dados.',
     'error_not_recoverable'   => 'Infelizmente este erro não é recuperável :(. Firefly III quebrou. O erro é:',
     'error'                   => 'Erro',
     'error_location'          => 'Esse erro ocorreu no arquivo "<span style="font-family: monospace;">:file</span>", na linha :line com o código :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Nos diga mais do que "ele retorna Ops!"',
     'include_logs'            => 'Inclua os logs de erro (veja acima).',
     'what_did_you_do'         => 'Nos diga o que você estava fazendo.',
+    'offline_header'          => 'Você provavelmente está offline',
+    'offline_unreachable'     => 'O Firefly III está inacessível. Seu dispositivo está offline ou o servidor não está funcionando.',
+    'offline_github'          => 'Caso você tenha certeza de que seu dispositivo e o servidor estão online, por favor, abra um ticket no <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

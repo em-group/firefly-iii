@@ -28,7 +28,6 @@ use FireflyIII\Api\V1\Requests\Models\Recurrence\UpdateRequest;
 use FireflyIII\Models\Recurrence;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Transformers\RecurrenceTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use League\Fractal\Resource\Item;
 
@@ -58,6 +57,9 @@ class UpdateController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/recurrences/updateRecurrence
+     *
      * Update single recurrence.
      *
      * @param UpdateRequest $request

@@ -49,7 +49,7 @@ class EditController extends Controller
         $this->middleware(
             static function ($request, $next) {
 
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
 
                 return $next($request);
@@ -67,7 +67,7 @@ class EditController extends Controller
         app('preferences')->mark();
 
         if (!$this->isEditableGroup($transactionGroup)) {
-            return $this->redirectGroupToAccount($transactionGroup); 
+            return $this->redirectGroupToAccount($transactionGroup);
         }
 
         /** @var AccountRepositoryInterface $repository */
@@ -80,16 +80,16 @@ class EditController extends Controller
 
         $defaultCurrency = app('amount')->getDefaultCurrency();
         $cash            = $repository->getCashAccount();
-        $previousUri     = $this->rememberPreviousUri('transactions.edit.uri');
-        $parts           = parse_url($previousUri);
+        $previousUrl     = $this->rememberPreviousUrl('transactions.edit.url');
+        $parts           = parse_url($previousUrl);
         $search          = sprintf('?%s', $parts['query'] ?? '');
-        $previousUri     = str_replace($search, '', $previousUri);
+        $previousUrl     = str_replace($search, '', $previousUrl);
 
-        return prefixView(
+        return view(
             'transactions.edit',
             compact(
                 'cash', 'allowedSourceDests', 'expectedSourceTypes', 'transactionGroup', 'allowedOpposingTypes', 'accountToTypes', 'defaultCurrency',
-                'previousUri'
+                'previousUrl'
             )
         );
     }

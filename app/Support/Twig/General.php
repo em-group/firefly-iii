@@ -27,9 +27,7 @@ use FireflyIII\Models\Account;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use FireflyIII\Support\Search\OperatorQuerySearch;
-use League\CommonMark\CommonMarkConverter;
-use League\CommonMark\Environment;
-use League\CommonMark\Extension\GithubFlavoredMarkdownExtension;
+use League\CommonMark\GithubFlavoredMarkdownConverter;
 use Route;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -51,24 +49,7 @@ class General extends AbstractExtension
             $this->mimeIcon(),
             $this->markdown(),
             $this->floatval(),
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function getFunctions(): array
-    {
-        return [
-            $this->phpdate(),
-            $this->activeRouteStrict(),
-            $this->activeRoutePartial(),
-            $this->activeRoutePartialObjectType(),
-            $this->menuOpenRoutePartial(),
-            $this->formatDate(),
-            $this->getMetaField(),
-            $this->hasRole(),
-            $this->getRootSearchOperator(),
+            $this->phpHostName(),
         ];
     }
 
@@ -203,14 +184,18 @@ class General extends AbstractExtension
     protected function markdown(): TwigFilter
     {
         return new TwigFilter(
-            'markdown',
+               'markdown',
             static function (string $text): string {
-                $environment = Environment::createCommonMarkEnvironment();
-                $environment->addExtension(new GithubFlavoredMarkdownExtension());
 
-                $converter = new CommonMarkConverter(['allow_unsafe_links' => false, 'max_nesting_level' => 3, 'html_input' => 'escape'], $environment);
+                $converter = new GithubFlavoredMarkdownConverter(
+                    [
+                        'allow_unsafe_links' => false,
+                        'max_nesting_level'  => 3,
+                        'html_input'         => 'escape',
+                    ]
+                );
 
-                return $converter->convertToHtml($text);
+                return (string) $converter->convert($text);
             }, ['is_safe' => ['html']]
         );
     }
@@ -223,9 +208,46 @@ class General extends AbstractExtension
         return new TwigFilter(
             'floatval',
             static function ($value): float {
-                return (float)$value;
+                return (float) $value;
             }
         );
+    }
+
+    /**
+     * Show URL host name
+     *
+     * @return TwigFilter
+     */
+    protected function phpHostName(): TwigFilter
+    {
+        return new TwigFilter(
+            'phphost',
+            static function (string $string): string {
+                $proto = (string) parse_url($string, PHP_URL_SCHEME);
+                $host  = (string) parse_url($string, PHP_URL_HOST);
+
+                return e(sprintf('%s://%s', $proto, $host));
+            }
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getFunctions(): array
+    {
+        return [
+            $this->phpdate(),
+            $this->activeRouteStrict(),
+            $this->activeRoutePartial(),
+            $this->activeRoutePartialObjectType(),
+            $this->menuOpenRoutePartial(),
+            $this->formatDate(),
+            $this->getMetaField(),
+            $this->hasRole(),
+            $this->getRootSearchOperator(),
+            $this->carbonize(),
+        ];
     }
 
     /**
@@ -280,7 +302,7 @@ class General extends AbstractExtension
                 $args  = func_get_args();
                 $route = $args[0]; // name of the route.
                 $name  = Route::getCurrentRoute()->getName() ?? '';
-                if (false !== strpos($name, $route)) {
+                if (str_contains($name, $route)) {
                     return 'active';
                 }
 
@@ -327,7 +349,7 @@ class General extends AbstractExtension
                 $args  = func_get_args();
                 $route = $args[0]; // name of the route.
                 $name  = Route::getCurrentRoute()->getName() ?? '';
-                if (false !== strpos($name, $route)) {
+                if (str_contains($name, $route)) {
                     return 'menu-open';
                 }
 
@@ -348,14 +370,14 @@ class General extends AbstractExtension
             function (string $date, string $format): string {
                 $carbon = new Carbon($date);
 
-                return $carbon->formatLocalized($format);
+                return $carbon->isoFormat($format);
             }
         );
     }
 
     /**
      * @return TwigFunction
-     * TODO remove me once layout v1 is deprecated.
+     * See reference nr. 43
      */
     protected function getMetaField(): TwigFunction
     {
@@ -400,6 +422,19 @@ class General extends AbstractExtension
             'getRootSearchOperator',
             static function (string $operator): string {
                 return OperatorQuerySearch::getRootOperator($operator);
+            }
+        );
+    }
+
+    /**
+     * @return TwigFunction
+     */
+    protected function carbonize(): TwigFunction
+    {
+        return new TwigFunction(
+            'carbonize',
+            static function (string $date): Carbon {
+                return new Carbon($date);
             }
         );
     }

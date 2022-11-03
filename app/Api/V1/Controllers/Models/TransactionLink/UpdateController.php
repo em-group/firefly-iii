@@ -26,7 +26,6 @@ namespace FireflyIII\Api\V1\Controllers\Models\TransactionLink;
 
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Models\TransactionLink\UpdateRequest;
-use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionJournalLink;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Repositories\LinkType\LinkTypeRepositoryInterface;
@@ -65,15 +64,15 @@ class UpdateController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/links/updateTransactionLink
+     *
      * Update object.
      *
      * @param UpdateRequest          $request
      * @param TransactionJournalLink $journalLink
      *
      * @return JsonResponse
-     * @throws FireflyException
-     *
-     * TODO generates query exception when link exists.
      */
     public function update(UpdateRequest $request, TransactionJournalLink $journalLink): JsonResponse
     {

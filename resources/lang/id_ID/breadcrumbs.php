@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Beranda',
+    'budgets'                => 'Anggaran',
+    'subscriptions'          => 'Langganan',
+    'transactions'           => 'Transaksi',
+    'title_expenses'         => 'Pengeluaran',
+    'title_withdrawal'       => 'Pengeluaran',
+    'title_revenue'          => 'Penghasilan / pendapatan',
+    'title_deposit'          => 'Penghasilan / pendapatan',
+    'title_transfer'         => 'Transfer',
+    'title_transfers'        => 'Transfer',
     'edit_currency'          => 'Edit mata uang ":name"',
     'delete_currency'        => 'Hapus mata uang ":name"',
     'newPiggyBank'           => 'Buat celengan baru',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Edit label ":tag"',
     'delete_tag'             => 'Hapus label ":tag"',
     'delete_journal_link'    => 'Hapus tautan antar transaksi',
-    'telemetry_index'        => 'Pengukur jarak',
-    'telemetry_view'         => 'Melihat data',
     'edit_object_group'      => 'Ubah grup ":title"',
     'delete_object_group'    => 'Hapus grup ":title"',
-    'logout_others'          => 'Keluar dari semua sesi'
+    'logout_others'          => 'Keluar dari semua sesi',
+    'asset_accounts'         => 'Akun aset',
+    'expense_accounts'       => 'Akun pengeluaran',
+    'revenue_accounts'       => 'Akun pendapatan',
+    'liabilities_accounts'   => 'Kewajiban',
+    'placeholder'            => '[Placeholder]',
 ];

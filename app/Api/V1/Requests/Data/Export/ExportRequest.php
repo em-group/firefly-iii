@@ -41,19 +41,19 @@ class ExportRequest extends FormRequest
     public function getAll(): array
     {
         $result     = [
-            'start' => $this->date('start') ?? Carbon::now()->subYear(),
-            'end'   => $this->date('end') ?? Carbon::now(),
-            'type'  => $this->string('type'),
+            'start' => $this->getCarbonDate('start') ?? Carbon::now()->subYear(),
+            'end'   => $this->getCarbonDate('end') ?? Carbon::now(),
+            'type'  => $this->convertString('type'),
         ];
-        $parts      = explode(',', $this->string('accounts'));
+        $parts      = explode(',', $this->convertString('accounts'));
         $repository = app(AccountRepositoryInterface::class);
         $repository->setUser(auth()->user());
 
         $accounts = new Collection;
         foreach ($parts as $part) {
-            $accountId = (int)$part;
+            $accountId = (int) $part;
             if (0 !== $accountId) {
-                $account = $repository->findNull($accountId);
+                $account = $repository->find($accountId);
                 if (null !== $account && AccountType::ASSET === $account->accountType->type) {
                     $accounts->push($account);
                 }

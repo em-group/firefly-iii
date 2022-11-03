@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Clausola "where" assente nell\'array',
+    'missing_update'                 => 'Clausola "update" assente nell\'array',
+    'invalid_where_key'              => 'Il JSON contiene una chiave non valida per la clausola "where"',
+    'invalid_update_key'             => 'Il JSON contiene una chiave non valida per la clausola "update"',
+    'invalid_query_data'             => 'Data non valida nel campo %s:%s della query.',
+    'invalid_query_account_type'     => 'La tua interrogazione contiene account di diversi tipi, cosa che non è consentita.',
+    'invalid_query_currency'         => 'La tua interrogazione contiene conti con valute diverse, che non è consentito.',
     'iban'                           => 'Questo non è un IBAN valido.',
     'zero_or_more'                   => 'Il valore non può essere negativo.',
     'date_or_time'                   => 'Il valore deve essere un valore valido per una data o per un orario (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'L\' :attribute deve essere accettato.',
     'bic'                            => 'Questo non è un BIC valido.',
     'at_least_one_trigger'           => 'Una regola deve avere almeno un trigger.',
+    'at_least_one_active_trigger'    => 'La regola deve avere almeno un trigger attivo.',
     'at_least_one_action'            => 'Una regola deve avere almeno una azione.',
+    'at_least_one_active_action'     => 'La regola deve avere almeno un\'azione attiva.',
     'base64'                         => 'Questi non sono dati codificati in base64 validi.',
     'model_id_invalid'               => 'L\'ID fornito sembra non essere valido per questo modello.',
     'less'                           => ':attribute deve essere minore di 10.000.000',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'Il nome del salvadanaio deve essere unico.',
     'unique_object_group'            => 'Il nome del gruppo deve essere unico',
     'starts_with'                    => 'Il valore deve iniziare con :values.',
-    'unique_webhook'                 => 'Hai già un webhook con questi valori.',
-    'unique_existing_webhook'        => 'Hai già un altro webhook con questi valori.',
+    'unique_webhook'                 => 'Hai già un altro webhook con questa combinazione di URL, trigger, risposta e consegna.',
+    'unique_existing_webhook'        => 'Hai già un altro webhook con questa combinazione di URL, trigger, risposta e consegna.',
     'same_account_type'              => 'Entrambi i conti devono essere dello stesso tipo',
     'same_account_currency'          => 'Entrambi i conti devono essere impostati sulla stessa valuta',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'È necessario ottenere un ID e/o un nome del conto di destinazione validi per continuare.',
     'withdrawal_dest_bad_data'    => 'Non è stato possibile trovare un conto di destinazione valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
 
-    'generic_source_bad_data'  => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
+    'generic_source_bad_data' => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
 
     'deposit_source_need_data' => 'È necessario ottenere un ID e/o un nome del conto di origine validi per continuare.',
     'deposit_source_bad_data'  => 'Non è stato possibile trovare un conto d\'origine valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Non è stato possibile trovare un conto di destinazione valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
     'need_id_in_edit'           => 'Ogni suddivisione deve avere un "transaction_journal_id" (un ID valido oppure 0).',
 
-    'ob_source_need_data' => 'È necessario ottenere un ID e/o un nome del conto di origine validi per continuare.',
-    'ob_dest_need_data'   => 'È necessario ottenere un ID e/o un nome del conto di destinazione validi per continuare.',
-    'ob_dest_bad_data'    => 'Non è stato possibile trovare un conto di destinazione valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
+    'ob_source_need_data'           => 'È necessario ottenere un ID e/o un nome del conto di origine validi per continuare.',
+    'lc_source_need_data'           => 'È necessario ottenere un ID del conto sorgente valido per continuare.',
+    'ob_dest_need_data'             => 'È necessario ottenere un ID e/o un nome del conto di destinazione validi per continuare.',
+    'ob_dest_bad_data'              => 'Non è stato possibile trovare un conto di destinazione valido effettuando la ricerca con l\'ID ":id" o il nome ":name".',
+    'reconciliation_either_account' => 'Per inviare una riconciliazione devi inserire un conto sorgente o di destinazione, non entrambi o nessuno dei due.',
 
     'generic_invalid_source'      => 'Non puoi utilizzare questo conto come conto di origine.',
     'generic_invalid_destination' => 'Non puoi utilizzare questo conto come conto di destinazione.',
+
+    'generic_no_source'      => 'È necessario inviare le informazioni sul conto di origine.',
+    'generic_no_destination' => 'È necessario inviare le informazioni sul conto di destinazione.',
 
     'gte.numeric' => 'Il campo :attribute deve essere maggiore o uguale a :value.',
     'gt.numeric'  => 'Il campo :attribute deve essere maggiore di :value.',

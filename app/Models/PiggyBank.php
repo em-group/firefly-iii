@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,33 +31,35 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 /**
  * FireflyIII\Models\PiggyBank
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $account_id
- * @property string $name
- * @property string $targetamount
- * @property \Illuminate\Support\Carbon|null $startdate
- * @property \Illuminate\Support\Carbon|null $targetdate
- * @property int $order
- * @property bool $active
- * @property bool $encrypted
- * @property-read \FireflyIII\Models\Account $account
- * @property-read Collection|\FireflyIII\Models\Attachment[] $attachments
- * @property-read int|null $attachments_count
- * @property-read Collection|\FireflyIII\Models\Note[] $notes
- * @property-read int|null $notes_count
- * @property-read Collection|\FireflyIII\Models\ObjectGroup[] $objectGroups
- * @property-read int|null $object_groups_count
- * @property-read Collection|\FireflyIII\Models\PiggyBankEvent[] $piggyBankEvents
- * @property-read int|null $piggy_bank_events_count
- * @property-read Collection|\FireflyIII\Models\PiggyBankRepetition[] $piggyBankRepetitions
- * @property-read int|null $piggy_bank_repetitions_count
+ * @property int                                   $id
+ * @property Carbon|null                           $created_at
+ * @property Carbon|null                           $updated_at
+ * @property Carbon|null                           $deleted_at
+ * @property int                                   $account_id
+ * @property string                                $name
+ * @property string                                $targetamount
+ * @property Carbon|null                           $startdate
+ * @property Carbon|null                           $targetdate
+ * @property int                                   $order
+ * @property bool                                  $active
+ * @property bool                                  $encrypted
+ * @property-read Account                          $account
+ * @property-read Collection|Attachment[]          $attachments
+ * @property-read int|null                         $attachments_count
+ * @property-read Collection|Note[]                $notes
+ * @property-read int|null                         $notes_count
+ * @property-read Collection|ObjectGroup[]         $objectGroups
+ * @property-read int|null                         $object_groups_count
+ * @property-read Collection|PiggyBankEvent[]      $piggyBankEvents
+ * @property-read int|null                         $piggy_bank_events_count
+ * @property-read Collection|PiggyBankRepetition[] $piggyBankRepetitions
+ * @property-read int|null                         $piggy_bank_repetitions_count
  * @method static \Illuminate\Database\Eloquent\Builder|PiggyBank newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|PiggyBank newQuery()
  * @method static Builder|PiggyBank onlyTrashed()
@@ -108,8 +110,8 @@ class PiggyBank extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return PiggyBank
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): PiggyBank
     {
@@ -126,11 +128,12 @@ class PiggyBank extends Model
     }
 
     /**
-     * Get all of the tags for the post.
+     * @codeCoverageIgnore
+     * @return BelongsTo
      */
-    public function objectGroups()
+    public function account(): BelongsTo
     {
-        return $this->morphToMany(ObjectGroup::class, 'object_groupable');
+        return $this->belongsTo(Account::class);
     }
 
     /**
@@ -144,20 +147,19 @@ class PiggyBank extends Model
 
     /**
      * @codeCoverageIgnore
-     * @return BelongsTo
-     */
-    public function account(): BelongsTo
-    {
-        return $this->belongsTo(Account::class);
-    }
-
-    /**
-     * @codeCoverageIgnore
      * Get all of the piggy bank's notes.
      */
     public function notes(): MorphMany
     {
         return $this->morphMany(Note::class, 'noteable');
+    }
+
+    /**
+     * Get all the tags for the post.
+     */
+    public function objectGroups()
+    {
+        return $this->morphToMany(ObjectGroup::class, 'object_groupable');
     }
 
     /**
@@ -186,5 +188,17 @@ class PiggyBank extends Model
     public function setTargetamountAttribute($value): void
     {
         $this->attributes['targetamount'] = (string) $value;
+    }
+
+    /**
+     * Get the max amount
+     *
+     * @return Attribute
+     */
+    protected function targetamount(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => (string) $value,
+        );
     }
 }

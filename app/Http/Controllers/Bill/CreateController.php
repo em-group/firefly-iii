@@ -29,11 +29,10 @@ use FireflyIII\Helpers\Attachments\AttachmentHelperInterface;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Requests\BillStoreRequest;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
-use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Log;
 
 /**
@@ -55,7 +54,7 @@ class CreateController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.bills'));
+                app('view')->share('title', (string) trans('firefly.bills'));
                 app('view')->share('mainTitleIcon', 'fa-calendar-o');
                 $this->attachments = app(AttachmentHelperInterface::class);
                 $this->repository  = app(BillRepositoryInterface::class);
@@ -70,7 +69,7 @@ class CreateController extends Controller
      *
      * @param Request $request
      *
-     * @return Application|Factory|View
+     * @return Factory|View
      */
     public function create(Request $request)
     {
@@ -78,18 +77,18 @@ class CreateController extends Controller
         /** @var array $billPeriods */
         $billPeriods = config('firefly.bill_periods');
         foreach ($billPeriods as $current) {
-            $periods[$current] = (string)trans('firefly.repeat_freq_' . $current);
+            $periods[$current] = (string) trans('firefly.repeat_freq_' . $current);
         }
-        $subTitle        = (string)trans('firefly.create_new_bill');
+        $subTitle        = (string) trans('firefly.create_new_bill');
         $defaultCurrency = app('amount')->getDefaultCurrency();
 
         // put previous url in session if not redirect from store (not "create another").
         if (true !== session('bills.create.fromStore')) {
-            $this->rememberPreviousUri('bills.create.uri');
+            $this->rememberPreviousUrl('bills.create.url');
         }
         $request->session()->forget('bills.create.fromStore');
 
-        return prefixView('bills.create', compact('periods', 'subTitle', 'defaultCurrency'));
+        return view('bills.create', compact('periods', 'subTitle', 'defaultCurrency'));
     }
 
     /**
@@ -102,17 +101,18 @@ class CreateController extends Controller
      */
     public function store(BillStoreRequest $request): RedirectResponse
     {
-        $billData           = $request->getBillData();
+        $billData = $request->getBillData();
+
         $billData['active'] = true;
         try {
             $bill = $this->repository->store($billData);
         } catch (FireflyException $e) {
             Log::error($e->getMessage());
-            $request->session()->flash('error', (string)trans('firefly.bill_store_error'));
+            $request->session()->flash('error', (string) trans('firefly.bill_store_error'));
 
             return redirect(route('bills.create'))->withInput();
         }
-        $request->session()->flash('success', (string)trans('firefly.stored_new_bill', ['name' => $bill->name]));
+        $request->session()->flash('success', (string) trans('firefly.stored_new_bill', ['name' => $bill->name]));
         app('preferences')->mark();
 
         /** @var array $files */
@@ -121,11 +121,11 @@ class CreateController extends Controller
             $this->attachments->saveAttachmentsForModel($bill, $files);
         }
         if (null !== $files && auth()->user()->hasRole('demo')) {
-            session()->flash('info', (string)trans('firefly.no_att_demo_user'));
+            session()->flash('info', (string) trans('firefly.no_att_demo_user'));
         }
 
         if (count($this->attachments->getMessages()->get('attachments')) > 0) {
-            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments')); 
+            $request->session()->flash('info', $this->attachments->getMessages()->get('attachments'));
         }
 
         return redirect(route('rules.create-from-bill', [$bill->id]));

@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Dem Array fehlt die „where”-Klausel',
+    'missing_update'                 => 'Dem Array fehlt die „update”-Klausel',
+    'invalid_where_key'              => 'JSON enthält einen ungültigen Schlüssel für die „where”-Klausel',
+    'invalid_update_key'             => 'JSON enthält einen ungültigen Schlüssel für die „update”-Klausel',
+    'invalid_query_data'             => 'Das Feld %s:%s Ihrer Abfrage enthält ungültige Daten.',
+    'invalid_query_account_type'     => 'Ihre Abfrage enthält unzulässigerweise Konten unterschiedlicher Typen.',
+    'invalid_query_currency'         => 'Ihre Abfrage enthält unzulässigerweise Konten mit unterschiedlicher Währungseinstellung.',
     'iban'                           => 'Dies ist keine gültige IBAN.',
     'zero_or_more'                   => 'Der Wert darf nicht negativ sein.',
     'date_or_time'                   => 'Der Wert muss ein gültiges Datum oder Zeitangabe sein (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute muss akzeptiert werden.',
     'bic'                            => 'Dies ist kein gültiger BIC.',
     'at_least_one_trigger'           => 'Regel muss mindestens einen Auslöser enthalten',
+    'at_least_one_active_trigger'    => 'Der Regel muss mindestens ein aktiver Auslöser zugeordnet sein.',
     'at_least_one_action'            => 'Regel muss mindestens eine Aktion enthalten',
+    'at_least_one_active_action'     => 'Der Regel muss mindestens eine aktive Aktion zugeordnet sein.',
     'base64'                         => 'Dies sind keine gültigen base64-kodierten Daten.',
     'model_id_invalid'               => 'Die angegebene ID scheint für dieses Modell ungültig zu sein.',
     'less'                           => ':attribute muss kleiner als 10.000.000 sein',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'Der Name des Sparschweins muss eindeutig sein.',
     'unique_object_group'            => 'Der Gruppenname muss eindeutig sein',
     'starts_with'                    => 'Der Wert muss mit :values beginnen.',
-    'unique_webhook'                 => 'Sie haben bereits einen Webhook mit diesen Werten.',
-    'unique_existing_webhook'        => 'Sie haben bereits einen anderen Webhook mit diesen Werten.',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
     'same_account_type'              => 'Beide Konten müssen vom selben Kontotyp sein',
     'same_account_currency'          => 'Beiden Konten muss die gleiche Währung zugeordnet sein',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Um fortzufahren, benötigen Sie eine gültige Zielkontenkennung und/oder einen gültigen Zielkontonamen.',
     'withdrawal_dest_bad_data'    => 'Bei der Suche nach Kennung „:id” oder Name „:name” konnte kein gültiges Zielkonto gefunden werden.',
 
-    'generic_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
+    'generic_source_bad_data' => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
 
     'deposit_source_need_data' => 'Um fortzufahren, benötigen Sie eine gültige Quellkontenkennung und/oder einen gültigen Quellkontonamen.',
     'deposit_source_bad_data'  => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Quellkonto gefunden werden.',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Bei der Suche nach der Kennung „:id” oder dem Namen „:name” konnte kein gültiges Zielkonto gefunden werden.',
     'need_id_in_edit'           => 'Jeder Aufteilungen muss eine transaction_journal_id (entweder gültige ID oder 0) aufweisen.',
 
-    'ob_source_need_data' => 'Sie benötigen eine gültige Quellkontonummer und/oder einen gültigen Quellkontonamen, um fortzufahren.',
-    'ob_dest_need_data'   => 'Sie benötigen eine gültige Zielkontennummer und/oder einen gültigen Zielkontonamen, um fortzufahren.',
-    'ob_dest_bad_data'    => 'Bei der Suche nach der ID ":id" oder dem Namen ":name" konnte kein gültiges Zielkonto gefunden werden.',
+    'ob_source_need_data'           => 'Sie benötigen eine gültige Quellkontonummer und/oder einen gültigen Quellkontonamen, um fortzufahren.',
+    'lc_source_need_data'           => 'Zum Fortfahren wird eine gültige Quellkonto-ID benötigt.',
+    'ob_dest_need_data'             => 'Sie benötigen eine gültige Zielkontennummer und/oder einen gültigen Zielkontonamen, um fortzufahren.',
+    'ob_dest_bad_data'              => 'Bei der Suche nach der ID ":id" oder dem Namen ":name" konnte kein gültiges Zielkonto gefunden werden.',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => 'Sie können dieses Konto nicht als Quellkonto verwenden.',
     'generic_invalid_destination' => 'Sie können dieses Konto nicht als Zielkonto verwenden.',
+
+    'generic_no_source'      => 'Sie müssen Informationen zum Quellkonto angeben.',
+    'generic_no_destination' => 'Sie müssen Informationen zum Zielkonto angeben.',
 
     'gte.numeric' => ':attribute muss größer oder gleich :value sein.',
     'gt.numeric'  => ':attribute muss größer als :value sein.',

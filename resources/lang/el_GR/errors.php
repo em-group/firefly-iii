@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Επιστρέφω αμέσως!',
     'check_back'              => 'Το Firefly III είναι εκτός λειτουργίας για κάποια απαραίτητη συντήρηση. Ελέγξτε ξανά σε ένα δευτερόλεπτο.',
     'error_occurred'          => 'Ωχ! Παρουσιάστηκε σφάλμα.',
+    'db_error_occurred'       => 'Whoops! A database error occurred.',
     'error_not_recoverable'   => 'Δυστυχώς, αυτό το σφάλμα δεν ήταν δυνατό να ξεπεραστεί :(. Το Firefly III δε λειτουργεί. Το σφάλμα είναι:',
     'error'                   => 'Σφάλμα',
     'error_location'          => 'Αυτό το σφάλμα προέκυψε στο αρχείο <span style="font-family: monospace;">:file</span> στη γραμμή :line με κώδικα :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Πείτε μας λίγα περισσότερα από το "μου λέει Ουπς!"',
     'include_logs'            => 'Συμπεριλάβετε αρχεία καταγραφής σφαλμάτων (δείτε παραπάνω).',
     'what_did_you_do'         => 'Πείτε μας τι κάνατε.',
+    'offline_header'          => 'Μάλλον είστε εκτός σύνδεσης',
+    'offline_unreachable'     => 'Το Firefly III δεν είναι προσβάσιμο. Είτε η συσκευή σας αυτή τη στιγμή είναι εκτός σύνδεσης ή ο διακομιστής δεν λειτουργεί.',
+    'offline_github'          => 'Εάν είστε βέβαιοι ότι τόσο η συσκευή σας όσο και ο διακομιστής είναι συνδεδεμένοι, ανοίξτε ένα θέμα στο <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a> </strong>.',
 
 ];

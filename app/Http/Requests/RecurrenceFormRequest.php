@@ -56,32 +56,34 @@ class RecurrenceFormRequest extends FormRequest
         $repetitionData = $this->parseRepetitionData();
         $return         = [
             'recurrence'   => [
-                'type'              => $this->string('transaction_type'),
-                'title'             => $this->string('title'),
-                'description'       => $this->string('recurring_description'),
-                'first_date'        => $this->date('first_date'),
-                'repeat_until'      => $this->date('repeat_until'),
-                'nr_of_repetitions' => $this->integer('repetitions'),
+                'type'              => $this->convertString('transaction_type'),
+                'title'             => $this->convertString('title'),
+                'description'       => $this->convertString('recurring_description'),
+                'first_date'        => $this->getCarbonDate('first_date'),
+                'repeat_until'      => $this->getCarbonDate('repeat_until'),
+                'nr_of_repetitions' => $this->convertInteger('repetitions'),
                 'apply_rules'       => $this->boolean('apply_rules'),
                 'active'            => $this->boolean('active'),
-                'repetition_end'    => $this->string('repetition_end'),
+                'repetition_end'    => $this->convertString('repetition_end'),
             ],
             'transactions' => [
                 [
-                    'currency_id'           => $this->integer('transaction_currency_id'),
+                    'currency_id'           => $this->convertInteger('transaction_currency_id'),
                     'currency_code'         => null,
-                    'type'                  => $this->string('transaction_type'),
-                    'description'           => $this->string('transaction_description'),
-                    'amount'                => $this->string('amount'),
+                    'type'                  => $this->convertString('transaction_type'),
+                    'description'           => $this->convertString('transaction_description'),
+                    'amount'                => $this->convertString('amount'),
                     'foreign_amount'        => null,
                     'foreign_currency_id'   => null,
                     'foreign_currency_code' => null,
-                    'budget_id'             => $this->integer('budget_id'),
+                    'budget_id'             => $this->convertInteger('budget_id'),
                     'budget_name'           => null,
+                    'bill_id'               => $this->convertInteger('bill_id'),
+                    'bill_name'             => null,
                     'category_id'           => null,
-                    'category_name'         => $this->string('category'),
-                    'tags'                  => '' !== $this->string('tags') ? explode(',', $this->string('tags')) : [],
-                    'piggy_bank_id'         => $this->integer('piggy_bank_id'),
+                    'category_name'         => $this->convertString('category'),
+                    'tags'                  => '' !== $this->convertString('tags') ? explode(',', $this->convertString('tags')) : [],
+                    'piggy_bank_id'         => $this->convertInteger('piggy_bank_id'),
                     'piggy_bank_name'       => null,
                 ],
             ],
@@ -89,17 +91,17 @@ class RecurrenceFormRequest extends FormRequest
                 [
                     'type'    => $repetitionData['type'],
                     'moment'  => $repetitionData['moment'],
-                    'skip'    => $this->integer('skip'),
-                    'weekend' => $this->integer('weekend'),
+                    'skip'    => $this->convertInteger('skip'),
+                    'weekend' => $this->convertInteger('weekend'),
                 ],
             ],
 
         ];
 
         // fill in foreign currency data
-        if (null !== $this->float('foreign_amount')) {
-            $return['transactions'][0]['foreign_amount']      = $this->string('foreign_amount');
-            $return['transactions'][0]['foreign_currency_id'] = $this->integer('foreign_currency_id');
+        if (null !== $this->convertFloat('foreign_amount')) {
+            $return['transactions'][0]['foreign_amount']      = $this->convertString('foreign_amount');
+            $return['transactions'][0]['foreign_currency_id'] = $this->convertInteger('foreign_currency_id');
         }
         // default values:
         $return['transactions'][0]['source_id']        = null;
@@ -107,20 +109,20 @@ class RecurrenceFormRequest extends FormRequest
         $return['transactions'][0]['destination_id']   = null;
         $return['transactions'][0]['destination_name'] = null;
         // fill in source and destination account data
-        switch ($this->string('transaction_type')) {
+        switch ($this->convertString('transaction_type')) {
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); 
+                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->convertString('transaction_type')));
             case 'withdrawal':
-                $return['transactions'][0]['source_id']      = $this->integer('source_id');
-                $return['transactions'][0]['destination_id'] = $this->integer('withdrawal_destination_id');
+                $return['transactions'][0]['source_id']      = $this->convertInteger('source_id');
+                $return['transactions'][0]['destination_id'] = $this->convertInteger('withdrawal_destination_id');
                 break;
             case 'deposit':
-                $return['transactions'][0]['source_id']      = $this->integer('deposit_source_id');
-                $return['transactions'][0]['destination_id'] = $this->integer('destination_id');
+                $return['transactions'][0]['source_id']      = $this->convertInteger('deposit_source_id');
+                $return['transactions'][0]['destination_id'] = $this->convertInteger('destination_id');
                 break;
             case 'transfer':
-                $return['transactions'][0]['source_id']      = $this->integer('source_id');
-                $return['transactions'][0]['destination_id'] = $this->integer('destination_id');
+                $return['transactions'][0]['source_id']      = $this->convertInteger('source_id');
+                $return['transactions'][0]['destination_id'] = $this->convertInteger('destination_id');
                 break;
         }
 
@@ -147,7 +149,7 @@ class RecurrenceFormRequest extends FormRequest
      */
     private function parseRepetitionData(): array
     {
-        $value  = $this->string('repetition_type');
+        $value  = $this->convertString('repetition_type');
         $return = [
             'type'   => '',
             'moment' => '',
@@ -162,11 +164,11 @@ class RecurrenceFormRequest extends FormRequest
             $return['type']   = substr($value, 0, 6);
             $return['moment'] = substr($value, 7);
         }
-        if (0 === strpos($value, 'monthly')) {
+        if (str_starts_with($value, 'monthly')) {
             $return['type']   = substr($value, 0, 7);
             $return['moment'] = substr($value, 8);
         }
-        if (0 === strpos($value, 'ndom')) {
+        if (str_starts_with($value, 'ndom')) {
             $return['type']   = substr($value, 0, 4);
             $return['moment'] = substr($value, 5);
         }
@@ -190,7 +192,7 @@ class RecurrenceFormRequest extends FormRequest
             'title'                   => 'required|between:1,255|uniqueObjectForUser:recurrences,title',
             'first_date'              => 'required|date|after:' . $today->format('Y-m-d'),
             'repetition_type'         => ['required', new ValidRecurrenceRepetitionValue, new ValidRecurrenceRepetitionType, 'between:1,20'],
-            'skip'                    => 'required|numeric|between:0,31',
+            'skip'                    => 'required|numeric|integer|gte:0|lte:31',
 
             // optional for recurrence:
             'recurring_description'   => 'between:0,65000',
@@ -213,29 +215,30 @@ class RecurrenceFormRequest extends FormRequest
 
             // optional fields:
             'budget_id'               => 'mustExist:budgets,id|belongsToUser:budgets,id|nullable',
+            'bill_id'                 => 'mustExist:bills,id|belongsToUser:bills,id|nullable',
             'category'                => 'between:1,255|nullable',
             'tags'                    => 'between:1,255|nullable',
         ];
-        if ($this->integer('foreign_currency_id') > 0) {
+        if ($this->convertInteger('foreign_currency_id') > 0) {
             $rules['foreign_currency_id'] = 'exists:transaction_currencies,id';
         }
 
         // if ends after X repetitions, set another rule
-        if ('times' === $this->string('repetition_end')) {
+        if ('times' === $this->convertString('repetition_end')) {
             $rules['repetitions'] = 'required|numeric|between:0,254';
         }
         // if foreign amount, currency must be  different.
-        if (null !== $this->float('foreign_amount')) {
+        if (null !== $this->convertFloat('foreign_amount')) {
             $rules['foreign_currency_id'] = 'exists:transaction_currencies,id|different:transaction_currency_id';
         }
 
         // if ends at date X, set another rule.
-        if ('until_date' === $this->string('repetition_end')) {
+        if ('until_date' === $this->convertString('repetition_end')) {
             $rules['repeat_until'] = 'required|date|after:' . $tomorrow->format('Y-m-d');
         }
 
-        // switchc on type to expand rules for source and destination accounts:
-        switch ($this->string('transaction_type')) {
+        // switch on type to expand rules for source and destination accounts:
+        switch ($this->convertString('transaction_type')) {
             case strtolower(TransactionType::WITHDRAWAL):
                 $rules['source_id']        = 'required|exists:accounts,id|belongsToUser:accounts';
                 $rules['destination_name'] = 'between:1,255|nullable';
@@ -251,7 +254,7 @@ class RecurrenceFormRequest extends FormRequest
 
                 break;
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type of type "%s"', $this->string('transaction_type'))); 
+                throw new FireflyException(sprintf('Cannot handle transaction type of type "%s"', $this->convertString('transaction_type')));
         }
 
         // update some rules in case the user is editing a post:
@@ -292,7 +295,7 @@ class RecurrenceFormRequest extends FormRequest
      */
     public function validateAccountInformation(Validator $validator): void
     {
-        Log::debug('Now in validateAccountInformation()');
+        Log::debug('Now in validateAccountInformation (RecurrenceFormRequest)()');
         /** @var AccountValidator $accountValidator */
         $accountValidator = app(AccountValidator::class);
         $data             = $validator->getData();
@@ -304,30 +307,30 @@ class RecurrenceFormRequest extends FormRequest
         $sourceId      = null;
         $destinationId = null;
 
-        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+        // See reference nr. 45
 
-        switch ($this->string('transaction_type')) {
+        switch ($this->convertString('transaction_type')) {
             default:
-                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->string('transaction_type'))); 
+                throw new FireflyException(sprintf('Cannot handle transaction type "%s"', $this->convertString('transaction_type')));
             case 'withdrawal':
-                $sourceId      = (int)$data['source_id'];
-                $destinationId = (int)$data['withdrawal_destination_id'];
+                $sourceId      = (int) $data['source_id'];
+                $destinationId = (int) $data['withdrawal_destination_id'];
                 break;
             case 'deposit':
-                $sourceId      = (int)$data['deposit_source_id'];
-                $destinationId = (int)$data['destination_id'];
+                $sourceId      = (int) $data['deposit_source_id'];
+                $destinationId = (int) $data['destination_id'];
                 break;
             case 'transfer':
-                $sourceId      = (int)$data['source_id'];
-                $destinationId = (int)$data['destination_id'];
+                $sourceId      = (int) $data['source_id'];
+                $destinationId = (int) $data['destination_id'];
                 break;
         }
         // validate source account.
-        $validSource = $accountValidator->validateSource($sourceId, null, null);
+        $validSource = $accountValidator->validateSource(['id' => $sourceId,]);
 
         // do something with result:
         if (false === $validSource) {
-            $message = (string)trans('validation.generic_invalid_source');
+            $message = (string) trans('validation.generic_invalid_source');
             $validator->errors()->add('source_id', $message);
             $validator->errors()->add('deposit_source_id', $message);
 
@@ -335,10 +338,10 @@ class RecurrenceFormRequest extends FormRequest
         }
 
         // validate destination account
-        $validDestination = $accountValidator->validateDestination($destinationId, null, null);
+        $validDestination = $accountValidator->validateDestination(['id' => $destinationId,]);
         // do something with result:
         if (false === $validDestination) {
-            $message = (string)trans('validation.generic_invalid_destination');
+            $message = (string) trans('validation.generic_invalid_destination');
             $validator->errors()->add('destination_id', $message);
             $validator->errors()->add('withdrawal_destination_id', $message);
         }

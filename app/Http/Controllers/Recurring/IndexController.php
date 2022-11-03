@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** @noinspection PhpMethodParametersCountMismatchInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Recurring;
@@ -59,7 +58,7 @@ class IndexController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-paint-brush');
-                app('view')->share('title', (string)trans('firefly.recurrences'));
+                app('view')->share('title', (string) trans('firefly.recurrences'));
 
                 $this->recurringRepos = app(RecurringRepositoryInterface::class);
 
@@ -69,19 +68,20 @@ class IndexController extends Controller
     }
 
     /**
-     * TODO the notes of a recurrence are pretty pointless at this moment.
+     * See reference nr. 70
      * Show all recurring transactions.
      *
      * @param Request $request
      *
      * @return Factory|View
      * @throws FireflyException
-     *
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function index(Request $request)
     {
-        $page       = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
-        $pageSize   = (int)app('preferences')->get('listPageSize', 50)->data;
+        $page       = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
+        $pageSize   = (int) app('preferences')->get('listPageSize', 50)->data;
         $collection = $this->recurringRepos->get();
         $today      = today(config('app.timezone'));
         $year       = today(config('app.timezone'));
@@ -122,11 +122,11 @@ class IndexController extends Controller
         }
         $paginator = new LengthAwarePaginator($recurring, $total, $pageSize, $page);
         $paginator->setPath(route('recurring.index'));
-        $today      = today(config('app.timezone'));
+        $today = today(config('app.timezone'));
 
         $this->verifyRecurringCronJob();
 
-        return prefixView('recurring.index', compact('paginator', 'today', 'page', 'pageSize', 'total'));
+        return view('recurring.index', compact('paginator', 'today', 'page', 'pageSize', 'total'));
     }
 
 }

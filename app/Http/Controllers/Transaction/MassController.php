@@ -35,6 +35,7 @@ use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Budget\BudgetRepositoryInterface;
 use FireflyIII\Repositories\Journal\JournalRepositoryInterface;
 use FireflyIII\Services\Internal\Update\JournalUpdateService;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
 use Illuminate\View\View as IlluminateView;
@@ -60,7 +61,7 @@ class MassController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.transactions'));
+                app('view')->share('title', (string) trans('firefly.transactions'));
                 app('view')->share('mainTitleIcon', 'fa-exchange');
                 $this->repository = app(JournalRepositoryInterface::class);
 
@@ -78,12 +79,12 @@ class MassController extends Controller
      */
     public function delete(array $journals): IlluminateView
     {
-        $subTitle = (string)trans('firefly.mass_delete_journals');
+        $subTitle = (string) trans('firefly.mass_delete_journals');
 
         // put previous url in session
-        $this->rememberPreviousUri('transactions.mass-delete.uri');
+        $this->rememberPreviousUrl('transactions.mass-delete.url');
 
-        return prefixView('transactions.mass.delete', compact('journals', 'subTitle'));
+        return view('transactions.mass.delete', compact('journals', 'subTitle'));
     }
 
     /**
@@ -91,7 +92,7 @@ class MassController extends Controller
      *
      * @param MassDeleteJournalRequest $request
      *
-     * @return mixed
+     * @return Application|Redirector|RedirectResponse
      *
      */
     public function destroy(MassDeleteJournalRequest $request)
@@ -103,18 +104,18 @@ class MassController extends Controller
             foreach ($ids as $journalId) {
 
                 /** @var TransactionJournal $journal */
-                $journal = $this->repository->findNull((int)$journalId);
-                if (null !== $journal && (int)$journalId === $journal->id) {
+                $journal = $this->repository->find((int) $journalId);
+                if (null !== $journal && (int) $journalId === $journal->id) {
                     $this->repository->destroyJournal($journal);
                     ++$count;
                 }
             }
         }
         app('preferences')->mark();
-        session()->flash('success', (string)trans_choice('firefly.mass_deleted_transactions_success', $count));
+        session()->flash('success', (string) trans_choice('firefly.mass_deleted_transactions_success', $count));
 
         // redirect to previous URL:
-        return redirect($this->getPreviousUri('transactions.mass-delete.uri'));
+        return redirect($this->getPreviousUrl('transactions.mass-delete.url'));
     }
 
     /**
@@ -126,7 +127,7 @@ class MassController extends Controller
      */
     public function edit(array $journals): IlluminateView
     {
-        $subTitle = (string)trans('firefly.mass_edit_journals');
+        $subTitle = (string) trans('firefly.mass_edit_journals');
 
         /** @var AccountRepositoryInterface $accountRepository */
         $accountRepository = app(AccountRepositoryInterface::class);
@@ -145,14 +146,14 @@ class MassController extends Controller
 
         // reverse amounts
         foreach ($journals as $index => $journal) {
-            $journals[$index]['amount']         = app('steam')->positive($journal['amount']);
+            $journals[$index]['amount']         = number_format((float) app('steam')->positive($journal['amount']), $journal['currency_decimal_places'], '.', '');
             $journals[$index]['foreign_amount'] = null === $journal['foreign_amount'] ?
                 null : app('steam')->positive($journal['foreign_amount']);
         }
 
-        $this->rememberPreviousUri('transactions.mass-edit.uri');
+        $this->rememberPreviousUrl('transactions.mass-edit.url');
 
-        return prefixView('transactions.mass.edit', compact('journals', 'subTitle', 'withdrawalSources', 'depositDestinations', 'budgets'));
+        return view('transactions.mass.edit', compact('journals', 'subTitle', 'withdrawalSources', 'depositDestinations', 'budgets'));
     }
 
     /**
@@ -167,26 +168,26 @@ class MassController extends Controller
     {
         $journalIds = $request->get('journals');
         if (!is_array($journalIds)) {
-            // TODO something error.
-            throw new FireflyException('This is not an array.'); 
+            // See reference nr. 48
+            throw new FireflyException('This is not an array.');
         }
         $count = 0;
         /** @var string $journalId */
         foreach ($journalIds as $journalId) {
-            $integer = (int)$journalId;
+            $integer = (int) $journalId;
             try {
                 $this->updateJournal($integer, $request);
                 $count++;
-            } catch (FireflyException $e) {  
+            } catch (FireflyException $e) {
                 // @ignoreException
             }
         }
 
         app('preferences')->mark();
-        session()->flash('success', (string)trans_choice('firefly.mass_edited_transactions_success', $count));
+        session()->flash('success', (string) trans_choice('firefly.mass_edited_transactions_success', $count));
 
         // redirect to previous URL:
-        return redirect($this->getPreviousUri('transactions.mass-edit.uri'));
+        return redirect($this->getPreviousUrl('transactions.mass-edit.url'));
     }
 
     /**
@@ -197,9 +198,9 @@ class MassController extends Controller
      */
     private function updateJournal(int $journalId, MassEditJournalRequest $request): void
     {
-        $journal = $this->repository->findNull($journalId);
+        $journal = $this->repository->find($journalId);
         if (null === $journal) {
-            throw new FireflyException(sprintf('Trying to edit non-existent or deleted journal #%d', $journalId)); 
+            throw new FireflyException(sprintf('Trying to edit non-existent or deleted journal #%d', $journalId));
         }
         $service = app(JournalUpdateService::class);
         // for each field, call the update service.
@@ -229,14 +230,14 @@ class MassController extends Controller
     /**
      * @param MassEditJournalRequest $request
      * @param int                    $journalId
-     * @param string                 $string
+     * @param string                 $key
      *
      * @return Carbon|null
      * @codeCoverageIgnore
      */
-    private function getDateFromRequest(MassEditJournalRequest $request, int $journalId, string $string): ?Carbon
+    private function getDateFromRequest(MassEditJournalRequest $request, int $journalId, string $key): ?Carbon
     {
-        $value = $request->get($string);
+        $value = $request->get($key);
         if (!is_array($value)) {
             return null;
         }
@@ -272,7 +273,7 @@ class MassController extends Controller
             return null;
         }
 
-        return (string)$value[$journalId];
+        return (string) $value[$journalId];
     }
 
     /**
@@ -293,6 +294,6 @@ class MassController extends Controller
             return null;
         }
 
-        return (int)$value[$journalId];
+        return (int) $value[$journalId];
     }
 }

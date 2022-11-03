@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Tablica nie zawiera klauzuli "where"',
+    'missing_update'                 => 'Tablica nie zawiera klauzuli "update"',
+    'invalid_where_key'              => 'JSON zawiera nieprawidłowy klucz dla klauzuli "where"',
+    'invalid_update_key'             => 'JSON zawiera nieprawidłowy klucz dla klauzuli "update"',
+    'invalid_query_data'             => 'W Twoim zapytaniu, w polu %s:%s są nieprawidłowe dane.',
+    'invalid_query_account_type'     => 'Twoje zapytanie zawiera konta różnego typu, co jest niedozwolone.',
+    'invalid_query_currency'         => 'Twoje zapytanie zawiera konta, które mają różne ustawienia walutowe, co jest niedozwolone.',
     'iban'                           => 'To nie jest prawidłowy IBAN.',
     'zero_or_more'                   => 'Wartość nie może być ujemna.',
     'date_or_time'                   => 'Wartość musi być prawidłową datą lub czasem (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute musi zostać zaakceptowany.',
     'bic'                            => 'To nie jest prawidłowy BIC.',
     'at_least_one_trigger'           => 'Reguła powinna mieć co najmniej jeden wyzwalacz.',
+    'at_least_one_active_trigger'    => 'Reguła powinna mieć co najmniej jeden aktywny wyzwalacz.',
     'at_least_one_action'            => 'Reguła powinna mieć co najmniej jedną akcję.',
+    'at_least_one_active_action'     => 'Reguła powinna mieć co najmniej jedną aktywną akcję.',
     'base64'                         => 'To nie są prawidłowe dane zakodowane w base64.',
     'model_id_invalid'               => 'Podane ID wygląda na nieprawidłowe dla tego modelu.',
     'less'                           => ':attribute musi być mniejszy od 10 000 000',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'Nazwa skarbonki musi być unikalna.',
     'unique_object_group'            => 'Nazwa grupy musi być unikalna',
     'starts_with'                    => 'Wartość musi zaczynać się od :values.',
-    'unique_webhook'                 => 'Masz już webhook z tymi wartościami.',
-    'unique_existing_webhook'        => 'Masz już inny webhook z tymi wartościami.',
+    'unique_webhook'                 => 'Masz już webhook z tą kombinacją adresu URL, wyzwalacza, odpowiedzi i doręczenia.',
+    'unique_existing_webhook'        => 'Masz już inny webhook z tą kombinacją adresu URL, wyzwalacza, odpowiedzi i doręczenia.',
     'same_account_type'              => 'Oba konta muszą być tego samego typu',
     'same_account_currency'          => 'Oba konta muszą mieć to samo ustawienie waluty',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
     'withdrawal_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
 
-    'generic_source_bad_data'  => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+    'generic_source_bad_data' => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
 
     'deposit_source_need_data' => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
     'deposit_source_bad_data'  => 'Nie można znaleźć poprawnego konta źródłowego podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
     'need_id_in_edit'           => 'Każdy podział musi posiadać transaction_journal_id (poprawny identyfikator lub 0).',
 
-    'ob_source_need_data' => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
-    'ob_dest_need_data'   => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
-    'ob_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+    'ob_source_need_data'           => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
+    'lc_source_need_data'           => 'Potrzebujemy poprawny identyfikator konta źródłowego, aby kontynuować.',
+    'ob_dest_need_data'             => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
+    'ob_dest_bad_data'              => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+    'reconciliation_either_account' => 'Aby przesłać uzgodnienie, musisz przesłać konto źródłowe lub docelowe. Nie oba te konto, ani nie żadnego konta.',
 
     'generic_invalid_source'      => 'Nie możesz użyć tego konta jako konta źródłowego.',
     'generic_invalid_destination' => 'Nie możesz użyć tego konta jako konta docelowego.',
+
+    'generic_no_source'      => 'Musisz przesłać dane konta źródłowego.',
+    'generic_no_destination' => 'Musisz przesłać dane konta docelowego.',
 
     'gte.numeric' => ':attribute musi być większy lub równy :value.',
     'gt.numeric'  => ':attribute musi być większy niż :value.',

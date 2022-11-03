@@ -39,6 +39,7 @@ use Log;
 class CategoryUpdateService
 {
     private $user;
+
     /**
      * Constructor.
      */
@@ -62,6 +63,7 @@ class CategoryUpdateService
      * @param array    $data
      *
      * @return Category
+     * @throws Exception
      */
     public function update(Category $category, array $data): Category
     {
@@ -136,6 +138,7 @@ class CategoryUpdateService
             ->where('rt_meta.value', $oldName)
             ->update(['rt_meta.value' => $newName]);
     }
+
     /**
      * @param Category $category
      * @param array    $data
@@ -167,8 +170,6 @@ class CategoryUpdateService
         }
         $dbNote->text = trim($note);
         $dbNote->save();
-
-        return;
     }
 
 }

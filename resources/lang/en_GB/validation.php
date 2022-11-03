@@ -23,11 +23,18 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'This is not a valid IBAN.',
     'zero_or_more'                   => 'The value cannot be negative.',
     'date_or_time'                   => 'The value must be a valid date or time value (ISO 8601).',
     'source_equals_destination'      => 'The source account equals the destination account.',
-    'unique_account_number_for_user' => 'It looks like this account number is already in use.',
+    'unique_account_number_for_user' => 'This account number seems to be already in use.',
     'unique_iban_for_user'           => 'It looks like this IBAN is already in use.',
     'deleted_user'                   => 'Due to security constraints, you cannot register using this email address.',
     'rule_trigger_value'             => 'This value is invalid for the selected trigger.',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => 'The :attribute must be accepted.',
     'bic'                            => 'This is not a valid BIC.',
     'at_least_one_trigger'           => 'Rule must have at least one trigger.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'Rule must have at least one action.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'This is not valid base64 encoded data.',
     'model_id_invalid'               => 'The given ID seems invalid for this model.',
     'less'                           => ':attribute must be less than 10,000,000',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'The name of the piggy bank must be unique.',
     'unique_object_group'            => 'The group name must be unique',
     'starts_with'                    => 'The value must start with :values.',
-    'unique_webhook'                 => 'You already have a webhook with these values.',
-    'unique_existing_webhook'        => 'You already have another webhook with these values.',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
     'same_account_type'              => 'Both accounts must be of the same account type',
     'same_account_currency'          => 'Both accounts must have the same currency setting',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
     'withdrawal_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
 
-    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
+    'generic_source_bad_data' => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => 'Need to get a valid source account ID and/or valid source account name to continue.',
     'deposit_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
     'need_id_in_edit'           => 'Each split must have transaction_journal_id (either valid ID or 0).',
 
-    'ob_source_need_data' => 'Need to get a valid source account ID and/or valid source account name to continue.',
-    'ob_dest_need_data'   => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
-    'ob_dest_bad_data'    => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
+    'ob_source_need_data'           => 'Need to get a valid source account ID and/or valid source account name to continue.',
+    'lc_source_need_data'           => 'Need to get a valid source account ID to continue.',
+    'ob_dest_need_data'             => 'Need to get a valid destination account ID and/or valid destination account name to continue.',
+    'ob_dest_bad_data'              => 'Could not find a valid destination account when searching for ID ":id" or name ":name".',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => 'You can\'t use this account as the source account.',
     'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => 'The :attribute must be greater than or equal to :value.',
     'gt.numeric'  => 'The :attribute must be greater than :value.',

@@ -18,7 +18,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** @noinspection PhpDynamicAsStaticMethodCallInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Auth;
@@ -28,13 +27,17 @@ use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Support\Http\Controllers\CreateStuff;
 use FireflyIII\User;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Log;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Class RegisterController
@@ -70,6 +73,7 @@ class RegisterController extends Controller
         if ('eloquent' !== $loginProvider || 'web' !== $authGuard) {
             throw new FireflyException('Using external identity provider. Cannot continue.');
         }
+
     }
 
     /**
@@ -77,44 +81,54 @@ class RegisterController extends Controller
      *
      * @param Request $request
      *
-     * @return Factory|RedirectResponse|Redirector|View
+     * @return Application|Redirector|RedirectResponse
+     * @throws FireflyException
+     * @throws ValidationException
      */
     public function register(Request $request)
     {
-        // is allowed to?
-        $allowRegistration = true;
-        $loginProvider     = config('firefly.login_provider');
-        $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
-        $userCount         = User::count();
-        if (true === $singleUserMode && $userCount > 0 && 'eloquent' === $loginProvider) {
-            $allowRegistration = false;
-        }
-
-        if ('eloquent' !== $loginProvider) {
-            $allowRegistration = false;
-        }
+        $allowRegistration = $this->allowedToRegister();
 
         if (false === $allowRegistration) {
-            $message = 'Registration is currently not available.';
-
-            return prefixView('error', compact('message'));
+            throw new FireflyException('Registration is currently not available :(');
         }
 
         $this->validator($request->all())->validate();
         $user = $this->createUser($request->all());
         Log::info(sprintf('Registered new user %s', $user->email));
-        event(new RegisteredUser($user, $request->ip()));
+        event(new RegisteredUser($user));
 
         $this->guard()->login($user);
 
-        session()->flash('success', (string)trans('firefly.registered'));
+        session()->flash('success', (string) trans('firefly.registered'));
 
         $this->registered($request, $user);
 
-        // telemetry
-        app('telemetry')->feature('system.users.count', (string)User::count());
-
         return redirect($this->redirectPath());
+    }
+
+    /**
+     * @return bool
+     * @throws FireflyException
+     */
+    protected function allowedToRegister(): bool
+    {
+        // is allowed to register?
+        $allowRegistration = true;
+        try {
+            $singleUserMode = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
+        } catch (ContainerExceptionInterface|NotFoundExceptionInterface $e) {
+            $singleUserMode = true;
+        }
+        $userCount = User::count();
+        $guard     = config('auth.defaults.guard');
+        if (true === $singleUserMode && $userCount > 0 && 'web' === $guard) {
+            $allowRegistration = false;
+        }
+        if ('web' !== $guard) {
+            $allowRegistration = false;
+        }
+        return $allowRegistration;
     }
 
     /**
@@ -123,37 +137,24 @@ class RegisterController extends Controller
      * @param Request $request
      *
      * @return Factory|View
+     * @throws ContainerExceptionInterface
+     * @throws FireflyException
+     * @throws NotFoundExceptionInterface
      */
     public function showRegistrationForm(Request $request)
     {
-        $allowRegistration = true;
-        $loginProvider     = config('firefly.login_provider');
         $isDemoSite        = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
-        $singleUserMode    = app('fireflyconfig')->get('single_user_mode', config('firefly.configuration.single_user_mode'))->data;
-        $userCount         = User::count();
-        $pageTitle         = (string)trans('firefly.register_page_title');
-
-        if (true === $isDemoSite) {
-            $allowRegistration = false;
-        }
-
-        if (true === $singleUserMode && $userCount > 0 && 'eloquent' === $loginProvider) {
-            $allowRegistration = false;
-        }
-
-        if ('eloquent' !== $loginProvider) {
-            $allowRegistration = false;
-        }
+        $pageTitle         = (string) trans('firefly.register_page_title');
+        $allowRegistration = $this->allowedToRegister();
 
         if (false === $allowRegistration) {
             $message = 'Registration is currently not available.';
 
-            return prefixView('error', compact('message'));
+            return view('error', compact('message'));
         }
 
         $email = $request->old('email');
 
-        return prefixView('auth.register', compact('isDemoSite', 'email', 'pageTitle'));
+        return view('auth.register', compact('isDemoSite', 'email', 'pageTitle'));
     }
-
 }

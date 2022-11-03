@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers;
 
 use EM\Hub\Models\HubCountryInterface;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\Preference;
@@ -51,7 +52,7 @@ class PreferencesController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.preferences'));
+                app('view')->share('title', (string) trans('firefly.preferences'));
                 app('view')->share('mainTitleIcon', 'fa-gear');
 
                 return $next($request);
@@ -65,6 +66,9 @@ class PreferencesController extends Controller
      * @param AccountRepositoryInterface $repository
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function index(AccountRepositoryInterface $repository)
     {
@@ -113,14 +117,14 @@ class PreferencesController extends Controller
             Log::error($e->getMessage());
             $locales = [];
         }
-        $locales = ['equal' => (string)trans('firefly.equal_to_language')] + $locales;
+        $locales = ['equal' => (string) trans('firefly.equal_to_language')] + $locales;
         // an important fallback is that the frontPageAccount array gets refilled automatically
         // when it turns up empty.
-        if (0 === count($frontPageAccounts->data)) {
+        if (empty($frontPageAccounts->data)) {
             $frontPageAccounts = $accountIds;
         }
 
-        return prefixView(
+        return view(
             'preferences.index',
             compact(
                 'language',
@@ -145,7 +149,9 @@ class PreferencesController extends Controller
      * @param Request $request
      *
      * @return RedirectResponse|Redirector
-     *
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function postIndex(Request $request)
     {
@@ -153,7 +159,7 @@ class PreferencesController extends Controller
         $frontPageAccounts = [];
         if (is_array($request->get('frontPageAccounts')) && count($request->get('frontPageAccounts')) > 0) {
             foreach ($request->get('frontPageAccounts') as $id) {
-                $frontPageAccounts[] = (int)$id;
+                $frontPageAccounts[] = (int) $id;
             }
             app('preferences')->set('frontPageAccounts', $frontPageAccounts);
         }
@@ -166,14 +172,18 @@ class PreferencesController extends Controller
         session()->forget('range');
 
         // custom fiscal year
-        $customFiscalYear = 1 === (int)$request->get('customFiscalYear');
-        $fiscalYearStart  = date('m-d', strtotime((string)$request->get('fiscalYearStart')));
-        app('preferences')->set('customFiscalYear', $customFiscalYear);
-        app('preferences')->set('fiscalYearStart', $fiscalYearStart);
+        $customFiscalYear = 1 === (int) $request->get('customFiscalYear');
+        $string           = strtotime((string) $request->get('fiscalYearStart'));
+        if (false !== $string) {
+            $fiscalYearStart = date('m-d', $string);
+            app('preferences')->set('customFiscalYear', $customFiscalYear);
+            app('preferences')->set('fiscalYearStart', $fiscalYearStart);
+        }
+
 
         // save page size:
         app('preferences')->set('listPageSize', 50);
-        $listPageSize = (int)$request->get('listPageSize');
+        $listPageSize = (int) $request->get('listPageSize');
         if ($listPageSize > 0 && $listPageSize < 1337) {
             app('preferences')->set('listPageSize', $listPageSize);
         }
@@ -219,19 +229,14 @@ class PreferencesController extends Controller
             'internal_reference' => array_key_exists('internal_reference', $setOptions),
             'notes'              => array_key_exists('notes', $setOptions),
             'attachments'        => array_key_exists('attachments', $setOptions),
-            'external_uri'       => array_key_exists('external_uri', $setOptions),
+            'external_url'       => array_key_exists('external_url', $setOptions),
             'location'           => array_key_exists('location', $setOptions),
             'links'              => array_key_exists('links', $setOptions),
         ];
         app('preferences')->set('transaction_journal_optional_fields', $optionalTj);
 
-        session()->flash('success', (string)trans('firefly.saved_preferences'));
+        session()->flash('success', (string) trans('firefly.saved_preferences'));
         app('preferences')->mark();
-
-        // telemetry: user language preference + default language.
-        app('telemetry')->feature('config.firefly.default_language', config('firefly.default_language', 'en_US'));
-        app('telemetry')->feature('user.preferences.language', app('steam')->getLanguage());
-        app('telemetry')->feature('user.preferences.locale', app('steam')->getLocale());
 
         return redirect(route('preferences.index'));
     }

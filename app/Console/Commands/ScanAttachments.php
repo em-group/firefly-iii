@@ -19,8 +19,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-/** @noinspection PhpDynamicAsStaticMethodCallInspection */
-
 declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands;
@@ -29,7 +27,6 @@ use Crypt;
 use FireflyIII\Models\Attachment;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Log;
 use Storage;
 
@@ -63,11 +60,10 @@ class ScanAttachments extends Command
         $disk        = Storage::disk('upload');
         /** @var Attachment $attachment */
         foreach ($attachments as $attachment) {
-            $fileName = $attachment->fileName();
-            try {
-                $encryptedContent = $disk->get($fileName);
-            } catch (FileNotFoundException $e) {
-                $this->error(sprintf('Could not find data for attachment #%d: %s', $attachment->id, $e->getMessage()));
+            $fileName         = $attachment->fileName();
+            $encryptedContent = $disk->get($fileName);
+            if (null === $encryptedContent) {
+                Log::error(sprintf('No content for attachment #%d under filename "%s"', $attachment->id, $fileName));
                 continue;
             }
             try {
@@ -85,8 +81,6 @@ class ScanAttachments extends Command
             $attachment->save();
             $this->line(sprintf('Fixed attachment #%d', $attachment->id));
         }
-
-        app('telemetry')->feature('system.command.executed', $this->signature);
 
         return 0;
     }

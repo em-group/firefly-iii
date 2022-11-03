@@ -1,8 +1,8 @@
 <?php
-declare(strict_types=1);
+
 /*
- * WebhookMessageGenerator.php
- * Copyright (c) 2020 james@firefly-iii.org
+ * StandardMessageGenerator.php
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -19,6 +19,8 @@ declare(strict_types=1);
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Generator\Webhook;
 
@@ -65,38 +67,6 @@ class StandardMessageGenerator implements MessageGeneratorInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getVersion(): int
-    {
-        return $this->version;
-    }
-
-    /**
-     * @param Collection $objects
-     */
-    public function setObjects(Collection $objects): void
-    {
-        $this->objects = $objects;
-    }
-
-    /**
-     * @param int $trigger
-     */
-    public function setTrigger(int $trigger): void
-    {
-        $this->trigger = $trigger;
-    }
-
-    /**
-     * @param User $user
-     */
-    public function setUser(User $user): void
-    {
-        $this->user = $user;
-    }
-
-    /**
      * @return Collection
      */
     private function getWebhooks(): Collection
@@ -132,6 +102,8 @@ class StandardMessageGenerator implements MessageGeneratorInterface
     /**
      * @param Webhook $webhook
      * @param Model   $model
+     * @throws FireflyException
+     * @throws \JsonException
      */
     private function generateMessage(Webhook $webhook, Model $model): void
     {
@@ -196,6 +168,14 @@ class StandardMessageGenerator implements MessageGeneratorInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
      * @param TransactionGroup $transactionGroup
      *
      * @return Collection
@@ -218,9 +198,9 @@ class StandardMessageGenerator implements MessageGeneratorInterface
      * @param Webhook $webhook
      * @param array   $message
      *
-     * @return WebhookMessage
+     * @return void
      */
-    private function storeMessage(Webhook $webhook, array $message): WebhookMessage
+    private function storeMessage(Webhook $webhook, array $message): void
     {
         $webhookMessage = new WebhookMessage;
         $webhookMessage->webhook()->associate($webhook);
@@ -231,6 +211,29 @@ class StandardMessageGenerator implements MessageGeneratorInterface
         $webhookMessage->save();
         Log::debug(sprintf('Stored new webhook message #%d', $webhookMessage->id));
 
-        return $webhookMessage;
+    }
+
+    /**
+     * @param Collection $objects
+     */
+    public function setObjects(Collection $objects): void
+    {
+        $this->objects = $objects;
+    }
+
+    /**
+     * @param int $trigger
+     */
+    public function setTrigger(int $trigger): void
+    {
+        $this->trigger = $trigger;
+    }
+
+    /**
+     * @param User $user
+     */
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
     }
 }

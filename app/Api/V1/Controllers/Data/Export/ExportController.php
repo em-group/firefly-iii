@@ -1,7 +1,7 @@
 <?php
-declare(strict_types=1);
+
 /*
- * AccountController.php
+ * ExportController.php
  * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -20,13 +20,15 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Api\V1\Controllers\Data\Export;
 
 use FireflyIII\Api\V1\Controllers\Controller;
 use FireflyIII\Api\V1\Requests\Data\Export\ExportRequest;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Support\Export\ExportDataGenerator;
 use Illuminate\Http\Response as LaravelResponse;
-use League\Csv\CannotInsertRecord;
 
 /**
  * Class ExportController
@@ -52,10 +54,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportAccounts
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function accounts(ExportRequest $request): LaravelResponse
     {
@@ -69,7 +74,7 @@ class ExportController extends Controller
      * @param string $key
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     private function returnExport(string $key): LaravelResponse
     {
@@ -88,16 +93,19 @@ class ExportController extends Controller
             ->header('Expires', '0')
             ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
             ->header('Pragma', 'public')
-            ->header('Content-Length', (string)strlen($data[$key]));
+            ->header('Content-Length', (string) strlen($data[$key]));
 
         return $response;
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportBills
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function bills(ExportRequest $request): LaravelResponse
     {
@@ -107,10 +115,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportBudgets
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function budgets(ExportRequest $request): LaravelResponse
     {
@@ -120,10 +131,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportCategories
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function categories(ExportRequest $request): LaravelResponse
     {
@@ -133,10 +147,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportPiggies
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function piggyBanks(ExportRequest $request): LaravelResponse
     {
@@ -146,10 +163,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportRecurring
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function recurring(ExportRequest $request): LaravelResponse
     {
@@ -159,10 +179,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportRules
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function rules(ExportRequest $request): LaravelResponse
     {
@@ -172,10 +195,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportTags
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function tags(ExportRequest $request): LaravelResponse
     {
@@ -185,10 +211,13 @@ class ExportController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/data/exportTransactions
+     *
      * @param ExportRequest $request
      *
      * @return LaravelResponse
-     * @throws CannotInsertRecord
+     * @throws FireflyException
      */
     public function transactions(ExportRequest $request): LaravelResponse
     {

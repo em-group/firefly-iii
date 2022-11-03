@@ -31,8 +31,6 @@ use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
-use Illuminate\Support\Str;
-use Illuminate\Support\ViewErrorBag;
 use Log;
 
 /**
@@ -45,28 +43,21 @@ trait UserNavigation
     /**
      * Functionality:.
      *
-     * - If the $identifier contains the word "delete" then a remembered uri with the text "/show/" in it will not be returned but instead the index (/)
+     * - If the $identifier contains the word "delete" then a remembered url with the text "/show/" in it will not be returned but instead the index (/)
      *   will be returned.
-     * - If the remembered uri contains "jscript/" the remembered uri will not be returned but instead the index (/) will be returned.
+     * - If the remembered url contains "jscript/" the remembered url will not be returned but instead the index (/) will be returned.
      *
      * @param string $identifier
      *
      * @return string
      */
-    final protected function getPreviousUri(string $identifier): string
+    final protected function getPreviousUrl(string $identifier): string
     {
         Log::debug(sprintf('Trying to retrieve URL stored under "%s"', $identifier));
-        $uri = (string)session($identifier);
-        Log::debug(sprintf('The URI is %s', $uri));
+        $url = (string) session($identifier);
+        Log::debug(sprintf('The URL is %s', $url));
 
-        if (false !== strpos($uri, 'jscript')) {
-            $uri = $this->redirectUri; 
-            Log::debug(sprintf('URI is now %s (uri contains jscript)', $uri));
-        }
-
-        Log::debug(sprintf('Return direct link %s', $uri));
-
-        return $uri;
+        return app('steam')->getSafeUrl($url, route('index'));
     }
 
     /**
@@ -110,7 +101,7 @@ trait UserNavigation
     final protected function redirectAccountToAccount(Account $account)
     {
         $type = $account->accountType->type;
-        if (AccountType::RECONCILIATION === $type || AccountType::INITIAL_BALANCE === $type) {
+        if (AccountType::RECONCILIATION === $type || AccountType::INITIAL_BALANCE === $type || AccountType::LIABILITY_CREDIT === $type) {
             // reconciliation must be stored somewhere in this account's transactions.
 
             /** @var Transaction|null $transaction */
@@ -170,16 +161,12 @@ trait UserNavigation
      *
      * @return string|null
      */
-    final protected function rememberPreviousUri(string $identifier): ?string
+    final protected function rememberPreviousUrl(string $identifier): ?string
     {
-        $return = app('url')->previous();
-        /** @var ViewErrorBag|null $errors */
-        $errors    = session()->get('errors');
-        $forbidden = ['json', 'debug'];
-        if ((null === $errors || (0 === $errors->count())) && !Str::contains($return, $forbidden)) {
-            Log::debug(sprintf('Saving URL %s under key %s', $return, $identifier));
-            session()->put($identifier, $return);
-        }
+        $return = app('steam')->getSafePreviousUrl();
+        session()->put($identifier, $return);
+
+        Log::debug(sprintf('rememberPreviousUrl: %s: "%s"', $identifier, $return));
 
         return $return;
     }

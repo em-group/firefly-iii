@@ -18,12 +18,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-/** @noinspection PhpUndefinedClassInspection */
 declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Admin;
 
 use FireflyIII\Helpers\Update\UpdateTrait;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Http\Middleware\IsDemoUser;
 use FireflyIII\Http\Requests\ConfigurationRequest;
@@ -54,7 +54,7 @@ class ConfigurationController extends Controller
 
         $this->middleware(
             static function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.administration'));
+                app('view')->share('title', (string) trans('firefly.administration'));
                 app('view')->share('mainTitleIcon', 'fa-hand-spock-o');
 
                 return $next($request);
@@ -67,10 +67,13 @@ class ConfigurationController extends Controller
      * Show configuration index.
      *
      * @return Factory|View
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function index()
     {
-        $subTitle     = (string)trans('firefly.instance_configuration');
+        $subTitle     = (string) trans('firefly.instance_configuration');
         $subTitleIcon = 'fa-wrench';
 
         Log::channel('audit')->info('User visits admin config index.');
@@ -83,7 +86,7 @@ class ConfigurationController extends Controller
         $isDemoSite     = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site'))->data;
         $siteOwner      = config('firefly.site_owner');
 
-        return prefixView(
+        return view(
             'admin.configuration.index',
             compact('subTitle', 'subTitleIcon', 'singleUserMode', 'isDemoSite', 'siteOwner', 'latestReleaseVersion')
         );
@@ -108,7 +111,7 @@ class ConfigurationController extends Controller
         app('fireflyconfig')->set('is_demo_site', $data['is_demo_site']);
 
         // flash message
-        session()->flash('success', (string)trans('firefly.configuration_updated'));
+        session()->flash('success', (string) trans('firefly.configuration_updated'));
         app('preferences')->mark();
 
         return redirect()->route('admin.configuration.index');

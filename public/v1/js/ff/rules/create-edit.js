@@ -119,8 +119,8 @@ function addNewAction() {
  */
 function removeTrigger(e) {
     "use strict";
-    var target = $(e.target);
-    if (target.prop("tagName") === "I") {
+    var target = $(e.currentTarget);
+    if (target.prop("tagName") === "SPAN") {
         target = target.parent();
     }
     // remove grand parent:
@@ -141,7 +141,7 @@ function removeTrigger(e) {
 function removeAction(e) {
     "use strict";
     var target = $(e.target);
-    if (target.prop("tagName") === "I") {
+    if (target.prop("tagName") === "SPAN") {
         target = target.parent();
     }
     // remove grand parent:
@@ -348,6 +348,8 @@ function updateTriggerInput(selectList) {
         case 'source_is_cash':
         case 'destination_is_cash':
         case 'account_is_cash':
+        case 'no_external_url':
+        case 'any_external_url':
             console.log('Select list value is ' + selectList.val() + ', so input needs to be disabled.');
             inputResult.prop('disabled', true);
             inputResult.typeahead('destroy');
@@ -374,14 +376,14 @@ function updateTriggerInput(selectList) {
 /**
  * Create actual autocomplete
  * @param input
- * @param URI
+ * @param URL
  */
-function createAutoComplete(input, URI) {
-    console.log('Now in createAutoComplete("' + URI + '").');
+function createAutoComplete(input, URL) {
+    console.log('Now in createAutoComplete("' + URL + '").');
     input.typeahead('destroy');
 
-    // append URI:
-    var lastChar = URI[URI.length -1];
+    // append URL:
+    var lastChar = URL[URL.length -1];
     var urlParamSplit = '?';
     if('&' === lastChar) {
         urlParamSplit = '';
@@ -390,7 +392,7 @@ function createAutoComplete(input, URI) {
                                     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
                                     queryTokenizer: Bloodhound.tokenizers.whitespace,
                                     prefetch: {
-                                        url: URI + urlParamSplit + 'uid=' + uid,
+                                        url: URL + urlParamSplit + 'uid=' + uid,
                                         filter: function (list) {
                                             return $.map(list, function (item) {
                                                 return {name: item.name};
@@ -398,7 +400,7 @@ function createAutoComplete(input, URI) {
                                         }
                                     },
                                     remote: {
-                                        url: URI + urlParamSplit + 'query=%QUERY&uid=' + uid,
+                                        url: URL + urlParamSplit + 'query=%QUERY&uid=' + uid,
                                         wildcard: '%QUERY',
                                         filter: function (list) {
                                             return $.map(list, function (item) {
@@ -418,7 +420,7 @@ function testRuleTriggers() {
     var button = $('.test_rule_triggers');
 
     // replace with spinner. fa-spin fa-spinner
-    button.html('<i class="fa fa-spin fa-spinner"></i> ' + testRuleTriggersText);
+    button.html('<span class="fa fa-spin fa-spinner"></span> ' + testRuleTriggersText);
     button.attr('disabled', 'disabled');
 
     // Serialize all trigger data
@@ -442,7 +444,7 @@ function testRuleTriggers() {
             modal.find(".transaction-warning").hide();
         }
         button.removeAttr('disabled');
-        button.html('<i class="fa fa-flask"></i> ' + testRuleTriggersText);
+        button.html('<span class="fa fa-flask"></span> ' + testRuleTriggersText);
         // Show the modal dialog
         modal.modal();
     }).fail(function () {

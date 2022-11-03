@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace FireflyIII\Api\V1\Controllers\Search;
 
 use FireflyIII\Api\V1\Controllers\Controller;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Support\Search\SearchInterface;
 use FireflyIII\Transformers\TransactionGroupTransformer;
 use Illuminate\Http\JsonResponse;
@@ -38,18 +39,22 @@ use League\Fractal\Resource\Collection;
 class TransactionController extends Controller
 {
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/search/searchTransactions
+     *
      * @param Request         $request
      * @param SearchInterface $searcher
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function search(Request $request, SearchInterface $searcher): JsonResponse
     {
         $manager   = $this->getManager();
-        $fullQuery = (string)$request->get('query');
-        $page      = 0 === (int)$request->get('page') ? 1 : (int)$request->get('page');
-        $pageSize  = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
-        $pageSize  = 0 === (int)$request->get('limit') ? $pageSize : (int)$request->get('limit');
+        $fullQuery = (string) $request->get('query');
+        $page      = 0 === (int) $request->get('page') ? 1 : (int) $request->get('page');
+        $pageSize  = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize  = 0 === (int) $request->get('limit') ? $pageSize : (int) $request->get('limit');
         $searcher->parseQuery($fullQuery);
         $searcher->setPage($page);
         $searcher->setLimit($pageSize);

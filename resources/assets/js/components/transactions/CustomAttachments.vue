@@ -27,7 +27,7 @@
     </div>
     <div class="col-sm-12">
       <div class="input-group">
-        <input ref="input"
+        <input ref="input" spellcheck="false"
                :name="name"
                :placeholder="title"
                :title="title"
@@ -56,9 +56,9 @@ export default {
     error: Array
   },
   mounted: function () {
-    window.addEventListener('paste', e => {
-      this.$refs.input.files = e.clipboardData.files;
-    });
+    // window.addEventListener('paste', e => {
+    //   this.$refs.input.files = e.clipboardData.files;
+    // });
   },
   methods: {
     clearAtt: function () {

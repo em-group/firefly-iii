@@ -48,7 +48,6 @@ use Log;
  * Class to centralise code that updates a journal given the input by system.
  *
  * Class JournalUpdateService
- * TODO test me
  */
 class JournalUpdateService
 {
@@ -85,7 +84,7 @@ class JournalUpdateService
         $this->currencyRepository     = app(CurrencyRepositoryInterface::class);
         $this->metaString             = ['sepa_cc', 'sepa_ct_op', 'sepa_ct_id', 'sepa_db', 'sepa_country', 'sepa_ep', 'sepa_ci', 'sepa_batch_id',
                                          'recurrence_id',
-                                         'internal_reference', 'bunq_payment_id', 'external_id', 'external_uri'];
+                                         'internal_reference', 'bunq_payment_id', 'external_id', 'external_url'];
         $this->metaDate               = ['interest_date', 'book_date', 'process_date', 'due_date', 'payment_date', 'invoice_date',];
     }
 
@@ -127,7 +126,13 @@ class JournalUpdateService
      */
     public function update(): void
     {
+        Log::debug(sprintf('Now in %s', __METHOD__));
         Log::debug(sprintf('Now in JournalUpdateService for journal #%d.', $this->transactionJournal->id));
+
+        if ($this->removeReconciliation()) {
+            $this->data['reconciled'] = false;
+        }
+
         // can we update account data using the new type?
         if ($this->hasValidAccounts()) {
             Log::info('Account info is valid, now update.');
@@ -158,11 +163,24 @@ class JournalUpdateService
         $this->updateAmount();
         $this->updateForeignAmount();
 
-        // TODO update hash
-
         app('preferences')->mark();
 
         $this->transactionJournal->refresh();
+    }
+
+    /**
+     * @return bool
+     */
+    private function removeReconciliation(): bool
+    {
+        if (count($this->data) > 1) {
+            return true;
+        }
+        if (1 === count($this->data) && true === array_key_exists('transaction_journal_id', $this->data)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -198,10 +216,10 @@ class JournalUpdateService
         $validator->setTransactionType($expectedType);
         $validator->setUser($this->transactionJournal->user);
 
-        $result = $validator->validateSource($sourceId, $sourceName, null);
+        $result = $validator->validateSource(['id' => $sourceId]);
         Log::debug(sprintf('hasValidSourceAccount(%d, "%s") will return %s', $sourceId, $sourceName, var_export($result, true)));
 
-        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+        // See reference nr. 95
 
         // validate submitted info:
         return $result;
@@ -292,10 +310,10 @@ class JournalUpdateService
         $validator->setTransactionType($expectedType);
         $validator->setUser($this->transactionJournal->user);
         $validator->source = $this->getValidSourceAccount();
-        $result            = $validator->validateDestination($destId, $destName, null);
+        $result            = $validator->validateDestination(['id' => $destId]);
         Log::debug(sprintf('hasValidDestinationAccount(%d, "%s") will return %s', $destId, $destName, var_export($result, true)));
 
-        // TODO typeOverrule: the account validator may have another opinion on the transaction type.
+        // See reference nr. 96
 
         // validate submitted info:
         return $result;
@@ -342,7 +360,7 @@ class JournalUpdateService
         }
 
         $sourceInfo = [
-            'id'     => (int)($this->data['source_id'] ?? null),
+            'id'     => (int) ($this->data['source_id'] ?? null),
             'name'   => $this->data['source_name'] ?? null,
             'iban'   => $this->data['source_iban'] ?? null,
             'number' => $this->data['source_number'] ?? null,
@@ -407,7 +425,7 @@ class JournalUpdateService
         }
 
         $destInfo = [
-            'id'     => (int)($this->data['destination_id'] ?? null),
+            'id'     => (int) ($this->data['destination_id'] ?? null),
             'name'   => $this->data['destination_name'] ?? null,
             'iban'   => $this->data['destination_iban'] ?? null,
             'number' => $this->data['destination_number'] ?? null,
@@ -470,10 +488,10 @@ class JournalUpdateService
             )
             && TransactionType::WITHDRAWAL === $type
         ) {
-            $billId                            = (int)($this->data['bill_id'] ?? 0);
-            $billName                          = (string)($this->data['bill_name'] ?? '');
+            $billId                            = (int) ($this->data['bill_id'] ?? 0);
+            $billName                          = (string) ($this->data['bill_name'] ?? '');
             $bill                              = $this->billRepository->findBill($billId, $billName);
-            $this->transactionJournal->bill_id = null === $bill ? null : $bill->id;
+            $this->transactionJournal->bill_id = $bill?->id;
             Log::debug('Updated bill ID');
         }
     }
@@ -485,7 +503,7 @@ class JournalUpdateService
      */
     private function updateField(string $fieldName): void
     {
-        if (array_key_exists($fieldName, $this->data) && '' !== (string)$this->data[$fieldName]) {
+        if (array_key_exists($fieldName, $this->data) && '' !== (string) $this->data[$fieldName]) {
             $value = $this->data[$fieldName];
 
             if ('date' === $fieldName) {
@@ -562,7 +580,7 @@ class JournalUpdateService
     {
         // update notes.
         if ($this->hasFields(['notes'])) {
-            $notes = '' === (string)$this->data['notes'] ? null : $this->data['notes'];
+            $notes = '' === (string) $this->data['notes'] ? null : $this->data['notes'];
             $this->storeNotes($this->transactionJournal, $notes);
         }
     }
@@ -619,7 +637,7 @@ class JournalUpdateService
         foreach ($this->metaDate as $field) {
             if ($this->hasFields([$field])) {
                 try {
-                    $value = '' === (string)$this->data[$field] ? null : new Carbon($this->data[$field]);
+                    $value = '' === (string) $this->data[$field] ? null : new Carbon($this->data[$field]);
                 } catch (Exception $e) { // @phpstan-ignore-line
                     Log::debug(sprintf('%s is not a valid date value: %s', $this->data[$field], $e->getMessage()));
 
@@ -673,11 +691,13 @@ class JournalUpdateService
      */
     private function updateAmount(): void
     {
+        Log::debug(sprintf('Now in %s', __METHOD__));
         if (!$this->hasFields(['amount'])) {
             return;
         }
 
         $value = $this->data['amount'] ?? '';
+        Log::debug(sprintf('Amount is now "%s"', $value));
         try {
             $amount = $this->getAmount($value);
         } catch (FireflyException $e) {

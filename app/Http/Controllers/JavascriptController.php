@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Http\Controllers;
 
 use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Models\TransactionCurrency;
@@ -46,6 +47,9 @@ class JavascriptController extends Controller
      * @param CurrencyRepositoryInterface $currencyRepository
      *
      * @return Response
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function accounts(AccountRepositoryInterface $repository, CurrencyRepositoryInterface $currencyRepository): Response
     {
@@ -69,7 +73,7 @@ class JavascriptController extends Controller
         }
 
         return response()
-            ->view('v1.javascript.accounts', $data)
+            ->view('javascript.accounts', $data)
             ->header('Content-Type', 'text/javascript');
     }
 
@@ -92,31 +96,7 @@ class JavascriptController extends Controller
         }
 
         return response()
-            ->view('v1.javascript.currencies', $data)
-            ->header('Content-Type', 'text/javascript');
-    }
-
-    /**
-     * Bit of a hack but OK.
-     *
-     * @param Request $request
-     *
-     * @return Response
-     */
-    public function variablesV2(Request $request): Response
-    {
-        /** @var Carbon $start */
-        $start = clone session('start', Carbon::now()->startOfMonth());
-        /** @var Carbon $end */
-        $end = clone session('end', Carbon::now()->endOfMonth());
-
-        $data = [
-            'start' => $start->format('Y-m-d'),
-            'end'   => $end->format('Y-m-d'),
-        ];
-
-        return response()
-            ->view('v2.javascript.variables', $data)
+            ->view('javascript.currencies', $data)
             ->header('Content-Type', 'text/javascript');
     }
 
@@ -128,12 +108,16 @@ class JavascriptController extends Controller
      * @param CurrencyRepositoryInterface $currencyRepository
      *
      * @return Response
+     * @throws FireflyException
+     * @throws \JsonException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function variables(Request $request, AccountRepositoryInterface $repository, CurrencyRepositoryInterface $currencyRepository): Response
     {
-        $account    = $repository->findNull((int) $request->get('account'));
+        $account  = $repository->find((int) $request->get('account'));
         $currency = app('amount')->getDefaultCurrency();
-        if(null !== $account) {
+        if (null !== $account) {
             $currency = $repository->getAccountCurrency($account) ?? $currency;
         }
         $locale                    = app('steam')->getLocale();
@@ -158,7 +142,31 @@ class JavascriptController extends Controller
         $request->session()->keep(['two-factor-secret']);
 
         return response()
-            ->view('v1.javascript.variables', $data)
+            ->view('javascript.variables', $data)
+            ->header('Content-Type', 'text/javascript');
+    }
+
+    /**
+     * Bit of a hack but OK.
+     *
+     * @param Request $request
+     *
+     * @return Response
+     */
+    public function variablesV2(Request $request): Response
+    {
+        /** @var Carbon $start */
+        $start = clone session('start', Carbon::now()->startOfMonth());
+        /** @var Carbon $end */
+        $end = clone session('end', Carbon::now()->endOfMonth());
+
+        $data = [
+            'start' => $start->format('Y-m-d'),
+            'end'   => $end->format('Y-m-d'),
+        ];
+
+        return response()
+            ->view('v2.javascript.variables', $data)
             ->header('Content-Type', 'text/javascript');
     }
 

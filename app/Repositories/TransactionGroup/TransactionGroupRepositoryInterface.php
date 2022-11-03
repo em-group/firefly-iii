@@ -37,6 +37,13 @@ use Illuminate\Support\Collection;
 interface TransactionGroupRepositoryInterface
 {
     /**
+     * @param int $journalId
+     *
+     * @return int
+     */
+    public function countAttachments(int $journalId): int;
+
+    /**
      * @param TransactionGroup $group
      */
     public function destroy(TransactionGroup $group): void;

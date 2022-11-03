@@ -24,10 +24,9 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers\Bill;
 
-use Carbon\Carbon;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Models\Bill;
-use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Repositories\ObjectGroup\OrganisesObjectGroups;
 use FireflyIII\Transformers\BillTransformer;
@@ -56,7 +55,7 @@ class IndexController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.bills'));
+                app('view')->share('title', (string) trans('firefly.bills'));
                 app('view')->share('mainTitleIcon', 'fa-calendar-o');
                 $this->repository = app(BillRepositoryInterface::class);
 
@@ -93,32 +92,32 @@ class IndexController extends Controller
         $bills = [
             0 => [ // the index is the order, not the ID.
                    'object_group_id'    => 0,
-                   'object_group_title' => (string)trans('firefly.default_group_title_name'),
+                   'object_group_title' => (string) trans('firefly.default_group_title_name'),
                    'bills'              => [],
             ],
         ];
         /** @var Bill $bill */
         foreach ($collection as $bill) {
             $array      = $transformer->transform($bill);
-            $groupOrder = (int)$array['object_group_order'];
+            $groupOrder = (int) $array['object_group_order'];
             // make group array if necessary:
             $bills[$groupOrder] = $bills[$groupOrder] ?? [
                     'object_group_id'    => $array['object_group_id'],
                     'object_group_title' => $array['object_group_title'],
                     'bills'              => [],
                 ];
-
-            // expected today? default:
-            $array['next_expected_match_diff'] = trans('firefly.not_expected_period');
-            $nextExpectedMatch                 = new Carbon($array['next_expected_match']);
-            if ($nextExpectedMatch->isToday()) {
-                $array['next_expected_match_diff'] = trans('firefly.today');
-            }
-            $current = $array['pay_dates'][0] ?? null;
-            if (null !== $current && !$nextExpectedMatch->isToday()) {
-                $currentExpectedMatch              = Carbon::createFromFormat(Carbon::ATOM, $current);
-                $array['next_expected_match_diff'] = $currentExpectedMatch->diffForHumans(today(), Carbon::DIFF_RELATIVE_TO_NOW);
-            }
+            //            var_dump($array);exit;
+            //            // expected today? default:
+            //            $array['next_expected_match_diff'] = trans('firefly.not_expected_period');
+            //            $nextExpectedMatch                 = new Carbon($array['next_expected_match']);
+            //            if ($nextExpectedMatch->isToday()) {
+            //                $array['next_expected_match_diff'] = trans('firefly.today');
+            //            }
+            //            $current = $array['pay_dates'][0] ?? null;
+            //            if (null !== $current && !$nextExpectedMatch->isToday()) {
+            //                $currentExpectedMatch              = Carbon::createFromFormat('Y-m-d\TH:i:sP', $current);
+            //                $array['next_expected_match_diff'] = $currentExpectedMatch->diffForHumans(today(), Carbon::DIFF_RELATIVE_TO_NOW);
+            //            }
 
             $currency                         = $bill->transactionCurrency ?? $defaultCurrency;
             $array['currency_id']             = $currency->id;
@@ -137,14 +136,18 @@ class IndexController extends Controller
         // summarise per currency / per group.
         $sums   = $this->getSums($bills);
         $totals = $this->getTotals($sums);
+        $today  = now()->startOfDay();
 
-        return prefixView('bills.index', compact('bills', 'sums', 'total', 'totals'));
+        return view('bills.index', compact('bills', 'sums', 'total', 'totals', 'today'));
     }
 
     /**
      * @param array $bills
      *
      * @return array
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function getSums(array $bills): array
     {
@@ -172,8 +175,8 @@ class IndexController extends Controller
                     ];
                 // only fill in avg when bill is active.
                 if (count($bill['pay_dates']) > 0) {
-                    $avg                                   = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
-                    $avg                                   = bcmul($avg, (string)count($bill['pay_dates']));
+                    $avg                                   = bcdiv(bcadd((string) $bill['amount_min'], (string) $bill['amount_max']), '2');
+                    $avg                                   = bcmul($avg, (string) count($bill['pay_dates']));
                     $sums[$groupOrder][$currencyId]['avg'] = bcadd($sums[$groupOrder][$currencyId]['avg'], $avg);
                 }
                 // fill in per period regardless:
@@ -192,10 +195,10 @@ class IndexController extends Controller
      */
     private function amountPerPeriod(array $bill, string $range): string
     {
-        $avg = bcdiv(bcadd((string)$bill['amount_min'], (string)$bill['amount_max']), '2');
+        $avg = bcdiv(bcadd((string) $bill['amount_min'], (string) $bill['amount_max']), '2');
 
         Log::debug(sprintf('Amount per period for bill #%d "%s"', $bill['id'], $bill['name']));
-        Log::debug(sprintf(sprintf('Average is %s', $avg)));
+        Log::debug(sprintf('Average is %s', $avg));
         // calculate amount per year:
         $multiplies = [
             'yearly'    => '1',
@@ -203,9 +206,10 @@ class IndexController extends Controller
             'quarterly' => '4',
             'monthly'   => '12',
             'weekly'    => '52.17',
+            'daily'     => '365.24',
         ];
-        $yearAmount = bcmul($avg, bcdiv($multiplies[$bill['repeat_freq']], (string)($bill['skip'] + 1)));
-        Log::debug(sprintf('Amount per year is %s (%s * %s / %s)', $yearAmount, $avg, $multiplies[$bill['repeat_freq']], (string)($bill['skip'] + 1)));
+        $yearAmount = bcmul($avg, bcdiv($multiplies[$bill['repeat_freq']], (string) ($bill['skip'] + 1)));
+        Log::debug(sprintf('Amount per year is %s (%s * %s / %s)', $yearAmount, $avg, $multiplies[$bill['repeat_freq']], (string) ($bill['skip'] + 1)));
 
         // per period:
         $division  = [
@@ -271,8 +275,8 @@ class IndexController extends Controller
      */
     public function setOrder(Request $request, Bill $bill): JsonResponse
     {
-        $objectGroupTitle = (string)$request->get('objectGroupTitle');
-        $newOrder         = (int)$request->get('order');
+        $objectGroupTitle = (string) $request->get('objectGroupTitle');
+        $newOrder         = (int) $request->get('order');
         $this->repository->setOrder($bill, $newOrder);
         if ('' !== $objectGroupTitle) {
             $this->repository->setObjectGroup($bill, $objectGroupTitle);

@@ -36,10 +36,10 @@ class AccountList implements BinderInterface
 
     /**
      * @param string $value
-     * @param Route $route
+     * @param Route  $route
      *
      * @return Collection
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      *
      */
     public static function routeBinder(string $value, Route $route): Collection

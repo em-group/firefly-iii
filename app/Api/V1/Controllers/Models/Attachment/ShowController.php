@@ -66,6 +66,9 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/attachments/downloadAttachment
+     *
      * Download an attachment.
      *
      * @param Attachment $attachment
@@ -100,7 +103,7 @@ class ShowController extends Controller
                 ->header('Expires', '0')
                 ->header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0')
                 ->header('Pragma', 'public')
-                ->header('Content-Length', (string)strlen($content));
+                ->header('Content-Length', (string) strlen($content));
 
             return $response;
         }
@@ -108,9 +111,13 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/attachments/listAttachment
+     *
      * Display a listing of the resource.
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function index(): JsonResponse
@@ -118,7 +125,7 @@ class ShowController extends Controller
         $manager = $this->getManager();
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of attachments. Count it and split it.
         $collection  = $this->repository->get();
@@ -140,6 +147,9 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/attachments/getAttachment
+     *
      * Display the specified resource.
      *
      * @param Attachment $attachment

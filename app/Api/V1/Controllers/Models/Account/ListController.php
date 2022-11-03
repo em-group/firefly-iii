@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace FireflyIII\Api\V1\Controllers\Models\Account;
 
 use FireflyIII\Api\V1\Controllers\Controller;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Helpers\Collector\GroupCollectorInterface;
 use FireflyIII\Models\Account;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
@@ -69,15 +70,19 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/accounts/listAttachmentByAccount
+     *
      * @param Account $account
      *
      * @return JsonResponse
      * @codeCoverageIgnore
+     * @throws FireflyException
      */
     public function attachments(Account $account): JsonResponse
     {
         $manager    = $this->getManager();
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getAttachments($account);
 
         $count       = $collection->count();
@@ -98,11 +103,13 @@ class ListController extends Controller
     }
 
     /**
-     * List all piggies.
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/accounts/listPiggyBankByAccount
      *
      * @param Account $account
      *
      * @return JsonResponse
+     * @throws FireflyException
      * @codeCoverageIgnore
      */
     public function piggyBanks(Account $account): JsonResponse
@@ -111,7 +118,7 @@ class ListController extends Controller
         $manager = $this->getManager();
 
         // types to get, page size:
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
 
         // get list of budgets. Count it and split it.
         $collection = $this->repository->getPiggyBanks($account);
@@ -134,6 +141,9 @@ class ListController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/accounts/listTransactionByAccount
+     *
      * Show all transaction groups related to the account.
      *
      * @codeCoverageIgnore
@@ -142,10 +152,11 @@ class ListController extends Controller
      * @param Account $account
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function transactions(Request $request, Account $account): JsonResponse
     {
-        $pageSize = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $type     = $request->get('type') ?? 'default';
         $this->parameters->set('type', $type);
 

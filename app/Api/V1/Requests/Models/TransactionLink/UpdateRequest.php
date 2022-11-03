@@ -46,10 +46,10 @@ class UpdateRequest extends FormRequest
     public function getAll(): array
     {
         return [
-            'link_type_id'   => $this->integer('link_type_id'),
-            'link_type_name' => $this->string('link_type_name'),
-            'inward_id'      => $this->integer('inward_id'),
-            'outward_id'     => $this->integer('outward_id'),
+            'link_type_id'   => $this->convertInteger('link_type_id'),
+            'link_type_name' => $this->convertString('link_type_name'),
+            'inward_id'      => $this->convertInteger('inward_id'),
+            'outward_id'     => $this->convertInteger('outward_id'),
             'notes'          => $this->stringWithNewlines('notes'),
         ];
     }
@@ -104,8 +104,8 @@ class UpdateRequest extends FormRequest
 
         $inwardId  = $data['inward_id'] ?? $existing->source_id;
         $outwardId = $data['outward_id'] ?? $existing->destination_id;
-        $inward    = $journalRepos->findNull((int)$inwardId);
-        $outward   = $journalRepos->findNull((int)$outwardId);
+        $inward    = $journalRepos->find((int) $inwardId);
+        $outward   = $journalRepos->find((int) $outwardId);
         if (null === $inward) {
             $inward = $existing->source;
         }

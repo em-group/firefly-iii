@@ -27,6 +27,7 @@ use FireflyIII\Http\Controllers\Controller;
 use FireflyIII\Repositories\Account\AccountTaskerInterface;
 use FireflyIII\Support\CacheProperties;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 use Throwable;
 
@@ -44,7 +45,6 @@ class AccountController extends Controller
      * @param Carbon     $end
      *
      * @return mixed|string
-     *
      */
     public function general(Collection $accounts, Carbon $start, Carbon $end)
     {
@@ -55,14 +55,14 @@ class AccountController extends Controller
         $cache->addProperty('account-report');
         $cache->addProperty($accounts->pluck('id')->toArray());
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         /** @var AccountTaskerInterface $accountTasker */
         $accountTasker = app(AccountTaskerInterface::class);
         $accountReport = $accountTasker->getAccountReport($accounts, $start, $end);
         try {
-            $result = prefixView('reports.partials.accounts', compact('accountReport'))->render();
+            $result = view('reports.partials.accounts', compact('accountReport'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.accounts: %s', $e->getMessage()));

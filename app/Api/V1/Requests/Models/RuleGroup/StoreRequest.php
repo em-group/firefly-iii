@@ -49,12 +49,12 @@ class StoreRequest extends FormRequest
             $active = $this->boolean('active');
         }
         if (null !== $this->get('order')) {
-            $order = $this->integer('order');
+            $order = $this->convertInteger('order');
         }
 
         return [
-            'title'       => $this->string('title'),
-            'description' => $this->string('description'),
+            'title'       => $this->convertString('title'),
+            'description' => $this->convertString('description'),
             'active'      => $active,
             'order'       => $order,
         ];

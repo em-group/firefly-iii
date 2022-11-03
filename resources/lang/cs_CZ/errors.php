@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Hned jsme zpět!',
     'check_back'              => 'Firefly III je vypnutý kvůli nezbytné údržbě. Zkuste to prosím později.',
     'error_occurred'          => 'Jejda! Došlo k chybě.',
+    'db_error_occurred'       => 'Whoops! A database error occurred.',
     'error_not_recoverable'   => 'Bohužel, tato chyba je neopravitelná :(. Firefly III se pokazil. Chyba je:',
     'error'                   => 'Chyba',
     'error_location'          => 'Došlo k chybě v souboru <span style="font-family: monospace;">:file</span> na řádku :line s kódem :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Řekněte nám více než "se objevilo Hups!"',
     'include_logs'            => 'Zahrnout protokoly chyb (viz výše).',
     'what_did_you_do'         => 'Řekněte nám, co jste dělali.',
+    'offline_header'          => 'Jste pravděpodobně offline',
+    'offline_unreachable'     => 'Firefly III je nedostupný. Vaše zařízení je momentálně offline nebo server nefunguje.',
+    'offline_github'          => 'Pokud jste si jisti, že jak vaše zařízení tak i server jsou dostupne online, vytvořte prosím ticket na <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

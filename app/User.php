@@ -37,6 +37,7 @@ use FireflyIII\Models\Bill;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\Category;
 use FireflyIII\Models\CurrencyExchangeRate;
+use FireflyIII\Models\GroupMembership;
 use FireflyIII\Models\ObjectGroup;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\Preference;
@@ -51,6 +52,7 @@ use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\Whitelabel;
 use FireflyIII\Repositories\User\UserRepositoryInterface;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use FireflyIII\Models\UserGroup;
 use FireflyIII\Models\Webhook;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -141,21 +143,34 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @property-read int|null                                                        $transaction_groups_count
  * @property-read int|null                                                        $transaction_journals_count
  * @property-read int|null                                                        $transactions_count
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereMfaSecret($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereObjectguid($value)
+ * @method static Builder|User whereMfaSecret($value)
+ * @method static Builder|User whereObjectguid($value)
  * @property string|null                                                          $provider
- * @method static \Illuminate\Database\Eloquent\Builder|\FireflyIII\User whereProvider($value)
- * @property-read \Illuminate\Database\Eloquent\Collection|ObjectGroup[] $objectGroups
- * @property-read int|null $object_groups_count
- * @property-read \Illuminate\Database\Eloquent\Collection|Webhook[] $webhooks
- * @property-read int|null $webhooks_count
+ * @method static Builder|User whereProvider($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection|ObjectGroup[]          $objectGroups
+ * @property-read int|null                                                        $object_groups_count
+ * @property-read \Illuminate\Database\Eloquent\Collection|Webhook[]              $webhooks
+ * @property-read int|null                                                        $webhooks_count
+ * @property string|null                                                          $two_factor_secret
+ * @property string|null                                                          $two_factor_recovery_codes
+ * @property string|null                                                          $guid
+ * @property string|null                                                          $domain
+ * @method static Builder|User whereDomain($value)
+ * @method static Builder|User whereGuid($value)
+ * @method static Builder|User whereTwoFactorRecoveryCodes($value)
+ * @method static Builder|User whereTwoFactorSecret($value)
+ * @property int|null                                                             $user_group_id
+ * @property-read \Illuminate\Database\Eloquent\Collection|GroupMembership[]      $groupMemberships
+ * @property-read int|null                                                        $group_memberships_count
+ * @property-read UserGroup|null                                                  $userGroup
+ * @method static Builder|User whereUserGroupId($value)
  */
 class User extends HubUser implements UserInterface
 {
     use Notifiable, HasApiTokens;
 
     /**
-     * The attributes that should be casted to native types.
+     * The attributes that should be cast to native types.
      *
      * @var array
      */
@@ -210,7 +225,7 @@ class User extends HubUser implements UserInterface
     public static function routeBinder(string $value): User
     {
         if (auth()->check()) {
-            $userId = (int)$value;
+            $userId = (int) $value;
             $user   = self::find($userId);
             if (null !== $user) {
                 return $user;
@@ -239,28 +254,6 @@ class User extends HubUser implements UserInterface
     public function attachments(): HasMany
     {
         return $this->hasMany(Attachment::class);
-    }
-
-    /**
-     * @codeCoverageIgnore
-     *
-     * Link to webhooks
-     *
-     * @return HasMany
-     */
-    public function webhooks(): HasMany
-    {
-        return $this->hasMany(Webhook::class);
-    }
-
-    /**
-     * @param string $role
-     *
-     * @return bool
-     */
-    public function hasRole(string $role): bool
-    {
-        return $this->roles()->where('name', $role)->count() === 1;
     }
 
     /**
@@ -294,17 +287,6 @@ class User extends HubUser implements UserInterface
     public function budgets(): HasMany
     {
         return $this->hasMany(Budget::class);
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * Link to object groups.
-     *
-     * @return HasMany
-     */
-    public function objectGroups(): HasMany
-    {
-        return $this->hasMany(ObjectGroup::class);
     }
 
     /**
@@ -349,6 +331,92 @@ class User extends HubUser implements UserInterface
     }
 
     /**
+     * Get the models LDAP domain.
+     * @return string
+     * @deprecated
+     *
+     */
+    public function getLdapDomain()
+    {
+        return $this->{$this->getLdapDomainColumn()};
+    }
+
+    /**
+     * Get the database column name of the domain.
+     * @return string
+     * @deprecated
+     *
+     */
+    public function getLdapDomainColumn()
+    {
+        return 'domain';
+    }
+
+    /**
+     * Get the models LDAP GUID.
+     * @return string
+     * @deprecated
+     *
+     */
+    public function getLdapGuid()
+    {
+        return $this->{$this->getLdapGuidColumn()};
+    }
+
+    /**
+     * Get the models LDAP GUID database column name.
+     * @return string
+     * @deprecated
+     *
+     */
+    public function getLdapGuidColumn()
+    {
+        return 'objectguid';
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * @return HasMany
+     */
+    public function groupMemberships(): HasMany
+    {
+        return $this->hasMany(GroupMembership::class)->with(['userGroup', 'userRole']);
+    }
+
+    /**
+     * @param string $role
+     *
+     * @return bool
+     */
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->count() === 1;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * Link to roles.
+     *
+     * @return BelongsToMany
+     */
+    public function roles(): BelongsToMany
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * Link to object groups.
+     *
+     * @return HasMany
+     */
+    public function objectGroups(): HasMany
+    {
+        return $this->hasMany(ObjectGroup::class);
+    }
+
+    /**
      * @codeCoverageIgnore
      * Link to piggy banks.
      *
@@ -379,17 +447,6 @@ class User extends HubUser implements UserInterface
     public function recurrences(): HasMany
     {
         return $this->hasMany(Recurrence::class);
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * Link to roles.
-     *
-     * @return BelongsToMany
-     */
-    public function roles(): BelongsToMany
-    {
-        return $this->belongsToMany(Role::class);
     }
 
     /**
@@ -426,6 +483,33 @@ class User extends HubUser implements UserInterface
 
         event(new RequestedNewPassword($this, $token, $ipAddress));
     }
+
+    /**
+     * Set the models LDAP domain.
+     * @param string $domain
+     *
+     * @return void
+     * @deprecated
+     *
+     */
+    public function setLdapDomain($domain)
+    {
+        $this->{$this->getLdapDomainColumn()} = $domain;
+    }
+
+    /**
+     * Set the models LDAP GUID.
+     * @param string $guid
+     *
+     * @return void
+     * @deprecated
+     */
+    public function setLdapGuid($guid)
+    {
+        $this->{$this->getLdapGuidColumn()} = $guid;
+    }
+
+    // start LDAP related code
 
     /**
      * @codeCoverageIgnore
@@ -475,4 +559,26 @@ class User extends HubUser implements UserInterface
     {
         return 0;
     }
+
+    /**
+     * @codeCoverageIgnore
+     * @return BelongsTo
+     */
+    public function userGroup(): BelongsTo
+    {
+        return $this->belongsTo(UserGroup::class,);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     *
+     * Link to webhooks
+     *
+     * @return HasMany
+     */
+    public function webhooks(): HasMany
+    {
+        return $this->hasMany(Webhook::class);
+    }
+    // end LDAP related code
 }

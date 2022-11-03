@@ -23,9 +23,11 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Search;
+
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Class AccountSearch
@@ -35,14 +37,13 @@ class AccountSearch implements GenericSearchInterface
     /** @var string */
     public const SEARCH_ALL = 'all';
     /** @var string */
-    public const SEARCH_NAME = 'name';
-    /** @var string */
     public const SEARCH_IBAN = 'iban';
     /** @var string */
-    public const SEARCH_NUMBER = 'number';
-    /** @var string */
     public const SEARCH_ID = 'id';
-
+    /** @var string */
+    public const SEARCH_NAME = 'name';
+    /** @var string */
+    public const SEARCH_NUMBER = 'number';
     private string $field;
     private string $query;
     private array  $types;
@@ -85,7 +86,7 @@ class AccountSearch implements GenericSearchInterface
                 );
                 break;
             case self::SEARCH_ID:
-                $searchQuery->where('accounts.id', '=', (int)$originalQuery);
+                $searchQuery->where('accounts.id', '=', (int) $originalQuery);
                 break;
             case self::SEARCH_NAME:
                 $searchQuery->where('accounts.name', 'LIKE', $like);

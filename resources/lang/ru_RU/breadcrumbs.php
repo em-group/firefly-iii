@@ -24,6 +24,16 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Главная',
+    'budgets'                => 'массив[\'бюджеты\']',
+    'subscriptions'          => 'массив[\'подписки\']',
+    'transactions'           => 'массив[\'транзакции\']',
+    'title_expenses'         => 'массив[\'название_расходы\']
+',
+    'title_withdrawal'       => 'массив[\'название_снятие\']',
+    'title_revenue'          => 'массив[\'название_доход\']',
+    'title_deposit'          => 'массив[\'название_депозит\']',
+    'title_transfer'         => 'Перевод',
+    'title_transfers'        => 'Переводы',
     'edit_currency'          => 'Редактирование валюты ":name"',
     'delete_currency'        => 'Удаление валюты ":name"',
     'newPiggyBank'           => 'Создание новой копилки',
@@ -58,9 +68,13 @@ return [
     'edit_tag'               => 'Редактирование метки ":tag"',
     'delete_tag'             => 'Удаление метки ":tag"',
     'delete_journal_link'    => 'Удалить связь между транзакциями',
-    'telemetry_index'        => 'Телеметрия',
-    'telemetry_view'         => 'Просмотр телеметрии',
     'edit_object_group'      => 'Редактировать группу ":title"',
     'delete_object_group'    => 'Удалить группу ":title"',
-    'logout_others'          => 'Завершить другие сессии'
+    'logout_others'          => 'Завершить другие сессии',
+    'asset_accounts'         => 'массив [\'актив_учетные записи\']
+',
+    'expense_accounts'       => 'массив [\'расход_счетов\']',
+    'revenue_accounts'       => 'массив[\'доход_счетов\']',
+    'liabilities_accounts'   => 'массив [\'пассивные_счета\']',
+    'placeholder'            => 'Не стесняйтесь держать этот английский.',
 ];

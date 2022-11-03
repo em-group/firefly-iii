@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Gleich wieder zurück!',
     'check_back'              => 'Firefly III ist für eine notwendige Wartung nicht verfügbar. Bitte versuchen Sie es in einer Sekunde noch einmal.',
     'error_occurred'          => 'Hoppla! Ein Fehler ist aufgetreten.',
+    'db_error_occurred'       => 'Hoppla! Ein Datenbankfehler ist aufgetreten.',
     'error_not_recoverable'   => 'Leider konnte dieser Fehler nicht wiederhergestellt werden :(. Firefly III ist kaputt. Der Fehler ist:',
     'error'                   => 'Fehler',
     'error_location'          => 'Dieser Fehler ist in der Datei <span style="font-family: monospace;">:file</span> in Zeile :line mit dem Code :code aufgetreten.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Sagen Sie uns mehr als "Da steht Hoppla!"',
     'include_logs'            => 'Fehlerprotokolle einschließen (siehe oben).',
     'what_did_you_do'         => 'Teilen Sie uns mit, was Sie getan haben.',
+    'offline_header'          => 'Sie sind wahrscheinlich offline',
+    'offline_unreachable'     => 'Firefly III ist nicht erreichbar. Ihr Gerät ist offline oder der Server antwortet nicht.',
+    'offline_github'          => 'Falls Sie sicher sind, dass sowohl Ihr Gerät als auch der Server online sind, öffnen Sie bitte ein Ticket auf <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

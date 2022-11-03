@@ -71,6 +71,9 @@ class StoreController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/transactions/storeTransaction
+     *
      * Store a new transaction.
      *
      * @param StoreRequest $request
@@ -94,16 +97,18 @@ class StoreController extends Controller
             $validator = Validator::make(
                 ['transactions' => [['description' => $e->getMessage()]]], ['transactions.0.description' => new IsDuplicateTransaction]
             );
-            throw new ValidationException($validator,0, $e);
+            throw new ValidationException($validator, 0, $e);
         } catch (FireflyException $e) {
             Log::warning('Caught an exception. Return error message.');
             Log::error($e->getMessage());
             $message   = sprintf('Internal exception: %s', $e->getMessage());
             $validator = Validator::make(['transactions' => [['description' => $message]]], ['transactions.0.description' => new IsDuplicateTransaction]);
-            throw new ValidationException($validator,0, $e);
+            throw new ValidationException($validator, 0, $e);
         }
         app('preferences')->mark();
-        event(new StoredTransactionGroup($transactionGroup, $data['apply_rules'] ?? true));
+        $applyRules   = $data['apply_rules'] ?? true;
+        $fireWebhooks = $data['fire_webhooks'] ?? true;
+        event(new StoredTransactionGroup($transactionGroup, $applyRules, $fireWebhooks));
 
         $manager = $this->getManager();
         /** @var User $admin */
@@ -120,7 +125,7 @@ class StoreController extends Controller
 
         $selectedGroup = $collector->getGroups()->first();
         if (null === $selectedGroup) {
-            throw new FireflyException('Cannot find transaction. Possibly, a rule deleted this transaction after its creation.');
+            throw new FireflyException('200032: Cannot find transaction. Possibly, a rule deleted this transaction after its creation.');
         }
         /** @var TransactionGroupTransformer $transformer */
         $transformer = app(TransactionGroupTransformer::class);

@@ -21,6 +21,7 @@
  */
 
 declare(strict_types=1);
+
 namespace FireflyIII\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
@@ -37,7 +38,7 @@ class LessThanPiggyTarget implements Rule
      */
     public function message(): string
     {
-        return (string)trans('validation.current_target_amount');
+        return (string) trans('validation.current_target_amount');
     }
 
     /**

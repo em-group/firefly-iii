@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Form;
+
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
@@ -33,8 +34,8 @@ use Throwable;
  *
  * All form methods that are account related.
  *
- * TODO describe all methods.
- * TODO optimize repositories and methods.
+ * See reference nr. 29
+ * See reference nr. 30
  */
 class AccountForm
 {
@@ -55,8 +56,8 @@ class AccountForm
         $repository               = $this->getAccountRepository();
         $grouped                  = $this->getAccountsGrouped($types, $repository);
         $cash                     = $repository->getCashAccount();
-        $key                      = (string)trans('firefly.cash_account_type');
-        $grouped[$key][$cash->id] = sprintf('(%s)', (string)trans('firefly.cash'));
+        $key                      = (string) trans('firefly.cash_account_type');
+        $grouped[$key][$cash->id] = sprintf('(%s)', (string) trans('firefly.cash'));
 
         return $this->select($name, $grouped, $value, $options);
     }
@@ -72,7 +73,7 @@ class AccountForm
 
         /** @var Account $account */
         foreach ($accountList as $account) {
-            $role = (string)$repository->getMetaValue($account, 'account_role');
+            $role = (string) $repository->getMetaValue($account, 'account_role');
             if (in_array($account->accountType->type, $liabilityTypes, true)) {
                 $role = sprintf('l_%s', $account->accountType->type);
             } elseif ('' === $role) {
@@ -84,7 +85,7 @@ class AccountForm
                     $role = 'no_account_type';
                 }
             }
-            $key                         = (string)trans(sprintf('firefly.opt_group_%s', $role));
+            $key                         = (string) trans(sprintf('firefly.opt_group_%s', $role));
             $grouped[$key][$account->id] = $account->name;
         }
 
@@ -107,8 +108,8 @@ class AccountForm
         $grouped    = $this->getAccountsGrouped($types, $repository);
 
         $cash                     = $repository->getCashAccount();
-        $key                      = (string)trans('firefly.cash_account_type');
-        $grouped[$key][$cash->id] = sprintf('(%s)', (string)trans('firefly.cash'));
+        $key                      = (string) trans('firefly.cash_account_type');
+        $grouped[$key][$cash->id] = sprintf('(%s)', (string) trans('firefly.cash'));
 
         return $this->select($name, $grouped, $value, $options);
     }
@@ -135,7 +136,7 @@ class AccountForm
 
         unset($options['class']);
         try {
-            $html = prefixView('form.assetAccountCheckList', compact('classes', 'selected', 'name', 'label', 'options', 'grouped'))->render();
+            $html = view('form.assetAccountCheckList', compact('classes', 'selected', 'name', 'label', 'options', 'grouped'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render assetAccountCheckList(): %s', $e->getMessage()));
             $html = 'Could not render assetAccountCheckList.';
@@ -160,6 +161,7 @@ class AccountForm
 
         return $this->select($name, $grouped, $value, $options);
     }
+
     /**
      * Same list but all liabilities as well.
      *

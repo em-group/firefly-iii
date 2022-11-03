@@ -50,7 +50,10 @@ class FrontpageController extends Controller
             $amount = $repository->getCurrentAmount($piggyBank);
             if (1 === bccomp($amount, '0')) {
                 // percentage!
-                $pct = round(($amount / $piggyBank->targetamount) * 100);
+                $pct = 0;
+                if (0.0 !== (float) $piggyBank->targetamount) {
+                    $pct = round(($amount / $piggyBank->targetamount) * 100);
+                }
 
                 $entry = [
                     'id'         => $piggyBank->id,
@@ -64,9 +67,9 @@ class FrontpageController extends Controller
             }
         }
         $html = '';
-        if (0!==count($info)) {
+        if (!empty($info)) {
             try {
-                $html = prefixView('json.piggy-banks', compact('info'))->render();
+                $html = view('json.piggy-banks', compact('info'))->render();
 
             } catch (Throwable $e) { // @phpstan-ignore-line
                 Log::error(sprintf('Cannot render json.piggy-banks: %s', $e->getMessage()));

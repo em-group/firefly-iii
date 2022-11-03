@@ -32,18 +32,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
 /**
  * FireflyIII\Models\TransactionGroup
  *
- * @property int $id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int $user_id
- * @property string|null $title
- * @property-read Collection|\FireflyIII\Models\TransactionJournal[] $transactionJournals
- * @property-read int|null $transaction_journals_count
- * @property-read User $user
+ * @property int                                  $id
+ * @property Carbon|null                          $created_at
+ * @property Carbon|null                          $updated_at
+ * @property Carbon|null                          $deleted_at
+ * @property int                                  $user_id
+ * @property string|null                          $title
+ * @property-read Collection|TransactionJournal[] $transactionJournals
+ * @property-read int|null                        $transaction_journals_count
+ * @property-read User                            $user
  * @method static \Illuminate\Database\Eloquent\Builder|TransactionGroup newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TransactionGroup newQuery()
  * @method static Builder|TransactionGroup onlyTrashed()
@@ -57,6 +58,8 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|TransactionGroup withTrashed()
  * @method static Builder|TransactionGroup withoutTrashed()
  * @mixin Eloquent
+ * @property int|null                             $user_group_id
+ * @method static \Illuminate\Database\Eloquent\Builder|TransactionGroup whereUserGroupId($value)
  */
 class TransactionGroup extends Model
 {
@@ -85,8 +88,8 @@ class TransactionGroup extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return TransactionGroup
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): TransactionGroup
     {

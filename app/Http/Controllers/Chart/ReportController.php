@@ -35,6 +35,7 @@ use FireflyIII\Support\Http\Controllers\BasicDataSupport;
 use FireflyIII\Support\Http\Controllers\ChartGeneration;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use JsonException;
 use Log;
 
 /**
@@ -68,6 +69,7 @@ class ReportController extends Controller
      * @param Carbon     $end
      *
      * @return JsonResponse
+     * @throws \FireflyIII\Exceptions\FireflyException
      */
     public function netWorth(Collection $accounts, Carbon $start, Carbon $end): JsonResponse
     {
@@ -78,7 +80,7 @@ class ReportController extends Controller
         $cache->addProperty(implode(',', $accounts->pluck('id')->toArray()));
         $cache->addProperty($end);
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         $locale    = app('steam')->getLocale();
         $current   = clone $start;
@@ -102,7 +104,7 @@ class ReportController extends Controller
             }
         );
 
-        // TODO get liabilities and include those as well?
+        // See reference nr. 56
 
         while ($current < $end) {
             // get balances by date, grouped by currency.
@@ -112,7 +114,7 @@ class ReportController extends Controller
             /** @var array $netWorthItem */
             foreach ($result as $netWorthItem) {
                 $currencyId = $netWorthItem['currency']->id;
-                $label      = $current->formatLocalized((string)trans('config.month_and_day', [], $locale));
+                $label      = $current->isoFormat((string) trans('config.month_and_day_js', [], $locale));
                 if (!array_key_exists($currencyId, $chartData)) {
                     $chartData[$currencyId] = [
                         'label'           => 'Net worth in ' . $netWorthItem['currency']->name,
@@ -142,6 +144,7 @@ class ReportController extends Controller
      * @param Carbon     $end
      *
      * @return JsonResponse
+     * @throws JsonException
      */
     public function operations(Collection $accounts, Carbon $start, Carbon $end): JsonResponse
     {
@@ -152,7 +155,7 @@ class ReportController extends Controller
         $cache->addProperty($accounts);
         $cache->addProperty($end);
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
         Log::debug('Going to do operations for accounts ', $accounts->pluck('id')->toArray());
         $format         = app('navigation')->preferredCarbonFormat($start, $end);
@@ -176,30 +179,33 @@ class ReportController extends Controller
         /** @var array $journal */
         foreach ($journals as $journal) {
             $period                     = $journal['date']->format($format);
-            $currencyId                 = (int)$journal['currency_id'];
+            $currencyId                 = (int) $journal['currency_id'];
             $data[$currencyId]          = $data[$currencyId] ?? [
-                    'currency_id'             => $currencyId,
-                    'currency_symbol'         => $journal['currency_symbol'],
-                    'currency_code'           => $journal['currency_code'],
-                    'currency_name'           => $journal['currency_name'],
-                    'currency_decimal_places' => (int)$journal['currency_decimal_places'],
-                ];
+                'currency_id'             => $currencyId,
+                'currency_symbol'         => $journal['currency_symbol'],
+                'currency_code'           => $journal['currency_code'],
+                'currency_name'           => $journal['currency_name'],
+                'currency_decimal_places' => (int) $journal['currency_decimal_places'],
+            ];
             $data[$currencyId][$period] = $data[$currencyId][$period] ?? [
-                    'period' => $period,
-                    'spent'  => '0',
-                    'earned' => '0',
-                ];
+                'period' => $period,
+                'spent'  => '0',
+                'earned' => '0',
+            ];
             // in our outgoing?
             $key    = 'spent';
             $amount = app('steam')->positive($journal['amount']);
 
+            // deposit = incoming
+            // transfer or reconcile or opening balance, and these accounts are the destination.
             if (
                 TransactionType::DEPOSIT === $journal['transaction_type_type']
-                || // deposit = incoming
-                // transfer or opening balance, and these accounts are the destination.
+                ||
+
                 (
                     (
                         TransactionType::TRANSFER === $journal['transaction_type_type']
+                        || TransactionType::RECONCILIATION === $journal['transaction_type_type']
                         || TransactionType::OPENING_BALANCE === $journal['transaction_type_type']
                     )
                     && in_array($journal['destination_account_id'], $ids, true)
@@ -214,7 +220,7 @@ class ReportController extends Controller
         /** @var array $currency */
         foreach ($data as $currency) {
             $income  = [
-                'label'           => (string)trans('firefly.box_earned_in_currency', ['currency' => $currency['currency_name']]),
+                'label'           => (string) trans('firefly.box_earned_in_currency', ['currency' => $currency['currency_name']]),
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(0, 141, 76, 0.5)', // green
                 'currency_id'     => $currency['currency_id'],
@@ -223,7 +229,7 @@ class ReportController extends Controller
                 'entries'         => [],
             ];
             $expense = [
-                'label'           => (string)trans('firefly.box_spent_in_currency', ['currency' => $currency['currency_name']]),
+                'label'           => (string) trans('firefly.box_spent_in_currency', ['currency' => $currency['currency_name']]),
                 'type'            => 'bar',
                 'backgroundColor' => 'rgba(219, 68, 55, 0.5)', // red
                 'currency_id'     => $currency['currency_id'],
@@ -236,9 +242,9 @@ class ReportController extends Controller
             $currentStart = clone $start;
             while ($currentStart <= $end) {
                 $key                        = $currentStart->format($format);
-                $title                      = $currentStart->formatLocalized($titleFormat);
-                $income['entries'][$title]  = round((float)($currency[$key]['earned'] ?? '0'), $currency['currency_decimal_places']);
-                $expense['entries'][$title] = round((float)($currency[$key]['spent'] ?? '0'), $currency['currency_decimal_places']);
+                $title                      = $currentStart->isoFormat($titleFormat);
+                $income['entries'][$title]  = round((float) ($currency[$key]['earned'] ?? '0'), $currency['currency_decimal_places']);
+                $expense['entries'][$title] = round((float) ($currency[$key]['spent'] ?? '0'), $currency['currency_decimal_places']);
                 $currentStart               = app('navigation')->addPeriod($currentStart, $preferredRange, 0);
             }
 

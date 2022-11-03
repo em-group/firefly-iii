@@ -33,6 +33,7 @@ use FireflyIII\Support\Http\Controllers\AugumentData;
 use FireflyIII\Support\Http\Controllers\TransactionCalculation;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Separate controller because many helper functions are shared.
@@ -69,7 +70,7 @@ class ExpenseReportController extends Controller
     /**
      * Main chart that shows income and expense for a combination of expense/revenue accounts.
      *
-     * TODO this chart is not multi-currency aware.
+     * See reference nr. 58
      *
      * @param Collection $accounts
      * @param Collection $expense
@@ -77,7 +78,7 @@ class ExpenseReportController extends Controller
      * @param Carbon     $end
      *
      * @return JsonResponse
-     *
+     * @throws JsonException
      */
     public function mainChart(Collection $accounts, Collection $expense, Carbon $start, Carbon $end): JsonResponse
     {
@@ -88,7 +89,7 @@ class ExpenseReportController extends Controller
         $cache->addProperty($start);
         $cache->addProperty($end);
         if ($cache->has()) {
-            return response()->json($cache->get()); 
+            return response()->json($cache->get());
         }
 
         $format       = app('navigation')->preferredCarbonLocalizedFormat($start, $end);
@@ -112,27 +113,27 @@ class ExpenseReportController extends Controller
             /** @var Account $exp */
             $exp                          = $combination->first();
             $chartData[$exp->id . '-in']  = [
-                'label'   => sprintf('%s (%s)', $name, (string)trans('firefly.income')),
+                'label'   => sprintf('%s (%s)', $name, (string) trans('firefly.income')),
                 'type'    => 'bar',
                 'yAxisID' => 'y-axis-0',
                 'entries' => [],
             ];
             $chartData[$exp->id . '-out'] = [
-                'label'   => sprintf('%s (%s)', $name, (string)trans('firefly.expenses')),
+                'label'   => sprintf('%s (%s)', $name, (string) trans('firefly.expenses')),
                 'type'    => 'bar',
                 'yAxisID' => 'y-axis-0',
                 'entries' => [],
             ];
             // total in, total out:
             $chartData[$exp->id . '-total-in']  = [
-                'label'   => sprintf('%s (%s)', $name, (string)trans('firefly.sum_of_income')),
+                'label'   => sprintf('%s (%s)', $name, (string) trans('firefly.sum_of_income')),
                 'type'    => 'line',
                 'fill'    => false,
                 'yAxisID' => 'y-axis-1',
                 'entries' => [],
             ];
             $chartData[$exp->id . '-total-out'] = [
-                'label'   => sprintf('%s (%s)', $name, (string)trans('firefly.sum_of_expenses')),
+                'label'   => sprintf('%s (%s)', $name, (string) trans('firefly.sum_of_expenses')),
                 'type'    => 'line',
                 'fill'    => false,
                 'yAxisID' => 'y-axis-1',
@@ -150,7 +151,7 @@ class ExpenseReportController extends Controller
             // get expenses grouped by opposing name:
             $expenses = $this->groupByName($this->getExpensesForOpposing($accounts, $all, $currentStart, $currentEnd));
             $income   = $this->groupByName($this->getIncomeForOpposing($accounts, $all, $currentStart, $currentEnd));
-            $label    = $currentStart->formatLocalized($format);
+            $label    = $currentStart->isoFormat($format);
 
             foreach ($combined as $name => $combination) {
                 // first is always expense account:
@@ -184,11 +185,11 @@ class ExpenseReportController extends Controller
         $newSet = [];
         foreach ($chartData as $key => $entry) {
             if (0 === !array_sum($entry['entries'])) {
-                $newSet[$key] = $chartData[$key]; 
+                $newSet[$key] = $entry;
             }
         }
-        if (0===count($newSet)) {
-            $newSet = $chartData; 
+        if (empty($newSet)) {
+            $newSet = $chartData;
         }
         $data = $this->generator->multiSet($newSet);
         $cache->store($data);

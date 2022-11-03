@@ -41,12 +41,11 @@ class ExpandedForm
     use FormSupport;
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function amountNoCurrency(string $name, $value = null, array $options = null): string
     {
@@ -59,11 +58,11 @@ class ExpandedForm
         unset($options['currency'], $options['placeholder']);
 
         // make sure value is formatted nicely:
-        if (null !== $value && '' !== $value) {
-            $value = round((float)$value, 8);
-        }
+        //if (null !== $value && '' !== $value) {
+        //$value = round((float)$value, 8);
+        //}
         try {
-            $html = prefixView('form.amount-no-currency', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.amount-no-currency', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::error(sprintf('Could not render amountNoCurrency(): %s', $e->getMessage()));
             $html = 'Could not render amountNoCurrency.';
@@ -73,13 +72,12 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param int    $value
-     * @param mixed  $checked
-     * @param array  $options
+     * @param string     $name
+     * @param int|null   $value
+     * @param mixed      $checked
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function checkbox(string $name, int $value = null, $checked = null, array $options = null): string
     {
@@ -99,7 +97,7 @@ class ExpandedForm
 
         unset($options['placeholder'], $options['autocomplete'], $options['class']);
         try {
-            $html = prefixView('form.checkbox', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.checkbox', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render checkbox(): %s', $e->getMessage()));
             $html = 'Could not render checkbox.';
@@ -109,12 +107,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function date(string $name, $value = null, array $options = null): string
     {
@@ -124,7 +121,7 @@ class ExpandedForm
         $value   = $this->fillFieldValue($name, $value);
         unset($options['placeholder']);
         try {
-            $html = prefixView('form.date', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.date', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render date(): %s', $e->getMessage()));
             $html = 'Could not render date.';
@@ -134,11 +131,10 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param array  $options
+     * @param string     $name
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function file(string $name, array $options = null): string
     {
@@ -147,7 +143,7 @@ class ExpandedForm
         $options = $this->expandOptionArray($name, $label, $options);
         $classes = $this->getHolderClasses($name);
         try {
-            $html = prefixView('form.file', compact('classes', 'name', 'label', 'options'))->render();
+            $html = view('form.file', compact('classes', 'name', 'label', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render file(): %s', $e->getMessage()));
             $html = 'Could not render file.';
@@ -157,12 +153,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function integer(string $name, $value = null, array $options = null): string
     {
@@ -173,7 +168,7 @@ class ExpandedForm
         $value           = $this->fillFieldValue($name, $value);
         $options['step'] = '1';
         try {
-            $html = prefixView('form.integer', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.integer', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render integer(): %s', $e->getMessage()));
             $html = 'Could not render integer.';
@@ -183,12 +178,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function location(string $name, $value = null, array $options = null): string
     {
@@ -198,7 +192,7 @@ class ExpandedForm
         $classes = $this->getHolderClasses($name);
         $value   = $this->fillFieldValue($name, $value);
         try {
-            $html = prefixView('form.location', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.location', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render location(): %s', $e->getMessage()));
             $html = 'Could not render location.';
@@ -220,7 +214,7 @@ class ExpandedForm
         $fields        = ['title', 'name', 'description'];
         /** @var Eloquent $entry */
         foreach ($set as $entry) {
-            $entryId = (int)$entry->id; // @phpstan-ignore-line
+            $entryId = (int) $entry->id; // @phpstan-ignore-line
             $current = $entry->toArray();
             $title   = null;
             foreach ($fields as $field) {
@@ -230,13 +224,14 @@ class ExpandedForm
             }
             $selectList[$entryId] = $title;
         }
+
         return $selectList;
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
      */
@@ -252,10 +247,10 @@ class ExpandedForm
 
         // make sure value is formatted nicely:
         if (null !== $value && '' !== $value) {
-            $value = round((float)$value, $selectedCurrency->decimal_places);
+            //            $value = round((float)$value, $selectedCurrency->decimal_places);
         }
         try {
-            $html = prefixView('form.non-selectable-amount', compact('selectedCurrency', 'classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.non-selectable-amount', compact('selectedCurrency', 'classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render nonSelectableAmount(): %s', $e->getMessage()));
             $html = 'Could not render nonSelectableAmount.';
@@ -265,12 +260,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function number(string $name, $value = null, array $options = null): string
     {
@@ -281,7 +275,7 @@ class ExpandedForm
         $options['step'] = 'any';
         unset($options['placeholder']);
         try {
-            $html = prefixView('form.number', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.number', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render number(): %s', $e->getMessage()));
             $html = 'Could not render number.';
@@ -310,7 +304,7 @@ class ExpandedForm
         }
 
         try {
-            $html = prefixView('form.object_group', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.object_group', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render objectGroup(): %s', $e->getMessage()));
             $html = 'Could not render objectGroup.';
@@ -329,7 +323,7 @@ class ExpandedForm
     public function optionsList(string $type, string $name): string
     {
         try {
-            $html = prefixView('form.options', compact('type', 'name'))->render();
+            $html = view('form.options', compact('type', 'name'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render select(): %s', $e->getMessage()));
             $html = 'Could not render optionsList.';
@@ -339,11 +333,10 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param array  $options
+     * @param string     $name
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function password(string $name, array $options = null): string
     {
@@ -352,7 +345,7 @@ class ExpandedForm
         $options = $this->expandOptionArray($name, $label, $options);
         $classes = $this->getHolderClasses($name);
         try {
-            $html = prefixView('form.password', compact('classes', 'name', 'label', 'options'))->render();
+            $html = view('form.password', compact('classes', 'name', 'label', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render password(): %s', $e->getMessage()));
             $html = 'Could not render password.';
@@ -364,12 +357,11 @@ class ExpandedForm
     /**
      * Function to render a percentage.
      *
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function percentage(string $name, $value = null, array $options = null): string
     {
@@ -380,7 +372,7 @@ class ExpandedForm
         $options['step'] = 'any';
         unset($options['placeholder']);
         try {
-            $html = prefixView('form.percentage', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.percentage', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render percentage(): %s', $e->getMessage()));
             $html = 'Could not render percentage.';
@@ -390,12 +382,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function staticText(string $name, $value, array $options = null): string
     {
@@ -403,7 +394,7 @@ class ExpandedForm
         $options = $this->expandOptionArray($name, $label, $options);
         $classes = $this->getHolderClasses($name);
         try {
-            $html = prefixView('form.static', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.static', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render staticText(): %s', $e->getMessage()));
             $html = 'Could not render staticText.';
@@ -413,12 +404,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function text(string $name, $value = null, array $options = null): string
     {
@@ -427,7 +417,7 @@ class ExpandedForm
         $classes = $this->getHolderClasses($name);
         $value   = $this->fillFieldValue($name, $value);
         try {
-            $html = prefixView('form.text', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.text', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render text(): %s', $e->getMessage()));
             $html = 'Could not render text.';
@@ -437,12 +427,11 @@ class ExpandedForm
     }
 
     /**
-     * @param string $name
-     * @param mixed  $value
-     * @param array  $options
+     * @param string     $name
+     * @param mixed      $value
+     * @param array|null $options
      *
      * @return string
-     *
      */
     public function textarea(string $name, $value = null, array $options = null): string
     {
@@ -457,7 +446,7 @@ class ExpandedForm
         }
 
         try {
-            $html = prefixView('form.textarea', compact('classes', 'name', 'label', 'value', 'options'))->render();
+            $html = view('form.textarea', compact('classes', 'name', 'label', 'value', 'options'))->render();
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render textarea(): %s', $e->getMessage()));
             $html = 'Could not render textarea.';

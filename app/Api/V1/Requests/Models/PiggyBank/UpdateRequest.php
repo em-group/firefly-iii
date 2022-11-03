@@ -46,16 +46,16 @@ class UpdateRequest extends FormRequest
     public function getAll(): array
     {
         $fields = [
-            'name'               => ['name', 'string'],
-            'account_id'         => ['account_id', 'integer'],
-            'targetamount'       => ['target_amount', 'string'],
-            'current_amount'     => ['current_amount', 'string'],
+            'name'               => ['name', 'convertString'],
+            'account_id'         => ['account_id', 'convertInteger'],
+            'targetamount'       => ['target_amount', 'convertString'],
+            'current_amount'     => ['current_amount', 'convertString'],
             'startdate'          => ['start_date', 'date'],
-            'targetdate'         => ['target_date', 'string'],
+            'targetdate'         => ['target_date', 'convertString'],
             'notes'              => ['notes', 'stringWithNewlines'],
-            'order'              => ['order', 'integer'],
-            'object_group_title' => ['object_group_title', 'string'],
-            'object_group_id'    => ['object_group_id', 'integer'],
+            'order'              => ['order', 'convertInteger'],
+            'object_group_title' => ['object_group_title', 'convertString'],
+            'object_group_id'    => ['object_group_id', 'convertInteger'],
         ];
 
         return $this->getAllData($fields);

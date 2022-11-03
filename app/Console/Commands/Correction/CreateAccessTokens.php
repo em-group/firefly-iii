@@ -66,7 +66,7 @@ class CreateAccessTokens extends Command
 
         /** @var User $user */
         foreach ($users as $user) {
-            $pref = app('preferences')->getForUser($user, 'access_token', null);
+            $pref = app('preferences')->getForUser($user, 'access_token');
             if (null === $pref) {
                 $token = $user->generateAccessToken();
                 app('preferences')->setForUser($user, 'access_token', $token);

@@ -25,6 +25,13 @@ $(function () {
 
     configAccounting(currencySymbol);
 
+    // on submit of logout button:
+    $('.logout-link').click(function(e) {
+        e.preventDefault();
+        document.getElementById('logout-form').submit();
+        return false;
+    });
+
     // on submit of form, disable any button in form:
     $('form.form-horizontal:not(.nodisablebutton)').on('submit', function () {
         $('button[type="submit"]').prop('disabled', true);
@@ -62,7 +69,7 @@ $(function () {
         function (start, end, label) {
 
             // send post.
-            $.post(dateRangeMeta.uri, {
+            $.post(dateRangeMeta.url, {
                 start: start.format('YYYY-MM-DD'),
                 end: end.format('YYYY-MM-DD'),
                 label: label,

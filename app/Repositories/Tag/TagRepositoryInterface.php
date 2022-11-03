@@ -63,6 +63,13 @@ interface TagRepositoryInterface
     public function expenseInPeriod(Tag $tag, Carbon $start, Carbon $end): array;
 
     /**
+     * @param int $tagId
+     *
+     * @return Tag|null
+     */
+    public function find(int $tagId): ?Tag;
+
+    /**
      * @param string $tag
      *
      * @return Tag|null
@@ -70,16 +77,9 @@ interface TagRepositoryInterface
     public function findByTag(string $tag): ?Tag;
 
     /**
-     * @param int $tagId
-     *
-     * @return Tag|null
-     */
-    public function findNull(int $tagId): ?Tag;
-
-    /**
      * @param Tag $tag
      *
-     * @return Carbon
+     * @return Carbon|null
      */
     public function firstUseDate(Tag $tag): ?Carbon;
 

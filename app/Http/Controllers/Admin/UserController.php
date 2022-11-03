@@ -52,7 +52,7 @@ class UserController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.administration'));
+                app('view')->share('title', (string) trans('firefly.administration'));
                 app('view')->share('mainTitleIcon', 'fa-hand-spock-o');
                 $this->repository = app(UserRepositoryInterface::class);
 
@@ -78,9 +78,9 @@ class UserController extends Controller
             return redirect(route('admin.users'));
         }
 
-        $subTitle = (string)trans('firefly.delete_user', ['email' => $user->email]);
+        $subTitle = (string) trans('firefly.delete_user', ['email' => $user->email]);
 
-        return prefixView('admin.users.delete', compact('user', 'subTitle'));
+        return view('admin.users.delete', compact('user', 'subTitle'));
     }
 
     /**
@@ -98,7 +98,7 @@ class UserController extends Controller
             return redirect(route('admin.users'));
         }
         $this->repository->destroy($user);
-        session()->flash('success', (string)trans('firefly.user_deleted'));
+        session()->flash('success', (string) trans('firefly.user_deleted'));
 
         return redirect(route('admin.users'));
     }
@@ -118,22 +118,22 @@ class UserController extends Controller
         }
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('users.edit.fromUpdate')) {
-            $this->rememberPreviousUri('users.edit.uri');
+            $this->rememberPreviousUrl('users.edit.url');
         }
         session()->forget('users.edit.fromUpdate');
 
-        $subTitle     = (string)trans('firefly.edit_user', ['email' => $user->email]);
+        $subTitle     = (string) trans('firefly.edit_user', ['email' => $user->email]);
         $subTitleIcon = 'fa-user-o';
         $currentUser  = auth()->user();
         $isAdmin      = $this->repository->hasRole($user, 'owner');
         $codes        = [
-            ''              => (string)trans('firefly.no_block_code'),
-            'bounced'       => (string)trans('firefly.block_code_bounced'),
-            'expired'       => (string)trans('firefly.block_code_expired'),
-            'email_changed' => (string)trans('firefly.block_code_email_changed'),
+            ''              => (string) trans('firefly.no_block_code'),
+            'bounced'       => (string) trans('firefly.block_code_bounced'),
+            'expired'       => (string) trans('firefly.block_code_expired'),
+            'email_changed' => (string) trans('firefly.block_code_email_changed'),
         ];
 
-        return prefixView('admin.users.edit', compact('user', 'canEditDetails', 'subTitle', 'subTitleIcon', 'codes', 'currentUser', 'isAdmin'));
+        return view('admin.users.edit', compact('user', 'canEditDetails', 'subTitle', 'subTitleIcon', 'codes', 'currentUser', 'isAdmin'));
     }
 
     /**
@@ -143,7 +143,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $subTitle     = (string)trans('firefly.user_administration');
+        $subTitle     = (string) trans('firefly.user_administration');
         $subTitleIcon = 'fa-users';
         $users        = $this->repository->all();
 
@@ -160,7 +160,7 @@ class UserController extends Controller
         // Set whitelabel back
         Whitelabel::setConfig(auth()->user()->whitelabel);
 
-        return prefixView('admin.users.index', compact('subTitle', 'subTitleIcon', 'users'));
+        return view('admin.users.index', compact('subTitle', 'subTitleIcon', 'users'));
     }
 
     /**
@@ -172,13 +172,13 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $title         = (string)trans('firefly.administration');
+        $title         = (string) trans('firefly.administration');
         $mainTitleIcon = 'fa-hand-spock-o';
-        $subTitle      = (string)trans('firefly.single_user_administration', ['email' => $user->email]);
+        $subTitle      = (string) trans('firefly.single_user_administration', ['email' => $user->email]);
         $subTitleIcon  = 'fa-user';
         $information   = $this->repository->getUserData($user);
 
-        return prefixView(
+        return view(
             'admin.users.show',
             compact(
                 'title',
@@ -221,10 +221,10 @@ class UserController extends Controller
         $this->repository->changeStatus($user, $data['blocked'], $data['blocked_code']);
         $this->repository->updateEmail($user, $data['email']);
 
-        session()->flash('success', (string)trans('firefly.updated_user', ['email' => $user->email]));
+        session()->flash('success', (string) trans('firefly.updated_user', ['email' => $user->email]));
         app('preferences')->mark();
-        $redirect = redirect($this->getPreviousUri('users.edit.uri'));
-        if (1 === (int)$request->get('return_to_edit')) {
+        $redirect = redirect($this->getPreviousUrl('users.edit.url'));
+        if (1 === (int) $request->get('return_to_edit')) {
 
             session()->put('users.edit.fromUpdate', true);
 

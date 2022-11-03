@@ -26,6 +26,7 @@ namespace FireflyIII\Api\V1\Controllers;
 
 use Carbon\Carbon;
 use Carbon\Exceptions\InvalidDateException;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -33,6 +34,8 @@ use Illuminate\Routing\Controller as BaseController;
 use League\Fractal\Manager;
 use League\Fractal\Serializer\JsonApiSerializer;
 use Log;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**
@@ -45,6 +48,7 @@ abstract class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     protected const CONTENT_TYPE = 'application/vnd.api+json';
+    protected array        $allowedSort;
     protected ParameterBag $parameters;
 
     /**
@@ -53,7 +57,8 @@ abstract class Controller extends BaseController
     public function __construct()
     {
         // get global parameters
-        $this->parameters = $this->getParameters();
+        $this->allowedSort = config('firefly.allowed_sort_parameters');
+        $this->parameters  = $this->getParameters();
         $this->middleware(
             function ($request, $next) {
                 if (auth()->check()) {
@@ -68,9 +73,11 @@ abstract class Controller extends BaseController
     }
 
     /**
-     * Method to grab all parameters from the URI.
+     * Method to grab all parameters from the URL.
      *
      * @return ParameterBag
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     private function getParameters(): ParameterBag
     {
@@ -89,9 +96,9 @@ abstract class Controller extends BaseController
             if (null !== $date) {
                 try {
                     $obj = Carbon::parse($date);
-                } catch (InvalidDateException $e) {
+                } catch (InvalidDateException | InvalidFormatException $e) {
                     // don't care
-                    Log::error(sprintf('Invalid date exception in API controller: %s', $e->getMessage()));
+                    Log::warning(sprintf('Ignored invalid date "%s" in API controller parameter check: %s', $date, $e->getMessage()));
                 }
             }
             $bag->set($field, $obj);
@@ -106,12 +113,42 @@ abstract class Controller extends BaseController
             }
         }
 
-        return $bag;
-
+        // sort fields:
+        return $this->getSortParameters($bag);
     }
 
     /**
-     * Method to help build URI's.
+     * @param ParameterBag $bag
+     *
+     * @return ParameterBag
+     */
+    private function getSortParameters(ParameterBag $bag): ParameterBag
+    {
+        $sortParameters = [];
+        $param          = (string)request()->query->get('sort');
+        if ('' === $param) {
+            return $bag;
+        }
+        $parts = explode(',', $param);
+        foreach ($parts as $part) {
+            $part      = trim($part);
+            $direction = 'asc';
+            if ('-' === $part[0]) {
+                $part      = substr($part, 1);
+                $direction = 'desc';
+            }
+            if (in_array($part, $this->allowedSort, true)) {
+                $sortParameters[] = [$part, $direction];
+            }
+        }
+        $bag->set('sort', $sortParameters);
+
+        return $bag;
+    }
+
+
+    /**
+     * Method to help build URL's.
      *
      * @return string
      */

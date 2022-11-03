@@ -37,6 +37,7 @@ use FireflyIII\Services\Internal\Update\JournalUpdateService;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
+use JsonException;
 
 /**
  * Class JournalRepository.
@@ -69,6 +70,18 @@ class JournalRepository implements JournalRepositoryInterface
     }
 
     /**
+     * Find a specific journal.
+     *
+     * @param int $journalId
+     *
+     * @return TransactionJournal|null
+     */
+    public function find(int $journalId): ?TransactionJournal
+    {
+        return $this->user->transactionJournals()->find($journalId);
+    }
+
+    /**
      * @inheritDoc
      */
     public function findByType(array $types): Collection
@@ -78,18 +91,6 @@ class JournalRepository implements JournalRepositoryInterface
             ->leftJoin('transaction_types', 'transaction_types.id', '=', 'transaction_journals.transaction_type_id')
             ->whereIn('transaction_types.type', $types)
             ->get(['transaction_journals.*']);
-    }
-
-    /**
-     * Find a specific journal.
-     *
-     * @param int $journalId
-     *
-     * @return TransactionJournal|null
-     */
-    public function findNull(int $journalId): ?TransactionJournal
-    {
-        return $this->user->transactionJournals()->where('id', $journalId)->first();
     }
 
     /**
@@ -124,62 +125,6 @@ class JournalRepository implements JournalRepositoryInterface
     }
 
     /**
-     * Return a list of all destination accounts related to journal.
-     *
-     * @param TransactionJournal $journal
-     * @param bool               $useCache
-     *
-     * @return Collection
-     */
-    public function getJournalDestinationAccounts(TransactionJournal $journal, bool $useCache = true): Collection
-    {
-        $cache = new CacheProperties;
-        $cache->addProperty($journal->id);
-        $cache->addProperty('destination-account-list');
-        if ($useCache && $cache->has()) {
-            return $cache->get(); 
-        }
-        $transactions = $journal->transactions()->where('amount', '>', 0)->orderBy('transactions.account_id')->with('account')->get();
-        $list         = new Collection;
-        /** @var Transaction $t */
-        foreach ($transactions as $t) {
-            $list->push($t->account);
-        }
-        $list = $list->unique('id');
-        $cache->store($list);
-
-        return $list;
-    }
-
-    /**
-     * Return a list of all source accounts related to journal.
-     *
-     * @param TransactionJournal $journal
-     * @param bool               $useCache
-     *
-     * @return Collection
-     */
-    public function getJournalSourceAccounts(TransactionJournal $journal, bool $useCache = true): Collection
-    {
-        $cache = new CacheProperties;
-        $cache->addProperty($journal->id);
-        $cache->addProperty('source-account-list');
-        if ($useCache && $cache->has()) {
-            return $cache->get(); 
-        }
-        $transactions = $journal->transactions()->where('amount', '<', 0)->orderBy('transactions.account_id')->with('account')->get();
-        $list         = new Collection;
-        /** @var Transaction $t */
-        foreach ($transactions as $t) {
-            $list->push($t->account);
-        }
-        $list = $list->unique('id');
-        $cache->store($list);
-
-        return $list;
-    }
-
-    /**
      * Return total amount of journal. Is always positive.
      *
      * @param TransactionJournal $journal
@@ -192,12 +137,12 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->addProperty($journal->id);
         $cache->addProperty('amount-positive');
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         // saves on queries:
         $amount = $journal->transactions()->where('amount', '>', 0)->get()->sum('amount');
-        $amount = (string)$amount;
+        $amount = (string) $amount;
         $cache->store($amount);
 
         return $amount;
@@ -250,7 +195,7 @@ class JournalRepository implements JournalRepositoryInterface
         $cache->addProperty($field);
 
         if ($cache->has()) {
-            return new Carbon($cache->get()); 
+            return new Carbon($cache->get());
         }
         $entry = TransactionJournalMeta::where('transaction_journal_id', $journalId)
                                        ->where('name', $field)->first();
@@ -284,9 +229,7 @@ class JournalRepository implements JournalRepositoryInterface
     {
         /** @var TransactionJournal $journal */
         $journal = $this->user->transactionJournals()->find($journalId);
-        if (null !== $journal) {
-            $journal->transactions()->update(['reconciled' => true]);
-        }
+        $journal?->transactions()->update(['reconciled' => true]);
     }
 
     /**

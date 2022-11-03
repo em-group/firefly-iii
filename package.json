@@ -1,29 +1,33 @@
 {
     "private": true,
     "scripts": {
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "production": "mix --production",
-        "prod": "mix --production"
+        "development": "export NODE_OPTIONS=--openssl-legacy-provider; mix",
+        "watch": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch",
+        "watch-poll": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch -- --watch-options-poll=1000",
+        "hot": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch --hot",
+        "production": "export NODE_OPTIONS=--openssl-legacy-provider; mix --production",
+        "prod": "export NODE_OPTIONS=--openssl-legacy-provider; mix --production"
     },
     "devDependencies": {
         "@johmun/vue-tags-input": "^2",
-        "axios": "^0.21",
+        "@vue/compiler-sfc": "^3.2.40",
+        "axios": "^1.1",
         "bootstrap-sass": "^3",
         "cross-env": "^7.0",
         "font-awesome": "^4.7.0",
         "jquery": "^3",
         "laravel-mix": "^6.0",
-        "postcss": "^8.2",
         "resolve-url-loader": "^3.1.2",
         "sass": "^1.35.0",
         "sass-loader": "8.*",
-        "uiv": "^1.2",
-        "vue": "^2.6",
-        "vue-i18n": "^8.23",
-        "vue-loader": "^15.9.5",
-        "vue-template-compiler": "^2.6"
+        "postcss": "^8.4.17",
+        "uiv": "^1.4",
+        "vue": "^2.7",
+        "vue-i18n": "^8",
+        "vue-loader": "^15",
+        "vue-template-compiler": "^2.7"
+    },
+    "dependencies": {
+        "stream-browserify": "^3.0.0"
     }
 }

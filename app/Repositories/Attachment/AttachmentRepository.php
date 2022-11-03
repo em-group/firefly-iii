@@ -31,10 +31,8 @@ use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Note;
 use FireflyIII\User;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
-use Log;
 
 /**
  * Class AttachmentRepository.
@@ -101,12 +99,7 @@ class AttachmentRepository implements AttachmentRepositoryInterface
         $unencryptedContent = '';
 
         if ($disk->exists($file)) {
-            $encryptedContent = '';
-            try {
-                $encryptedContent = $disk->get($file);
-            } catch (FileNotFoundException $e) {
-                Log::error($e->getMessage());
-            }
+            $encryptedContent = (string) $disk->get($file);
 
             try {
                 $unencryptedContent = Crypt::decrypt($encryptedContent); // verified
@@ -123,13 +116,13 @@ class AttachmentRepository implements AttachmentRepositoryInterface
      *
      * @param Attachment $attachment
      *
-     * @return string
+     * @return string|null
      */
     public function getNoteText(Attachment $attachment): ?string
     {
         $note = $attachment->notes()->first();
         if (null !== $note) {
-            return (string)$note->text;
+            return (string) $note->text;
         }
 
         return null;
@@ -167,6 +160,7 @@ class AttachmentRepository implements AttachmentRepositoryInterface
      * @param array      $data
      *
      * @return Attachment
+     * @throws Exception
      */
     public function update(Attachment $attachment, array $data): Attachment
     {
@@ -174,22 +168,20 @@ class AttachmentRepository implements AttachmentRepositoryInterface
             $attachment->title = $data['title'];
         }
 
-        if (array_key_exists('filename', $data)) {
-            if ('' !== (string)$data['filename'] && $data['filename'] !== $attachment->filename) {
-                $attachment->filename = $data['filename'];
-            }
+        if (array_key_exists('filename', $data) && '' !== (string) $data['filename'] && $data['filename'] !== $attachment->filename) {
+            $attachment->filename = $data['filename'];
         }
         // update model (move attachment)
         // should be validated already:
         if (array_key_exists('attachable_type', $data) && array_key_exists('attachable_id', $data)) {
-            $attachment->attachable_id   = (int)$data['attachable_id'];
+            $attachment->attachable_id   = (int) $data['attachable_id'];
             $attachment->attachable_type = sprintf('FireflyIII\\Models\\%s', $data['attachable_type']);
         }
 
         $attachment->save();
         $attachment->refresh();
         if (array_key_exists('notes', $data)) {
-            $this->updateNote($attachment, (string)$data['notes']);
+            $this->updateNote($attachment, (string) $data['notes']);
         }
 
         return $attachment;

@@ -45,35 +45,42 @@ class AccountFormRequest extends FormRequest
     public function getAccountData(): array
     {
         $data = [
-            'name'                    => $this->string('name'),
+            'name'                    => $this->convertString('name'),
             'active'                  => $this->boolean('active'),
-            'account_type_name'       => $this->string('objectType'),
-            'currency_id'             => $this->integer('currency_id'),
-            'virtual_balance'         => $this->string('virtual_balance'),
-            'iban'                    => $this->string('iban'),
-            'BIC'                     => $this->string('BIC'),
-            'account_number'          => $this->string('account_number'),
-            'account_role'            => $this->string('account_role'),
-            'opening_balance'         => $this->string('opening_balance'),
-            'opening_balance_date'    => $this->date('opening_balance_date'),
-            'cc_type'                 => $this->string('cc_type'),
-            'cc_monthly_payment_date' => $this->string('cc_monthly_payment_date'),
+            'account_type_name'       => $this->convertString('objectType'),
+            'currency_id'             => $this->convertInteger('currency_id'),
+            'virtual_balance'         => $this->convertString('virtual_balance'),
+            'iban'                    => $this->convertString('iban'),
+            'BIC'                     => $this->convertString('BIC'),
+            'account_number'          => $this->convertString('account_number'),
+            'account_role'            => $this->convertString('account_role'),
+            'opening_balance'         => $this->convertString('opening_balance'),
+            'opening_balance_date'    => $this->getCarbonDate('opening_balance_date'),
+            'cc_type'                 => $this->convertString('cc_type'),
+            'cc_monthly_payment_date' => $this->convertString('cc_monthly_payment_date'),
             'notes'                   => $this->stringWithNewlines('notes'),
-            'interest'                => $this->string('interest'),
-            'interest_period'         => $this->string('interest_period'),
+            'interest'                => $this->convertString('interest'),
+            'interest_period'         => $this->convertString('interest_period'),
             'include_net_worth'       => '1',
+            'liability_direction'     => $this->convertString('liability_direction'),
         ];
 
         $data = $this->appendLocationData($data, 'location');
         if (false === $this->boolean('include_net_worth')) {
             $data['include_net_worth'] = '0';
         }
+        if ('0' === $data['opening_balance']) {
+            $data['opening_balance'] = '';
+        }
 
         // if the account type is "liabilities" there are actually four types of liability
         // that could have been selected.
         if ('liabilities' === $data['account_type_name']) {
             $data['account_type_name'] = null;
-            $data['account_type_id']   = $this->integer('liability_type_id');
+            $data['account_type_id']   = $this->convertInteger('liability_type_id');
+            if ('' !== $data['opening_balance']) {
+                $data['opening_balance'] = app('steam')->negative($data['opening_balance']);
+            }
         }
 
         return $data;
@@ -91,9 +98,9 @@ class AccountFormRequest extends FormRequest
         $ccPaymentTypes = implode(',', array_keys(config('firefly.ccTypes')));
         $rules          = [
             'name'                               => 'required|min:1|uniqueAccountForUser',
-            'opening_balance'                    => 'numeric|required_with:opening_balance_date|nullable|max:1000000000',
+            'opening_balance'                    => 'numeric|nullable|max:1000000000',
             'opening_balance_date'               => 'date|required_with:opening_balance|nullable',
-            'iban'                               => ['iban', 'nullable', new UniqueIban(null, $this->string('objectType'))],
+            'iban'                               => ['iban', 'nullable', new UniqueIban(null, $this->convertString('objectType'))],
             'BIC'                                => 'bic|nullable',
             'virtual_balance'                    => 'numeric|nullable|max:1000000000',
             'currency_id'                        => 'exists:transaction_currencies,id',
@@ -107,11 +114,6 @@ class AccountFormRequest extends FormRequest
             'interest_period'                    => 'in:daily,monthly,yearly',
         ];
         $rules          = Location::requestRules($rules);
-
-        if ('liabilities' === $this->get('objectType')) {
-            $rules['opening_balance']      = ['numeric', 'required', 'max:1000000000'];
-            $rules['opening_balance_date'] = 'date|required';
-        }
 
         /** @var Account $account */
         $account = $this->route()->parameter('account');

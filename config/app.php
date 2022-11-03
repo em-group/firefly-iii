@@ -21,8 +21,6 @@
 
 declare(strict_types=1);
 
-use FireflyIII\Support\Facades\Telemetry;
-
 return [
     'unsubscribe_email_notifications' => env('UNSUBSCRIBE_EMAIL_NOTIFICATIONS', null),
 
@@ -153,15 +151,14 @@ return [
         'AccountForm'   => \FireflyIII\Support\Facades\AccountForm::class,
         'PiggyBankForm' => \FireflyIII\Support\Facades\PiggyBankForm::class,
         'RuleForm'      => \FireflyIII\Support\Facades\RuleForm::class,
-        'Telemetry'     => Telemetry::class,
         'Google2FA'     => PragmaRX\Google2FALaravel\Facade::class,
         'WhitelabelConfig' => \FireflyIII\Support\Facades\WhitelabelConfig::class,
         'Sentry'        => Sentry\Laravel\ServiceProvider::class,
         'Twig'          => TwigBridge\Facade\Twig::class,
 
-        'Arr' => Illuminate\Support\Arr::class,
+        'Arr'  => Illuminate\Support\Arr::class,
         'Http' => Illuminate\Support\Facades\Http::class,
-        'Str' => Illuminate\Support\Str::class,
+        'Str'  => Illuminate\Support\Str::class,
     ],
 
     'asset_url' => env('ASSET_URL', null),

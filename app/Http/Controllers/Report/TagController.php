@@ -155,7 +155,7 @@ class TagController extends Controller
             }
         }
 
-        return prefixView('reports.tag.partials.account-per-tag', compact('report', 'tags'));
+        return view('reports.tag.partials.account-per-tag', compact('report', 'tags'));
     }
 
     /**
@@ -259,7 +259,7 @@ class TagController extends Controller
             }
         }
 
-        return prefixView('reports.tag.partials.accounts', compact('sums', 'report'));
+        return view('reports.tag.partials.accounts', compact('sums', 'report'));
     }
 
     /**
@@ -268,7 +268,7 @@ class TagController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgExpenses(Collection $accounts, Collection $tags, Carbon $start, Carbon $end)
     {
@@ -293,8 +293,8 @@ class TagController extends Controller
                         ];
                     $result[$key]['transactions']++;
                     $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                    $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                    $result[$key]['avg_float'] = (float) $result[$key]['avg'];
                 }
             }
         }
@@ -304,7 +304,7 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.tag.partials.avg-expenses', compact('result'))->render();
+            $result = view('reports.tag.partials.avg-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -320,7 +320,7 @@ class TagController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function avgIncome(Collection $accounts, Collection $tags, Carbon $start, Carbon $end)
     {
@@ -345,8 +345,8 @@ class TagController extends Controller
                         ];
                     $result[$key]['transactions']++;
                     $result[$key]['sum']       = bcadd($journal['amount'], $result[$key]['sum']);
-                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string)$result[$key]['transactions']);
-                    $result[$key]['avg_float'] = (float)$result[$key]['avg'];
+                    $result[$key]['avg']       = bcdiv($result[$key]['sum'], (string) $result[$key]['transactions']);
+                    $result[$key]['avg_float'] = (float) $result[$key]['avg'];
                 }
             }
         }
@@ -356,7 +356,7 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.tag.partials.avg-income', compact('result'))->render();
+            $result = view('reports.tag.partials.avg-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -471,7 +471,7 @@ class TagController extends Controller
             }
         }
 
-        return prefixView('reports.tag.partials.tags', compact('sums', 'report'));
+        return view('reports.tag.partials.tags', compact('sums', 'report'));
     }
 
     /**
@@ -480,7 +480,7 @@ class TagController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topExpenses(Collection $accounts, Collection $tags, Carbon $start, Carbon $end)
     {
@@ -492,9 +492,9 @@ class TagController extends Controller
                     $result[] = [
                         'description'              => $journal['description'],
                         'transaction_group_id'     => $journal['transaction_group_id'],
-                        'amount_float'             => (float)$journal['amount'],
+                        'amount_float'             => (float) $journal['amount'],
                         'amount'                   => $journal['amount'],
-                        'date'                     => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date'                     => $journal['date']->isoFormat($this->monthAndDayFormat),
                         'date_sort'                => $journal['date']->format('Y-m-d'),
                         'destination_account_name' => $journal['destination_account_name'],
                         'destination_account_id'   => $journal['destination_account_id'],
@@ -514,7 +514,7 @@ class TagController extends Controller
         array_multisort($amounts, SORT_ASC, $result);
 
         try {
-            $result = prefixView('reports.tag.partials.top-expenses', compact('result'))->render();
+            $result = view('reports.tag.partials.top-expenses', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));
@@ -530,7 +530,7 @@ class TagController extends Controller
      * @param Carbon     $start
      * @param Carbon     $end
      *
-     * @return array|string
+     * @return string
      */
     public function topIncome(Collection $accounts, Collection $tags, Carbon $start, Carbon $end)
     {
@@ -542,9 +542,9 @@ class TagController extends Controller
                     $result[] = [
                         'description'             => $journal['description'],
                         'transaction_group_id'    => $journal['transaction_group_id'],
-                        'amount_float'            => (float)$journal['amount'],
+                        'amount_float'            => (float) $journal['amount'],
                         'amount'                  => $journal['amount'],
-                        'date'                    => $journal['date']->formatLocalized($this->monthAndDayFormat),
+                        'date'                    => $journal['date']->isoFormat($this->monthAndDayFormat),
                         'date_sort'               => $journal['date']->format('Y-m-d'),
                         'source_account_name'     => $journal['source_account_name'],
                         'source_account_id'       => $journal['source_account_id'],
@@ -564,7 +564,7 @@ class TagController extends Controller
         array_multisort($amounts, SORT_DESC, $result);
 
         try {
-            $result = prefixView('reports.tag.partials.top-income', compact('result'))->render();
+            $result = view('reports.tag.partials.top-income', compact('result'))->render();
 
         } catch (Throwable $e) { // @phpstan-ignore-line
             Log::debug(sprintf('Could not render reports.partials.budget-period: %s', $e->getMessage()));

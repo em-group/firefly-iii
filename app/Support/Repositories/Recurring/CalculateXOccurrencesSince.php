@@ -23,6 +23,7 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Repositories\Recurring;
+
 use Carbon\Carbon;
 use Log;
 
@@ -61,6 +62,7 @@ trait CalculateXOccurrencesSince
 
         return $return;
     }
+
     /**
      * Calculates the number of monthly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -80,7 +82,7 @@ trait CalculateXOccurrencesSince
         $mutator    = clone $date;
         $total      = 0;
         $attempts   = 0;
-        $dayOfMonth = (int)$moment;
+        $dayOfMonth = (int) $moment;
         $dayOfMonth = 0 === $dayOfMonth ? 1 : $dayOfMonth;
         if ($mutator->day > $dayOfMonth) {
             Log::debug(sprintf('%d is after %d, add a month. Mutator is now', $mutator->day, $dayOfMonth));
@@ -103,6 +105,7 @@ trait CalculateXOccurrencesSince
 
         return $return;
     }
+
     /**
      * Calculates the number of NDOM occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -142,6 +145,7 @@ trait CalculateXOccurrencesSince
 
         return $return;
     }
+
     /**
      * Calculates the number of weekly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -163,8 +167,9 @@ trait CalculateXOccurrencesSince
         $mutator  = clone $date;
         // monday = 1
         // sunday = 7
-        $mutator->addDay(); // always assume today has passed.
-        $dayOfWeek = (int)$moment;
+        // Removed assumption today has passed, see issue https://github.com/firefly-iii/firefly-iii/issues/4798
+        //$mutator->addDay(); // always assume today has passed.
+        $dayOfWeek = (int) $moment;
         if ($mutator->dayOfWeekIso > $dayOfWeek) {
             // day has already passed this week, add one week:
             $mutator->addWeek();
@@ -185,6 +190,7 @@ trait CalculateXOccurrencesSince
 
         return $return;
     }
+
     /**
      * Calculates the number of yearly occurrences for a recurring transaction, starting at the date, until $count is reached. It will skip
      * over $skipMod -1 recurrences.
@@ -208,7 +214,7 @@ trait CalculateXOccurrencesSince
         $date->year = $mutator->year;
         if ($mutator > $date) {
             Log::debug(
-                sprintf('mutator (%s) > date (%s), so add a year to date (%s)', $mutator->format('Y-m-d'), $date->format('Y-m-d'), $date->format('Y-m-d'),)
+                sprintf('mutator (%s) > date (%s), so add a year to date (%s)', $mutator->format('Y-m-d'), $date->format('Y-m-d'), $date->format('Y-m-d'))
             );
             $date->addYear();
             Log::debug(sprintf('Date is now %s', $date->format('Y-m-d')));
@@ -223,7 +229,7 @@ trait CalculateXOccurrencesSince
                 $return[] = clone $obj;
                 $total++;
             }
-            $obj->addYears(1);
+            $obj->addYears();
             $attempts++;
         }
 

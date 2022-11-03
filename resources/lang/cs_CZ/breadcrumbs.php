@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Domů',
+    'budgets'                => 'Budgets',
+    'subscriptions'          => 'Subscriptions',
+    'transactions'           => 'Transactions',
+    'title_expenses'         => 'Expenses',
+    'title_withdrawal'       => 'Expenses',
+    'title_revenue'          => 'Revenue / income',
+    'title_deposit'          => 'Revenue / income',
+    'title_transfer'         => 'Transfers',
+    'title_transfers'        => 'Transfers',
     'edit_currency'          => 'Upravit měnu „:name“',
     'delete_currency'        => 'Odstranit měnu „:name“',
     'newPiggyBank'           => 'Vytvořit novou pokladničku',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Upravit štítek „:tag“',
     'delete_tag'             => 'Odstranit štítek „:tag“',
     'delete_journal_link'    => 'Odstranit vazbu mezi transakcemi',
-    'telemetry_index'        => 'Telemetrie',
-    'telemetry_view'         => 'Zobrazit telemetrii',
     'edit_object_group'      => 'Upravit skupinu „:title“',
     'delete_object_group'    => 'Odstranit skupinu „:title“',
-    'logout_others'          => 'Odhlásit ostatní relace'
+    'logout_others'          => 'Odhlásit ostatní relace',
+    'asset_accounts'         => 'Asset accounts',
+    'expense_accounts'       => 'Expense accounts',
+    'revenue_accounts'       => 'Revenue accounts',
+    'liabilities_accounts'   => 'Liabilities',
+    'placeholder'            => '[Placeholder]',
 ];

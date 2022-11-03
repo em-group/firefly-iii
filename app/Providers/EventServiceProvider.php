@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace FireflyIII\Providers;
 
 use Exception;
+use FireflyIII\Events\ActuallyLoggedIn;
 use FireflyIII\Events\AdminRequestedTestMessage;
 use FireflyIII\Events\DestroyedTransactionGroup;
 use FireflyIII\Events\DetectedNewIPAddress;
@@ -31,9 +32,12 @@ use FireflyIII\Events\RequestedNewPassword;
 use FireflyIII\Events\RequestedReportOnJournals;
 use FireflyIII\Events\RequestedSendWebhookMessages;
 use FireflyIII\Events\RequestedVersionCheckStatus;
+use FireflyIII\Events\StoredAccount;
 use FireflyIII\Events\StoredTransactionGroup;
+use FireflyIII\Events\UpdatedAccount;
 use FireflyIII\Events\UpdatedTransactionGroup;
 use FireflyIII\Events\UserChangedEmail;
+use FireflyIII\Events\WarnUserAboutBill;
 use FireflyIII\Mail\OAuthTokenCreatedMail;
 use FireflyIII\Models\PiggyBank;
 use FireflyIII\Models\PiggyBankRepetition;
@@ -44,8 +48,8 @@ use Laravel\Passport\Client;
 use Laravel\Passport\Events\AccessTokenCreated;
 use Log;
 use Mail;
-use Request;
 use Session;
+use TypeError;
 
 /**
  * Class EventServiceProvider.
@@ -65,11 +69,14 @@ class EventServiceProvider extends ServiceProvider
             RegisteredUser::class               => [
                 'FireflyIII\Handlers\Events\UserEventHandler@sendRegistrationMail',
                 'FireflyIII\Handlers\Events\UserEventHandler@attachUserRole',
+                'FireflyIII\Handlers\Events\UserEventHandler@createGroupMembership',
             ],
             // is a User related event.
             Login::class                        => [
                 'FireflyIII\Handlers\Events\UserEventHandler@checkSingleUserIsAdmin',
                 'FireflyIII\Handlers\Events\UserEventHandler@demoUserBackToEnglish',
+            ],
+            ActuallyLoggedIn::class             => [
                 'FireflyIII\Handlers\Events\UserEventHandler@storeUserIPAddress',
             ],
             DetectedNewIPAddress::class         => [
@@ -98,12 +105,14 @@ class EventServiceProvider extends ServiceProvider
             // is a Transaction Journal related event.
             StoredTransactionGroup::class       => [
                 'FireflyIII\Handlers\Events\StoredGroupEventHandler@processRules',
+                'FireflyIII\Handlers\Events\StoredGroupEventHandler@recalculateCredit',
                 'FireflyIII\Handlers\Events\StoredGroupEventHandler@triggerWebhooks',
             ],
             // is a Transaction Journal related event.
             UpdatedTransactionGroup::class      => [
                 'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@unifyAccounts',
                 'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@processRules',
+                'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@recalculateCredit',
                 'FireflyIII\Handlers\Events\UpdatedGroupEventHandler@triggerWebhooks',
             ],
             DestroyedTransactionGroup::class    => [
@@ -117,6 +126,19 @@ class EventServiceProvider extends ServiceProvider
             // Webhook related event:
             RequestedSendWebhookMessages::class => [
                 'FireflyIII\Handlers\Events\WebhookEventHandler@sendWebhookMessages',
+            ],
+
+            // account related events:
+            StoredAccount::class                => [
+                'FireflyIII\Handlers\Events\StoredAccountEventHandler@recalculateCredit',
+            ],
+            UpdatedAccount::class               => [
+                'FireflyIII\Handlers\Events\UpdatedAccountEventHandler@recalculateCredit',
+            ],
+
+            // bill related events:
+            WarnUserAboutBill::class            => [
+                'FireflyIII\Handlers\Events\BillEventHandler@warnAboutBill',
             ],
         ];
 
@@ -149,27 +171,26 @@ class EventServiceProvider extends ServiceProvider
             static function (Client $oauthClient) {
                 /** @var UserRepositoryInterface $repository */
                 $repository = app(UserRepositoryInterface::class);
-                $user       = $repository->findNull((int)$oauthClient->user_id);
+                $user       = $repository->find((int) $oauthClient->user_id);
                 if (null === $user) {
                     Log::info('OAuth client generated but no user associated.');
 
                     return;
                 }
 
-                $email     = $user->email;
-                $ipAddress = Request::ip();
+                $email = $user->email;
 
                 // see if user has alternative email address:
-                $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email', null);
+                $pref = app('preferences')->getForUser($user, 'remote_guard_alt_email');
                 if (null !== $pref) {
                     $email = $pref->data;
                 }
 
-                Log::debug(sprintf('Now in EventServiceProvider::registerCreateEvents. Email is %s, IP is %s', $email, $ipAddress));
+                Log::debug(sprintf('Now in EventServiceProvider::registerCreateEvents. Email is %s', $email));
                 try {
                     Log::debug('Trying to send message...');
-                    Mail::to($email)->send(new OAuthTokenCreatedMail($email, $ipAddress, $oauthClient));
-                } catch (Exception $e) { // @phpstan-ignore-line
+                    Mail::to($email)->send(new OAuthTokenCreatedMail($oauthClient));
+                } catch (TypeError|Exception $e) { // @phpstan-ignore-line
                     Log::debug('Send message failed! :(');
                     Log::error($e->getMessage());
                     Log::error($e->getTraceAsString());

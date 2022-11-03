@@ -49,19 +49,21 @@ class StoreRequest extends FormRequest
     {
         Log::debug('Raw fields in Bill StoreRequest', $this->all());
         $fields = [
-            'name'               => ['name', 'string'],
-            'amount_min'         => ['amount_min', 'string'],
-            'amount_max'         => ['amount_max', 'string'],
-            'currency_id'        => ['currency_id', 'integer'],
-            'currency_code'      => ['currency_code', 'string'],
+            'name'               => ['name', 'convertString'],
+            'amount_min'         => ['amount_min', 'convertString'],
+            'amount_max'         => ['amount_max', 'convertString'],
+            'currency_id'        => ['currency_id', 'convertInteger'],
+            'currency_code'      => ['currency_code', 'convertString'],
             'date'               => ['date', 'date'],
-            'repeat_freq'        => ['repeat_freq', 'string'],
-            'skip'               => ['skip', 'integer'],
+            'end_date'           => ['end_date', 'date'],
+            'extension_date'     => ['extension_date', 'date'],
+            'repeat_freq'        => ['repeat_freq', 'convertString'],
+            'skip'               => ['skip', 'convertInteger'],
             'active'             => ['active', 'boolean'],
-            'order'              => ['order', 'integer'],
+            'order'              => ['order', 'convertInteger'],
             'notes'              => ['notes', 'stringWithNewlines'],
-            'object_group_id'    => ['object_group_id', 'integer'],
-            'object_group_title' => ['object_group_title', 'string'],
+            'object_group_id'    => ['object_group_id', 'convertInteger'],
+            'object_group_title' => ['object_group_title', 'convertString'],
         ];
 
         return $this->getAllData($fields);
@@ -75,16 +77,18 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => 'between:1,255|uniqueObjectForUser:bills,name',
-            'amount_min'    => 'numeric|gt:0',
-            'amount_max'    => 'numeric|gt:0',
-            'currency_id'   => 'numeric|exists:transaction_currencies,id',
-            'currency_code' => 'min:3|max:3|exists:transaction_currencies,code',
-            'date'          => 'date',
-            'repeat_freq'   => 'in:weekly,monthly,quarterly,half-year,yearly',
-            'skip'          => 'between:0,31',
-            'active'        => [new IsBoolean],
-            'notes'         => 'between:1,65536',
+            'name'           => 'between:1,255|uniqueObjectForUser:bills,name',
+            'amount_min'     => 'numeric|gt:0|required',
+            'amount_max'     => 'numeric|gt:0|required',
+            'currency_id'    => 'numeric|exists:transaction_currencies,id',
+            'currency_code'  => 'min:3|max:3|exists:transaction_currencies,code',
+            'date'           => 'date|required',
+            'end_date'       => 'date|after:date',
+            'extension_date' => 'date|after:date',
+            'repeat_freq'    => 'in:weekly,monthly,quarterly,half-year,yearly|required',
+            'skip'           => 'between:0,31',
+            'active'         => [new IsBoolean],
+            'notes'          => 'between:1,65536',
         ];
     }
 
@@ -100,10 +104,10 @@ class StoreRequest extends FormRequest
         $validator->after(
             static function (Validator $validator) {
                 $data = $validator->getData();
-                $min  = (float)($data['amount_min'] ?? 0);
-                $max  = (float)($data['amount_max'] ?? 0);
+                $min  = (float) ($data['amount_min'] ?? 0);
+                $max  = (float) ($data['amount_max'] ?? 0);
                 if ($min > $max) {
-                    $validator->errors()->add('amount_min', (string)trans('validation.amount_min_over_max'));
+                    $validator->errors()->add('amount_min', (string) trans('validation.amount_min_over_max'));
                 }
             }
         );

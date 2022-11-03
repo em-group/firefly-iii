@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Support\Http\Controllers;
 
-use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\RuleGroup\RuleGroupRepositoryInterface;
 use FireflyIII\Support\Search\OperatorQuerySearch;
 use Illuminate\Http\Request;
@@ -36,54 +35,6 @@ use Throwable;
  */
 trait RuleManagement
 {
-    /**
-     *
-     */
-    protected function createDefaultRule(): void
-    {
-        /** @var RuleRepositoryInterface $ruleRepository */
-        $ruleRepository = app(RuleRepositoryInterface::class);
-        if (0 === $ruleRepository->count()) {
-            $data = [
-                'rule_group_id'   => $ruleRepository->getFirstRuleGroup()->id,
-                'stop_processing' => 0,
-                'title'           => (string)trans('firefly.default_rule_name'),
-                'description'     => (string)trans('firefly.default_rule_description'),
-                'trigger'         => 'store-journal',
-                'strict'          => true,
-                'active'          => true,
-                'triggers'        => [
-                    [
-                        'type'            => 'description_is',
-                        'value'           => (string)trans('firefly.default_rule_trigger_description'),
-                        'stop_processing' => false,
-
-                    ],
-                    [
-                        'type'            => 'from_account_is',
-                        'value'           => (string)trans('firefly.default_rule_trigger_source_account'),
-                        'stop_processing' => false,
-
-                    ],
-
-                ],
-                'actions'         => [
-                    [
-                        'type'            => 'prepend_description',
-                        'value'           => (string)trans('firefly.default_rule_action_prepend'),
-                        'stop_processing' => false,
-                    ],
-                    [
-                        'type'            => 'set_category',
-                        'value'           => (string)trans('firefly.default_rule_action_set_category'),
-                        'stop_processing' => false,
-                    ],
-                ],
-            ];
-
-            $ruleRepository->store($data);
-        }
-    }
 
     /**
      * @param Request $request
@@ -99,12 +50,12 @@ trait RuleManagement
         if (is_array($oldInput)) {
             foreach ($oldInput as $oldAction) {
                 try {
-                    $triggers[] = prefixView(
+                    $triggers[] = view(
                         'rules.partials.action',
                         [
                             'oldAction'  => $oldAction['type'],
                             'oldValue'   => $oldAction['value'],
-                            'oldChecked' => 1 === (int)($oldAction['stop_processing'] ?? '0'),
+                            'oldChecked' => 1 === (int) ($oldAction['stop_processing'] ?? '0'),
                             'count'      => $index + 1,
                         ]
                     )->render();
@@ -127,13 +78,13 @@ trait RuleManagement
      */
     protected function getPreviousTriggers(Request $request): array
     {
-        // TODO duplicated code.
-        $operators = config('firefly.search.operators');
+        // See reference nr. 34
+        $operators = config('search.operators');
         $triggers  = [];
         foreach ($operators as $key => $operator) {
             if ('user_action' !== $key && false === $operator['alias']) {
 
-                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
             }
         }
         asort($triggers);
@@ -144,12 +95,12 @@ trait RuleManagement
         if (is_array($oldInput)) {
             foreach ($oldInput as $oldTrigger) {
                 try {
-                    $renderedEntries[] = prefixView(
+                    $renderedEntries[] = view(
                         'rules.partials.trigger',
                         [
                             'oldTrigger' => OperatorQuerySearch::getRootOperator($oldTrigger['type']),
                             'oldValue'   => $oldTrigger['value'],
-                            'oldChecked' => 1 === (int)($oldTrigger['stop_processing'] ?? '0'),
+                            'oldChecked' => 1 === (int) ($oldTrigger['stop_processing'] ?? '0'),
                             'count'      => $index + 1,
                             'triggers'   => $triggers,
                         ]
@@ -172,14 +123,14 @@ trait RuleManagement
      */
     protected function parseFromOperators(array $submittedOperators): array
     {
-        // TODO duplicated code.
-        $operators       = config('firefly.search.operators');
+        // See reference nr. 35
+        $operators       = config('search.operators');
         $renderedEntries = [];
         $triggers        = [];
         foreach ($operators as $key => $operator) {
             if ('user_action' !== $key && false === $operator['alias']) {
 
-                $triggers[$key] = (string)trans(sprintf('firefly.rule_trigger_%s_choice', $key));
+                $triggers[$key] = (string) trans(sprintf('firefly.rule_trigger_%s_choice', $key));
             }
         }
         asort($triggers);
@@ -187,7 +138,7 @@ trait RuleManagement
         $index = 0;
         foreach ($submittedOperators as $operator) {
             try {
-                $renderedEntries[] = prefixView(
+                $renderedEntries[] = view(
                     'rules.partials.trigger',
                     [
                         'oldTrigger' => OperatorQuerySearch::getRootOperator($operator['type']),
@@ -216,8 +167,8 @@ trait RuleManagement
         $repository = app(RuleGroupRepositoryInterface::class);
         if (0 === $repository->count()) {
             $data = [
-                'title'       => (string)trans('firefly.default_rule_group_name'),
-                'description' => (string)trans('firefly.default_rule_group_description'),
+                'title'       => (string) trans('firefly.default_rule_group_name'),
+                'description' => (string) trans('firefly.default_rule_group_description'),
                 'active'      => true,
             ];
 

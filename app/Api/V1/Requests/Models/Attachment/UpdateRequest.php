@@ -45,11 +45,11 @@ class UpdateRequest extends FormRequest
     public function getAll(): array
     {
         $fields = [
-            'filename'        => ['filename', 'string'],
-            'title'           => ['title', 'string'],
+            'filename'        => ['filename', 'convertString'],
+            'title'           => ['title', 'convertString'],
             'notes'           => ['notes', 'stringWithNewlines'],
-            'attachable_type' => ['attachable_type', 'string'],
-            'attachable_id'   => ['attachable_id', 'integer'],
+            'attachable_type' => ['attachable_type', 'convertString'],
+            'attachable_id'   => ['attachable_id', 'convertInteger'],
         ];
 
         return $this->getAllData($fields);
@@ -70,7 +70,7 @@ class UpdateRequest extends FormRequest
             }, $models
         );
         $models = implode(',', $models);
-        $model  = $this->string('attachable_type');
+        $model  = $this->convertString('attachable_type');
 
         return [
             'filename'        => 'between:1,255',

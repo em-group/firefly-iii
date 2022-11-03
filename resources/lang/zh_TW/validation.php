@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => '這不是有效的 IBAN。',
     'zero_or_more'                   => '此數值不能為負數。',
     'date_or_time'                   => '此數值須為有效的日期或時間值 (ISO 8601)。',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute 必須被接受。',
     'bic'                            => '這不是有效的 BIC。',
     'at_least_one_trigger'           => '規則必須至少有一個觸發器。',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => '規則必須至少有一個動作。',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => '這不是有效的 base64 編碼資料。',
     'model_id_invalid'               => '指定的 ID 對於此模型似乎無效。',
     'less'                           => ':attribute 必須小於 10,000,000。',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => '小豬撲滿的名稱必須是獨一無二的。',
     'unique_object_group'            => 'The group name must be unique',
     'starts_with'                    => 'The value must start with :values.',
-    'unique_webhook'                 => 'You already have a webhook with these values.',
-    'unique_existing_webhook'        => 'You already have another webhook with these values.',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
     'same_account_type'              => 'Both accounts must be of the same account type',
     'same_account_currency'          => 'Both accounts must have the same currency setting',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
     'withdrawal_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
 
-    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
+    'generic_source_bad_data' => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
     'deposit_source_bad_data'  => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的來源帳戶。',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
     'need_id_in_edit'           => '每筆拆分須有 transaction_journal_id (為有效的 ID 或是 0)。',
 
-    'ob_source_need_data' => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
-    'ob_dest_need_data'   => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
-    'ob_dest_bad_data'    => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
+    'ob_source_need_data'           => '需要有效的來源帳戶 ID 及/或有效的來源帳戶名稱才能繼續。',
+    'lc_source_need_data'           => 'Need to get a valid source account ID to continue.',
+    'ob_dest_need_data'             => '需要有效的目標帳戶 ID 及/或有效的目標帳戶名稱才能繼續。',
+    'ob_dest_bad_data'              => '搜尋 ID ":id" 或名稱 ":name" 都找不到有效的目標帳戶。',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => 'You can\'t use this account as the source account.',
     'generic_invalid_destination' => 'You can\'t use this account as the destination account.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => 'The :attribute must be greater than or equal to :value.',
     'gt.numeric'  => 'The :attribute must be greater than :value.',

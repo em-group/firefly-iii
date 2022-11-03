@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => '数组中缺少"where"条目',
+    'missing_update'                 => '数组中缺少 "update"条目',
+    'invalid_where_key'              => 'JSON包含一个无效的"where"子句',
+    'invalid_update_key'             => 'JSON包含一个无效的"update"子句',
+    'invalid_query_data'             => '查询中的%s:%s字段存在无效数据',
+    'invalid_query_account_type'     => '查询包含不同类型的账户，这是不允许的',
+    'invalid_query_currency'         => '查询包含不同货币的账户，这是不不允许的。',
     'iban'                           => '此 IBAN 无效',
     'zero_or_more'                   => '此值不能为负',
     'date_or_time'                   => '此值必须是有效的日期或时间 (ISO 8601)',
@@ -54,13 +61,15 @@ return [
     'accepted'                       => ':attribute 必须接受',
     'bic'                            => '此 BIC 无效',
     'at_least_one_trigger'           => '每条规则必须至少有一个触发条件',
+    'at_least_one_active_trigger'    => '规则必须至少有一个启用的触发条件。',
     'at_least_one_action'            => '每条规则必须至少有一个动作',
+    'at_least_one_active_action'     => '规则必须至少有一个启用的动作。',
     'base64'                         => '此 base64 编码数据无效',
     'model_id_invalid'               => '指定的 ID 不能用于此模型',
     'less'                           => ':attribute 必须小于 10,000,000',
     'active_url'                     => ':attribute 不是有效的网址',
     'after'                          => ':attribute 必须是一个在 :date 之后的日期',
-    'date_after'                     => 'The start date must be before the end date.',
+    'date_after'                     => '开始日期必须早于结束日期。',
     'alpha'                          => ':attribute 只能包含英文字母',
     'alpha_dash'                     => ':attribute 只能包含英文字母、数字和减号',
     'alpha_num'                      => ':attribute 只能包含英文字母和数字',
@@ -132,10 +141,10 @@ return [
     'unique_piggy_bank_for_user'     => '存钱罐名称必须唯一',
     'unique_object_group'            => '组名称必须唯一',
     'starts_with'                    => '此值必须以 :values 开头',
-    'unique_webhook'                 => '您已经拥有使用此值的 Webhook',
-    'unique_existing_webhook'        => '您已经拥有另一个使用此值的 Webhook',
-    'same_account_type'              => 'Both accounts must be of the same account type',
-    'same_account_currency'          => 'Both accounts must have the same currency setting',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
+    'same_account_type'              => '两个账户必须是相同类型的账户',
+    'same_account_currency'          => '两个账户必须设置有相同的货币',
 
     'secure_password'             => '此密码不安全，请重试。访问 https://bit.ly/FF3-password-security 获取更多信息。',
     'valid_recurrence_rep_type'   => '此重复类型不能用于定期交易',
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => '需要一个有效的目标账户 ID 和/或目标账户名称才能继续',
     'withdrawal_dest_bad_data'    => '搜索 ID “:id”或名称“:name”时找不到有效的目标账户',
 
-    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
+    'generic_source_bad_data' => '搜索 ID “:id”或名称“:name”时找不到有效的来源账户',
 
     'deposit_source_need_data' => '需要一个有效的来源账户 ID 和/或来源账户名称才能继续',
     'deposit_source_bad_data'  => '搜索 ID “:id”或名称“:name”时找不到有效的来源账户',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => '搜索 ID “:id”或名称“:name”时找不到有效的目标账户',
     'need_id_in_edit'           => '每笔拆分必须有 transaction_journal_id (有效的 ID 或 0)。',
 
-    'ob_source_need_data' => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
-    'ob_dest_need_data'   => '需要一个有效的来源账户 ID 和/或来源账户名称才能继续',
-    'ob_dest_bad_data'    => '搜索 ID “:id”或名称“:name”时找不到有效的目标账户',
+    'ob_source_need_data'           => '需要一个有效的来源账户ID和/或来源账户名称才能继续。',
+    'lc_source_need_data'           => '需要获取一个有效的来源账户 ID 才能继续。',
+    'ob_dest_need_data'             => '需要一个有效的来源账户 ID 和/或来源账户名称才能继续',
+    'ob_dest_bad_data'              => '搜索 ID “:id”或名称“:name”时找不到有效的目标账户',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => '您不能使用此账户作为来源账户',
     'generic_invalid_destination' => '您不能使用此账户作为目标账户',
+
+    'generic_no_source'      => '您必须提交源账户信息。',
+    'generic_no_destination' => '您必须提交目标账户信息。',
 
     'gte.numeric' => ':attribute 必须大于或等于 :value',
     'gt.numeric'  => ':attribute 必须大于 :value',

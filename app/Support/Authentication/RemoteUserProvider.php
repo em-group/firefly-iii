@@ -23,7 +23,9 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Support\Authentication;
+
 use FireflyIII\Exceptions\FireflyException;
+use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
@@ -62,6 +64,11 @@ class RemoteUserProvider implements UserProvider
                     'password'     => bcrypt(Str::random(64)),
                 ]
             );
+            // if this is the first user, give them admin as well.
+            if(1 === User::count()) {
+                $roleObject = Role::where('name', 'owner')->first();
+                $user->roles()->attach($roleObject);
+            }
         }
         Log::debug(sprintf('Going to return user #%d (%s)', $user->id, $user->email));
 
@@ -74,7 +81,7 @@ class RemoteUserProvider implements UserProvider
     public function retrieveByToken($identifier, $token)
     {
         Log::debug(sprintf('Now at %s', __METHOD__));
-        throw new FireflyException(sprintf('Did not implement %s', __METHOD__));
+        throw new FireflyException(sprintf('A) Did not implement %s', __METHOD__));
     }
 
     /**
@@ -83,7 +90,7 @@ class RemoteUserProvider implements UserProvider
     public function updateRememberToken(Authenticatable $user, $token)
     {
         Log::debug(sprintf('Now at %s', __METHOD__));
-        throw new FireflyException(sprintf('Did not implement %s', __METHOD__));
+        throw new FireflyException(sprintf('B) Did not implement %s', __METHOD__));
     }
 
     /**
@@ -92,6 +99,6 @@ class RemoteUserProvider implements UserProvider
     public function validateCredentials(Authenticatable $user, array $credentials)
     {
         Log::debug(sprintf('Now at %s', __METHOD__));
-        throw new FireflyException(sprintf('Did not implement %s', __METHOD__));
+        throw new FireflyException(sprintf('C) Did not implement %s', __METHOD__));
     }
 }

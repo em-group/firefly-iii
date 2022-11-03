@@ -57,7 +57,7 @@ class IndexController extends Controller
 
         $this->middleware(
             function ($request, $next) {
-                app('view')->share('title', (string)trans('firefly.piggyBanks'));
+                app('view')->share('title', (string) trans('firefly.piggyBanks'));
                 app('view')->share('mainTitleIcon', 'fa-bullseye');
 
                 $this->piggyRepos = app(PiggyBankRepositoryInterface::class);
@@ -69,11 +69,13 @@ class IndexController extends Controller
 
     /**
      * Show overview of all piggy banks.
-     * TODO complicated
+     * See reference nr. 66
      *
      * @param Request $request
      *
      * @return Factory|View
+     * @throws \FireflyIII\Exceptions\FireflyException
+     * @throws \JsonException
      */
     public function index(Request $request)
     {
@@ -101,7 +103,7 @@ class IndexController extends Controller
         /** @var PiggyBank $piggy */
         foreach ($collection as $piggy) {
             $array      = $transformer->transform($piggy);
-            $groupOrder = (int)$array['object_group_order'];
+            $groupOrder = (int) $array['object_group_order'];
             // make group array if necessary:
             $piggyBanks[$groupOrder] = $piggyBanks[$groupOrder] ?? [
                     'object_group_id'    => $array['object_group_id'] ?? 0,
@@ -110,7 +112,7 @@ class IndexController extends Controller
                 ];
 
             $account              = $accountTransformer->transform($piggy->account);
-            $accountId            = (int)$account['id'];
+            $accountId            = (int) $account['id'];
             $array['attachments'] = $this->piggyRepos->getAttachments($piggy);
             if (!array_key_exists($accountId, $accounts)) {
                 // create new:
@@ -136,7 +138,7 @@ class IndexController extends Controller
 
         ksort($piggyBanks);
 
-        return prefixView('piggy-banks.index', compact('piggyBanks', 'accounts'));
+        return view('piggy-banks.index', compact('piggyBanks', 'accounts'));
     }
 
     /**
@@ -165,10 +167,10 @@ class IndexController extends Controller
                 // current_amount
                 // left_to_save
                 // save_per_month
-                $sums[$groupId][$currencyId]['target']         = bcadd($sums[$groupId][$currencyId]['target'], (string)$piggy['target_amount']);
-                $sums[$groupId][$currencyId]['saved']          = bcadd($sums[$groupId][$currencyId]['saved'], (string)$piggy['current_amount']);
-                $sums[$groupId][$currencyId]['left_to_save']   = bcadd($sums[$groupId][$currencyId]['left_to_save'], (string)$piggy['left_to_save']);
-                $sums[$groupId][$currencyId]['save_per_month'] = bcadd($sums[$groupId][$currencyId]['save_per_month'], (string)$piggy['save_per_month']);
+                $sums[$groupId][$currencyId]['target']         = bcadd($sums[$groupId][$currencyId]['target'], (string) $piggy['target_amount']);
+                $sums[$groupId][$currencyId]['saved']          = bcadd($sums[$groupId][$currencyId]['saved'], (string) $piggy['current_amount']);
+                $sums[$groupId][$currencyId]['left_to_save']   = bcadd($sums[$groupId][$currencyId]['left_to_save'], (string) $piggy['left_to_save']);
+                $sums[$groupId][$currencyId]['save_per_month'] = bcadd($sums[$groupId][$currencyId]['save_per_month'], (string) $piggy['save_per_month']);
             }
         }
         foreach ($piggyBanks as $groupOrder => $group) {
@@ -189,8 +191,8 @@ class IndexController extends Controller
      */
     public function setOrder(Request $request, PiggyBank $piggyBank): JsonResponse
     {
-        $objectGroupTitle = (string)$request->get('objectGroupTitle');
-        $newOrder         = (int)$request->get('order');
+        $objectGroupTitle = (string) $request->get('objectGroupTitle');
+        $newOrder         = (int) $request->get('order');
         $this->piggyRepos->setOrder($piggyBank, $newOrder);
         if ('' !== $objectGroupTitle) {
             $this->piggyRepos->setObjectGroup($piggyBank, $objectGroupTitle);

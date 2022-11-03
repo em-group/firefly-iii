@@ -33,6 +33,7 @@ return [
     'be_right_back'           => '¡Enseguida vuelvo!',
     'check_back'              => 'Firefly III está apagado para el mantenimiento necesario. Por favor, vuelva en un segundo.',
     'error_occurred'          => '¡Uy! un error ha ocurrido.',
+    'db_error_occurred'       => '¡Ups! Se ha producido un error en la base de datos.',
     'error_not_recoverable'   => 'Desafortunadamente, este error no se pudo recuperar :(. Firefly III se rompió. El error es:',
     'error'                   => 'Error',
     'error_location'          => 'Este error ocurrió en el archivo "<span style="font-family: monospace;">:file</span>" en línea :line con código :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Cuéntenos más que "Dice: Ups"',
     'include_logs'            => 'Incluye registros de errores (ver arriba).',
     'what_did_you_do'         => 'Cuéntenos lo que estaba haciendo.',
+    'offline_header'          => 'Estás desconectado',
+    'offline_unreachable'     => 'Firefly III es inaccesible. Tu dispositivo está desconectado o el servidor no está funcionando.',
+    'offline_github'          => 'Si estás seguro de que tu dispositivo y el servidor están conectados, por favor abre un ticket en <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

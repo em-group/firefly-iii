@@ -25,6 +25,7 @@ namespace FireflyIII\Console\Commands\Upgrade;
 
 use DB;
 use Exception;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Factory\TransactionGroupFactory;
 use FireflyIII\Models\Budget;
 use FireflyIII\Models\Category;
@@ -127,15 +128,18 @@ class MigrateToGroups extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isMigrated(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
-        return false; 
+        return false;
     }
 
     /**
@@ -326,7 +330,7 @@ class MigrateToGroups extends Command
     {
         $set = $journal->transactions->filter(
             static function (Transaction $subject) use ($transaction) {
-                $amount     = (float)$transaction->amount * -1 === (float)$subject->amount;
+                $amount     = (float) $transaction->amount * -1 === (float) $subject->amount;
                 $identifier = $transaction->identifier === $subject->identifier;
                 Log::debug(sprintf('Amount the same? %s', var_export($amount, true)));
                 Log::debug(sprintf('ID the same?     %s', var_export($identifier, true)));
@@ -354,7 +358,7 @@ class MigrateToGroups extends Command
         if (null !== $budget) {
             Log::debug(sprintf('Return budget #%d, from transaction #%d', $budget->id, $left->id));
 
-            return (int)$budget->id;
+            return (int) $budget->id;
         }
 
         // try to get a budget ID from the right transaction:
@@ -363,7 +367,7 @@ class MigrateToGroups extends Command
         if (null !== $budget) {
             Log::debug(sprintf('Return budget #%d, from transaction #%d', $budget->id, $right->id));
 
-            return (int)$budget->id;
+            return (int) $budget->id;
         }
         Log::debug('Neither left or right have a budget, return NULL');
 
@@ -387,7 +391,7 @@ class MigrateToGroups extends Command
         if (null !== $category) {
             Log::debug(sprintf('Return category #%d, from transaction #%d', $category->id, $left->id));
 
-            return (int)$category->id;
+            return (int) $category->id;
         }
 
         // try to get a category ID from the left transaction:
@@ -396,7 +400,7 @@ class MigrateToGroups extends Command
         if (null !== $category) {
             Log::debug(sprintf('Return category #%d, from transaction #%d', $category->id, $category->id));
 
-            return (int)$category->id;
+            return (int) $category->id;
         }
         Log::debug('Neither left or right have a category, return NULL');
 

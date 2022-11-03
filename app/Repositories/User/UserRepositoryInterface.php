@@ -26,7 +26,6 @@ use EM\Hub\Models\SubProductInterface;
 use FireflyIII\Models\Role;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
-use Illuminate\Support\LazyCollection;
 
 /**
  * Interface UserRepositoryInterface.
@@ -37,9 +36,9 @@ interface UserRepositoryInterface
     /**
      * Returns a collection of all users.
      *
-     * @return LazyCollection
+     * @return Collection
      */
-    public function all(): LazyCollection;
+    public function all(): Collection;
 
     /**
      * Gives a user a role.
@@ -98,6 +97,11 @@ interface UserRepositoryInterface
     public function createRole(string $name, string $displayName, string $description): Role;
 
     /**
+     *
+     */
+    public function deleteEmptyGroups(): void;
+
+    /**
      * @param User $user
      *
      * @return bool
@@ -105,18 +109,18 @@ interface UserRepositoryInterface
     public function destroy(User $user): bool;
 
     /**
+     * @param int $userId
+     *
+     * @return User|null
+     */
+    public function find(int $userId): ?User;
+
+    /**
      * @param string $email
      *
      * @return User|null
      */
     public function findByEmail(string $email): ?User;
-
-    /**
-     * @param int $userId
-     *
-     * @return User|null
-     */
-    public function findNull(int $userId): ?User;
 
     /**
      * Returns the first user in the DB. Generally only works when there is just one.

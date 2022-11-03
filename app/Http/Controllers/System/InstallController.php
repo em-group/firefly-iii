@@ -47,8 +47,8 @@ class InstallController extends Controller
 {
     use GetConfigurationData;
 
-    public const FORBIDDEN_ERROR = 'Internal PHP function "proc_close" is disabled for your installation. Auto-migration is not possible.';
     public const BASEDIR_ERROR   = 'Firefly III cannot execute the upgrade commands. It is not allowed to because of an open_basedir restriction.';
+    public const FORBIDDEN_ERROR = 'Internal PHP function "proc_close" is disabled for your installation. Auto-migration is not possible.';
     public const OTHER_ERROR     = 'An unknown error prevented Firefly III from executing the upgrade commands. Sorry.';
     private string $lastError;
     private array  $upgradeCommands;
@@ -85,12 +85,15 @@ class InstallController extends Controller
             'firefly-iii:migrate-recurrence-meta'      => [],
             'firefly-iii:migrate-tag-locations'        => [],
             'firefly-iii:migrate-recurrence-type'      => [],
+            'firefly-iii:upgrade-liabilities'          => [],
+            'firefly-iii:create-group-memberships'     => [],
 
             // verify commands
             'firefly-iii:fix-piggies'                  => [],
             'firefly-iii:create-link-types'            => [],
             'firefly-iii:create-access-tokens'         => [],
             'firefly-iii:remove-bills'                 => [],
+            'firefly-iii:fix-negative-limits'          => [],
             'firefly-iii:enable-currencies'            => [],
             'firefly-iii:fix-transfer-budgets'         => [],
             'firefly-iii:fix-uneven-amount'            => [],
@@ -107,9 +110,11 @@ class InstallController extends Controller
             'firefly-iii:unify-group-accounts'         => [],
             'firefly-iii:fix-transaction-types'        => [],
             'firefly-iii:fix-frontpage-accounts'       => [],
+            'firefly-iii:fix-ibans'                    => [],
 
             // final command to set latest version in DB
             'firefly-iii:set-latest-version'           => ['--james-is-cool' => true],
+            'firefly-iii:verify-security-alerts'       => [],
         ];
 
         $this->lastError = '';
@@ -125,12 +130,12 @@ class InstallController extends Controller
         if(!in_array(\Request::header('X_REAL_IP', \Request::getClientIp()), config('app.allowed_install_ips'))) die();
 
         // index will set FF3 version.
-        app('fireflyconfig')->set('ff3_version', (string)config('firefly.version'));
+        app('fireflyconfig')->set('ff3_version', (string) config('firefly.version'));
 
         // set new DB version.
-        app('fireflyconfig')->set('db_version', (int)config('firefly.db_version'));
+        app('fireflyconfig')->set('db_version', (int) config('firefly.db_version'));
 
-        return prefixView('install.index');
+        return view('install.index');
     }
 
     /**

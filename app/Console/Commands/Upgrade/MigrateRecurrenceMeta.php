@@ -24,9 +24,11 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\RecurrenceMeta;
 use FireflyIII\Models\RecurrenceTransactionMeta;
 use Illuminate\Console\Command;
+use JsonException;
 
 /**
  * Class MigrateRecurrenceMeta
@@ -51,6 +53,8 @@ class MigrateRecurrenceMeta extends Command
      * Execute the console command.
      *
      * @return int
+     * @throws FireflyException
+     * @throws JsonException
      */
     public function handle(): int
     {
@@ -79,19 +83,23 @@ class MigrateRecurrenceMeta extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
-        return false; 
+        return false;
     }
 
     /**
      * @return int
+     * @throws JsonException
      */
     private function migrateMetaData(): int
     {
@@ -110,6 +118,7 @@ class MigrateRecurrenceMeta extends Command
      * @param RecurrenceMeta $meta
      *
      * @return int
+     * @throws JsonException
      */
     private function migrateEntry(RecurrenceMeta $meta): int
     {
@@ -125,7 +134,7 @@ class MigrateRecurrenceMeta extends Command
 
         if ('tags' === $meta->name) {
             $array = explode(',', $meta->value);
-            $value = json_encode($array, JSON_THROW_ON_ERROR, 512);
+            $value = json_encode($array, JSON_THROW_ON_ERROR);
         }
 
         RecurrenceTransactionMeta::create(

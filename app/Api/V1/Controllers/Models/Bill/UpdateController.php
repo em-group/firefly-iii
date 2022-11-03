@@ -28,7 +28,6 @@ use FireflyIII\Api\V1\Requests\Models\Bill\UpdateRequest;
 use FireflyIII\Models\Bill;
 use FireflyIII\Repositories\Bill\BillRepositoryInterface;
 use FireflyIII\Transformers\BillTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use League\Fractal\Resource\Item;
 
@@ -58,6 +57,9 @@ class UpdateController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/bills/updateBill
+     *
      * Update a bill.
      *
      * @param UpdateRequest $request

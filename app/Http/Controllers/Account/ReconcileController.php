@@ -68,7 +68,7 @@ class ReconcileController extends Controller
         $this->middleware(
             function ($request, $next) {
                 app('view')->share('mainTitleIcon', 'fa-credit-card');
-                app('view')->share('title', (string)trans('firefly.accounts'));
+                app('view')->share('title', (string) trans('firefly.accounts'));
                 $this->repository    = app(JournalRepositoryInterface::class);
                 $this->accountRepos  = app(AccountRepositoryInterface::class);
                 $this->currencyRepos = app(CurrencyRepositoryInterface::class);
@@ -86,16 +86,19 @@ class ReconcileController extends Controller
      * @param Carbon|null $end
      *
      * @return Factory|RedirectResponse|Redirector|View
-     * @throws Exception
+     * @throws FireflyException
+     * @throws \JsonException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function reconcile(Account $account, Carbon $start = null, Carbon $end = null)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); 
+            return $this->redirectAccountToAccount($account);
         }
         if (AccountType::ASSET !== $account->accountType->type) {
 
-            session()->flash('error', (string)trans('firefly.must_be_asset_account'));
+            session()->flash('error', (string) trans('firefly.must_be_asset_account'));
 
             return redirect(route('accounts.index', [config(sprintf('firefly.shortNamesByFullName.%s', $account->accountType->type))]));
 
@@ -125,18 +128,18 @@ class ReconcileController extends Controller
 
         $startDate = clone $start;
         $startDate->subDay();
-        $startBalance = number_format((float)app('steam')->balance($account, $startDate), $currency->decimal_places, '.', '');
-        $endBalance   = number_format((float)app('steam')->balance($account, $end), $currency->decimal_places, '.', '');
+        $startBalance = number_format((float) app('steam')->balance($account, $startDate), $currency->decimal_places, '.', '');
+        $endBalance   = number_format((float) app('steam')->balance($account, $end), $currency->decimal_places, '.', '');
         $subTitleIcon = config(sprintf('firefly.subIconsByIdentifier.%s', $account->accountType->type));
-        $subTitle     = (string)trans('firefly.reconcile_account', ['account' => $account->name]);
+        $subTitle     = (string) trans('firefly.reconcile_account', ['account' => $account->name]);
 
         // various links
-        $transactionsUri = route('accounts.reconcile.transactions', [$account->id, '%start%', '%end%']);
-        $overviewUri     = route('accounts.reconcile.overview', [$account->id, '%start%', '%end%']);
-        $indexUri        = route('accounts.reconcile', [$account->id, '%start%', '%end%']);
+        $transactionsUrl = route('accounts.reconcile.transactions', [$account->id, '%start%', '%end%']);
+        $overviewUrl     = route('accounts.reconcile.overview', [$account->id, '%start%', '%end%']);
+        $indexUrl        = route('accounts.reconcile', [$account->id, '%start%', '%end%']);
         $objectType      = 'asset';
 
-        return prefixView(
+        return view(
             'accounts.reconcile.index',
             compact(
                 'account',
@@ -148,9 +151,9 @@ class ReconcileController extends Controller
                 'subTitle',
                 'startBalance',
                 'endBalance',
-                'transactionsUri',
-                'overviewUri',
-                'indexUri'
+                'transactionsUrl',
+                'overviewUrl',
+                'indexUrl'
             )
         );
     }
@@ -164,11 +167,12 @@ class ReconcileController extends Controller
      * @param Carbon                     $end
      *
      * @return RedirectResponse|Redirector
+     * @throws DuplicateTransactionException
      */
     public function submit(ReconciliationStoreRequest $request, Account $account, Carbon $start, Carbon $end)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); 
+            return $this->redirectAccountToAccount($account);
         }
 
         Log::debug('In ReconcileController::submit()');
@@ -176,7 +180,7 @@ class ReconcileController extends Controller
 
         /** @var string $journalId */
         foreach ($data['journals'] as $journalId) {
-            $this->repository->reconcileById((int)$journalId);
+            $this->repository->reconcileById((int) $journalId);
         }
         Log::debug('Reconciled all transactions.');
 
@@ -193,10 +197,10 @@ class ReconcileController extends Controller
         Log::debug('End of routine.');
         app('preferences')->mark();
         if ('' === $result) {
-            session()->flash('success', (string)trans('firefly.reconciliation_stored'));
+            session()->flash('success', (string) trans('firefly.reconciliation_stored'));
         }
         if ('' !== $result) {
-            session()->flash('error', (string)trans('firefly.reconciliation_error', ['error' => $result]));
+            session()->flash('error', (string) trans('firefly.reconciliation_error', ['error' => $result]));
         }
 
         return redirect(route('accounts.show', [$account->id]));
@@ -217,7 +221,7 @@ class ReconcileController extends Controller
     private function createReconciliation(Account $account, Carbon $start, Carbon $end, string $difference)
     {
         if (!$this->isEditableAccount($account)) {
-            return $this->redirectAccountToAccount($account); 
+            return $this->redirectAccountToAccount($account);
         }
 
         $reconciliation = $this->accountRepos->getReconciliation($account);
@@ -236,7 +240,8 @@ class ReconcileController extends Controller
         // title:
         $description = trans(
             'firefly.reconciliation_transaction_title',
-            ['from' => $start->formatLocalized($this->monthAndDayFormat), 'to' => $end->formatLocalized($this->monthAndDayFormat)]
+            ['from' => $start->isoFormat($this->monthAndDayFormat),
+             'to'   => $end->isoFormat($this->monthAndDayFormat)]
         );
         $submission  = [
             'user'         => auth()->user()->id,

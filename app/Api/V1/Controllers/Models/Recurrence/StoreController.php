@@ -28,7 +28,6 @@ use FireflyIII\Api\V1\Requests\Models\Recurrence\StoreRequest;
 use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Transformers\RecurrenceTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use League\Fractal\Resource\Item;
 
@@ -58,6 +57,9 @@ class StoreController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/recurrences/storeRecurrence
+     *
      * Store new object.
      *
      * @param StoreRequest $request

@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace FireflyIII\Exceptions;
 
-use Exception;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\Attachment;
 use FireflyIII\Models\Bill;
@@ -31,7 +30,9 @@ use FireflyIII\Models\TransactionGroup;
 use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Models\TransactionType;
 use FireflyIII\User;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -50,7 +51,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
      * @param Request   $request
      * @param Throwable $e
      *
-     * @return mixed
+     * @return Application|JsonResponse|\Illuminate\Http\Response|Redirector|RedirectResponse|Response
      * @throws Throwable
      */
     public function render($request, Throwable $e)
@@ -70,9 +71,11 @@ class GracefulNotFoundHandler extends ExceptionHandler
 
                 return parent::render($request, $e);
             case 'accounts.show':
+            case 'accounts.edit':
             case 'accounts.show.all':
                 return $this->handleAccount($request, $e);
             case 'transactions.show':
+            case 'transactions.edit':
                 return $this->handleGroup($request, $e);
             case 'attachments.show':
             case 'attachments.edit':
@@ -80,23 +83,20 @@ class GracefulNotFoundHandler extends ExceptionHandler
             case 'attachments.view':
                 // redirect to original attachment holder.
                 return $this->handleAttachment($request, $e);
-                break;
             case 'bills.show':
                 $request->session()->reflash();
 
                 return redirect(route('bills.index'));
-                break;
             case 'currencies.show':
                 $request->session()->reflash();
 
                 return redirect(route('currencies.index'));
-                break;
             case 'budgets.show':
             case 'budgets.edit':
+            case 'budgets.show.limit':
                 $request->session()->reflash();
 
                 return redirect(route('budgets.index'));
-                break;
             case 'piggy-banks.show':
                 $request->session()->reflash();
 
@@ -121,7 +121,6 @@ class GracefulNotFoundHandler extends ExceptionHandler
                 $request->session()->reflash();
 
                 return redirect(route('rules.index'));
-            case 'transactions.edit':
             case 'transactions.mass.edit':
             case 'transactions.mass.delete':
             case 'transactions.bulk.edit':
@@ -149,7 +148,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
         /** @var User $user */
         $user      = auth()->user();
         $route     = $request->route();
-        $accountId = (int)$route->parameter('account');
+        $accountId = (int) $route->parameter('account');
         /** @var Account $account */
         $account = $user->accounts()->with(['accountType'])->withTrashed()->find($accountId);
         if (null === $account) {
@@ -165,7 +164,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
     }
 
     /**
-     * @param Request $request
+     * @param Request   $request
      * @param Throwable $exception
      *
      * @return RedirectResponse|\Illuminate\Http\Response|Redirector|Response
@@ -177,7 +176,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
         /** @var User $user */
         $user    = auth()->user();
         $route   = $request->route();
-        $groupId = (int)$route->parameter('transactionGroup');
+        $groupId = (int) $route->parameter('transactionGroup');
 
         /** @var TransactionGroup $group */
         $group = $user->transactionGroups()->withTrashed()->find($groupId);
@@ -217,7 +216,7 @@ class GracefulNotFoundHandler extends ExceptionHandler
         /** @var User $user */
         $user         = auth()->user();
         $route        = $request->route();
-        $attachmentId = (int)$route->parameter('attachment');
+        $attachmentId = (int) $route->parameter('attachment');
         /** @var Attachment $attachment */
         $attachment = $user->attachments()->withTrashed()->find($attachmentId);
         if (null === $attachment) {

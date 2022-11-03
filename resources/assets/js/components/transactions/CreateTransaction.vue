@@ -388,8 +388,6 @@ export default {
       }
 
       tagList = [];
-      foreignAmount = null;
-      foreignCurrency = null;
       // loop tags
       for (let tagKey in row.tags) {
         if (row.tags.hasOwnProperty(tagKey) && /^0$|^[1-9]\d*$/.test(tagKey) && tagKey <= 4294967294) {
@@ -446,7 +444,8 @@ export default {
             payment_date: row.custom_fields.payment_date,
             invoice_date: row.custom_fields.invoice_date,
             internal_reference: row.custom_fields.internal_reference,
-            notes: row.custom_fields.notes
+            notes: row.custom_fields.notes,
+            external_url: row.custom_fields.external_url
           };
 
       if (tagList.length > 0) {
@@ -531,8 +530,8 @@ export default {
         let button = $('#submitButton');
         button.removeAttr('disabled');
       } else {
-        // console.log('Will redirect to previous URL. (' + previousUri + ')');
-        window.location.href = window.previousUri + '?transaction_group_id=' + groupId + '&message=created';
+        //console.log('Will redirect to previous URL. (' + previousUrl + ')');
+        window.location.href = window.previousUrl + '?transaction_group_id=' + groupId + '&message=created';
       }
     },
 
@@ -685,7 +684,7 @@ export default {
               internal_reference: [],
               notes: [],
               attachments: [],
-              external_uri: [],
+              external_url: [],
             },
           };
         }
@@ -788,7 +787,7 @@ export default {
             internal_reference: [],
             notes: [],
             attachments: [],
-            external_uri: [],
+            external_url: [],
           },
         },
         budget: 0,
@@ -804,7 +803,7 @@ export default {
           "internal_reference": "",
           "notes": "",
           "attachments": [],
-          "external_uri": "",
+          "external_url": "",
         },
         foreign_amount: {
           amount: "",

@@ -30,6 +30,7 @@ use FireflyIII\Models\TransactionJournal;
 use FireflyIII\Support\CacheProperties;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
+use JsonException;
 use stdClass;
 
 /**
@@ -128,7 +129,7 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         if ($cache->has()) {
             $result = null;
             try {
-                $result = new Carbon($cache->get()); 
+                $result = new Carbon($cache->get());
             } catch (Exception $e) { // @phpstan-ignore-line
                 // @ignoreException
             }
@@ -169,7 +170,7 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         $cache->addProperty($field);
 
         if ($cache->has()) {
-            return $cache->get(); 
+            return $cache->get();
         }
 
         $entry = $journal->transactionJournalMeta()->where('name', $field)->first();
@@ -187,7 +188,7 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         }
 
         // return when something else:
-        $return = (string)$value;
+        $return = (string) $value;
         try {
             $cache->store($return);
         } catch (Exception $e) { // @phpstan-ignore-line
@@ -229,8 +230,8 @@ class JournalCLIRepository implements JournalCLIRepositoryInterface
         $journalIds = [];
         /** @var stdClass $row */
         foreach ($result as $row) {
-            if ((int)$row->transaction_count > 2) {
-                $journalIds[] = (int)$row->id;
+            if ((int) $row->transaction_count > 2) {
+                $journalIds[] = (int) $row->id;
             }
         }
         $journalIds = array_unique($journalIds);

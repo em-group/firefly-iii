@@ -22,26 +22,27 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
-use Carbon\Carbon;
+
 use Eloquent;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 
 /**
  * FireflyIII\Models\RecurrenceRepetition
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $recurrence_id
- * @property string $repetition_type
- * @property string $repetition_moment
- * @property int $repetition_skip
- * @property int $weekend
- * @property-read \FireflyIII\Models\Recurrence $recurrence
+ * @property int             $id
+ * @property Carbon|null     $created_at
+ * @property Carbon|null     $updated_at
+ * @property Carbon|null     $deleted_at
+ * @property int             $recurrence_id
+ * @property string          $repetition_type
+ * @property string          $repetition_moment
+ * @property int             $repetition_skip
+ * @property int             $weekend
+ * @property-read Recurrence $recurrence
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceRepetition newQuery()
  * @method static Builder|RecurrenceRepetition onlyTrashed()
@@ -70,6 +71,7 @@ class RecurrenceRepetition extends Model
     /** @var int */
     public const WEEKEND_TO_MONDAY = 4;
     use SoftDeletes;
+
     /**
      * The attributes that should be casted to native types.
      *

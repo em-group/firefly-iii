@@ -52,7 +52,7 @@ class MonthReportGenerator implements ReportGeneratorInterface
         $reportType      = 'account';
         $preferredPeriod = $this->preferredPeriod();
         try {
-            $result = prefixView('reports.double.report', compact('accountIds', 'reportType', 'doubleIds', 'preferredPeriod'))
+            $result = view('reports.double.report', compact('accountIds', 'reportType', 'doubleIds', 'preferredPeriod'))
                 ->with('start', $this->start)->with('end', $this->end)
                 ->with('doubles', $this->expense)
                 ->render();
@@ -62,6 +62,16 @@ class MonthReportGenerator implements ReportGeneratorInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Return the preferred period.
+     *
+     * @return string
+     */
+    protected function preferredPeriod(): string
+    {
+        return 'day';
     }
 
     /**
@@ -154,15 +164,5 @@ class MonthReportGenerator implements ReportGeneratorInterface
     public function setTags(Collection $tags): ReportGeneratorInterface
     {
         return $this;
-    }
-
-    /**
-     * Return the preferred period.
-     *
-     * @return string
-     */
-    protected function preferredPeriod(): string
-    {
-        return 'day';
     }
 }

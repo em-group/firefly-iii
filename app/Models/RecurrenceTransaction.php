@@ -22,37 +22,38 @@
 declare(strict_types=1);
 
 namespace FireflyIII\Models;
+
 use Eloquent;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 /**
  * FireflyIII\Models\RecurrenceTransaction
  *
- * @property int $id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
- * @property int $recurrence_id
- * @property int $transaction_currency_id
- * @property int|null $foreign_currency_id
- * @property int $source_id
- * @property int $destination_id
- * @property string $amount
- * @property string|null $foreign_amount
- * @property string $description
- * @property-read \FireflyIII\Models\Account $destinationAccount
- * @property-read \FireflyIII\Models\TransactionCurrency|null $foreignCurrency
- * @property-read \FireflyIII\Models\Recurrence $recurrence
- * @property-read \Illuminate\Database\Eloquent\Collection|\FireflyIII\Models\RecurrenceTransactionMeta[] $recurrenceTransactionMeta
- * @property-read int|null $recurrence_transaction_meta_count
- * @property-read \FireflyIII\Models\Account $sourceAccount
- * @property-read \FireflyIII\Models\TransactionCurrency $transactionCurrency
+ * @property int                                         $id
+ * @property Carbon|null                                 $created_at
+ * @property Carbon|null                                 $updated_at
+ * @property Carbon|null                                 $deleted_at
+ * @property int                                         $recurrence_id
+ * @property int                                         $transaction_currency_id
+ * @property int|null                                    $foreign_currency_id
+ * @property int                                         $source_id
+ * @property int                                         $destination_id
+ * @property string                                      $amount
+ * @property string|null                                 $foreign_amount
+ * @property string                                      $description
+ * @property-read Account                                $destinationAccount
+ * @property-read TransactionCurrency|null               $foreignCurrency
+ * @property-read Recurrence                             $recurrence
+ * @property-read Collection|RecurrenceTransactionMeta[] $recurrenceTransactionMeta
+ * @property-read int|null                               $recurrence_transaction_meta_count
+ * @property-read Account                                $sourceAccount
+ * @property-read TransactionCurrency                    $transactionCurrency
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransaction newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransaction newQuery()
  * @method static Builder|RecurrenceTransaction onlyTrashed()
@@ -72,13 +73,14 @@ use Illuminate\Support\Collection;
  * @method static Builder|RecurrenceTransaction withTrashed()
  * @method static Builder|RecurrenceTransaction withoutTrashed()
  * @mixin Eloquent
- * @property int|null $transaction_type_id
+ * @property int|null                                    $transaction_type_id
  * @method static \Illuminate\Database\Eloquent\Builder|RecurrenceTransaction whereTransactionTypeId($value)
- * @property-read \FireflyIII\Models\TransactionType|null $transactionType
+ * @property-read TransactionType|null                   $transactionType
  */
 class RecurrenceTransaction extends Model
 {
     use SoftDeletes;
+
     /**
      * The attributes that should be casted to native types.
      *
@@ -153,6 +155,7 @@ class RecurrenceTransaction extends Model
     {
         return $this->belongsTo(TransactionCurrency::class);
     }
+
     /**
      * @codeCoverageIgnore
      * @return BelongsTo

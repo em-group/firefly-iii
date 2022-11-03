@@ -22,29 +22,29 @@ declare(strict_types=1);
 
 namespace FireflyIII\Models;
 
-use Carbon\Carbon;
 use Eloquent;
 use FireflyIII\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Carbon;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * FireflyIII\Models\AvailableBudget
  *
- * @property int $id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property int $user_id
- * @property int $transaction_currency_id
- * @property string $amount
- * @property \Illuminate\Support\Carbon $start_date
- * @property \Illuminate\Support\Carbon $end_date
- * @property-read \FireflyIII\Models\TransactionCurrency $transactionCurrency
- * @property-read User $user
+ * @property int                      $id
+ * @property Carbon|null              $created_at
+ * @property Carbon|null              $updated_at
+ * @property Carbon|null              $deleted_at
+ * @property int                      $user_id
+ * @property int                      $transaction_currency_id
+ * @property string                   $amount
+ * @property Carbon                   $start_date
+ * @property Carbon                   $end_date
+ * @property-read TransactionCurrency $transactionCurrency
+ * @property-read User                $user
  * @method static \Illuminate\Database\Eloquent\Builder|AvailableBudget newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AvailableBudget newQuery()
  * @method static Builder|AvailableBudget onlyTrashed()
@@ -61,10 +61,13 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  * @method static Builder|AvailableBudget withTrashed()
  * @method static Builder|AvailableBudget withoutTrashed()
  * @mixin Eloquent
+ * @property int|null                 $user_group_id
+ * @method static \Illuminate\Database\Eloquent\Builder|AvailableBudget whereUserGroupId($value)
  */
 class AvailableBudget extends Model
 {
     use SoftDeletes;
+
     /**
      * The attributes that should be casted to native types.
      *
@@ -87,8 +90,8 @@ class AvailableBudget extends Model
      *
      * @param string $value
      *
-     * @throws NotFoundHttpException
      * @return AvailableBudget
+     * @throws NotFoundHttpException
      */
     public static function routeBinder(string $value): AvailableBudget
     {

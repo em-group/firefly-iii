@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array saknar "var"-klausul',
+    'missing_update'                 => 'Array saknar "updaterings"-klausul',
+    'invalid_where_key'              => 'JSON innehåller en ogiltig nyckel för "var"-klausulen',
+    'invalid_update_key'             => 'JSON innehåller en ogiltig nyckel för "update"-klausulen',
+    'invalid_query_data'             => 'Det finns ogiltig data i %s:%s fältet i din fråga.',
+    'invalid_query_account_type'     => 'Din fråga innehåller konton av olika typer, vilket inte är tillåtet.',
+    'invalid_query_currency'         => 'Din fråga innehåller konton som har olika valutainställningar, vilket inte är tillåtet.',
     'iban'                           => 'Detta är inte ett giltigt IBAN.',
     'zero_or_more'                   => 'Värdet får inte vara negativt.',
     'date_or_time'                   => 'Värdet måste vara ett giltigt datum eller tid (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute måste godkännas.',
     'bic'                            => 'Detta är inte en giltig BIC.',
     'at_least_one_trigger'           => 'Regeln måste ha minst en utlösare.',
+    'at_least_one_active_trigger'    => 'Regeln måste ha minst en utlösare.',
     'at_least_one_action'            => 'Regel måste ha minst en åtgärd.',
+    'at_least_one_active_action'     => 'Regeln måste ha minst en aktiv åtgärd.',
     'base64'                         => 'Detta är inte giltigt bas64 data.',
     'model_id_invalid'               => 'Angivet ID verkar ogiltig för denna modell.',
     'less'                           => ':attribute måste vara mindre än 10 000 000',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'Namnet på spargrisen måste vara unikt.',
     'unique_object_group'            => 'Gruppnamnet måste vara unikt',
     'starts_with'                    => 'Värdet måste börja med :values.',
-    'unique_webhook'                 => 'Du har redan en webhook med dessa värden.',
-    'unique_existing_webhook'        => 'Du har redan en annan webhook med dessa värden.',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
     'same_account_type'              => 'Båda kontona måste vara samma kontotyp',
     'same_account_currency'          => 'Båda kontona måste ha samma valutainställning',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Ett giltigt destinationskonto-ID och/eller giltigt mottagarkontonamn behövs för att gå vidare.',
     'withdrawal_dest_bad_data'    => 'Det gick inte att hitta ett giltigt mottagarkonto med ID ":id" eller namn ":name".',
 
-    'generic_source_bad_data'  => 'Det gick inte att hitta ett giltigt källkonto med ID ":id" eller namn ":name".',
+    'generic_source_bad_data' => 'Det gick inte att hitta ett giltigt källkonto med ID ":id" eller namn ":name".',
 
     'deposit_source_need_data' => 'Ett giltigt källkonto-ID och/eller ett giltigt källkontonamn behövs för att gå vidare.',
     'deposit_source_bad_data'  => 'Det gick inte att hitta ett giltigt källkonto med ID ":id" eller namn ":name".',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Det gick inte att hitta ett giltigt mottagarkonto med ID ":id" eller namn ":name".',
     'need_id_in_edit'           => 'Varje delad transaktion kräver transaction_journal_id (giltigt ID eller 0).',
 
-    'ob_source_need_data' => 'Ett giltigt källkonto-ID och/eller ett giltigt källkontonamn behövs för att gå vidare.',
-    'ob_dest_need_data'   => 'Ett giltigt destinationskonto-ID och/eller giltigt mottagarkontonamn behövs för att gå vidare.',
-    'ob_dest_bad_data'    => 'Det gick inte att hitta ett giltigt mottagarkonto med ID ":id" eller namn ":name".',
+    'ob_source_need_data'           => 'Ett giltigt källkonto-ID och/eller ett giltigt källkontonamn behövs för att gå vidare.',
+    'lc_source_need_data'           => 'Behöver få ett giltigt källkontonummer för att fortsätta.',
+    'ob_dest_need_data'             => 'Ett giltigt destinationskonto-ID och/eller giltigt mottagarkontonamn behövs för att gå vidare.',
+    'ob_dest_bad_data'              => 'Det gick inte att hitta ett giltigt mottagarkonto med ID ":id" eller namn ":name".',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => 'Det går inte att använda detta konto som källkonto.',
     'generic_invalid_destination' => 'Det går inte att använda detta konto som mottagarkonto.',
+
+    'generic_no_source'      => 'Du måste ange källkontoinformation.',
+    'generic_no_destination' => 'Du måste ange destinationskontos information.',
 
     'gte.numeric' => ':attribute måste vara större än eller lika med :value.',
     'gt.numeric'  => ':attribute måste vara större än :value.',

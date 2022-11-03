@@ -1,7 +1,7 @@
 <?php
-declare(strict_types=1);
+
 /*
- * PreferenceStoreRequest.php
+ * PreferenceUpdateRequest.php
  * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -20,6 +20,8 @@ declare(strict_types=1);
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace FireflyIII\Api\V1\Requests\User;
 
 use FireflyIII\Support\Request\ChecksLogin;
@@ -36,7 +38,7 @@ class PreferenceUpdateRequest extends FormRequest
     public function getAll(): array
     {
         $array = [
-            'name' => $this->string('name'),
+            'name' => $this->convertString('name'),
             'data' => $this->get('data'),
         ];
         if ('true' === $array['data']) {
@@ -46,7 +48,7 @@ class PreferenceUpdateRequest extends FormRequest
             $array['data'] = false;
         }
         if (is_numeric($array['data'])) {
-            $array['data'] = (float)$array['data'];
+            $array['data'] = (float) $array['data'];
         }
 
         return $array;

@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Be right back!',
     'check_back'              => 'Firefly III is down for some necessary maintenance. Please check back in a second.',
     'error_occurred'          => 'Whoops! An error occurred.',
+    'db_error_occurred'       => 'Whoops! A database error occurred.',
     'error_not_recoverable'   => 'Unfortunately, this error was not recoverable :(. Firefly III broke. The error is:',
     'error'                   => 'Error',
     'error_location'          => 'This error occured in file <span style="font-family: monospace;">:file</span> on line :line with code :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Tell us more than "it says Whoops!"',
     'include_logs'            => 'Include error logs (see above).',
     'what_did_you_do'         => 'Tell us what you were doing.',
+    'offline_header'          => 'You are probably offline',
+    'offline_unreachable'     => 'Firefly III is unreachable. Your device is currently offline or the server is not working.',
+    'offline_github'          => 'If you are sure both your device and the server are online, please open a ticket on <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

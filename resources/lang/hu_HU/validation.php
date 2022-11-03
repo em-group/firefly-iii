@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array is missing "where"-clause',
+    'missing_update'                 => 'Array is missing "update"-clause',
+    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
+    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
+    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
+    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
+    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
     'iban'                           => 'Ez nem egy érvényes IBAN számlaszám.',
     'zero_or_more'                   => 'Az érték nem lehet negatív.',
     'date_or_time'                   => 'Az értéknek érvényes dátum vagy időformátumúnak kell lennie (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute attribútumot el kell fogadni.',
     'bic'                            => 'Ez nem egy érvényes BIC.',
     'at_least_one_trigger'           => 'A szabályban legalább egy eseményindítónak lennie kell.',
+    'at_least_one_active_trigger'    => 'Rule must have at least one active trigger.',
     'at_least_one_action'            => 'A szabályban legalább egy műveletnek lennie kell.',
+    'at_least_one_active_action'     => 'Rule must have at least one active action.',
     'base64'                         => 'Ez nem érvényes base64 kódolású adat.',
     'model_id_invalid'               => 'A megadott azonosító érvénytelennek tűnik ehhez a modellhez.',
     'less'                           => ':attribute kisebbnek kell lennie 10,000,000-nél',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'A malacpersely nevének egyedinek kell lennie.',
     'unique_object_group'            => 'Csoport neve már foglalt',
     'starts_with'                    => 'The value must start with :values.',
-    'unique_webhook'                 => 'You already have a webhook with these values.',
-    'unique_existing_webhook'        => 'You already have another webhook with these values.',
+    'unique_webhook'                 => 'You already have a webhook with this combination of URL, trigger, response and delivery.',
+    'unique_existing_webhook'        => 'You already have another webhook with this combination of URL, trigger, response and delivery.',
     'same_account_type'              => 'Both accounts must be of the same account type',
     'same_account_currency'          => 'Both accounts must have the same currency setting',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
     'withdrawal_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
 
-    'generic_source_bad_data'  => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
+    'generic_source_bad_data' => 'Could not find a valid source account when searching for ID ":id" or name ":name".',
 
     'deposit_source_need_data' => 'Egy érvényes forrásszámla azonosító és/vagy egy érvényes forrásszámla név kell a folytatáshoz.',
     'deposit_source_bad_data'  => 'Nem található érvényes forrásszámla ":id" azonosító vagy ":name" név keresésekor.',
@@ -199,12 +208,17 @@ return [
     'transfer_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
     'need_id_in_edit'           => 'Minden felosztásnak rendelkeznie kell "transaction_journal_id"-val (lehet érvényes érték vagy 0).',
 
-    'ob_source_need_data' => 'Egy érvényes forrásszámla azonosító és/vagy egy érvényes forrásszámla név kell a folytatáshoz.',
-    'ob_dest_need_data'   => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
-    'ob_dest_bad_data'    => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
+    'ob_source_need_data'           => 'Egy érvényes forrásszámla azonosító és/vagy egy érvényes forrásszámla név kell a folytatáshoz.',
+    'lc_source_need_data'           => 'Need to get a valid source account ID to continue.',
+    'ob_dest_need_data'             => 'Egy érvényes célszámla azonosító és/vagy egy érvényes célszámla név kell a folytatáshoz.',
+    'ob_dest_bad_data'              => 'Nem található érvényes célszámla ":id" azonosító vagy ":name" név keresésekor.',
+    'reconciliation_either_account' => 'To submit a reconciliation, you must submit either a source or a destination account. Not both, not neither.',
 
     'generic_invalid_source'      => 'Nem használhatod ezt a fiókot forrásfiókként.',
     'generic_invalid_destination' => 'Nem használhatod ezt a fiókot célfiókként.',
+
+    'generic_no_source'      => 'You must submit source account information.',
+    'generic_no_destination' => 'You must submit destination account information.',
 
     'gte.numeric' => ':attribute attribútumnak :value értéknél nagyobbnak vagy vele egyenlőnek kell lennie.',
     'gt.numeric'  => 'A(z) :attribute nagyobb kell, hogy legyen, mint :value.',

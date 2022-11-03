@@ -43,7 +43,7 @@ abstract class Controller extends BaseController
     protected string $dateTimeFormat;
     protected string $monthAndDayFormat;
     protected string $monthFormat;
-    protected string $redirectUri = '/';
+    protected string $redirectUrl = '/';
 
     /**
      * Controller constructor.
@@ -53,9 +53,9 @@ abstract class Controller extends BaseController
     public function __construct()
     {
         // is site a demo site?
-        $isDemoSiteConfig = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site', false,),);
+        $isDemoSiteConfig = app('fireflyconfig')->get('is_demo_site', config('firefly.configuration.is_demo_site', false));
         $isDemoSite       = $isDemoSiteConfig ? $isDemoSiteConfig->data : false;
-        app('view')->share('IS_DEMO_SITE', $isDemoSite,);
+        app('view')->share('IS_DEMO_SITE', $isDemoSite);
         app('view')->share('DEMO_USERNAME', config('firefly.demo_username'));
         app('view')->share('DEMO_PASSWORD', config('firefly.demo_password'));
         app('view')->share('FF_VERSION', config('firefly.version'));
@@ -74,10 +74,10 @@ abstract class Controller extends BaseController
 
         // share custom auth guard info.
         $authGuard = config('firefly.authentication_guard');
-        $logoutUri = config('firefly.custom_logout_uri');
+        $logoutUrl = config('firefly.custom_logout_url');
 
         app('view')->share('authGuard', $authGuard);
-        app('view')->share('logoutUri', $logoutUri);
+        app('view')->share('logoutUrl', $logoutUrl);
 
         // upload size
         $maxFileSize = app('steam')->phpBytes(ini_get('upload_max_filesize'));
@@ -87,12 +87,12 @@ abstract class Controller extends BaseController
 
         // share is alpha, is beta
         $isAlpha = false;
-        if (false !== strpos(config('firefly.version'), 'alpha')) {
+        if (str_contains(config('firefly.version'), 'alpha')) {
             $isAlpha = true;
         }
 
         $isBeta = false;
-        if (false !== strpos(config('firefly.version'), 'beta')) {
+        if (str_contains(config('firefly.version'), 'beta')) {
             $isBeta = true;
         }
 
@@ -100,12 +100,12 @@ abstract class Controller extends BaseController
         app('view')->share('FF_IS_BETA', $isBeta);
 
         $this->middleware(
-            function ($request, $next) {
+            function ($request, $next): mixed {
                 $locale = app('steam')->getLocale();
                 // translations for specific strings:
-                $this->monthFormat       = (string)trans('config.month', [], $locale);
-                $this->monthAndDayFormat = (string)trans('config.month_and_day', [], $locale);
-                $this->dateTimeFormat    = (string)trans('config.date_time', [], $locale);
+                $this->monthFormat       = (string) trans('config.month_js', [], $locale);
+                $this->monthAndDayFormat = (string) trans('config.month_and_day_js', [], $locale);
+                $this->dateTimeFormat    = (string) trans('config.date_time_js', [], $locale);
 
                 // get shown-intro-preference:
                 if (auth()->check()) {

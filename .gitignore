@@ -1,14 +1,8 @@
 /node_modules
 /frontend/node_modules
-/frontend/fonts
-/frontend/images
-/public/hot
-/public/storage
 /storage/*.key
 /vendor
 /.vagrant
-Homestead.json
-Homestead.yaml
 npm-debug.log
 yarn-error.log
 .env
@@ -19,3 +13,4 @@ composer.phar
 /.idea
 .phpunit.result.cache
 app.js.map
+/.ci/php-cs-fixer/vendor

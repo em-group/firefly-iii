@@ -25,14 +25,15 @@ declare(strict_types=1);
 namespace FireflyIII\Api\V1\Controllers\Models\TransactionCurrency;
 
 use FireflyIII\Api\V1\Controllers\Controller;
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\TransactionCurrency;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Api\AccountFilter;
 use FireflyIII\Support\Http\Api\TransactionFilter;
 use FireflyIII\Transformers\CurrencyTransformer;
-use FireflyIII\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Pagination\LengthAwarePaginator;
+use JsonException;
 use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Resource\Item;
@@ -65,14 +66,19 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/listCurrency
+     *
      * Display a listing of the resource.
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      * @codeCoverageIgnore
      */
     public function index(): JsonResponse
     {
-        $pageSize   = (int)app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
+        $pageSize   = (int) app('preferences')->getForUser(auth()->user(), 'listPageSize', 50)->data;
         $collection = $this->repository->getAll();
         $count      = $collection->count();
         // slice them:
@@ -94,11 +100,16 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/getCurrency
+     *
      * Show a currency.
      *
      * @param TransactionCurrency $currency
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      * @codeCoverageIgnore
      */
     public function show(TransactionCurrency $currency): JsonResponse
@@ -117,9 +128,14 @@ class ShowController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/currencies/getDefaultCurrency
+     *
      * Show a currency.
      *
      * @return JsonResponse
+     * @throws FireflyException
+     * @throws JsonException
      * @codeCoverageIgnore
      */
     public function showDefault(): JsonResponse

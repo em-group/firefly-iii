@@ -22,13 +22,16 @@ declare(strict_types=1);
 
 namespace FireflyIII\Http\Controllers;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Http\Requests\NewUserFormRequest;
 use FireflyIII\Models\AccountType;
 use FireflyIII\Repositories\Account\AccountRepositoryInterface;
 use FireflyIII\Repositories\Currency\CurrencyRepositoryInterface;
 use FireflyIII\Support\Http\Controllers\CreateStuff;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Redirector;
+use Illuminate\View\View;
 
 /**
  * Class NewUserController.
@@ -36,6 +39,7 @@ use Illuminate\Routing\Redirector;
 class NewUserController extends Controller
 {
     use CreateStuff;
+
     /** @var AccountRepositoryInterface The account repository */
     private $repository;
 
@@ -58,7 +62,7 @@ class NewUserController extends Controller
     /**
      * Form the user gets when he has no data in the system.
      *
-     * @return RedirectResponse|Redirector|\Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     * @return RedirectResponse|Redirector|Factory|View
      */
     public function index()
     {
@@ -74,7 +78,7 @@ class NewUserController extends Controller
             return redirect(route('dashboard'));
         }
 
-        return prefixView('new-user.index', compact('languages'));
+        return view('new-user.index', compact('languages'));
     }
 
     /**
@@ -84,10 +88,11 @@ class NewUserController extends Controller
      * @param CurrencyRepositoryInterface $currencyRepository
      *
      * @return RedirectResponse|Redirector
+     * @throws FireflyException
      */
     public function submit(NewUserFormRequest $request, CurrencyRepositoryInterface $currencyRepository)
     {
-        $language = $request->string('language');
+        $language = $request->convertString('language');
         if (!array_key_exists($language, config('firefly.languages'))) {
             $language = 'en_US';
 
@@ -96,7 +101,7 @@ class NewUserController extends Controller
         // set language preference:
         app('preferences')->set('language', $language);
         // Store currency preference from input:
-        $currency = $currencyRepository->findNull((int) $request->input('amount_currency_id_bank_balance'));
+        $currency = $currencyRepository->find((int) $request->input('amount_currency_id_bank_balance'));
 
         // if is null, set to EUR:
         if (null === $currency) {
@@ -104,9 +109,9 @@ class NewUserController extends Controller
         }
         $currencyRepository->enable($currency);
 
-        $this->createAssetAccount($request, $currency); // create normal asset account
+        $this->createAssetAccount($request, $currency);              // create normal asset account
         $this->createSavingsAccount($request, $currency, $language); // create savings account
-        $this->createCashWalletAccount($currency, $language); // create cash wallet account
+        $this->createCashWalletAccount($currency, $language);        // create cash wallet account
 
         // store currency preference:
         app('preferences')->set('currencyPreference', $currency->code);
@@ -122,11 +127,6 @@ class NewUserController extends Controller
         $visibleFields = ['interest_date' => true, 'book_date' => false, 'process_date' => false, 'due_date' => false, 'payment_date' => false,
                           'invoice_date'  => false, 'internal_reference' => false, 'notes' => true, 'attachments' => true,];
         app('preferences')->set('transaction_journal_optional_fields', $visibleFields);
-
-        // telemetry: user language preference + default language.
-        app('telemetry')->feature('config.firefly.default_language', config('firefly.default_language', 'en_US'));
-        app('telemetry')->feature('user.preferences.language', app('steam')->getLanguage());
-        app('telemetry')->feature('user.preferences.locale', app('steam')->getLocale());
 
         session()->flash('success', (string) trans('firefly.stored_new_accounts_new_user'));
         app('preferences')->mark();

@@ -40,12 +40,12 @@ class AutocompleteRequest extends FormRequest
      */
     public function getData(): array
     {
-        $types = $this->string('types');
+        $types = $this->convertString('types');
         $array = [];
         if ('' !== $types) {
             $array = explode(',', $types);
         }
-        $limit = $this->integer('limit');
+        $limit = $this->convertInteger('limit');
         $limit = 0 === $limit ? 10 : $limit;
 
         // remove 'initial balance' from allowed types. its internal
@@ -53,8 +53,8 @@ class AutocompleteRequest extends FormRequest
 
         return [
             'types' => $array,
-            'query' => $this->string('query'),
-            'date'  => $this->date('date'),
+            'query' => $this->convertString('query'),
+            'date'  => $this->getCarbonDate('date'),
             'limit' => $limit,
         ];
     }

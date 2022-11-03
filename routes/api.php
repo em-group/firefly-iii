@@ -21,7 +21,6 @@
  */
 
 declare(strict_types=1);
-use FireflyIII\Http\Middleware\IsAdmin;
 
 /**
  * Autocomplete controllers
@@ -90,12 +89,12 @@ Route::group(
     }
 );
 
-// Bulk update Account routes
+// Bulk update API routes
 Route::group(
-    ['namespace' => 'FireflyIII\Api\V1\Controllers\Data\Bulk', 'prefix' => 'data/bulk/accounts',
+    ['namespace' => 'FireflyIII\Api\V1\Controllers\Data\Bulk', 'prefix' => 'data/bulk',
      'as'        => 'api.v1.data.bulk.',],
     static function () {
-        Route::post('transactions', ['uses' => 'AccountController@moveTransactions', 'as' => 'accounts.move-transactions']);
+        Route::post('transactions', ['uses' => 'TransactionController@update', 'as' => 'transactions']);
     }
 );
 
@@ -121,10 +120,10 @@ Route::group(
         Route::get('tag', ['uses' => 'TagController@tag', 'as' => 'tag']);
         Route::get('no-tag', ['uses' => 'TagController@noTag', 'as' => 'no-tag']);
 
-        // TODO Per object group, maybe in the future.
-        // TODO Per recurrence, all transactions created under it.
-        // TODO Per currency, or as a filter?
-        // TODO Show user net worth?
+// See reference nr. 7
+// See reference nr. 8
+// See reference nr. 9
+// See reference nr. 10
     }
 );
 // insight in income
@@ -142,10 +141,10 @@ Route::group(
         Route::get('tag', ['uses' => 'TagController@tag', 'as' => 'tag']);
         Route::get('no-tag', ['uses' => 'TagController@noTag', 'as' => 'no-tag']);
 
-        // TODO Per object group, maybe in the future.
-        // TODO Per recurrence, all transactions created under it.
-        // TODO Per currency, or as a filter?
-        // TODO Show user net worth?
+// See reference nr. 11
+// See reference nr. 12
+// See reference nr. 13
+// See reference nr. 14
     }
 );
 
@@ -162,7 +161,7 @@ Route::group(
         Route::get('no-tag', ['uses' => 'TagController@noTag', 'as' => 'no-tag']);
         Route::get('total', ['uses' => 'PeriodController@total', 'as' => 'total']);
 
-        // TODO Transfers for piggies
+// See reference nr. 15
     }
 );
 /**
@@ -253,6 +252,7 @@ Route::group(
     static function () {
         Route::get('', ['uses' => 'Budget\ShowController@index', 'as' => 'index']);
         Route::post('', ['uses' => 'Budget\StoreController@store', 'as' => 'store']);
+        Route::get('transactions-without-budget', ['uses' => 'Budget\ListController@withoutBudget', 'as' => 'without-budget']);
         Route::get('{budget}', ['uses' => 'Budget\ShowController@show', 'as' => 'show']);
         Route::put('{budget}', ['uses' => 'Budget\UpdateController@update', 'as' => 'update']);
         Route::delete('{budget}', ['uses' => 'Budget\DestroyController@destroy', 'as' => 'delete']);
@@ -342,7 +342,7 @@ Route::group(
         Route::delete('{recurrence}', ['uses' => 'DestroyController@destroy', 'as' => 'delete']);
 
         Route::get('{recurrence}/transactions', ['uses' => 'ListController@transactions', 'as' => 'transactions']);
-        // TODO
+// See reference nr. 16
         Route::post('trigger', ['uses' => 'RecurrenceController@trigger', 'as' => 'trigger']);
     }
 );
@@ -360,9 +360,9 @@ Route::group(
         Route::delete('{rule}', ['uses' => 'DestroyController@destroy', 'as' => 'delete']);
 
         Route::get('{rule}/test', ['uses' => 'TriggerController@testRule', 'as' => 'test']);
-        // TODO give results back.
+// See reference nr. 17
         Route::post('{rule}/trigger', ['uses' => 'TriggerController@triggerRule', 'as' => 'trigger']);
-        // TODO rule transactions, rule bills?
+// See reference nr. 18
     }
 );
 
@@ -524,7 +524,7 @@ Route::group(
 );
 // Users API routes:
 Route::group(
-    ['middleware' => ['auth:api', 'bindings', IsAdmin::class], 'namespace' => 'FireflyIII\Api\V1\Controllers\System', 'prefix' => 'users',
+    ['middleware' => ['auth:api,sanctum', 'bindings'], 'namespace' => 'FireflyIII\Api\V1\Controllers\System', 'prefix' => 'users',
      'as'         => 'api.v1.users.',],
     static function () {
 

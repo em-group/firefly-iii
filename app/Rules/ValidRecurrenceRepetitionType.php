@@ -40,7 +40,7 @@ class ValidRecurrenceRepetitionType implements Rule
      */
     public function message(): string
     {
-        return (string)trans('validation.valid_recurrence_rep_type');
+        return (string) trans('validation.valid_recurrence_rep_type');
     }
 
     /**
@@ -54,7 +54,7 @@ class ValidRecurrenceRepetitionType implements Rule
      */
     public function passes($attribute, $value): bool
     {
-        $value = (string)$value;
+        $value = (string) $value;
         if ('daily' === $value) {
             return true;
         }
@@ -63,10 +63,10 @@ class ValidRecurrenceRepetitionType implements Rule
         if (in_array(substr($value, 0, 6), ['yearly', 'weekly'])) {
             return true;
         }
-        if (0 === strpos($value, 'monthly')) {
+        if (str_starts_with($value, 'monthly')) {
             return true;
         }
-        if (0 === strpos($value, 'ndom')) {
+        if (str_starts_with($value, 'ndom')) {
             return true;
         }
 

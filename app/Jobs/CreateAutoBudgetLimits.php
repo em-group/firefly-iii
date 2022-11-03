@@ -52,7 +52,7 @@ class CreateAutoBudgetLimits implements ShouldQueue
      *
      * @codeCoverageIgnore
      *
-     * @param Carbon $date
+     * @param Carbon|null $date
      */
     public function __construct(?Carbon $date)
     {
@@ -130,7 +130,7 @@ class CreateAutoBudgetLimits implements ShouldQueue
         // find budget limit:
         $budgetLimit = $this->findBudgetLimit($autoBudget->budget, $start, $end);
 
-        if (null === $budgetLimit && AutoBudget::AUTO_BUDGET_RESET === $autoBudget->auto_budget_type) {
+        if (null === $budgetLimit && AutoBudget::AUTO_BUDGET_RESET === (int) $autoBudget->auto_budget_type) {
             // that's easy: create one.
             // do nothing else.
             $this->createBudgetLimit($autoBudget, $start, $end);
@@ -139,7 +139,7 @@ class CreateAutoBudgetLimits implements ShouldQueue
             return;
         }
 
-        if (null === $budgetLimit && AutoBudget::AUTO_BUDGET_ROLLOVER === $autoBudget->auto_budget_type) {
+        if (null === $budgetLimit && AutoBudget::AUTO_BUDGET_ROLLOVER === (int) $autoBudget->auto_budget_type) {
             // budget limit exists already,
             $this->createRollover($autoBudget);
             Log::debug(sprintf('Done with auto budget #%d', $autoBudget->id));
@@ -178,7 +178,6 @@ class CreateAutoBudgetLimits implements ShouldQueue
                 $value  = $this->date->format($format);
 
                 return in_array($value, ['01-01', '07-01'], true);
-                break;
             case 'yearly':
                 $format = 'm-d';
                 $value  = $this->date->format($format);
@@ -238,6 +237,8 @@ class CreateAutoBudgetLimits implements ShouldQueue
 
     /**
      * @param AutoBudget $autoBudget
+     *
+     * @throws FireflyException
      */
     private function createRollover(AutoBudget $autoBudget): void
     {
@@ -276,7 +277,7 @@ class CreateAutoBudgetLimits implements ShouldQueue
         $repository = app(OperationsRepositoryInterface::class);
         $repository->setUser($autoBudget->budget->user);
         $spent       = $repository->sumExpenses($previousStart, $previousEnd, null, new Collection([$autoBudget->budget]), $autoBudget->transactionCurrency);
-        $currencyId  = (int)$autoBudget->transaction_currency_id;
+        $currencyId  = (int) $autoBudget->transaction_currency_id;
         $spentAmount = $spent[$currencyId]['sum'] ?? '0';
         Log::debug(sprintf('Spent in previous budget period (%s-%s) is %s', $previousStart->format('Y-m-d'), $previousEnd->format('Y-m-d'), $spentAmount));
 

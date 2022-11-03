@@ -23,6 +23,13 @@
 declare(strict_types=1);
 
 return [
+    'missing_where'                  => 'Array mist "where"-clausule',
+    'missing_update'                 => 'Array mist "update"-clausule',
+    'invalid_where_key'              => 'JSON bevat een ongeldige key in de "where"-clausule',
+    'invalid_update_key'             => 'JSON bevat een ongeldige key in de "update"-clausule',
+    'invalid_query_data'             => 'Er zitten ongeldige gegevens in het %s:%s veld van je query.',
+    'invalid_query_account_type'     => 'Je query bevat accounts van verschillende types, wat niet is toegestaan.',
+    'invalid_query_currency'         => 'Je query bevat account met verschillende valuta-instellingen, wat niet is toegestaan.',
     'iban'                           => 'Dit is niet een geldige IBAN.',
     'zero_or_more'                   => 'De waarde mag niet negatief zijn.',
     'date_or_time'                   => 'De waarde moet een geldige datum of tijdwaarde zijn (ISO 8601).',
@@ -54,7 +61,9 @@ return [
     'accepted'                       => ':attribute moet geaccepteerd zijn.',
     'bic'                            => 'Dit is geen geldige BIC.',
     'at_least_one_trigger'           => 'De regel moet minstens één trigger hebben.',
+    'at_least_one_active_trigger'    => 'De regel moet minstens één actieve trigger hebben.',
     'at_least_one_action'            => 'De regel moet minstens één actie hebben.',
+    'at_least_one_active_action'     => 'De regel moet minstens één actieve actie hebben.',
     'base64'                         => 'Dit is geen geldige base64 gecodeerde data.',
     'model_id_invalid'               => 'Dit ID past niet bij dit object.',
     'less'                           => ':attribute moet minder zijn dan 10.000.000',
@@ -132,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'De naam van de spaarpot moet uniek zijn.',
     'unique_object_group'            => 'De groepsnaam moet uniek zijn',
     'starts_with'                    => 'De waarde moet beginnen met :values.',
-    'unique_webhook'                 => 'Je hebt al een webhook met deze waarden.',
-    'unique_existing_webhook'        => 'Je hebt al een andere webhook met deze waarden.',
+    'unique_webhook'                 => 'Je hebt al een webhook met deze combinatie van URL, trigger, reactie en bericht.',
+    'unique_existing_webhook'        => 'Je hebt al een andere webhook met deze combinatie van URL, trigger, reactie en bericht.',
     'same_account_type'              => 'Beide rekeningen moeten van hetzelfde rekeningtype zijn',
     'same_account_currency'          => 'Beide rekeningen moeten dezelfde valuta hebben',
 
@@ -185,7 +194,7 @@ return [
     'withdrawal_dest_need_data'   => 'Om door te gaan moet een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
     'withdrawal_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
 
-    'generic_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'generic_source_bad_data' => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
 
     'deposit_source_need_data' => 'Om door te gaan moet een geldige bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
     'deposit_source_bad_data'  => 'Kan geen geldige bronrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
@@ -199,15 +208,20 @@ return [
     'transfer_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
     'need_id_in_edit'           => 'Elke split moet een transaction_journal_id hebben (een geldig ID of 0).',
 
-    'ob_source_need_data' => 'Om door te gaan moet er een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
-    'ob_dest_need_data'   => 'Om door te gaan moet een geldig doelrekening ID en/of geldige doelrekeningnaam worden gevonden.',
-    'ob_dest_bad_data'    => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'ob_source_need_data'           => 'Om door te gaan moet er een geldig bronrekening ID en/of geldige bronrekeningnaam worden gevonden.',
+    'lc_source_need_data'           => 'Er moet een geldig bronrekening-ID zijn om door te gaan.',
+    'ob_dest_need_data'             => 'Om door te gaan moet een geldig doelrekening ID en/of geldige doelrekeningnaam worden gevonden.',
+    'ob_dest_bad_data'              => 'Kan geen geldige doelrekening vinden bij het zoeken naar ID ":id" of naam ":name".',
+    'reconciliation_either_account' => 'Om een afstemmingstransactie in te dienen moet je een bron- of doelrekening insturen. Niet beide, niet geen beide.',
 
     'generic_invalid_source'      => 'Je kan deze rekening niet gebruiken als bronrekening.',
     'generic_invalid_destination' => 'Je kan deze rekening niet gebruiken als doelrekening.',
 
+    'generic_no_source'      => 'Je moet ook bronrekeninginformatie meegeven.',
+    'generic_no_destination' => 'Je moet ook doelrekeninginformatie meegeven.',
+
     'gte.numeric' => ':attribute moet groter of gelijk zijn aan :value.',
-    'gt.numeric'  => 'De :attribute moet groter zijn dan :value.',
+    'gt.numeric'  => ':attribute moet groter zijn dan :value.',
     'gte.file'    => ':attribute moet groter of gelijk zijn aan :value kilobytes.',
     'gte.string'  => ':attribute moet :value karakters of meer bevatten.',
     'gte.array'   => ':attribute moet :value items of meer bevatten.',

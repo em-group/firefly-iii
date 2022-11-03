@@ -43,8 +43,8 @@ class UpdateRequest extends FormRequest
     public function getUpdateData(): array
     {
         $fields = [
-            'title' => ['title', 'string'],
-            'order' => ['order', 'integer'],
+            'title' => ['title', 'convertString'],
+            'order' => ['order', 'convertInteger'],
         ];
 
         return $this->getAllData($fields);

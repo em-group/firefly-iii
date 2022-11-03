@@ -55,7 +55,7 @@ class ReportFormRequest extends FormRequest
         $collection = new Collection;
         if (is_array($set)) {
             foreach ($set as $accountId) {
-                $account = $repository->findNull((int)$accountId);
+                $account = $repository->find((int) $accountId);
                 if (null !== $account) {
                     $collection->push($account);
                 }
@@ -78,7 +78,7 @@ class ReportFormRequest extends FormRequest
         $collection = new Collection;
         if (is_array($set)) {
             foreach ($set as $budgetId) {
-                $budget = $repository->findNull((int)$budgetId);
+                $budget = $repository->find((int) $budgetId);
                 if (null !== $budget) {
                     $collection->push($budget);
                 }
@@ -101,7 +101,7 @@ class ReportFormRequest extends FormRequest
         $collection = new Collection;
         if (is_array($set)) {
             foreach ($set as $categoryId) {
-                $category = $repository->findNull((int)$categoryId);
+                $category = $repository->find((int) $categoryId);
                 if (null !== $category) {
                     $collection->push($category);
                 }
@@ -124,7 +124,7 @@ class ReportFormRequest extends FormRequest
         $collection = new Collection;
         if (is_array($set)) {
             foreach ($set as $accountId) {
-                $account = $repository->findNull((int)$accountId);
+                $account = $repository->find((int) $accountId);
                 if (null !== $account) {
                     $collection->push($account);
                 }
@@ -145,20 +145,26 @@ class ReportFormRequest extends FormRequest
     {
         $date  = today(config('app.timezone'));
         $range = $this->get('daterange');
-        $parts = explode(' - ', (string)$range);
+        $parts = explode(' - ', (string) $range);
         if (2 === count($parts)) {
-            try {
-                $date = new Carbon($parts[1]);
-
-            } catch (Exception $e) {
-                $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
-                Log::error($error);
-                throw new FireflyException($error, 0, $e);
-
+            $string = $parts[1];
+            // validate as date
+            // if regex for YYYY-MM-DD:
+            $pattern = '/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][\d]|3[01])$/';
+            if (preg_match($pattern, $string)) {
+                try {
+                    $date = new Carbon($parts[1]);
+                } catch (Exception $e) {
+                    $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
+                    Log::error($error);
+                    throw new FireflyException($error, 0, $e);
+                }
+                return $date;
             }
-
+            $error = sprintf('"%s" is not a valid date range: %s', $range, 'invalid format :(');
+            Log::error($error);
+            throw new FireflyException($error, 0);
         }
-
         return $date;
     }
 
@@ -173,17 +179,25 @@ class ReportFormRequest extends FormRequest
     {
         $date  = today(config('app.timezone'));
         $range = $this->get('daterange');
-        $parts = explode(' - ', (string)$range);
+        $parts = explode(' - ', (string) $range);
         if (2 === count($parts)) {
-            try {
-                $date = new Carbon($parts[0]);
-
-            } catch (Exception $e) {
-                $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
-                Log::error($error);
-                throw new FireflyException($error, 0, $e);
-
+            $string = $parts[0];
+            // validate as date
+            // if regex for YYYY-MM-DD:
+            $pattern = '/^(19|20)\d\d-(0[1-9]|1[012])-(0[1-9]|[12][\d]|3[01])$/';
+            if (preg_match($pattern, $string)) {
+                try {
+                    $date = new Carbon($parts[0]);
+                } catch (Exception $e) {
+                    $error = sprintf('"%s" is not a valid date range: %s', $range, $e->getMessage());
+                    Log::error($error);
+                    throw new FireflyException($error, 0, $e);
+                }
+                return $date;
             }
+            $error = sprintf('"%s" is not a valid date range: %s', $range, 'invalid format :(');
+            Log::error($error);
+            throw new FireflyException($error, 0);
         }
 
         return $date;
@@ -209,7 +223,7 @@ class ReportFormRequest extends FormRequest
                     $collection->push($tag);
                     continue;
                 }
-                $tag = $repository->findNull((int)$tagTag);
+                $tag = $repository->find((int) $tagTag);
                 if (null !== $tag) {
                     $collection->push($tag);
                 }

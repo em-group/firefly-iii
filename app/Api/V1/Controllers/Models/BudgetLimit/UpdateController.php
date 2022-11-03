@@ -42,6 +42,9 @@ class UpdateController extends Controller
     private BudgetLimitRepositoryInterface $blRepository;
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/budgets/updateBudgetLimit
+     *
      * BudgetLimitController constructor.
      *
      * @codeCoverageIgnore
@@ -69,11 +72,12 @@ class UpdateController extends Controller
      * @param BudgetLimit   $budgetLimit
      *
      * @return JsonResponse
+     * @throws FireflyException
      */
     public function update(UpdateRequest $request, Budget $budget, BudgetLimit $budgetLimit): JsonResponse
     {
 
-        if ((int)$budget->id !== (int)$budgetLimit->budget_id) {
+        if ((int) $budget->id !== (int) $budgetLimit->budget_id) {
             throw new FireflyException('20028: The budget limit does not belong to the budget.');
         }
         $data              = $request->getAll();

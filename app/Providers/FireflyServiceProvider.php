@@ -42,8 +42,6 @@ use FireflyIII\Helpers\Webhook\Sha3SignatureGenerator;
 use FireflyIII\Helpers\Webhook\SignatureGeneratorInterface;
 use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepository;
 use FireflyIII\Repositories\ObjectGroup\ObjectGroupRepositoryInterface;
-use FireflyIII\Repositories\Telemetry\TelemetryRepository;
-use FireflyIII\Repositories\Telemetry\TelemetryRepositoryInterface;
 use FireflyIII\Repositories\TransactionType\TransactionTypeRepository;
 use FireflyIII\Repositories\TransactionType\TransactionTypeRepositoryInterface;
 use FireflyIII\Repositories\User\UserRepository;
@@ -66,7 +64,6 @@ use FireflyIII\Support\Form\RuleForm;
 use FireflyIII\Support\Navigation;
 use FireflyIII\Support\Preferences;
 use FireflyIII\Support\Steam;
-use FireflyIII\Support\Telemetry;
 use FireflyIII\TransactionRules\Engine\RuleEngineInterface;
 use FireflyIII\TransactionRules\Engine\SearchRuleEngine;
 use FireflyIII\Validation\FireflyValidator;
@@ -167,13 +164,6 @@ class FireflyServiceProvider extends ServiceProvider
             }
         );
 
-        $this->app->bind(
-            'telemetry',
-            static function () {
-                return new Telemetry;
-            }
-        );
-
         // chart generator:
         $this->app->bind(GeneratorInterface::class, ChartJsGenerator::class);
         // other generators
@@ -226,7 +216,6 @@ class FireflyServiceProvider extends ServiceProvider
         $this->app->bind(ReportHelperInterface::class, ReportHelper::class);
         $this->app->bind(FiscalHelperInterface::class, FiscalHelper::class);
         $this->app->bind(UpdateRequestInterface::class, UpdateRequest::class);
-        $this->app->bind(TelemetryRepositoryInterface::class, TelemetryRepository::class);
 
         // webhooks:
         $this->app->bind(MessageGeneratorInterface::class, StandardMessageGenerator::class);

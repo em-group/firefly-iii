@@ -33,6 +33,7 @@ return [
     'be_right_back'           => 'Веднага се връщам!',
     'check_back'              => 'Firefly III е изключен за някаква необходима поддръжка. Моля, проверете отново след секунда.',
     'error_occurred'          => 'Опаааа! Случи се грешка.',
+    'db_error_occurred'       => 'Опаааа! Случи се грешка с базата данни.',
     'error_not_recoverable'   => 'За съжаление от тази грешка не се възстановява :(. Firefly III се счупи. Грешката е:',
     'error'                   => 'Грешка',
     'error_location'          => 'Тази грешка се появи във файл "<span style="font-family: monospace;">:file</span>" на ред: :line с код: :code.',
@@ -47,5 +48,8 @@ return [
     'tell_more'               => 'Разкажете ни повече от „казва Опаааа!“',
     'include_logs'            => 'Включете регистрационни файлове за грешки (вижте по-горе).',
     'what_did_you_do'         => 'Кажете ни какво правихте.',
+    'offline_header'          => 'Вие вероятно не сте на линия',
+    'offline_unreachable'     => 'Firefly III е недостижим. Устройството Ви в момента не е на линия или сървърът не работи.',
+    'offline_github'          => 'Ако сте сигурни, че Вашето устройство и сървъра са на линия, моля отворете билет на <strong><a href="https://github.com/firefly-iii/firefly-iii/issues">GitHub</a></strong>.',
 
 ];

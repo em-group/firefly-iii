@@ -26,7 +26,12 @@ namespace FireflyIII\Support\System;
 
 use Artisan;
 use Crypt;
+use FireflyIII\Exceptions\FireflyException;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Laravel\Passport\Console\KeysCommand;
+use Log;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * Class OAuthKeys
@@ -62,7 +67,23 @@ class OAuthKeys
      */
     public static function keysInDatabase(): bool
     {
-        return app('fireflyconfig')->has(self::PRIVATE_KEY) && app('fireflyconfig')->has(self::PUBLIC_KEY);
+        $privateKey = '';
+        $publicKey  = '';
+        // better check if keys are in the database:
+        if (app('fireflyconfig')->has(self::PRIVATE_KEY) && app('fireflyconfig')->has(self::PUBLIC_KEY)) {
+            try {
+                $privateKey = (string) app('fireflyconfig')->get(self::PRIVATE_KEY)?->data;
+                $publicKey  = (string) app('fireflyconfig')->get(self::PUBLIC_KEY)?->data;
+            } catch (ContainerExceptionInterface|NotFoundExceptionInterface|FireflyException $e) {
+                Log::error(sprintf('Could not validate keysInDatabase(): %s', $e->getMessage()));
+                Log::error($e->getTraceAsString());
+            }
+        }
+        if ('' !== $privateKey && '' !== $publicKey) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -97,16 +118,33 @@ class OAuthKeys
     }
 
     /**
-     *
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws FireflyException
+     * @throws NotFoundExceptionInterface
      */
-    public static function restoreKeysFromDB(): void
+    public static function restoreKeysFromDB(): bool
     {
-        $privateContent = Crypt::decrypt(app('fireflyconfig')->get(self::PRIVATE_KEY)->data);
-        $publicContent  = Crypt::decrypt(app('fireflyconfig')->get(self::PUBLIC_KEY)->data);
-        $private        = storage_path('oauth-private.key');
-        $public         = storage_path('oauth-public.key');
+        $privateKey = (string) app('fireflyconfig')->get(self::PRIVATE_KEY)?->data;
+        $publicKey  = (string) app('fireflyconfig')->get(self::PUBLIC_KEY)?->data;
+        try {
+            $privateContent = Crypt::decrypt($privateKey);
+            $publicContent  = Crypt::decrypt($publicKey);
+        } catch (DecryptException $e) {
+            Log::error('Could not decrypt pub/private keypair.');
+            Log::error($e->getMessage());
+
+            // delete config vars from DB:
+            app('fireflyconfig')->delete(self::PRIVATE_KEY);
+            app('fireflyconfig')->delete(self::PUBLIC_KEY);
+
+            return false;
+        }
+        $private = storage_path('oauth-private.key');
+        $public  = storage_path('oauth-public.key');
         file_put_contents($private, $privateContent);
         file_put_contents($public, $publicContent);
+        return true;
     }
 
 }

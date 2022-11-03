@@ -24,6 +24,15 @@ declare(strict_types=1);
 
 return [
     'home'                   => 'Domov',
+    'budgets'                => 'Budgets',
+    'subscriptions'          => 'Subscriptions',
+    'transactions'           => 'Transactions',
+    'title_expenses'         => 'Expenses',
+    'title_withdrawal'       => 'Expenses',
+    'title_revenue'          => 'Revenue / income',
+    'title_deposit'          => 'Revenue / income',
+    'title_transfer'         => 'Transfers',
+    'title_transfers'        => 'Transfers',
     'edit_currency'          => 'Upraviť menu „:name“',
     'delete_currency'        => 'Odstrániť menu „:name“',
     'newPiggyBank'           => 'Vytvoriť novú pokladničku',
@@ -58,9 +67,12 @@ return [
     'edit_tag'               => 'Upraviť štítok „:tag“',
     'delete_tag'             => 'Odstrániť štítok „:tag“',
     'delete_journal_link'    => 'Odstrániť previazanie medzi transakciami',
-    'telemetry_index'        => 'Telemetria',
-    'telemetry_view'         => 'Zobraziť telemetriu',
     'edit_object_group'      => 'Upraviť skupinu pravidiel „:title“',
     'delete_object_group'    => 'Zmazať skupinu pravidiel „:title“',
-    'logout_others'          => 'Odhlásiť všetky ostatné relácie'
+    'logout_others'          => 'Odhlásiť všetky ostatné relácie',
+    'asset_accounts'         => 'Asset accounts',
+    'expense_accounts'       => 'Expense accounts',
+    'revenue_accounts'       => 'Revenue accounts',
+    'liabilities_accounts'   => 'Liabilities',
+    'placeholder'            => '[Placeholder]',
 ];

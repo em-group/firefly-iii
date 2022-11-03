@@ -1,7 +1,7 @@
 <?php
-declare(strict_types=1);
+
 /*
- * PeriodController.php
+ * TagController.php
  * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
@@ -19,6 +19,8 @@ declare(strict_types=1);
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+declare(strict_types=1);
 
 namespace FireflyIII\Api\V1\Controllers\Insight\Expense;
 
@@ -53,6 +55,9 @@ class TagController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/insight/insightExpenseNoTag
+     *
      * Expenses for no tag filtered by account.
      *
      * @param GenericRequest $request
@@ -74,28 +79,28 @@ class TagController extends Controller
         $genericSet = $collector->getExtractedJournals();
 
         foreach ($genericSet as $journal) {
-            $currencyId        = (int)$journal['currency_id'];
-            $foreignCurrencyId = (int)$journal['foreign_currency_id'];
+            $currencyId        = (int) $journal['currency_id'];
+            $foreignCurrencyId = (int) $journal['foreign_currency_id'];
 
             if (0 !== $currencyId) {
                 $response[$currencyId]                     = $response[$currencyId] ?? [
                         'difference'       => '0',
                         'difference_float' => 0,
-                        'currency_id'      => (string)$currencyId,
+                        'currency_id'      => (string) $currencyId,
                         'currency_code'    => $journal['currency_code'],
                     ];
                 $response[$currencyId]['difference']       = bcadd($response[$currencyId]['difference'], $journal['amount']);
-                $response[$currencyId]['difference_float'] = (float)$response[$currencyId]['difference'];
+                $response[$currencyId]['difference_float'] = (float) $response[$currencyId]['difference'];
             }
             if (0 !== $foreignCurrencyId) {
                 $response[$foreignCurrencyId]                     = $response[$foreignCurrencyId] ?? [
                         'difference'       => '0',
                         'difference_float' => 0,
-                        'currency_id'      => (string)$foreignCurrencyId,
+                        'currency_id'      => (string) $foreignCurrencyId,
                         'currency_code'    => $journal['foreign_currency_code'],
                     ];
                 $response[$foreignCurrencyId]['difference']       = bcadd($response[$foreignCurrencyId]['difference'], $journal['foreign_amount']);
-                $response[$foreignCurrencyId]['difference_float'] = (float)$response[$foreignCurrencyId]['difference'];
+                $response[$foreignCurrencyId]['difference_float'] = (float) $response[$foreignCurrencyId]['difference'];
             }
         }
 
@@ -103,6 +108,9 @@ class TagController extends Controller
     }
 
     /**
+     * This endpoint is documented at:
+     * https://api-docs.firefly-iii.org/#/insight/insightExpenseTag
+     *
      * Expenses per tag, possibly filtered by tag and account.
      *
      * @param GenericRequest $request
@@ -129,8 +137,8 @@ class TagController extends Controller
         $genericSet = $collector->getExtractedJournals();
         /** @var array $journal */
         foreach ($genericSet as $journal) {
-            $currencyId        = (int)$journal['currency_id'];
-            $foreignCurrencyId = (int)$journal['foreign_currency_id'];
+            $currencyId        = (int) $journal['currency_id'];
+            $foreignCurrencyId = (int) $journal['foreign_currency_id'];
 
             /** @var array $tag */
             foreach ($journal['tags'] as $tag) {
@@ -141,15 +149,15 @@ class TagController extends Controller
                 // on currency ID
                 if (0 !== $currencyId) {
                     $response[$key]                     = $response[$key] ?? [
-                            'id'               => (string)$tagId,
+                            'id'               => (string) $tagId,
                             'name'             => $tag['name'],
                             'difference'       => '0',
                             'difference_float' => 0,
-                            'currency_id'      => (string)$currencyId,
+                            'currency_id'      => (string) $currencyId,
                             'currency_code'    => $journal['currency_code'],
                         ];
                     $response[$key]['difference']       = bcadd($response[$key]['difference'], $journal['amount']);
-                    $response[$key]['difference_float'] = (float)$response[$key]['difference'];
+                    $response[$key]['difference_float'] = (float) $response[$key]['difference'];
                 }
 
                 // on foreign ID
@@ -157,11 +165,11 @@ class TagController extends Controller
                     $response[$foreignKey]                     = $journal[$foreignKey] ?? [
                             'difference'       => '0',
                             'difference_float' => 0,
-                            'currency_id'      => (string)$foreignCurrencyId,
+                            'currency_id'      => (string) $foreignCurrencyId,
                             'currency_code'    => $journal['foreign_currency_code'],
                         ];
                     $response[$foreignKey]['difference']       = bcadd($response[$foreignKey]['difference'], $journal['foreign_amount']);
-                    $response[$foreignKey]['difference_float'] = (float)$response[$foreignKey]['difference'];
+                    $response[$foreignKey]['difference_float'] = (float) $response[$foreignKey]['difference'];
                 }
             }
         }

@@ -50,6 +50,7 @@ use FireflyIII\Repositories\Recurring\RecurringRepositoryInterface;
 use FireflyIII\Repositories\Rule\RuleRepositoryInterface;
 use FireflyIII\Repositories\Tag\TagRepositoryInterface;
 use FireflyIII\Repositories\TransactionGroup\TransactionGroupRepositoryInterface;
+use FireflyIII\Support\Request\ConvertsDataTypes;
 use FireflyIII\User;
 use Illuminate\Support\Collection;
 use League\Csv\CannotInsertRecord;
@@ -61,6 +62,10 @@ use League\Csv\Writer;
  */
 class ExportDataGenerator
 {
+    use ConvertsDataTypes;
+
+    private const ADD_RECORD_ERR = 'Could not add record to set: %s';
+    private const EXPORT_ERR     = 'Could not export to string: %s';
     private Collection $accounts;
     private Carbon     $end;
     private bool       $exportAccounts;
@@ -94,8 +99,6 @@ class ExportDataGenerator
 
     /**
      * @return array
-     * @throws CannotInsertRecord
-     * @throws Exception
      * @throws FireflyException
      */
     public function export(): array
@@ -134,6 +137,7 @@ class ExportDataGenerator
 
     /**
      * @return string
+     * @throws FireflyException
      */
     private function exportAccounts(): string
     {
@@ -142,10 +146,10 @@ class ExportDataGenerator
         /** @var AccountRepositoryInterface $repository */
         $repository = app(AccountRepositoryInterface::class);
         $repository->setUser($this->user);
-        $accounts = $repository->getAccountsByType([]);
-        $records  = [];
+        $allAccounts = $repository->getAccountsByType([]);
+        $records     = [];
         /** @var Account $account */
-        foreach ($accounts as $account) {
+        foreach ($allAccounts as $account) {
             $currency  = $repository->getAccountCurrency($account);
             $records[] = [
                 $this->user->id,
@@ -158,7 +162,7 @@ class ExportDataGenerator
                 $account->iban,
                 $account->account_number,
                 $account->active,
-                $currency ? $currency->code : null,
+                $currency?->code,
                 $repository->getMetaValue($account, 'account_role'),
                 $repository->getMetaValue($account, 'cc_type'),
                 $repository->getMetaValue($account, 'cc_monthly_payment_date'),
@@ -169,13 +173,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -184,7 +188,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -223,13 +227,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -238,7 +242,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -287,13 +291,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -302,7 +306,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -336,13 +340,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -351,7 +355,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -389,24 +393,24 @@ class ExportDataGenerator
                 $piggy->account->name,
                 $piggy->account->accountType->type,
                 $piggy->name,
-                $currency ? $currency->code : null,
+                $currency?->code,
                 $piggy->targetamount,
-                $repetition ? $repetition->currentamount : null,
-                $piggy->startdate ? $piggy->startdate->format('Y-m-d') : null,
-                $piggy->targetdate ? $piggy->targetdate->format('Y-m-d') : null,
+                $repetition?->currentamount,
+                $piggy->startdate?->format('Y-m-d'),
+                $piggy->targetdate?->format('Y-m-d'),
                 $piggy->order,
                 $piggy->active,
             ];
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -415,7 +419,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -455,9 +459,9 @@ class ExportDataGenerator
                 $recurrence->transactionType->type,
                 $recurrence->title,
                 $recurrence->description,
-                null !== $recurrence->first_date ? $recurrence->first_date->format('Y-m-d') : null,
-                $recurrence->repeat_until ? $recurrence->repeat_until->format('Y-m-d') : null,
-                $recurrence->latest_date ? $recurrence->latest_date->format('Y-m-d') : null,
+                $recurrence->first_date?->format('Y-m-d'),
+                $recurrence->repeat_until?->format('Y-m-d'),
+                $recurrence->latest_date?->format('Y-m-d'),
                 $recurrence->repetitions,
                 $recurrence->apply_rules,
                 $recurrence->active,
@@ -490,7 +494,7 @@ class ExportDataGenerator
                     null, null, null, null,
 
                     // transaction:
-                    $transaction->transactionCurrency->code, $transaction->foreignCurrency ? $transaction->foreignCurrency->code : null,
+                    $transaction->transactionCurrency->code, $transaction->foreignCurrency?->code,
                     $transaction->sourceAccount->name, $transaction->sourceAccount->accountType->type, $transaction->destinationAccount->name,
                     $transaction->destinationAccount->accountType->type, $transaction->amount, $transaction->foreign_amount,
                     $categoryName, $budgetId, $piggyBankId, implode(',', $tags),
@@ -498,13 +502,13 @@ class ExportDataGenerator
             }
         }
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -513,7 +517,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -565,13 +569,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -580,7 +584,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -589,6 +593,8 @@ class ExportDataGenerator
     /**
      * @return string
      * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function exportTags(): string
     {
@@ -606,7 +612,7 @@ class ExportDataGenerator
                 $tag->created_at->toAtomString(),
                 $tag->updated_at->toAtomString(),
                 $tag->tag,
-                $tag->date ? $tag->date->format('Y-m-d') : null,
+                $tag->date?->format('Y-m-d'),
                 $tag->description,
                 $tag->latitude,
                 $tag->longitude,
@@ -615,13 +621,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -630,7 +636,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -642,7 +648,7 @@ class ExportDataGenerator
      */
     private function exportTransactions(): string
     {
-        // TODO better place for keys?
+        // See reference nr. 41
         $header = ['user_id', 'group_id', 'journal_id', 'created_at', 'updated_at', 'group_title', 'type', 'amount', 'foreign_amount', 'currency_code',
                    'foreign_currency_code', 'description', 'date', 'source_name', 'source_iban', 'source_type', 'destination_name', 'destination_iban',
                    'destination_type', 'reconciled', 'category', 'budget', 'bill', 'tags', 'notes',
@@ -695,7 +701,7 @@ class ExportDataGenerator
                 $journal['budget_name'],
                 $journal['bill_name'],
                 $this->mergeTags($journal['tags']),
-                $journal['notes'],
+                $this->clearString($journal['notes'], true),
 
                 // export also the optional fields (ALL)
 
@@ -708,7 +714,7 @@ class ExportDataGenerator
                 $metaData['sepa_ep'],
                 $metaData['sepa_ci'],
                 $metaData['sepa_batch_id'],
-                $metaData['external_uri'],
+                $metaData['external_url'],
 
                 // dates
                 $metaData['interest_date'],
@@ -735,13 +741,13 @@ class ExportDataGenerator
         }
 
         //load the CSV document from a string
-        $csv = Writer::createFromString('');
+        $csv = Writer::createFromString();
 
         //insert the header
         try {
             $csv->insertOne($header);
         } catch (CannotInsertRecord $e) {
-            throw new FireflyException(sprintf('Could not add record to set: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::ADD_RECORD_ERR, $e->getMessage()), 0, $e);
         }
 
         //insert all the records
@@ -750,7 +756,7 @@ class ExportDataGenerator
         try {
             $string = $csv->toString();
         } catch (Exception $e) {
-            throw new FireflyException(sprintf('Could not export to string: %s', $e->getMessage()), 0, $e);
+            throw new FireflyException(sprintf(self::EXPORT_ERR, $e->getMessage()), 0, $e);
         }
 
         return $string;
@@ -763,7 +769,7 @@ class ExportDataGenerator
      */
     private function mergeTags(array $tags): string
     {
-        if (0 === count($tags)) {
+        if (empty($tags)) {
             return '';
         }
         $smol = [];

@@ -48,14 +48,13 @@ class UpdateRequest extends FormRequest
     {
         // This is the way.
         $fields = [
-            'tag'         => ['tag', 'string'],
+            'tag'         => ['tag', 'convertString'],
             'date'        => ['date', 'date'],
-            'description' => ['description', 'string'],
+            'description' => ['description', 'convertString'],
         ];
         $data   = $this->getAllData($fields);
-        $data   = $this->appendLocationData($data, null);
 
-        return $data;
+        return $this->appendLocationData($data, null);
     }
 
     /**
@@ -66,7 +65,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         $tag = $this->route()->parameter('tagOrId');
-        // TODO is uniqueObjectForUser not obsolete?
+        // See reference nr. 73
         $rules = [
             'tag'         => 'min:1|uniqueObjectForUser:tags,tag,' . $tag->id,
             'description' => 'min:1|nullable',

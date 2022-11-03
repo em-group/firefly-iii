@@ -1,8 +1,8 @@
 <?php
 
-/**
+/*
  * breadcrumbs.php
- * Copyright (c) 2019 james@firefly-iii.org.
+ * Copyright (c) 2021 james@firefly-iii.org
  *
  * This file is part of Firefly III (https://github.com/firefly-iii).
  *
@@ -23,6 +23,7 @@
 declare(strict_types=1);
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | View Name
@@ -31,15 +32,22 @@ return [
     | Choose a view to display when Breadcrumbs::render() is called.
     | Built in templates are:
     |
-    | - 'breadcrumbs::bootstrap4' - Twitter Bootstrap v4
-    | - 'breadcrumbs::bootstrap3' - Twitter Bootstrap v3
-    | - 'breadcrumbs::bootstrap2' - Twitter Bootstrap v2
+    | - 'breadcrumbs::bootstrap5'  - Bootstrap 5
+    | - 'breadcrumbs::bootstrap4'  - Bootstrap 4
+    | - 'breadcrumbs::bootstrap3'  - Bootstrap 3
+    | - 'breadcrumbs::bootstrap2'  - Bootstrap 2
+    | - 'breadcrumbs::bulma'       - Bulma
+    | - 'breadcrumbs::foundation6' - Foundation 6
+    | - 'breadcrumbs::json-ld'     - JSON-LD Structured Data
+    | - 'breadcrumbs::materialize' - Materialize
+    | - 'breadcrumbs::tailwind'    - Tailwind CSS
+    | - 'breadcrumbs::uikit'       - UIkit
     |
     | Or a custom view, e.g. '_partials/breadcrumbs'.
     |
     */
 
-    'view' => sprintf('%s/partials/layout/breadcrumbs', env('FIREFLY_III_LAYOUT', 'v1')),
+    'view' => 'partials/layout/breadcrumbs',
 
     /*
     |--------------------------------------------------------------------------
@@ -83,9 +91,9 @@ return [
     */
 
     // Manager
-    'manager-class'                            => DaveJamesMiller\Breadcrumbs\BreadcrumbsManager::class,
+    'manager-class'                            => Diglactic\Breadcrumbs\Manager::class,
 
     // Generator
-    'generator-class'                          => DaveJamesMiller\Breadcrumbs\BreadcrumbsGenerator::class,
+    'generator-class'                          => Diglactic\Breadcrumbs\Generator::class,
 
 ];

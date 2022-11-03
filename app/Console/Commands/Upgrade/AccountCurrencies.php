@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace FireflyIII\Console\Commands\Upgrade;
 
+use FireflyIII\Exceptions\FireflyException;
 use FireflyIII\Models\Account;
 use FireflyIII\Models\AccountMeta;
 use FireflyIII\Models\AccountType;
@@ -63,6 +64,7 @@ class AccountCurrencies extends Command
      * Each (asset) account must have a reference to a preferred currency. If the account does not have one, it's forced upon the account.
      *
      * @return int
+     * @throws FireflyException
      */
     public function handle(): int
     {
@@ -106,12 +108,15 @@ class AccountCurrencies extends Command
 
     /**
      * @return bool
+     * @throws FireflyException
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     private function isExecuted(): bool
     {
         $configVar = app('fireflyconfig')->get(self::CONFIG_NAME, false);
         if (null !== $configVar) {
-            return (bool)$configVar->data;
+            return (bool) $configVar->data;
         }
 
         return false;
@@ -124,7 +129,7 @@ class AccountCurrencies extends Command
     {
         Log::debug('Now in updateAccountCurrencies()');
         $users               = $this->userRepos->all();
-        $defaultCurrencyCode = (string)config('firefly.default_currency', 'EUR');
+        $defaultCurrencyCode = (string) config('firefly.default_currency', 'EUR');
         Log::debug(sprintf('Default currency is %s', $defaultCurrencyCode));
         foreach ($users as $user) {
             $this->updateCurrenciesForUser($user, $defaultCurrencyCode);
@@ -134,6 +139,8 @@ class AccountCurrencies extends Command
     /**
      * @param User   $user
      * @param string $systemCurrencyCode
+     *
+     * @throws FireflyException
      */
     private function updateCurrenciesForUser(User $user, string $systemCurrencyCode): void
     {
@@ -173,13 +180,13 @@ class AccountCurrencies extends Command
         Log::debug(sprintf('Now in updateAccount(%d, %s)', $account->id, $currency->code));
         $this->accountRepos->setUser($account->user);
 
-        $accountCurrency = (int)$this->accountRepos->getMetaValue($account, 'currency_id');
+        $accountCurrency = (int) $this->accountRepos->getMetaValue($account, 'currency_id');
         Log::debug(sprintf('Account currency is #%d', $accountCurrency));
 
         $openingBalance = $this->accountRepos->getOpeningBalance($account);
         $obCurrency     = 0;
         if (null !== $openingBalance) {
-            $obCurrency = (int)$openingBalance->transaction_currency_id;
+            $obCurrency = (int) $openingBalance->transaction_currency_id;
             Log::debug('Account has opening balance.');
         }
         Log::debug(sprintf('Account OB currency is #%d.', $obCurrency));
