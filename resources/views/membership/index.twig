@@ -60,10 +60,10 @@
                         <tbody>
                         {% for trans in memberships|filter(trans => trans.transaction_id > 0) %}
                         <tr>
-                            <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }}</td>
+                            <td>{{ formatDate(trans.created_at, monthAndDayFormat) }}</td>
                             <td>{{ trans.transaction.formatted_amount }}</td>
                             <td>{{ trans.sub_product.name }}</td>
-                            <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }} - {{ trans.expires_at.formatLocalized(monthAndDayFormat) }}</td>
+                            <td>{{ formatDate(trans.created_at, monthAndDayFormat) }} - {{ formatDate(trans.expires_at, monthAndDayFormat) }}</td>
                             <td class="text-{{ trans.status.type }}">{{ trans('memberships.'~trans.status.text) }}</td>
                         </tr>
                         {% endfor %}

@@ -45,7 +45,7 @@
                                     {% endif %}
                                 </td>
                                 <td class="hidden-xs" data-value="{{ whitelabel.created_at.format('Y-m-d H-i-s') }}">
-                                    {{ whitelabel.created_at.formatLocalized(monthAndDayFormat) }}
+                                    {{ formatDate(whitelabel.created_at, monthAndDayFormat) }}
                                     {{ whitelabel.created_at.format('H:i') }}
                                 </td>
                             </tr>
