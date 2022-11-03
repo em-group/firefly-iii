@@ -41,6 +41,7 @@ return [
 
     //'date_time'               => '%B %e, %Y, @ %T',
     'date_time_js'             => 'Do MMMM YYYY um HH:mm:ss',
+    'date_time_fns'            => 'MMMM do, yyyy @ HH:mm:ss',
 
     //'specific_day'            => '%e %B %Y',
     'specific_day_js'          => 'D. MMMM YYYY',
@@ -53,7 +54,7 @@ return [
     'year_js'                  => 'YYYY',
 
     //'half_year'               => '%B %Y',
-    'half_year_js'             => 'Q. Quartal YYYY',
+    'half_year_js'             => '\QQ YYYY',
 
     'quarter_fns'   => "'Q'QQQ, yyyy",
     'half_year_fns' => "'H{half}', yyyy",

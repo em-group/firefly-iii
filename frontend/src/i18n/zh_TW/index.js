@@ -1,3 +1,23 @@
+/*
+ * index.js
+ * Copyright (c) 2022 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 export default {
     "config": {
         "html_language": "zh-tw",
@@ -46,6 +66,20 @@ export default {
         "reconcile": "Reconcile",
         "create_new_asset": "\u5efa\u7acb\u65b0\u8cc7\u7522\u5e33\u6236",
         "confirm_action": "Confirm action",
+        "new_budget": "\u65b0\u9810\u7b97",
+        "new_asset_account": "\u65b0\u8cc7\u7522\u5e33\u6236",
+        "newTransfer": "\u65b0\u8f49\u5e33",
+        "submission_options": "(firefly.submission_options)",
+        "apply_rules_checkbox": "(firefly.apply_rules_checkbox)",
+        "fire_webhooks_checkbox": "(firefly.fire_webhooks_checkbox)",
+        "newDeposit": "\u65b0\u5b58\u6b3e",
+        "newWithdrawal": "\u65b0\u652f\u51fa",
+        "bills_paid": "\u5df2\u7e73\u5e33\u55ae",
+        "left_to_spend": "\u5269\u9918\u53ef\u82b1\u8cbb",
+        "no_budget": "(\u7121\u9810\u7b97)",
+        "budgeted": "\u5df2\u5217\u5165\u9810\u7b97",
+        "spent": "\u652f\u51fa",
+        "no_bill": "(no bill)",
         "rule_trigger_source_account_starts_choice": "Source account name starts with..",
         "rule_trigger_source_account_ends_choice": "Source account name ends with..",
         "rule_trigger_source_account_is_choice": "Source account name is..",
@@ -108,25 +142,25 @@ export default {
         "rule_trigger_any_external_url_choice": "Transaction has an external URL",
         "rule_trigger_no_external_url_choice": "Transaction has no external URL",
         "rule_trigger_id_choice": "Transaction ID is..",
-        "rule_action_delete_transaction_choice": "DELETE transaction (!)",
-        "rule_action_set_category_choice": "\u5c07\u5206\u985e\u8a2d\u70ba\u2026",
+        "rule_action_delete_transaction_choice": "DELETE transaction(!)",
+        "rule_action_set_category_choice": "Set category to ..",
         "rule_action_clear_category_choice": "\u6e05\u7a7a\u4efb\u4f55\u5206\u985e",
-        "rule_action_set_budget_choice": "\u8a2d\u5b9a\u9810\u7b97\u70ba\u2026",
+        "rule_action_set_budget_choice": "Set budget to ..",
         "rule_action_clear_budget_choice": "\u6e05\u7a7a\u4efb\u4f55\u9810\u7b97",
-        "rule_action_add_tag_choice": "\u65b0\u589e\u6a19\u7c64\u2026",
-        "rule_action_remove_tag_choice": "\u79fb\u9664\u6a19\u7c64\u2026",
+        "rule_action_add_tag_choice": "Add tag ..",
+        "rule_action_remove_tag_choice": "Remove tag ..",
         "rule_action_remove_all_tags_choice": "\u79fb\u9664\u6240\u6709\u6a19\u7c64",
-        "rule_action_set_description_choice": "\u628a\u63cf\u8ff0\u8a2d\u7f6e\u70ba\u2026",
-        "rule_action_update_piggy_choice": "Add\/remove transaction amount in piggy bank..",
-        "rule_action_append_description_choice": "\u63cf\u8ff0\u5f8c\u52a0\u4e0a\u2026",
-        "rule_action_prepend_description_choice": "\u63cf\u8ff0\u524d\u52a0\u4e0a\u2026",
-        "rule_action_set_source_account_choice": "Set source account to..",
-        "rule_action_set_destination_account_choice": "Set destination account to..",
-        "rule_action_append_notes_choice": "\u8a3b\u91cb\u5f8c\u52a0\u5165\u2026",
-        "rule_action_prepend_notes_choice": "\u8a3b\u91cb\u524d\u52a0\u5165\u2026",
+        "rule_action_set_description_choice": "Set description to ..",
+        "rule_action_update_piggy_choice": "Add \/ remove transaction amount in piggy bank ..",
+        "rule_action_append_description_choice": "Append description with ..",
+        "rule_action_prepend_description_choice": "Prepend description with ..",
+        "rule_action_set_source_account_choice": "Set source account to ..",
+        "rule_action_set_destination_account_choice": "Set destination account to ..",
+        "rule_action_append_notes_choice": "Append notes with ..",
+        "rule_action_prepend_notes_choice": "Prepend notes with ..",
         "rule_action_clear_notes_choice": "\u79fb\u9664\u4efb\u4f55\u8a3b\u91cb",
-        "rule_action_set_notes_choice": "\u8a2d\u5b9a\u8a3b\u91cb\u81f3\u2026",
-        "rule_action_link_to_bill_choice": "\u9023\u622a\u81f3\u4e00\u7b46\u5e33\u55ae\u2026",
+        "rule_action_set_notes_choice": "Set notes to ..",
+        "rule_action_link_to_bill_choice": "Link to a bill ..",
         "rule_action_convert_deposit_choice": "\u8f49\u63db\u4ea4\u6613\u70ba\u5b58\u6b3e",
         "rule_action_convert_withdrawal_choice": "\u8f49\u63db\u4ea4\u6613\u81f3\u63d0\u6b3e",
         "rule_action_convert_transfer_choice": "\u8f49\u63db\u4ea4\u6613\u81f3\u8f49\u5e33",
@@ -181,7 +215,6 @@ export default {
         "subscriptions": "Subscriptions",
         "welcome_back": "What's playing?",
         "bills_to_pay": "\u5f85\u4ed8\u5e33\u55ae",
-        "left_to_spend": "\u5269\u9918\u53ef\u82b1\u8cbb",
         "net_worth": "\u6de8\u503c",
         "pref_last365": "Last year",
         "pref_last90": "Last 90 days",

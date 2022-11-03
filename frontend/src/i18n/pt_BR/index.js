@@ -1,7 +1,27 @@
+/*
+ * index.js
+ * Copyright (c) 2022 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 export default {
     "config": {
         "html_language": "pt-br",
-        "month_and_day_fns": "MMMM d, y"
+        "month_and_day_fns": "d [de] MMMM [de] y"
     },
     "form": {
         "name": "Nome",
@@ -18,7 +38,7 @@ export default {
     },
     "list": {
         "name": "Nome",
-        "account_number": "Account number",
+        "account_number": "N\u00famero da conta",
         "currentBalance": "Saldo atual",
         "lastActivity": "\u00daltima atividade",
         "active": "Est\u00e1 ativo?"
@@ -45,15 +65,29 @@ export default {
         "delete": "Apagar",
         "reconcile": "Reconciliar",
         "create_new_asset": "Criar nova conta de ativo",
-        "confirm_action": "Confirm action",
+        "confirm_action": "Confirmar a\u00e7\u00e3o",
+        "new_budget": "Novo or\u00e7amento",
+        "new_asset_account": "Nova conta de ativo",
+        "newTransfer": "Nova transfer\u00eancia",
+        "submission_options": "(firefly.submission_options)",
+        "apply_rules_checkbox": "(firefly.apply_rules_checkbox)",
+        "fire_webhooks_checkbox": "(firefly.fire_webhooks_checkbox)",
+        "newDeposit": "Novo dep\u00f3sito",
+        "newWithdrawal": "Nova despesa",
+        "bills_paid": "Contas pagas",
+        "left_to_spend": "Restante para gastar",
+        "no_budget": "(sem or\u00e7amento)",
+        "budgeted": "Or\u00e7ado",
+        "spent": "Gasto",
+        "no_bill": "(sem conta)",
         "rule_trigger_source_account_starts_choice": "Nome da conta de origem come\u00e7a com..",
         "rule_trigger_source_account_ends_choice": "O nome da conta de origem termina com..",
         "rule_trigger_source_account_is_choice": "Nome da conta de origem \u00e9..",
         "rule_trigger_source_account_contains_choice": "Nome da conta de origem cont\u00e9m..",
-        "rule_trigger_account_id_choice": "Either account ID is exactly..",
+        "rule_trigger_account_id_choice": "Ou ID da conta \u00e9 exatamente..",
         "rule_trigger_source_account_id_choice": "ID da conta de origem \u00e9 igual a..",
         "rule_trigger_destination_account_id_choice": "ID da conta de destino \u00e9 igual a..",
-        "rule_trigger_account_is_cash_choice": "Either account is cash",
+        "rule_trigger_account_is_cash_choice": "Ou a conta \u00e9 dinheiro",
         "rule_trigger_source_is_cash_choice": "Conta de origem \u00e9 (dinheiro)",
         "rule_trigger_destination_is_cash_choice": "Conta de destino \u00e9 (dinheiro)",
         "rule_trigger_source_account_nr_starts_choice": "N\u00famero da conta de origem (IBAN) come\u00e7a com..",
@@ -71,19 +105,19 @@ export default {
         "rule_trigger_transaction_type_choice": "Transa\u00e7\u00e3o \u00e9 do tipo..",
         "rule_trigger_category_is_choice": "A categoria \u00e9..",
         "rule_trigger_amount_less_choice": "Quantia \u00e9 inferior a..",
-        "rule_trigger_amount_is_choice": "Amount is..",
+        "rule_trigger_amount_is_choice": "Quantia \u00e9..",
         "rule_trigger_amount_more_choice": "Quantia \u00e9 mais do que..",
         "rule_trigger_description_starts_choice": "Descri\u00e7\u00e3o come\u00e7a com..",
         "rule_trigger_description_ends_choice": "Descri\u00e7\u00e3o termina com..",
         "rule_trigger_description_contains_choice": "Descri\u00e7\u00e3o cont\u00e9m..",
         "rule_trigger_description_is_choice": "Descri\u00e7\u00e3o \u00e9..",
-        "rule_trigger_date_on_choice": "Transaction date is..",
+        "rule_trigger_date_on_choice": "Data da transa\u00e7\u00e3o \u00e9..",
         "rule_trigger_date_before_choice": "A data da transa\u00e7\u00e3o \u00e9 anterior a...",
         "rule_trigger_date_after_choice": "A data da transa\u00e7\u00e3o \u00e9 posterior a...",
-        "rule_trigger_created_at_on_choice": "Transaction was made on..",
-        "rule_trigger_updated_at_on_choice": "Transaction was last edited on..",
+        "rule_trigger_created_at_on_choice": "Transa\u00e7\u00e3o foi feita em..",
+        "rule_trigger_updated_at_on_choice": "Transa\u00e7\u00e3o foi editada pela \u00faltima vez em..",
         "rule_trigger_budget_is_choice": "O or\u00e7amento \u00e9..",
-        "rule_trigger_tag_is_choice": "Any tag is..",
+        "rule_trigger_tag_is_choice": "Qualquer tag \u00e9..",
         "rule_trigger_currency_is_choice": "A moeda da transa\u00e7\u00e3o \u00e9..",
         "rule_trigger_foreign_currency_is_choice": "A moeda estrangeira da transa\u00e7\u00e3o \u00e9...",
         "rule_trigger_has_attachments_choice": "Tem pelo menos essa quantidade de anexos",
@@ -97,36 +131,36 @@ export default {
         "rule_trigger_has_any_tag_choice": "Tem uma ou mais tags (qualquer)",
         "rule_trigger_any_notes_choice": "Tem notas (qualquer)",
         "rule_trigger_no_notes_choice": "N\u00e3o tem notas",
-        "rule_trigger_notes_is_choice": "Notes are..",
-        "rule_trigger_notes_contains_choice": "Notes contain..",
-        "rule_trigger_notes_starts_choice": "Notes start with..",
-        "rule_trigger_notes_ends_choice": "Notes end with..",
+        "rule_trigger_notes_is_choice": "As notas s\u00e3o..",
+        "rule_trigger_notes_contains_choice": "As notas cont\u00eam..",
+        "rule_trigger_notes_starts_choice": "As notas come\u00e7am com..",
+        "rule_trigger_notes_ends_choice": "As notas terminam com..",
         "rule_trigger_bill_is_choice": "Conta \u00e9..",
-        "rule_trigger_external_id_is_choice": "External ID is..",
-        "rule_trigger_internal_reference_is_choice": "Internal reference is..",
+        "rule_trigger_external_id_is_choice": "ID externo \u00e9..",
+        "rule_trigger_internal_reference_is_choice": "Refer\u00eancia interna \u00e9..",
         "rule_trigger_journal_id_choice": "ID do livro de transa\u00e7\u00e3o \u00e9..",
         "rule_trigger_any_external_url_choice": "A transa\u00e7\u00e3o tem um link externo",
         "rule_trigger_no_external_url_choice": "A transa\u00e7\u00e3o n\u00e3o tem um link externo",
         "rule_trigger_id_choice": "O identificador da transa\u00e7\u00e3o \u00e9..",
-        "rule_action_delete_transaction_choice": "EXCLUIR transa\u00e7\u00e3o (!)",
-        "rule_action_set_category_choice": "Definir a categoria para..",
+        "rule_action_delete_transaction_choice": "DELETE transaction(!)",
+        "rule_action_set_category_choice": "Set category to ..",
         "rule_action_clear_category_choice": "Limpar qualquer categoria",
-        "rule_action_set_budget_choice": "Definir or\u00e7amento para..",
+        "rule_action_set_budget_choice": "Set budget to ..",
         "rule_action_clear_budget_choice": "Limpar qualquer or\u00e7amento",
-        "rule_action_add_tag_choice": "Adicionar tag..",
-        "rule_action_remove_tag_choice": "Remover tag..",
+        "rule_action_add_tag_choice": "Add tag ..",
+        "rule_action_remove_tag_choice": "Remove tag ..",
         "rule_action_remove_all_tags_choice": "Remover todas as tags",
-        "rule_action_set_description_choice": "Definir descri\u00e7\u00e3o para..",
-        "rule_action_update_piggy_choice": "Adicionar\/remover o valor da transa\u00e7\u00e3o no cofrinho..",
-        "rule_action_append_description_choice": "Acrescentar a descri\u00e7\u00e3o com..",
-        "rule_action_prepend_description_choice": "Preceder a descri\u00e7\u00e3o com..",
-        "rule_action_set_source_account_choice": "Definir conta de origem para...",
-        "rule_action_set_destination_account_choice": "Definir conta de destino para...",
-        "rule_action_append_notes_choice": "Anexar notas com..",
-        "rule_action_prepend_notes_choice": "Preceder notas com..",
+        "rule_action_set_description_choice": "Set description to ..",
+        "rule_action_update_piggy_choice": "Add \/ remove transaction amount in piggy bank ..",
+        "rule_action_append_description_choice": "Append description with ..",
+        "rule_action_prepend_description_choice": "Prepend description with ..",
+        "rule_action_set_source_account_choice": "Set source account to ..",
+        "rule_action_set_destination_account_choice": "Set destination account to ..",
+        "rule_action_append_notes_choice": "Append notes with ..",
+        "rule_action_prepend_notes_choice": "Prepend notes with ..",
         "rule_action_clear_notes_choice": "Remover quaisquer notas",
-        "rule_action_set_notes_choice": "Defina notas para..",
-        "rule_action_link_to_bill_choice": "Vincular a uma conta..",
+        "rule_action_set_notes_choice": "Set notes to ..",
+        "rule_action_link_to_bill_choice": "Link to a bill ..",
         "rule_action_convert_deposit_choice": "Converter esta transfer\u00eancia em entrada",
         "rule_action_convert_withdrawal_choice": "Converter esta transa\u00e7\u00e3o para uma sa\u00edda",
         "rule_action_convert_transfer_choice": "Converter esta transa\u00e7\u00e3o para transfer\u00eancia",
@@ -181,7 +215,6 @@ export default {
         "subscriptions": "Assinaturas",
         "welcome_back": "O que est\u00e1 acontecendo?",
         "bills_to_pay": "Contas a pagar",
-        "left_to_spend": "Restante para gastar",
         "net_worth": "Valor L\u00edquido",
         "pref_last365": "Ano passado",
         "pref_last90": "\u00daltimos 90 dias",

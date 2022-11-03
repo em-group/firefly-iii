@@ -13,3 +13,4 @@ composer.phar
 /.idea
 .phpunit.result.cache
 app.js.map
+/.ci/php-cs-fixer/vendor

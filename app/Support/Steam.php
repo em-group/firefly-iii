@@ -99,7 +99,9 @@ class Steam
         $sum = '0';
         /** @var array $transaction */
         foreach ($transactions as $transaction) {
-            $sum = bcadd($sum, $transaction[$key] ?? '0');
+            $value = (string) ($transaction[$key] ?? '0');
+            $value = '' === $value ? '0' : $value;
+            $sum   = bcadd($sum, $value);
         }
 
         return $sum;
@@ -336,7 +338,7 @@ class Steam
         $return   = [];
         /** @var stdClass $entry */
         foreach ($balances as $entry) {
-            $return[(int) $entry->transaction_currency_id] = $entry->sum_for_currency;
+            $return[(int) $entry->transaction_currency_id] = (string) $entry->sum_for_currency;
         }
         $cache->store($return);
 

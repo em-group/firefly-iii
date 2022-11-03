@@ -34,13 +34,14 @@ return [
     'month_and_day_js'         => 'Do MMMM YYYY',
 
     //'month_and_date_day'      => '%A %B %e, %Y',
-    'month_and_date_day_js'    => 'dddd MMMM Do, YYYY',
+    'month_and_date_day_js'    => 'dddd Do MMMM YYYY',
 
     //'month_and_day_no_year'   => '%B %e',
-    'month_and_day_no_year_js' => 'MMMM Do',
+    'month_and_day_no_year_js' => 'Do MMMM',
 
     //'date_time'               => '%B %e, %Y, @ %T',
     'date_time_js'             => 'Do MMMM YYYY, HH:mm:ss',
+    'date_time_fns'            => 'MMMM do, yyyy @ HH:mm:ss',
 
     //'specific_day'            => '%e %B %Y',
     'specific_day_js'          => 'D MMMM YYYY',
@@ -53,7 +54,7 @@ return [
     'year_js'                  => 'YYYY',
 
     //'half_year'               => '%B %Y',
-    'half_year_js'             => 'Q YYYY',
+    'half_year_js'             => '\QQ YYYY',
 
     'quarter_fns'   => "'Q'Q, yyyy",
     'half_year_fns' => "'H{half}', yyyy",

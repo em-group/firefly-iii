@@ -41,6 +41,7 @@ return [
 
     //'date_time'               => '%B %e, %Y, @ %T',
     'date_time_js'             => 'YYYY年MM月DD日 HH:mm:ss',
+    'date_time_fns'            => 'MMMM do, yyyy @ HH:mm:ss',
 
     //'specific_day'            => '%e %B %Y',
     'specific_day_js'          => 'YYYY年MM月D日',
@@ -53,7 +54,7 @@ return [
     'year_js'                  => 'YYYY年',
 
     //'half_year'               => '%B %Y',
-    'half_year_js'             => 'YYYY年第Q四半期',
+    'half_year_js'             => '\QQ YYYY',
 
     'quarter_fns'   => "yyyy年第Q四半期",
     'half_year_fns' => "yyyy年H[半期]",

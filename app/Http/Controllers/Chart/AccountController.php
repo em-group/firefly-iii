@@ -119,8 +119,8 @@ class AccountController extends Controller
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
-                $startAmount             = $startBalances[$accountId][$currencyId] ?? '0';
-                $diff                    = bcsub($endAmount, $startAmount);
+                $startAmount             = (string) ($startBalances[$accountId][$currencyId] ?? '0');
+                $diff                    = bcsub((string)$endAmount, $startAmount);
                 $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->find($currencyId);
                 if (0 !== bccomp($diff, '0')) {
                     // store the values in a temporary array.
@@ -438,7 +438,7 @@ class AccountController extends Controller
         $cache->addProperty($end);
         $cache->addProperty($account->id);
         if ($cache->has()) {
-            //return response()->json($cache->get());
+            return response()->json($cache->get());
         }
         $currencies = $this->accountRepository->getUsedCurrencies($account);
 
@@ -578,8 +578,8 @@ class AccountController extends Controller
 
                 // see if there is an accompanying start amount.
                 // grab the difference and find the currency.
-                $startAmount             = $startBalances[$accountId][$currencyId] ?? '0';
-                $diff                    = bcsub($endAmount, $startAmount);
+                $startAmount             = (string)($startBalances[$accountId][$currencyId] ?? '0');
+                $diff                    = bcsub((string) $endAmount, $startAmount);
                 $currencies[$currencyId] = $currencies[$currencyId] ?? $this->currencyRepository->find($currencyId);
                 if (0 !== bccomp($diff, '0')) {
                     // store the values in a temporary array.

@@ -1,3 +1,23 @@
+/*
+ * index.js
+ * Copyright (c) 2022 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 export default {
     "config": {
         "html_language": "en",
@@ -46,6 +66,20 @@ export default {
         "reconcile": "Reconcile",
         "create_new_asset": "Create new asset account",
         "confirm_action": "Confirm action",
+        "new_budget": "New budget",
+        "new_asset_account": "New asset account",
+        "newTransfer": "New transfer",
+        "submission_options": "(firefly.submission_options)",
+        "apply_rules_checkbox": "(firefly.apply_rules_checkbox)",
+        "fire_webhooks_checkbox": "(firefly.fire_webhooks_checkbox)",
+        "newDeposit": "New deposit",
+        "newWithdrawal": "New expense",
+        "bills_paid": "Bills paid",
+        "left_to_spend": "Left to spend",
+        "no_budget": "(no budget)",
+        "budgeted": "Budgeted",
+        "spent": "Spent",
+        "no_bill": "(no bill)",
         "rule_trigger_source_account_starts_choice": "Source account name starts with..",
         "rule_trigger_source_account_ends_choice": "Source account name ends with..",
         "rule_trigger_source_account_is_choice": "Source account name is..",
@@ -181,7 +215,6 @@ export default {
         "subscriptions": "Subscriptions",
         "welcome_back": "What's playing?",
         "bills_to_pay": "Bills to pay",
-        "left_to_spend": "Left to spend",
         "net_worth": "Net worth",
         "pref_last365": "Last year",
         "pref_last90": "Last 90 days",

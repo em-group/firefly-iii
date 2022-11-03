@@ -1,3 +1,23 @@
+/*
+ * index.js
+ * Copyright (c) 2022 james@firefly-iii.org
+ *
+ * This file is part of Firefly III (https://github.com/firefly-iii).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 export default {
     "config": {
         "html_language": "pl",
@@ -46,6 +66,20 @@ export default {
         "reconcile": "Uzgodnij",
         "create_new_asset": "Utw\u00f3rz nowe konto aktyw\u00f3w",
         "confirm_action": "Potwierd\u017a akcj\u0119",
+        "new_budget": "Nowy bud\u017cet",
+        "new_asset_account": "Nowe konto aktyw\u00f3w",
+        "newTransfer": "Nowy transfer",
+        "submission_options": "(firefly.submission_options)",
+        "apply_rules_checkbox": "(firefly.apply_rules_checkbox)",
+        "fire_webhooks_checkbox": "(firefly.fire_webhooks_checkbox)",
+        "newDeposit": "Nowa wp\u0142ata",
+        "newWithdrawal": "Nowy wydatek",
+        "bills_paid": "Zap\u0142acone rachunki",
+        "left_to_spend": "Pozosta\u0142o do wydania",
+        "no_budget": "(brak bud\u017cetu)",
+        "budgeted": "Zabud\u017cetowano",
+        "spent": "Wydano",
+        "no_bill": "(brak rachunku)",
         "rule_trigger_source_account_starts_choice": "Konto \u017ar\u00f3d\u0142owe si\u0119 zaczyna od..",
         "rule_trigger_source_account_ends_choice": "Konto \u017ar\u00f3d\u0142owe ko\u0144czy si\u0119 na..",
         "rule_trigger_source_account_is_choice": "Kontem \u017ar\u00f3d\u0142owym jest..",
@@ -71,7 +105,7 @@ export default {
         "rule_trigger_transaction_type_choice": "Transakcja jest typu..",
         "rule_trigger_category_is_choice": "Kategoria to..",
         "rule_trigger_amount_less_choice": "Kwota jest mniejsza ni\u017c..",
-        "rule_trigger_amount_is_choice": "Amount is..",
+        "rule_trigger_amount_is_choice": "Kwota to..",
         "rule_trigger_amount_more_choice": "Kwota jest wi\u0119ksza ni\u017c..",
         "rule_trigger_description_starts_choice": "Opis zaczyna si\u0119 od..",
         "rule_trigger_description_ends_choice": "Opis ko\u0144czy si\u0119 na..",
@@ -97,8 +131,8 @@ export default {
         "rule_trigger_has_any_tag_choice": "Ma (dowolny) tag (lub kilka)",
         "rule_trigger_any_notes_choice": "Ma (dowolne) notatki",
         "rule_trigger_no_notes_choice": "Brak notatek",
-        "rule_trigger_notes_is_choice": "Notes are..",
-        "rule_trigger_notes_contains_choice": "Notes contain..",
+        "rule_trigger_notes_is_choice": "Notatki to..",
+        "rule_trigger_notes_contains_choice": "Notatki zawieraj\u0105..",
         "rule_trigger_notes_starts_choice": "Notes start with..",
         "rule_trigger_notes_ends_choice": "Notes end with..",
         "rule_trigger_bill_is_choice": "Rachunek to..",
@@ -108,25 +142,25 @@ export default {
         "rule_trigger_any_external_url_choice": "Transakcja ma zewn\u0119trzny adres URL",
         "rule_trigger_no_external_url_choice": "Transakcja nie ma zewn\u0119trznego adresu URL",
         "rule_trigger_id_choice": "Identyfikator transakcji to..",
-        "rule_action_delete_transaction_choice": "USU\u0143 transakcj\u0119 (!)",
-        "rule_action_set_category_choice": "Ustaw kategori\u0119 na..",
+        "rule_action_delete_transaction_choice": "DELETE transaction(!)",
+        "rule_action_set_category_choice": "Set category to ..",
         "rule_action_clear_category_choice": "Wyczy\u015b\u0107 wszystkie kategorie",
-        "rule_action_set_budget_choice": "Ustaw bud\u017cet na..",
+        "rule_action_set_budget_choice": "Set budget to ..",
         "rule_action_clear_budget_choice": "Wyczy\u015b\u0107 wszystkie bud\u017cety",
-        "rule_action_add_tag_choice": "Dodaj tag..",
-        "rule_action_remove_tag_choice": "Usu\u0144 tag..",
+        "rule_action_add_tag_choice": "Add tag ..",
+        "rule_action_remove_tag_choice": "Remove tag ..",
         "rule_action_remove_all_tags_choice": "Usu\u0144 wszystkie tagi",
-        "rule_action_set_description_choice": "Ustaw opis na..",
-        "rule_action_update_piggy_choice": "Dodaj\/usu\u0144 kwot\u0119 transakcji w skarbonce.",
-        "rule_action_append_description_choice": "Do\u0142\u0105cz do opisu..",
-        "rule_action_prepend_description_choice": "Poprzed\u017a opis..",
-        "rule_action_set_source_account_choice": "Ustaw konto \u017ar\u00f3d\u0142owe na..",
-        "rule_action_set_destination_account_choice": "Ustaw konto docelowe na..",
-        "rule_action_append_notes_choice": "Do\u0142\u0105cz do notatek..",
-        "rule_action_prepend_notes_choice": "Poprzed\u017a notatki..",
+        "rule_action_set_description_choice": "Set description to ..",
+        "rule_action_update_piggy_choice": "Add \/ remove transaction amount in piggy bank ..",
+        "rule_action_append_description_choice": "Append description with ..",
+        "rule_action_prepend_description_choice": "Prepend description with ..",
+        "rule_action_set_source_account_choice": "Set source account to ..",
+        "rule_action_set_destination_account_choice": "Set destination account to ..",
+        "rule_action_append_notes_choice": "Append notes with ..",
+        "rule_action_prepend_notes_choice": "Prepend notes with ..",
         "rule_action_clear_notes_choice": "Usu\u0144 wszystkie notatki",
-        "rule_action_set_notes_choice": "Ustaw notatki na..",
-        "rule_action_link_to_bill_choice": "Powi\u0105\u017c z rachunkiem..",
+        "rule_action_set_notes_choice": "Set notes to ..",
+        "rule_action_link_to_bill_choice": "Link to a bill ..",
         "rule_action_convert_deposit_choice": "Konwertuj transakcj\u0119 na wp\u0142at\u0119",
         "rule_action_convert_withdrawal_choice": "Konwertuj transakcj\u0119 na wyp\u0142at\u0119",
         "rule_action_convert_transfer_choice": "Konwertuj transakcj\u0119 na transfer",
@@ -181,7 +215,6 @@ export default {
         "subscriptions": "Subskrypcje",
         "welcome_back": "Co jest grane?",
         "bills_to_pay": "Rachunki do zap\u0142acenia",
-        "left_to_spend": "Pozosta\u0142o do wydania",
         "net_worth": "Warto\u015b\u0107 netto",
         "pref_last365": "Ostatni rok",
         "pref_last90": "Ostatnie 90 dni",

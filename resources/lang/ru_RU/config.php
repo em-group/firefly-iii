@@ -30,33 +30,35 @@ return [
 
     //'month_and_day'           => '%B %e, %Y',
     'month_and_day_moment_js'  => 'D MMM YYYY',
-    'month_and_day_fns'        => 'MMMM d, y',
+    'month_and_day_fns'        => 'MMMM д, г',
     'month_and_day_js'         => 'Do MMMM YYYY',
 
     //'month_and_date_day'      => '%A %B %e, %Y',
-    'month_and_date_day_js'    => 'dddd MMMM Do, YYYY',
+    'month_and_date_day_js'    => 'Do MMMM YYYY',
 
     //'month_and_day_no_year'   => '%B %e',
-    'month_and_day_no_year_js' => 'MMMM Do',
+    'month_and_day_no_year_js' => 'Ключ: массив [\'месяц _ и _ день _ нет _ год _ js\']',
 
     //'date_time'               => '%B %e, %Y, @ %T',
     'date_time_js'             => 'Do MMMM YYYY, @ HH:mm:ss',
+    'date_time_fns'            => 'Ключ: массив [\' дата _ время _ fns \']
+массив[\'дата_время_fns\']',
 
     //'specific_day'            => '%e %B %Y',
     'specific_day_js'          => 'D MMMM YYYY',
 
     //'week_in_year'            => 'Week %V, %G',
     'week_in_year_js'          => '[Week] w, YYYY',
-    'week_in_year_fns'         => "'Week' w, yyyy",
+    'week_in_year_fns'         => "'Неделя' ww, yyyy",
 
     //'year'                    => '%Y',
     'year_js'                  => 'YYYY',
 
     //'half_year'               => '%B %Y',
-    'half_year_js'             => 'Q YYYY',
+    'half_year_js'             => '\QQ YYYY',
 
-    'quarter_fns'   => "'Q'Q, yyyy",
-    'half_year_fns' => "'H{half}', yyyy",
+    'quarter_fns'   => "Ключ: массив['четверть_fns']",
+    'half_year_fns' => "Ключ: массив ['половина _ года _ fns']",
     'dow_1'         => 'Понедельник',
     'dow_2'         => 'Вторник',
     'dow_3'         => 'Среда',

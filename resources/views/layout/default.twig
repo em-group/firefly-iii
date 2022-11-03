@@ -101,7 +101,7 @@
         <section class="sidebar">
             <form action="{{ route('search.index') }}" method="get" class="sidebar-form">
                 <div class="input-group">
-                    <input autocomplete="off" type="text" name="search" class="form-control" placeholder="{{ 'searchPlaceholder'|_ }}" value="{{ query }}"/>
+                    <input autocomplete="off" type="text" name="search" class="form-control" placeholder="{{ 'searchPlaceholder'|_ }}" value="{{ query }}" spellcheck="false"/>
                     <span class="input-group-btn">
                 <button type='submit' name='go' id='search-btn' class="btn btn-flat"><span class="fa fa-search"></span></button>
               </span>
@@ -229,17 +229,6 @@
     <noscript><p><img src="//{{ config('firefly.tracker_url') }}/matomo.php?idsite={{ config('firefly.tracker_site_id') }}&amp;rec=1" style="border:0;" alt="" /></p></noscript>
 {% endif %}
 
-<script nonce="{{ JS_NONCE }}">
-    // Initialize the service worker
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('serviceworker.js?v={{ FF_VERSION }}', {
-            scope: '{{ route('index') }}'
-        }).then(
-            () => console.log('ServiceWorker registration successful'),
-            (err) => console.log('ServiceWorker registration failed: ', err)
-        );
-    }
-</script>
 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
     <input type="hidden" name="_token" value="{{ csrf_token() }}" />
 </form>

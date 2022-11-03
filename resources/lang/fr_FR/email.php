@@ -33,8 +33,17 @@ return [
     'admin_test_subject'                      => 'Un message de test de votre installation de Firefly III',
     'admin_test_body'                         => 'Ceci est un message de test de votre instance Firefly III. Il a été envoyé à :email.',
 
+    // invite
+    'invitation_created_subject'              => 'Une invitation a été créée',
+    'invitation_created_body'                 => 'L\'utilisateur admin ":email" a créé une invitation d\'utilisateur qui peut être utilisée par quiconque est derrière l\'adresse e-mail ":invitee". L\'invitation sera valide pendant 48 heures.',
+    'invite_user_subject'                     => 'Vous avez été invité à créer un compte Firefly III.',
+    'invitation_introduction'                 => 'Vous avez été invité à créer un compte Firefly III sur **:host**. Firefly III est un gestionnaire personnel et privé de finances personnelles. Tous les gamins du quartier l\'utilisent.',
+    'invitation_invited_by'                   => 'Vous avez été invité par ":admin" et cette invitation a été envoyée à ":invitee". C\'est vous, non ?',
+    'invitation_url'                          => 'L\'invitation est valide pendant 48 heures et peut être échangée en naviguant sur [Firefly III](:url). Profitez-en !',
+
     // new IP
     'login_from_new_ip'                       => 'Nouvelle connexion sur Firefly III',
+    'slack_login_from_new_ip'                 => 'Nouvelle connexion à Firefly III depuis IP :ip (:host)',
     'new_ip_body'                             => 'Firefly III a détecté une nouvelle connexion sur votre compte à partir d\'une adresse IP inconnue. Si vous ne vous êtes jamais connecté depuis l\'adresse IP ci-dessous, ou si ça fait plus de six mois, Firefly III vous avertira.',
     'new_ip_warning'                          => 'Si vous reconnaissez cette adresse IP ou la connexion, vous pouvez ignorer ce message. Si vous ne vous êtes pas connecté, si vous n\'avez aucune idée de quoi il s\'agit, vérifiez la sécurité de votre mot de passe, modifiez-la et déconnectez toutes les autres sessions. Pour cela, allez sur votre page de profil. Bien sûr, vous avez déjà activé l\'A2F, n\'est-ce pas ? Soyez prudent !',
     'ip_address'                              => 'Adresse IP',
@@ -49,6 +58,8 @@ return [
 
     // registered
     'registered_subject'                      => 'Bienvenue sur Firefly III !',
+    'registered_subject_admin'                => 'Un nouvel utilisateur s\'est inscrit',
+    'admin_new_user_registered'               => 'Un nouvel utilisateur s\'est inscrit. L\'utilisateur **:email** a reçu l\'ID utilisateur #:id.',
     'registered_welcome'                      => 'Bienvenue sur [Firefly III](:address). Votre inscription a été faite, et cet e-mail est là pour la confirmer. Yeah !',
     'registered_pw'                           => 'Si vous avez déjà oublié votre mot de passe, veuillez le réinitialiser en utilisant [l\'outil de réinitialisation du mot de passe](:address/password/reset).',
     'registered_help'                         => 'Il y a une icône d\'aide en haut à droite de chaque page. Si vous avez besoin d\'aide, cliquez dessus !',
@@ -58,6 +69,9 @@ return [
     'registered_firefly_iii_link'             => 'Firefly III :',
     'registered_pw_reset_link'                => 'Réinitialisation du mot de passe :',
     'registered_doc_link'                     => 'Documentation :',
+
+    // new version
+    'new_version_email_subject'               => 'Une nouvelle version de Firefly III est disponible',
 
     // email change
     'email_change_subject'                    => 'Votre adresse e-mail Firefly III a été modifiée',
@@ -74,8 +88,8 @@ return [
     // OAuth token created
     'oauth_created_subject'                   => 'Un nouveau client OAuth a été créé',
     'oauth_created_body'                      => 'Quelqu\'un (espérons vous) vient de créer un nouveau client OAuth API Firefly III pour votre compte utilisateur. Il se nomme ":name" et a pour URL de callback `:url`.',
-    'oauth_created_explanation'               => 'With this client, they can access **all** of your financial records through the Firefly III API.',
-    'oauth_created_undo'                      => 'If this wasn\'t you, please revoke this client as soon as possible at `:url`',
+    'oauth_created_explanation'               => 'Avec ce client, cette personne peut accéder à **toutes** vos transactions financières via l\'API Firefly III.',
+    'oauth_created_undo'                      => 'Si ce n\'était pas vous, veuillez révoquer ce jeton dès que possible à :url',
 
     // reset password
     'reset_pw_subject'                        => 'Votre demande de réinitialisation de mot de passe',
@@ -104,14 +118,14 @@ return [
     'new_journals_header'                     => 'Firefly III a créé une opération pour vous. Vous pouvez la trouver dans votre installation de Firefly III :|Firefly III a créé :count opérations pour vous. Vous pouvez les trouver dans votre installation de Firefly III :',
 
     // bill warning
-    'bill_warning_subject_end_date'           => 'Your bill ":name" is due to end in :diff days',
-    'bill_warning_subject_now_end_date'       => 'Your bill ":name" is due to end TODAY',
-    'bill_warning_subject_extension_date'     => 'Your bill ":name" is due to be extended or cancelled in :diff days',
-    'bill_warning_subject_now_extension_date' => 'Your bill ":name" is due to be extended or cancelled TODAY',
+    'bill_warning_subject_end_date'           => 'Votre facture «:name» arrive à échéance dans :diff jours',
+    'bill_warning_subject_now_end_date'       => 'Votre facture «:name» arrive à échéance AUJOURD\'HUI',
+    'bill_warning_subject_extension_date'     => 'Votre facture «:name» doit être prolongée ou annulée dans :diff jours',
+    'bill_warning_subject_now_extension_date' => 'Votre facture «:name» doit être prolongée ou annulée AUJOURD\'HUI',
     'bill_warning_end_date'                   => 'Votre facture **":name"** doit se terminer le :date, soit dans environ **:diff jours**.',
     'bill_warning_extension_date'             => 'Votre facture **":name"** doit être prolongée ou annulée le :date, soit dans environ **:diff jours**.',
     'bill_warning_end_date_zero'              => 'Votre facture **":name"** doit se terminer le :date, soit **AUJOURD\'HUI !**',
     'bill_warning_extension_date_zero'        => 'Votre facture **":name"** doit être prolongée ou annulée le :date, soit **AUJOURD\'HUI !**',
-    'bill_warning_please_action'              => 'Please take the appropriate action.',
+    'bill_warning_please_action'              => 'Merci de prendre les mesures appropriées.',
 
 ];

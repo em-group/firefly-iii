@@ -23,13 +23,13 @@
 declare(strict_types=1);
 
 return [
-    'missing_where'                  => 'Array is missing "where"-clause',
-    'missing_update'                 => 'Array is missing "update"-clause',
-    'invalid_where_key'              => 'JSON contains an invalid key for the "where"-clause',
-    'invalid_update_key'             => 'JSON contains an invalid key for the "update"-clause',
-    'invalid_query_data'             => 'There is invalid data in the %s:%s field of your query.',
-    'invalid_query_account_type'     => 'Your query contains accounts of different types, which is not allowed.',
-    'invalid_query_currency'         => 'Your query contains accounts that have different currency settings, which is not allowed.',
+    'missing_where'                  => 'Tablica nie zawiera klauzuli "where"',
+    'missing_update'                 => 'Tablica nie zawiera klauzuli "update"',
+    'invalid_where_key'              => 'JSON zawiera nieprawidłowy klucz dla klauzuli "where"',
+    'invalid_update_key'             => 'JSON zawiera nieprawidłowy klucz dla klauzuli "update"',
+    'invalid_query_data'             => 'W Twoim zapytaniu, w polu %s:%s są nieprawidłowe dane.',
+    'invalid_query_account_type'     => 'Twoje zapytanie zawiera konta różnego typu, co jest niedozwolone.',
+    'invalid_query_currency'         => 'Twoje zapytanie zawiera konta, które mają różne ustawienia walutowe, co jest niedozwolone.',
     'iban'                           => 'To nie jest prawidłowy IBAN.',
     'zero_or_more'                   => 'Wartość nie może być ujemna.',
     'date_or_time'                   => 'Wartość musi być prawidłową datą lub czasem (ISO 8601).',
@@ -141,8 +141,8 @@ return [
     'unique_piggy_bank_for_user'     => 'Nazwa skarbonki musi być unikalna.',
     'unique_object_group'            => 'Nazwa grupy musi być unikalna',
     'starts_with'                    => 'Wartość musi zaczynać się od :values.',
-    'unique_webhook'                 => 'Masz już webhook z tymi wartościami.',
-    'unique_existing_webhook'        => 'Masz już inny webhook z tymi wartościami.',
+    'unique_webhook'                 => 'Masz już webhook z tą kombinacją adresu URL, wyzwalacza, odpowiedzi i doręczenia.',
+    'unique_existing_webhook'        => 'Masz już inny webhook z tą kombinacją adresu URL, wyzwalacza, odpowiedzi i doręczenia.',
     'same_account_type'              => 'Oba konta muszą być tego samego typu',
     'same_account_currency'          => 'Oba konta muszą mieć to samo ustawienie waluty',
 
@@ -208,10 +208,11 @@ return [
     'transfer_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
     'need_id_in_edit'           => 'Każdy podział musi posiadać transaction_journal_id (poprawny identyfikator lub 0).',
 
-    'ob_source_need_data' => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
-    'lc_source_need_data' => 'Potrzebujemy poprawny identyfikator konta źródłowego, aby kontynuować.',
-    'ob_dest_need_data'   => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
-    'ob_dest_bad_data'    => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+    'ob_source_need_data'           => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta źródłowego i/lub prawidłową nazwę konta źródłowego.',
+    'lc_source_need_data'           => 'Potrzebujemy poprawny identyfikator konta źródłowego, aby kontynuować.',
+    'ob_dest_need_data'             => 'Aby kontynuować, musisz uzyskać prawidłowy identyfikator konta wydatków i/lub prawidłową nazwę konta wydatków.',
+    'ob_dest_bad_data'              => 'Nie można znaleźć poprawnego konta wydatków podczas wyszukiwania identyfikatora ":id" lub nazwy ":name".',
+    'reconciliation_either_account' => 'Aby przesłać uzgodnienie, musisz przesłać konto źródłowe lub docelowe. Nie oba te konto, ani nie żadnego konta.',
 
     'generic_invalid_source'      => 'Nie możesz użyć tego konta jako konta źródłowego.',
     'generic_invalid_destination' => 'Nie możesz użyć tego konta jako konta docelowego.',

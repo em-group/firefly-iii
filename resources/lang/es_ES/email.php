@@ -33,8 +33,17 @@ return [
     'admin_test_subject'                      => 'Un mensaje de prueba de su instalación de Firefly III',
     'admin_test_body'                         => 'Este es un mensaje de prueba de tu instancia de Firefly III. Fue enviado a :email.',
 
+    // invite
+    'invitation_created_subject'              => 'An invitation has been created',
+    'invitation_created_body'                 => 'Admin user ":email" created a user invitation which can be used by whoever is behind email address ":invitee". The invite will be valid for 48hrs.',
+    'invite_user_subject'                     => 'You\'ve been invited to create a Firefly III account.',
+    'invitation_introduction'                 => 'You\'ve been invited to create a Firefly III account on **:host**. Firefly III  is a personal, self-hosted, private personal finance manager. All the cool kids are using it.',
+    'invitation_invited_by'                   => 'You\'ve been invited by ":admin" and this invitation was sent to ":invitee". That\'s you, right?',
+    'invitation_url'                          => 'The invitation is valid for 48 hours and can be redeemed by surfing to [Firefly III](:url). Enjoy!',
+
     // new IP
     'login_from_new_ip'                       => 'Nuevo inicio de sesión en Firefly III',
+    'slack_login_from_new_ip'                 => 'New Firefly III login from IP :ip (:host)',
     'new_ip_body'                             => 'Firefly III detectó un nuevo inicio de sesión en su cuenta desde una dirección IP desconocida. Si nunca ha iniciado sesión desde la dirección IP de abajo, o fué hace más de seis meses, Firefly III le avisará.',
     'new_ip_warning'                          => 'Si reconoce esta dirección IP o el inicio de sesión, puede ignorar este mensaje. Si no ha iniciado sesión, o sí no tiene idea de qué es esto, verifique la seguridad de su contraseña, cámbiela y cierre todas las demás sesiones. Para hacer esto, valla a su página de perfil. Por supuesto que ya tiene A2F habilitado, ¿verdad? ¡Manténgase seguro!',
     'ip_address'                              => 'Dirección IP',
@@ -44,12 +53,14 @@ return [
     // access token created
     'access_token_created_subject'            => 'Se ha creado un nuevo token de acceso',
     'access_token_created_body'               => 'Alguien (esperemos que usted) acaba de crear un nuevo token de acceso a la API de Firefly III para tu cuenta de usuario.',
-    'access_token_created_explanation'        => 'With this token, they can access **all** of your financial records through the Firefly III API.',
-    'access_token_created_revoke'             => 'If this wasn\'t you, please revoke this token as soon as possible at :url',
+    'access_token_created_explanation'        => 'Con este token, pueden acceder a **todos** sus registros financieros a través de la API de Firefly III.',
+    'access_token_created_revoke'             => 'Si no era usted, por favor, revoque este token tan pronto como sea posible, en :url',
 
     // registered
     'registered_subject'                      => 'Bienvenido a Firefly III!',
-    'registered_welcome'                      => 'Welcome to [Firefly III](:address). Your registration has made it, and this email is here to confirm it. Yay!',
+    'registered_subject_admin'                => 'A new user has registered',
+    'admin_new_user_registered'               => 'A new user has registered. User **:email** was given user ID #:id.',
+    'registered_welcome'                      => 'Bienvenido/a a [Firefly III](:address). Su registro se ha realizado correctamente, y este correo electrónico está aquí para confirmarlo. ¡Yeah!',
     'registered_pw'                           => 'If you have forgotten your password already, please reset it using [the password reset tool](:address/password/reset).',
     'registered_help'                         => 'Hay un icono de ayuda en la esquina superior derecha de cada página. Si necesita ayuda, ¡Haga clic en él!',
     'registered_doc_html'                     => 'If you haven\'t already, please read the [grand theory](https://docs.firefly-iii.org/about-firefly-iii/personal-finances).',
@@ -58,6 +69,9 @@ return [
     'registered_firefly_iii_link'             => 'Firefly III:',
     'registered_pw_reset_link'                => 'Restablecer contraseña:',
     'registered_doc_link'                     => 'Documentación:',
+
+    // new version
+    'new_version_email_subject'               => 'A new Firefly III version is available',
 
     // email change
     'email_change_subject'                    => 'Se cambió su dirección de email de Firefly III',
