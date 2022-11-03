@@ -62,7 +62,7 @@ class WhitelabelController extends Controller
 
         // put previous url in session if not redirect from store (not "return_to_edit").
         if (true !== session('whitelabels.edit.fromUpdate')) {
-            $this->rememberPreviousUri('whitelabels.edit.uri'); // @codeCoverageIgnore
+            $this->rememberPreviousUrl('whitelabels.edit.uri'); // @codeCoverageIgnore
         }
         $request->session()->forget('link-types.edit.fromUpdate');
 
@@ -81,7 +81,7 @@ class WhitelabelController extends Controller
 
         $request->session()->flash('success', (string)trans('whitelabels.updated', ['name' => $whitelabel->name]));
 
-        $redirect = redirect($this->getPreviousUri('whitelabels.edit.uri'));
+        $redirect = redirect($this->getPreviousUrl('whitelabels.edit.uri'));
         if (1 === (int)$request->get('return_to_edit')) {
             $request->session()->put('whitelabels.edit.fromUpdate', true);
 
@@ -99,7 +99,7 @@ class WhitelabelController extends Controller
         $configs = config('whitelabels.default_configs');
 
         if (true !== session('whitelabels.create.fromStore')) {
-            $this->rememberPreviousUri('whitelabels.create.uri');
+            $this->rememberPreviousUrl('whitelabels.create.uri');
         }
 
         return view('admin.whitelabels.create', compact('subTitle', 'subTitleIcon', 'configs'));
@@ -115,7 +115,7 @@ class WhitelabelController extends Controller
         $whitelabel = $this->repository->store($data);
 
         $request->session()->flash('success', (string)trans('whitelabels.created', ['name' => $whitelabel->name]));
-        $redirect = redirect($this->getPreviousUri('whitelabels.create.uri'));
+        $redirect = redirect($this->getPreviousUrl('whitelabels.create.uri'));
         if (1 === (int)$request->get('create_another')) {
             $request->session()->put('whitelabels.create.fromStore', true);
 

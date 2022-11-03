@@ -1,4 +1,4 @@
-{% extends "./v1/layout/default" %}
+{% extends "./layout/default" %}
 
 {% block breadcrumbs %}
     {{ Breadcrumbs.render(Route.getCurrentRoute.getName) }}
@@ -58,7 +58,7 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {% for trans in memberships if trans.transaction_id > 0 %}
+                        {% for trans in memberships|filter(trans => trans.transaction_id > 0) %}
                         <tr>
                             <td>{{ trans.created_at.formatLocalized(monthAndDayFormat) }}</td>
                             <td>{{ trans.transaction.formatted_amount }}</td>

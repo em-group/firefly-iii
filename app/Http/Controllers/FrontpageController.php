@@ -30,7 +30,7 @@ class FrontpageController extends Controller
             return HubClient::getTerms($locale);
         });
         $layout = config('whitelabels.frontend_layout', 'default');
-        return prefixView('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency', 'trial_price'));
+        return view('frontpage.'.$layout.'.index', compact('subProducts','terms', 'currency', 'trial_price'));
     }
 
     public function terms(Request $request)
