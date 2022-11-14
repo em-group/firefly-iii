@@ -18,7 +18,7 @@
         "jquery": "^3",
         "laravel-mix": "^6.0",
         "resolve-url-loader": "^3.1.2",
-        "sass": "^1.35.0",
+        "sass": "^1.56.1",
         "sass-loader": "8.*",
         "postcss": "^8.4.17",
         "uiv": "^1.4",
