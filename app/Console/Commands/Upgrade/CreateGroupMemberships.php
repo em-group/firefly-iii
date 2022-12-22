@@ -129,7 +129,7 @@ class CreateGroupMemberships extends Command
      */
     private function createGroupMembership(User $user): void
     {
-        $userGroup = UserGroup::create(['title' => $user->email, 'whitelabel_id' => $user->whitelabel_id]);
+        $userGroup = UserGroup::firstOrCreate(['title' => $user->email, 'whitelabel_id' => $user->whitelabel_id]);
         $userRole  = UserRole::where('title', UserRole::OWNER)->first();
 
         if (null === $userRole) {
