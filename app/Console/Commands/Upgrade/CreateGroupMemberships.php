@@ -99,6 +99,10 @@ class CreateGroupMemberships extends Command
         $users = User::get();
         /** @var User $user */
         foreach ($users as $user) {
+            if (empty($user->email)) {
+                Log::debug(sprintf('Skipping group memberships for user #%d (no email)', $user->id));
+                continue;
+            }
             Log::debug(sprintf('Manage group memberships for user #%d', $user->id));
             if (!$this->hasGroupMembership($user)) {
                 Log::debug(sprintf('User #%d has no main group.', $user->id));
