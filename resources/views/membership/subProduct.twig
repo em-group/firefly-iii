@@ -2,7 +2,7 @@
     <div class="box-header with-border">
         <h3>{{ product.name }}</h3>
         <div style="margin-bottom: 10px;">
-            Price: <strong>{{ product.price }}</strong> {{ trans('firefly.repeat_freq_monthly') }}<br>
+            Price: <strong>{{ product.price }}</strong> {{ trans('memberships.renew_frequency', {'membership_length': config('whitelabels.membership_length')}) }}<br>
             <img src="/fpt/sedna/img/we-accept.png" style="max-height: 20px;">
         </div>
         <small>

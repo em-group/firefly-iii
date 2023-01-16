@@ -14,4 +14,5 @@ return [
         'mail.from.name'
     ],
     'frontend_layout' => 'sedna',
+    'membership_length' => 30
 ];

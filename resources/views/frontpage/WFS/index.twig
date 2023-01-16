@@ -182,7 +182,7 @@
                 <div class="price-tier-box p-5">
                     <h2>{{ subProducts.0.name }}</h2>
                     <div>
-                        <span class="price-tier-price">{{ subProducts.0.price }}/month</span>
+                        <span class="price-tier-price">{{ subProducts.0.price }} {{ trans('memberships.renew_frequency', {'membership_length': config('whitelabels.membership_length')}) }}</span>
                         <br>
                         <small>
                             {% if currency is same as('usd') %}
@@ -244,7 +244,7 @@
                     <div class="recommended-badge">RECOMMENDED</div>
                     <h2>{{ subProducts.1.name }}</h2>
                     <div>
-                        <span class="price-tier-price">{{ subProducts.1.price }}/month</span>
+                        <span class="price-tier-price">{{ subProducts.1.price }} {{ trans('memberships.renew_frequency', {'membership_length': config('whitelabels.membership_length')}) }}</span>
                         <br>
                         <small>
                             {% if currency is same as('usd') %}

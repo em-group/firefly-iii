@@ -340,9 +340,9 @@ class FeatureAccess
         }
         /** @var BreadcrumbsManager $manager */
         $manager = app(BreadcrumbsManager::class);
-        if ($manager->exists($route)) {
+        if ($manager::exists($route)) {
             try {
-                $item = $manager->generate($route)->last();
+                $item = $manager::generate($route)->last();
                 return $item->title;
             } catch (\Exception $ex) {
                 return '';
