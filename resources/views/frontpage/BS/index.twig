@@ -31,28 +31,24 @@
 
 <section class="navigation">
     <header>
-        <div class="border-bottom">
-            <div class="container pt-1 pb-1">
-                <small>{{ config('whitelabels.phone') }}</small>
-                <small class="pl-2 pl-sm-5"><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small>
-            </div>
-        </div>
         <nav class="navbar navbar-expand-lg navbar-light">
             <div class="container">
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#nav-bar" aria-controls="nav-bar" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="nav-bar">
-                    <div class="navbar-nav mr-auto mt-2 mt-lg-0"></div>
+                    <div class="navbar-nav mt-2 mt-lg-0"></div>
                     <div class="my-2 my-lg-0">
                         <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                            <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                            <li class="nav-item"><img src="/fpt/BS/img/icon.png" /></li>
+                            <li class="nav-item"><a class="nav-link orange" href="#features">Features</a></li>
                             <li class="nav-item"><a class="nav-link" href="#prices">Prices</a></li>
                             <li class="nav-item"><a class="nav-link" href="#about-contact">About</a></li>
                             <li class="nav-item"><a class="nav-link" href="#about-contact">Contact</a></li>
                             <li class="nav-item"><a class="nav-link" href="#terms">Terms &amp; Conditions</a></li>
-                            <li class="nav-item"><a class="nav-link" href="#prices">Sign up</a></li>
-                            <li class="nav-item"><a class="nav-link btn-orange" href="/login">Log in</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/login">Log in</a></li>
+                            <li class="nav-item"><a class="nav-link white-border" href="#intro">Learn more</a></li>
+                            <li class="nav-item"><a class="nav-link orange-border" href="#prices">Sign up</a></li>
                         </ul>
                     </div>
                 </div>
@@ -70,12 +66,34 @@
         </div>
     </div>
 </section>
+<section class="hero-content-shadow"></section>
 <section class="hero-content">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h1>Plan your budget with ease</h1>
-                <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
+                <p class="intro m-0">{{ config('app.name') }} makes it easier for you to get a total overview of your finances.</p>
+                <p class="intro">Keeping track of your financial situation has never been easier!</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features section-padding" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-5 mb-5">
+                <div class="feature-list">
+                    <h3>About {{ config('app.name') }}</h3>
+                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.<p />
+
+                    <p class="mb-5">BudgetSupervise makes it easier for you to get a total overview of your finances.
+                    Keeping track of your financial situation has never been easier!</p>
+                </div>
+                <a href="#prices" class="btn-register">Register now</a>
+            </div>
+
+            <div class="d-none d-md-block col-md-7 position-relative about-demo">
+                <div style="background: url('/fpt/sedna/img/ipad-device-ff.png') top right no-repeat; background-size:100%; display:block;width:100%;height:100%;"></div>
             </div>
         </div>
     </div>
@@ -86,73 +104,30 @@
         <div class="row">
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <img src="/fpt/SO/img/icon1.png">
-                    <h5><strong>Financial overview</strong></h5>
+                    <img src="/fpt/BS/img/icon1.png">
+                    <h5><strong>Easy to use</strong></h5>
                 </div>
                 <div class="intro-content">
-                    <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>
+                    <p>Spending Overview is easy to use and makes it easy for anyone to begin organizing their finances.</p>
                 </div>
             </div>
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <img src="/fpt/SO/img/icon2.png">
-                    <h5><strong>Reports</strong></h5>
+                    <img src="/fpt/BS/img/icon2.png">
+                    <h5><strong>Works everywhere</strong></h5>
                 </div>
                 <div class="intro-content">
-                    <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>
+                    <p>Spending Overview works on your desktop, mobile and tablet everywhere in the world.</p>
                 </div>
             </div>
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <img src="/fpt/SO/img/icon3.png">
-                    <h5><strong>Lots of features</strong></h5>
+                    <img src="/fpt/BS/img/icon3.png">
+                    <h5><strong>Multiple accounts</strong></h5>
                 </div>
                 <div class="intro-content last">
-                    <p>{{ config('app.name') }} offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>
+                    <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="features section-padding" id="features">
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 col-md-5">
-                <div class="feature-list">
-                    <h3>Never miss a dime</h3>
-                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
-                    <ul class="features-stack pl-0">
-                        <li class="feature-item">
-                            <div class="feature-content">
-                                <h5>Easy to use</h5>
-                                <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
-                            </div>
-                        </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe040;" class="icon"></span>
-                            </div>
-                            <div class="feature-content">
-                                <h5>Works everywhere</h5>
-                                <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world.</p>
-                            </div>
-                        </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe03c;" class="icon"></span>
-                            </div>
-                            <div class="feature-content">
-                                <h5>Multiple accounts</h5>
-                                <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="d-none d-md-block col-md-7 position-relative">
-                <div style="background: url('/fpt/sedna/img/ipad-device-ff.png') top right no-repeat; background-size:100%; display:block;width:100%;height:100%;"></div>
             </div>
         </div>
     </div>
@@ -226,7 +201,7 @@
                     </div>
                     <hr>
                     <small>Click below to register for a 14 day trial</small><br>
-                    <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
+                    <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-green d-block mt-2">SIGN UP</a>
                 </div>
 
             </div>
@@ -288,7 +263,7 @@
                     </div>
                     <hr>
                     <small>Click below to register for a 14 day trial</small><br>
-                    <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
+                    <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-green d-block mt-2">SIGN UP</a>
                 </div>
 
             </div>
