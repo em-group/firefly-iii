@@ -18,6 +18,10 @@ body {
   color: white;
 }
 
+.navbar-light .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
 .btn-green´ {
   background: $accent-color;
   color:white !important;
@@ -35,7 +39,6 @@ a.btn-green {
 #nav-bar {
   .nav-item {
     a.nav-link {
-      padding:10px 15px;
       border-bottom: 2px solid transparent;
       margin-left:15px;
       color: white;
@@ -49,19 +52,30 @@ a.btn-green {
     }
 
     a.nav-link.white-border {
-      margin-top: 4px;
       padding: 5px 20px 5px 20px;
       border: 2px #fff solid;
       border-radius: 20px;
     }
     a.nav-link.orange-border {
-      margin-top: 4px;
       padding: 5px 20px 5px 20px;
       border: 2px $orange-color solid;
       border-radius: 20px;
       color: $orange-color;
     }
   }
+
+  .white-btn {
+    position: absolute;
+    right: 110px;
+  }
+  .orange-btn {
+    position: absolute;
+    right: 0px;
+  }
+}
+
+ul.navbar-nav {
+  position: relative;
 }
 
 a.btn-register {
