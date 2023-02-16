@@ -119,6 +119,7 @@ mix.sass('resources/assets/frontpage-templates/BST/sass/styles.scss', 'public/fp
 mix.copy('resources/assets/frontpage-templates/BST/img/', 'public/fpt/BST/img');
 // BZ
 mix.sass('resources/assets/frontpage-templates/BZ/sass/styles.scss', 'public/fpt/BZ/css');
+mix.copy('resources/assets/frontpage-templates/BZ/img/', 'public/fpt/BZ/img');
 // MBA
 mix.sass('resources/assets/frontpage-templates/MBA/sass/styles.scss', 'public/fpt/MBA/css');
 mix.copy('resources/assets/frontpage-templates/MBA/img/', 'public/fpt/MBA/img');
@@ -179,3 +180,5 @@ mix.copy('resources/assets/frontpage-templates/FOO/img/', 'public/fpt/FOO/img');
 // BBP
 mix.sass('resources/assets/frontpage-templates/BBP/sass/styles.scss', 'public/fpt/BBP/css');
 mix.copy('resources/assets/frontpage-templates/BBP/img/', 'public/fpt/BBP/img');
+// BGL
+mix.sass('resources/assets/frontpage-templates/BGL/sass/styles.scss', 'public/fpt/BGL/css');

@@ -3,6 +3,7 @@
 
 $accent-color: #01352c;
 $gold-color:#e7cf95;
+$orange-color: #d6772a;
 
 body {
   font-family: 'Work Sans', sans-serif;
@@ -12,12 +13,20 @@ body {
   background:#f1f1f1;
 }
 
+.navbar {
+  background-color: $accent-color;
+  color: white;
+}
 
-.btn-orange {
+.navbar-light .navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255, 255, 255, 0.5)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.btn-green´ {
   background: $accent-color;
   color:white !important;
 }
-a.btn-orange {
+a.btn-green {
   background: $accent-color;
   color:white;
 }
@@ -30,14 +39,51 @@ a.btn-orange {
 #nav-bar {
   .nav-item {
     a.nav-link {
-      padding:10px 15px;
       border-bottom: 2px solid transparent;
       margin-left:15px;
+      color: white;
     }
     a.nav-link:active,a.nav-link:hover {
       border-bottom: 2px solid $accent-color;
     }
+
+    a.nav-link.orange {
+      color: $orange-color;
+    }
+
+    a.nav-link.white-border {
+      padding: 5px 20px 5px 20px;
+      border: 2px #fff solid;
+      border-radius: 20px;
+    }
+    a.nav-link.orange-border {
+      padding: 5px 20px 5px 20px;
+      border: 2px $orange-color solid;
+      border-radius: 20px;
+      color: $orange-color;
+    }
   }
+
+  .white-btn {
+    position: absolute;
+    right: 110px;
+  }
+  .orange-btn {
+    position: absolute;
+    right: 0px;
+  }
+}
+
+ul.navbar-nav {
+  position: relative;
+}
+
+a.btn-register {
+  padding: 8px 25px 8px 25px;
+  text-decoration: none;
+  border: 2px #fff solid;
+  color: #fff;
+  border-radius: 20px;
 }
 
 .hero {
@@ -53,21 +99,32 @@ a.btn-orange {
     padding-top:25px;
   }
 }
+.hero-content-shadow {
+  margin-top: -20px;
+  height: 20px;
+  background: $accent-color;
+  opacity: .8;
+  z-index: 10000;
+}
 .hero-content {
-  background:$accent-color;
+  min-height: 100px;
+  background: $accent-color;
   color:$gold-color;
   padding:20px;
+  z-index: 10000;
 }
 
 #intro {
+  padding: 50px 0 20px 0;
   margin-bottom:0;
   background:$accent-color;
   .intro-icon {
     text-align: left;
-    padding:10px 0;
+    padding: 20px 0;
     margin-bottom:5px;
     border-bottom:5px solid white;
     h5 {
+      padding-left: 10px;
       display:inline-block;
       vertical-align: bottom;
       color:white;
@@ -76,7 +133,7 @@ a.btn-orange {
     }
   }
   .intro-content {
-    margin-top:10px;
+    margin-top:20px;
     text-align: left;
     padding:0;
     color:$gold-color;
@@ -96,12 +153,17 @@ a.btn-orange {
       }
     }
     .intro-icon i {
-      font-size:2.5em;
+      font-size: 2.5em;
       color:$accent-color;
-      margin-bottom:15px;
+      margin-bottom: 15px;
     }
   }
 }
+
+.about-demo {
+  min-height: 600px;
+}
+
 #features {
   padding-top:40px;
   background:#005c3c;
