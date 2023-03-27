@@ -42,7 +42,15 @@
     <section class="navigation">
         <header>
             <div class="header-content">
-                <div class="logo"><a href="#" style="font-size:18px;">{{ config('app.name') }}</a></div>
+                <div class="logo">
+                    <a href="#" style="font-size:18px;">
+                        {% if config('whitelabels.logo_url') != "" %}
+                            <img src="{{ config('whitelabels.logo_url') }}" style="max-width: 250px;">
+                        {% else %}
+                            {{ config('app.name') }}
+                        {% endif %}
+                    </a>
+                </div>
                 <div class="header-nav">
                     <nav>
                         <ul class="primary-nav">

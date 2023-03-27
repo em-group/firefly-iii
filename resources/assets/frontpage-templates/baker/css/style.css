@@ -173,6 +173,10 @@ HEADER
   margin-top: 6px;
 }
 
+.navbar-brand img {
+  margin-top: -20px;
+}
+
 .navbar-default .navbar-nav>li>a {
   padding: 5px 10px;
   font-size: 14px;
