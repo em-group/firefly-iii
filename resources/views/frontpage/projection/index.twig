@@ -17,7 +17,13 @@
 <!-- Header -->
 <header id="header">
     <div class="inner">
-        <a href="/" class="logo"><strong>{{ config('app.name') }}</strong></a>
+         <a class="logo" href="/">
+            {% if config('whitelabels.logo_url') != "" %}
+                <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 60px;">
+            {% else %}
+                <strong>{{ config('app.name') }}</strong>
+            {% endif %}
+        </a>
         <nav id="nav">
             <a href="#features">Features</a>
             <a href="#prices">Prices</a>
@@ -40,24 +46,6 @@
 
         <h3>Budget management made easy</h3>
 
-        <div class="flex ">
-            <div>
-                <span class="icon fa-car"></span>
-                <h3>FINANCIAL OVERVIEW</h3>
-{#                <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>#}
-            </div>
-            <div>
-                <span class="icon fa-camera"></span>
-                <h3>REPORTS</h3>
-{#                <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>#}
-            </div>
-            <div>
-                <span class="icon fa-bug"></span>
-                <h3>LOTS OF FEATURES</h3>
-{#                <p>Budgetley offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>#}
-            </div>
-        </div>
-
         <footer>
             <a href="#features" class="button">Get Started</a>
         </footer>
@@ -70,40 +58,31 @@
     <div class="inner">
         <div class="flex flex-3">
             <article>
-                <div class="image round">
-                    <i class="fa fa-bullseye" style="font-size:150px;" aria-hidden="true"></i>
+                <div class="image">
+                    <img src="/fpt/projection/images/thumbs-up.png"/>
                 </div>
                 <header>
-                    <h3>EASY TO USE</h3>
+                    <h4>EASY TO USE</h4>
                 </header>
                 <p>{{ config('app.name') }} is easy to use and makes<br>it easy for anyone to begin organizing their finances.</p>
-                <footer>
-                    <a href="#prices" class="button">Learn More</a>
-                </footer>
             </article>
             <article>
-                <div class="image round">
-                    <i class="fa fa-globe" style="font-size:150px;" aria-hidden="true"></i>
+                <div class="image">
+                    <img src="/fpt/projection/images/report.png" />
                 </div>
                 <header>
-                    <h3>WORKS EVERYWHERE</h3>
+                    <h4>WORKS EVERYWHERE</h4>
                 </header>
                 <p>{{ config('app.name') }} works on your desktop,<br> mobile and tablet everywhere in the world.</p>
-                <footer>
-                    <a href="#prices" class="button">Learn More</a>
-                </footer>
             </article>
             <article>
-                <div class="image round">
-                    <i class="fa fa-university" style="font-size:150px;" aria-hidden="true"></i>
+                <div class="image">
+                    <img src="/fpt/projection/images/star.png" />
                 </div>
                 <header>
-                    <h3>MULTIPLE ACCOUNTS</h3>
+                    <h4>MULTIPLE ACCOUNTS</h4>
                 </header>
                 <p>No matter the amount of accounts you have, you can<br> add them all to {{ config('app.name') }} and keep track<br> of all your transactions.</p>
-                <footer>
-                    <a href="#prices" class="button">Learn More</a>
-                </footer>
             </article>
         </div>
     </div>
@@ -215,8 +194,6 @@
         </div>
     </div>
 </section>
-
-<hr>
 
 <section class="" id="about-contact">
     <div class="inner">
