@@ -1,8 +1,8 @@
 {
     "private": true,
     "scripts": {
-        "development": "export NODE_OPTIONS=--openssl-legacy-provider; mix",
-        "watch": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch",
+        "development": "mix",
+        "watch": "mix watch",
         "watch-poll": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch -- --watch-options-poll=1000",
         "hot": "export NODE_OPTIONS=--openssl-legacy-provider; mix watch --hot",
         "production": "export NODE_OPTIONS=--openssl-legacy-provider; mix --production",
