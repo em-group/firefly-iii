@@ -185,10 +185,10 @@
                         <span class="price-tier-price">{{ subProducts.0.price }} {{ trans('memberships.renew_frequency', {'membership_length': config('whitelabels.membership_length')}) }}</span>
                         <br>
                         <small>
-                            {% if currency is same as('usd') %}
+                            {% if currency is not same as('eur') %}
                                 <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
                             {% else %}
-                                <a href="?currency=USD#prices" class="active">Show price in USD</a>
+{#                                <a href="?currency=USD#prices" class="active">Show price in USD</a>#}
                             {% endif %}
                         </small>
                     </div>
@@ -247,10 +247,10 @@
                         <span class="price-tier-price">{{ subProducts.1.price }} {{ trans('memberships.renew_frequency', {'membership_length': config('whitelabels.membership_length')}) }}</span>
                         <br>
                         <small>
-                            {% if currency is same as('usd') %}
+                            {% if currency is not same as('eur') %}
                                 <a href="?currency=EUR#prices" class="active">Show price in EUR</a>
                             {% else %}
-                                <a href="?currency=USD#prices" class="active">Show price in USD</a>
+{#                                <a href="?currency=USD#prices" class="active">Show price in USD</a>#}
                             {% endif %}
                         </small>
                     </div>

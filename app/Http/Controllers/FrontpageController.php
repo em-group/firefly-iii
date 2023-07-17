@@ -23,7 +23,10 @@ class FrontpageController extends Controller
             return $subProduct->index;
         });
         /** @var HubCountryInterface $country */
-        $country = app(HubCountryInterface::class)->where('iso_currency', $currency)->first();
+        $country = app(HubCountryInterface::class)->where('enabled', 1)->where('iso_currency', $currency)->first();
+        if (!$country) {
+            $country = app(HubCountryInterface::class)->where('abbrev', 'IE')->first();
+        }
         $trial_price = $country ? FormatsCurrencyObject::formatCurrency($country->currency_object, $country->trial_price) : '$1';
         $domain = config('whitelabels.domain');
         $terms = Cache::remember('frontpage_terms_'.$domain.'_'.$locale, now()->addDay(), function() use($locale){
@@ -63,13 +66,13 @@ class FrontpageController extends Controller
 
     private function getLocaleAndCurrency(Request $request)
     {
-        $currency = strtolower($request->get('currency'));
+        $currency = strtolower($request->get('currency', 'eur'));
         if($currency){
             $locale = $currency === 'eur' ? 'ie' : 'us';
         }else{
             $locale = explode('_', App::getLocale());
             $locale = strtolower($locale[1] ?? $locale[0]);
-            $currency = 'usd';
+            $currency = 'eur';
         }
         return ['locale' => $locale, 'currency' => $currency];
     }

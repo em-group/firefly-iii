@@ -1,5 +1,6 @@
 fonts/
 images/
 v1/js/app.js
+v1/js/app_vue.js
 mix-manifest.json
 fpt/
