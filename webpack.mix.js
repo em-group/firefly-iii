@@ -35,10 +35,10 @@ mix.webpackConfig({
 });
 
 mix.js('resources/assets/js/app.js', 'public/v1/js');
-mix.js('resources/assets/js/app_vue.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/create_transaction.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/edit_transaction.js', 'public/v1/js').vue({version: 2});
-mix.js('resources/assets/js/profile.js', 'public/v1/js').vue({version: 2});
+mix.js('resources/assets/js/app_vue.js', 'public/v1/js').vue({ version: 2 });
+mix.js('resources/assets/js/create_transaction.js', 'public/v1/js').vue({ version: 2 });
+mix.js('resources/assets/js/edit_transaction.js', 'public/v1/js').vue({ version: 2 });
+mix.js('resources/assets/js/profile.js', 'public/v1/js').vue({ version: 2 });
 
 mix.js('resources/assets/frontpage-templates/terms.js', 'public/fpt');
 
@@ -182,3 +182,12 @@ mix.sass('resources/assets/frontpage-templates/BBP/sass/styles.scss', 'public/fp
 mix.copy('resources/assets/frontpage-templates/BBP/img/', 'public/fpt/BBP/img');
 // BGL
 mix.sass('resources/assets/frontpage-templates/BGL/sass/styles.scss', 'public/fpt/BGL/css');
+// PBU
+mix.sass('resources/assets/frontpage-templates/PBU/sass/styles.scss', 'public/fpt/PBU/css');
+mix.copy('resources/assets/frontpage-templates/PBU/img/', 'public/fpt/PBU/img');
+// ZB
+mix.sass('resources/assets/frontpage-templates/ZB/sass/styles.scss', 'public/fpt/ZB/css');
+mix.copy('resources/assets/frontpage-templates/ZB/img/', 'public/fpt/ZB/img');
+// BB
+mix.sass('resources/assets/frontpage-templates/BB/sass/styles.scss', 'public/fpt/BB/css');
+mix.copy('resources/assets/frontpage-templates/BB/img/', 'public/fpt/BB/img');

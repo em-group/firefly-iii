@@ -1,0 +1,57 @@
+.header {
+  background: url('/fpt/ZB/img/top.jpg') no-repeat fixed;
+  background-position: center;
+  background-size: cover;
+  min-height: 650px;
+  position: relative;
+}
+
+.top-nav-collapse {
+  background: rgba(97, 64, 89, 0.9);
+}
+
+.navbar-default {
+  height: 100px;
+  padding-top: 15px;
+
+  .navbar-brand {
+    padding: 20px;
+
+    img {
+      max-height: 50px !important;
+    }
+  }
+}
+
+.bg-color {
+  background-color: rgba(77, 5, 45, 0.55);
+}
+
+.btn-download {
+  background-color: #E319CB;
+}
+
+.btn-more,
+.btn-more:focus {
+  border: 1px solid #E319CB;
+  color: white;
+}
+
+.btn-more:hover {
+  background: #E319CB;
+}
+
+#contact {
+  background-color: rgb(105, 73, 94);
+  color: #cacaca;
+}
+
+.btn-info {
+  color: #fff;
+  background-color: #777;
+  border-color: #777;
+}
+
+.loction-info p i {
+  color: #E319CB;
+}
