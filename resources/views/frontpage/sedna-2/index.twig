@@ -376,7 +376,7 @@
                 <button class="btn btn-lg btn-info terms-link" data-section="terms-terms">Terms &amp; Conditions</button>
                 <button class="btn btn-lg btn-info terms-link" data-section="terms-privacy-policy">Privacy Policy</button>
                 <button class="btn btn-lg btn-info terms-link" data-section="terms-cookie-policy">Cookie Policy</button>
-                <button class="btn btn-lg btn-info terms-link" data-section="refund-cancellation-policy">Refund &amp; Cancellation Policy</button>
+                <button class="btn btn-lg btn-info terms-link" data-section="terms-refund-cancellation-policy">Refund &amp; Cancellation Policy</button>
                 <div style="border:1px solid #eee; border-radius:15px; max-height:400px;overflow-y:scroll; padding:20px;margin-top:15px;position:relative;" id="terms-container">
                     {{ terms | raw }}
                 </div>
@@ -404,9 +404,9 @@
                         <li><a href="#about-contact">About</a></li>
                         <li><a href="#about-contact">Contact</a></li>
                         <li><a href="/unsub">Unsubscribe</a></li>
-                        <li><a href="/terms#terms-terms" target="_blank">Terms & Conditions</a></li>
-                        <li><a href="/terms#terms-privacy-policy" target="_blank">Privacy Policy</a></li>
-                        <li><a href="/terms#terms-cookie-policy" target="_blank">Cookie Policy</a></li>
+                        <li><a href="/terms#terms" target="_blank">Terms & Conditions</a></li>
+                        <li><a href="/terms#privacy-policy" target="_blank">Privacy Policy</a></li>
+                        <li><a href="/terms#cookie-policy" target="_blank">Cookie Policy</a></li>
                         <li><a href="/terms#refund-cancellation-policy" target="_blank">Refund &amp; Cancellation Policy</a></li>
                     </ul>
                     <p>Copyright © {{ "now"|date("Y") }} <a href="#">{{ config('app.name') }}</a>
