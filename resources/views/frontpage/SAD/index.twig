@@ -8,12 +8,8 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="fpt/t-1/css/bootstrap.min.css">
-    {% if config('whitelabels.styles_path') != '' %}
-        <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
-    {% else %}
-        <link rel="stylesheet" href="fpt/t-1/css/styles.css">
-    {% endif %}
+    <link rel="stylesheet" href="fpt/t-2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
     <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous" nonce="{{ JS_NONCE }}"></script>
 
     <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
@@ -41,11 +37,11 @@
                 <small class="pl-2 pl-sm-5"><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small>
             </div>
         </div>
-        <nav class="navbar navbar-expand-lg navbar-light">
+        <nav class="navbar navbar-expand-lg navbar-dark">
             <div class="container">
                 <a class="navbar-brand" href="#">
                     {% if config('whitelabels.logo_url') != "" %}
-                        <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 52px;">
+                        <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
                     {% else %}
                         {{ config('app.name') }}
                     {% endif %}
@@ -72,15 +68,18 @@
     </header>
 </section>
 
-<section class="hero">
+<section class="header img hero">
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <div class="">
-                    <p class="intro">Welcome to {{ config('app.name') }}</p>
-                    <h1><strong>Plan <span class="text-orange">your</span><br> budget with ease</strong></h1>
-                    <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
-                    <a href="#features" class="btn btn-orange btn-large">Learn more</a>
+            <div class="col-lg-6 col-md-8">
+                <div class="hero-content">
+                    <h4>Welcome to {{ config('app.name') }}</h4>
+                    <h1>Plan your budget with ease with {{ config('app.name') }}</h1>
+                    <p class="intro">
+                        {{ config('app.name') }} makes it easier for you to get a total overview of your finances<br>
+                        Keeping track of your financials have never been easier!
+                    </p>
+                    <a href="#features" class="btn btn-orange btn-lg mt-3">Learn more</a>
                 </div>
             </div>
         </div>
@@ -92,74 +91,29 @@
         <div class="row">
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <i class="fas fa-chart-line"></i>
+                    <img src="/fpt/SAD/img/icon1.png">
                 </div>
                 <div class="intro-content">
-                    <h5><strong>Financial overview</strong></h5>
+                    <h5>Financial overview</h5>
                     <p>Get an overview of you financial situation and save money. By learning your spending-pattern you can avoid the bad habbit of spending unnecessary money.</p>
                 </div>
             </div>
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <i class="fas fa-file-invoice-dollar"></i>
+                    <img src="/fpt/SAD/img/icon2.png">
                 </div>
                 <div class="intro-content">
-                    <h5><strong>Reports</strong></h5>
+                    <h5>Reports</h5>
                     <p>See detailed reports on your earnings and spendings for any specific period. Always be up to date on your finances.</p>
                 </div>
             </div>
             <div class="col-md-4 intro-feature">
                 <div class="intro-icon">
-                    <i class="fas fa-rocket"></i>
+                    <img src="/fpt/SAD/img/icon3.png">
                 </div>
                 <div class="intro-content last">
-                    <h5><strong>Lots of features</strong></h5>
+                    <h5>Lots of features</h5>
                     <p>{{ config('app.name') }} offers many features such as categorised transactions, tags, reports, recurring transactions, piggy banks and much more.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="features section-padding" id="features">
-    <div class="container">
-        <div class="row">
-            <div class="d-none d-md-block col-md-5 text-right">
-                <img src="/fpt/t-1/img/bm.png">
-            </div>
-            <div class="col-sm-12 col-md-7">
-                <div class="feature-list">
-                    <h3>Never miss a dime</h3>
-                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
-                    <ul class="features-stack">
-                        <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe03e;" class="icon"></span>
-                            </div>
-                            <div class="feature-content">
-                                <h5>Easy to use</h5>
-                                <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
-                            </div>
-                        </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe040;" class="icon"></span>
-                            </div>
-                            <div class="feature-content">
-                                <h5>Works everywhere</h5>
-                                <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world.</p>
-                            </div>
-                        </li>
-                        <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe03c;" class="icon"></span>
-                            </div>
-                            <div class="feature-content">
-                                <h5>Multiple accounts</h5>
-                                <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
-                            </div>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -304,6 +258,49 @@
     </div>
 </section>
 
+<section class="features section-padding" id="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-md-5">
+                <div class="feature-list">
+                    <h3>Never miss a dime</h3>
+                    <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
+                    <ul class="features-stack pl-0">
+                        <li class="feature-item">
+                            <div class="feature-content">
+                                <h5>Easy to use</h5>
+                                <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe040;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Works everywhere</h5>
+                                <p>{{ config('app.name') }} works on your desktop, mobile and tablet everywhere in the world.</p>
+                            </div>
+                        </li>
+                        <li class="feature-item">
+                            <div class="feature-icon">
+                                <span data-icon="&#xe03c;" class="icon"></span>
+                            </div>
+                            <div class="feature-content">
+                                <h5>Multiple accounts</h5>
+                                <p>No matter the amount of accounts you have, you can add them all to {{ config('app.name') }} and keep track of all your transactions.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-none d-md-block col-md-7 position-relative">
+                <div style="background: url('/fpt/sedna/img/ipad-device-ff.png') top right no-repeat; background-size:100%; display:block;width:100%;height:100%;"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <section class="features section-padding" id="about-contact">
     <div class="container">
         <div class="row">
@@ -378,10 +375,10 @@
                 <h4 class="mt-4 mb-0">{{ config('whitelabels.phone') }}</h4>
                 <small><a href="mailto:support@{{ config('whitelabels.domain') }}">support@{{ config('whitelabels.domain') }}</a></small><br>
                 <small>{{ company.display_name ?: config('whitelabels.company') }},
-                {{ company.address_1 ?: config('whitelabels.address_line1') }},
-                {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line3') }},
-                {{ company.address_country ?: config('whitelabels.address_line3') }},
-                {{ company.registration_number ?: config('whitelabels.company_reg') }}</small>
+                    {{ company.address_1 ?: config('whitelabels.address_line1') }},
+                    {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line3') }},
+                    {{ company.address_country ?: config('whitelabels.address_line3') }},
+                    {{ company.registration_number ?: config('whitelabels.company_reg') }}</small>
                 <br><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
             </div>
             <div class="col-md-4 footer-menu-links">
@@ -407,7 +404,7 @@
 </footer>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
-<script src="/fpt/t-1/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/t-2/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
 
 <script src="fpt/terms.js" nonce="{{ JS_NONCE }}"></script>
 

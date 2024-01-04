@@ -191,3 +191,17 @@ mix.copy('resources/assets/frontpage-templates/ZB/img/', 'public/fpt/ZB/img');
 // BB
 mix.sass('resources/assets/frontpage-templates/BB/sass/styles.scss', 'public/fpt/BB/css');
 mix.copy('resources/assets/frontpage-templates/BB/img/', 'public/fpt/BB/img');
+// ECS
+mix.sass('resources/assets/frontpage-templates/ECS/sass/styles.scss', 'public/fpt/ECS/css');
+mix.copy('resources/assets/frontpage-templates/ECS/img/', 'public/fpt/ECS/img');
+// SAD
+mix.sass('resources/assets/frontpage-templates/SAD/sass/styles.scss', 'public/fpt/SAD/css');
+mix.copy('resources/assets/frontpage-templates/SAD/img/', 'public/fpt/SAD/img');
+// SUS
+mix.sass('resources/assets/frontpage-templates/SUS/styles.scss', 'public/fpt/SUS/css');
+mix.copy('resources/assets/frontpage-templates/SUS/bootstrap.min.css', 'public/fpt/SUS/css');
+mix.copy('resources/assets/frontpage-templates/SUS/js/bootstrap.min.js', 'public/fpt/SUS/js');
+mix.copy('resources/assets/frontpage-templates/SUS/img/', 'public/fpt/SUS/img');
+// SAT
+mix.sass('resources/assets/frontpage-templates/SAT/sass/styles.scss', 'public/fpt/SAT/css');
+mix.copy('resources/assets/frontpage-templates/SAT/img/', 'public/fpt/SAT/img');

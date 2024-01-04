@@ -8,13 +8,15 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="stylesheet" href="fpt/t-1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="fpt/SUS/css/bootstrap.min.css">
     {% if config('whitelabels.styles_path') != '' %}
         <link rel="stylesheet" href="{{ config('whitelabels.styles_path') }}">
     {% else %}
-        <link rel="stylesheet" href="fpt/t-1/css/styles.css">
+        <link rel="stylesheet" href="fpt/SUS/css/styles.css">
     {% endif %}
     <script src="https://kit.fontawesome.com/3c352f712c.js" crossorigin="anonymous" nonce="{{ JS_NONCE }}"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
 
     <link rel="icon" type="image/png" href="{{ config('whitelabels.favicon_path') }}">
     <style>
@@ -45,7 +47,7 @@
             <div class="container">
                 <a class="navbar-brand" href="#">
                     {% if config('whitelabels.logo_url') != "" %}
-                        <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 52px;">
+                        <img src="{{ config('whitelabels.logo_url') }}" style="max-height: 75px;">
                     {% else %}
                         {{ config('app.name') }}
                     {% endif %}
@@ -78,9 +80,9 @@
             <div class="col-md-12">
                 <div class="">
                     <p class="intro">Welcome to {{ config('app.name') }}</p>
-                    <h1><strong>Plan <span class="text-orange">your</span><br> budget with ease</strong></h1>
+                    <h1>Plan your budget with ease</h1>
                     <p class="intro">{{ config('app.name') }} makes it easier for you to get a total overview of your finances</p>
-                    <a href="#features" class="btn btn-orange btn-large">Learn more</a>
+                    <a href="#features" class="btn btn-orange btn-lg mt-3">Learn more</a>
                 </div>
             </div>
         </div>
@@ -124,18 +126,12 @@
 <section class="features section-padding" id="features">
     <div class="container">
         <div class="row">
-            <div class="d-none d-md-block col-md-5 text-right">
-                <img src="/fpt/t-1/img/bm.png">
-            </div>
-            <div class="col-sm-12 col-md-7">
+            <div class="col-sm-12 col-md-5">
                 <div class="feature-list">
                     <h3>Never miss a dime</h3>
                     <p>By keeping track of all your expenses and earnings you will be able to get a much better financial overview and be able to track where your money goes.</p>
-                    <ul class="features-stack">
+                    <ul class="features-stack pl-0">
                         <li class="feature-item">
-                            <div class="feature-icon">
-                                <span data-icon="&#xe03e;" class="icon"></span>
-                            </div>
                             <div class="feature-content">
                                 <h5>Easy to use</h5>
                                 <p>{{ config('app.name') }} is easy to use and makes it easy for anyone to begin organizing their finances.</p>
@@ -161,6 +157,11 @@
                         </li>
                     </ul>
                 </div>
+            </div>
+
+            <div class="d-none d-md-block col-md-7 position-relative">
+
+                <img src="/fpt/SUS/img/background2.jpg" style="width:100%; max-width: 100%;">
             </div>
         </div>
     </div>
@@ -397,17 +398,17 @@
             <div class="col-md-4 footer-menu-links">
                 <h4>Terms & Conditions</h4>
                 <div class="orange-bar"></div>
-                <a class=" terms-link" href="#terms" data-section="terms-terms">Terms & Conditions</a>
-                <a class=" terms-link" href="#terms" data-section="terms-privacy-policy">Privacy Policy</a>
-                <a class=" terms-link" href="#terms" data-section="terms-cookie-policy">Cookie Policy</a>
-                <a class=" terms-link" href="#terms" data-section="terms-refund-cancellation-policy">Refund &amp; Cancellation Policy</a>
+                <a class="" href="#terms terms-link" data-section="terms-terms">Terms & Conditions</a>
+                <a class="" href="#terms terms-link" data-section="terms-privacy-policy">Privacy Policy</a>
+                <a class="" href="#terms terms-link" data-section="terms-cookie-policy">Cookie Policy</a>
+                <a class="" href="#terms terms-link" data-section="terms-refund-cancellation-policy">Refund &amp; Cancellation Policy</a>
             </div>
         </div>
     </div>
 </footer>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js" nonce="{{ JS_NONCE }}"></script>
-<script src="/fpt/t-1/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
+<script src="/fpt/SUS/js/bootstrap.min.js" nonce="{{ JS_NONCE }}"></script>
 
 <script src="fpt/terms.js" nonce="{{ JS_NONCE }}"></script>
 
