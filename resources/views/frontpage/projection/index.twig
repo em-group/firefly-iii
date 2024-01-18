@@ -279,6 +279,9 @@
                     {{ company.address_country ?: config('whitelabels.address_line3') }}<br>
                     {{ company.registration_number ?: config('whitelabels.company_reg') }}
                 </p>
+                <p><a href="mailto:support@{{ config('whitelabels.domain') }}" style="color: white;">support@{{ config('whitelabels.domain') }}</a></p>
+                <p>{{ config('whitelabels.phone') }}<br>
+                    <em><small>Mon-Fri 09:00 - 12:00, 13:30 - 16:00 (Central Europe timezone)</small></em></p>
                 <br><img src="fpt/sedna/img/we-accept.png" style="max-height:20px;">
             </article>
         </div>
