@@ -83,5 +83,13 @@
             <a href="{{ route('password.reset.request') }}">{{ 'forgot_my_password'|_ }}</a>
         {% endif %}
     </div>
+
+    <footer style="position: fixed;bottom: 0;width: 100%;left: 0;text-align: center;">
+        <small>{{ company.display_name ?: config('whitelabels.company') }},
+            {{ company.address_1 ?: config('whitelabels.address_line1') }},
+            {{ company.address_zip ? "#{company.address_zip} #{company.address_city}" : config('whitelabels.address_line3') }},
+            {{ company.address_country ?: config('whitelabels.address_line3') }},
+            {{ company.registration_number ?: config('whitelabels.company_reg') }}</small>
+    </footer>
 {% endblock %}
 
