@@ -241,11 +241,11 @@
                     <hr>
                     {% if (config('whitelabels.extended_notice', 0)) %}
                         <small>
-                            Click below to register for a 14 day trial for {{ trial_price }}.
+                            Click below to register for a 5 day trial for {{ trial_price }}.
                             Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
                             Renewal is {{ config('whitelabels.membership_length', 30) }} days ahead and the price is: {{ subProducts.0.price }}</small>
                     {% else %}
-                        <small>Click below to register for a 14 day trial</small>
+                        <small>Click below to register for a 5 day trial</small>
                     {% endif %}
                     <br>
                     <a href="/signup?spi=0&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
@@ -311,11 +311,11 @@
                     <hr>
                     {% if (config('whitelabels.extended_notice', 0)) %}
                         <small>
-                            Click below to register for a 14 day trial for {{ trial_price }}.
+                            Click below to register for a 5 day trial for {{ trial_price }}.
                             Be advised that your membership will automatically be renewed after 14 days, unless you cancel it.
                             Renewal is {{ config('whitelabels.membership_length', 30) }} days ahead and the price is: {{ subProducts.1.price }}</small>
                     {% else %}
-                        <small>Click below to register for a 14 day trial</small>
+                        <small>Click below to register for a 5 day trial</small>
                     {% endif %}
                     <br>
                     <a href="/signup?spi=1&currency={{ currency }}" class="btn btn-orange d-block mt-2">SIGN UP</a>
